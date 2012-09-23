@@ -102,8 +102,11 @@ class AveragesStore(DataPointStore):
     def get_date_range(self, date):
         raise NotImplementedError
 
+    def get_data_source(self):
+        raise NotImplementedError
+
     def recalculate_averages(self, parameter_id, changed_dates):
-        measurements = Measurements()
+        data_source = self.get_data_source()
         dates = list(set((
             self.force_precision(date) for date in changed_dates
         )))
@@ -112,7 +115,7 @@ class AveragesStore(DataPointStore):
             key = self.get_row_key(parameter_id, date)
             rows.setdefault(key, {})
             date_range = self.get_date_range(date)
-            data_points = measurements.get_data_points(
+            data_points = data_source.get_data_points(
                 parameter_id,
                 start_date=date_range[0],
                 end_date=date_range[1]
@@ -151,6 +154,9 @@ class HourlyAverages(AveragesStore):
             (date + datetime.timedelta(hours=1) - datetime.time.resolution)
         )
 
+    def get_data_source(self):
+        return Measurements()
+
 class DailyAverages(AveragesStore):
 
     _column_family_name = 'DailyAverages'
@@ -183,6 +189,9 @@ class DailyAverages(AveragesStore):
             date,
             (date + datetime.timedelta(days=1) - datetime.time.resolution)
         )
+
+    def get_data_source(self):
+        return HourlyAverages()
 
 class MonthlyAverages(AveragesStore):
 
@@ -220,6 +229,9 @@ class MonthlyAverages(AveragesStore):
             (date + datetime.timedelta(months=1) - datetime.time.resolution)
         )
 
+    def get_data_source(self):
+        return DailyAverages()
+
 class YearlyAverages(AveragesStore):
 
     _column_family_name = 'YearlyAverages'
@@ -245,6 +257,9 @@ class YearlyAverages(AveragesStore):
             date,
             (date + datetime.timedelta(years=1) - datetime.time.resolution)
         )
+
+    def get_data_source(self):
+        return MonthlyAverages()
 
 class MeasurementDays(ColumnFamilyProxy):
 
