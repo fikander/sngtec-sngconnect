@@ -5,17 +5,16 @@ import decimal
 import pycassa
 from pycassa import types as pycassa_types
 
-from sngconnect.cassandra.types.microsecond_timestamp import (
-    MicrosecondTimestampType)
+from sngconnect.cassandra.types import MappingType, MicrosecondTimestampType
 from sngconnect.cassandra.column_family_proxy import ColumnFamilyProxy
 
 __all__ = (
     'Measurements',
     'MeasurementDays',
-    'HourlyAverages',
-    'DailyAverages',
-    'MonthlyAverages',
-    'YearlyAverages',
+    'HourlyAggregates',
+    'DailyAggregates',
+    'MonthlyAggregates',
+    'YearlyAggregates',
 )
 
 class DataPointStore(ColumnFamilyProxy):
@@ -26,14 +25,21 @@ class DataPointStore(ColumnFamilyProxy):
 
     @classmethod
     def create(cls, system_manager, keyspace, **additional_kwargs):
-        additional_kwargs.update({
-            'comparator_type': pycassa_types.IntegerType(),
-            'default_validation_class': pycassa_types.DecimalType(),
-            'key_validation_class': pycassa_types.CompositeType(
+        additional_kwargs.setdefault(
+            'comparator_type',
+            pycassa_types.IntegerType()
+        )
+        additional_kwargs.setdefault(
+            'default_validation_class',
+            pycassa_types.DecimalType()
+        )
+        additional_kwargs.setdefault(
+            'key_validation_class',
+            pycassa_types.CompositeType(
                 pycassa_types.IntegerType(),
                 pycassa_types.DateType()
             ),
-        })
+        )
         super(DataPointStore, cls).create(
             system_manager,
             keyspace,
@@ -72,7 +78,7 @@ class DataPointStore(ColumnFamilyProxy):
             result = self.column_family.multiget(keys, **kwargs)
             return sum((columns.items() for columns in result.values()), [])
 
-    def average(self, parameter_id, start_date=None, end_date=None):
+    def aggregate(self, parameter_id, start_date=None, end_date=None):
         kwargs = {}
         if start_date is not None:
             kwargs['column_start'] = start_date
@@ -91,6 +97,8 @@ class DataPointStore(ColumnFamilyProxy):
         if count == 0:
             return None
         values_sum = decimal.Decimal(0)
+        minimum = None
+        maximum = None
         for key in keys:
             try:
                 values_sum += sum((
@@ -98,9 +106,31 @@ class DataPointStore(ColumnFamilyProxy):
                     for key, value
                     in self.column_family.xget(key, **kwargs)
                 ))
+                local_minimum = min((
+                    value
+                    for key, value
+                    in self.column_family.xget(key, **kwargs)
+                ))
+                if minimum is None:
+                    minimum = local_minimum
+                else:
+                    minimum = min(minimum, local_minimum)
+                local_maximum = max((
+                    value
+                    for key, value
+                    in self.column_family.xget(key, **kwargs)
+                ))
+                if maximum is None:
+                    maximum = local_maximum
+                else:
+                    maximum = max(maximum, local_maximum)
             except pycassa.NotFoundException:
                 pass
-        return (values_sum / count)
+        return {
+            'maximum': maximum,
+            'minimum': minimum,
+            'average': (values_sum / count),
+        }
 
     def get_row_key(self, parameter_id, date):
         return (parameter_id, date)
@@ -134,14 +164,30 @@ class Measurements(DataPointStore):
             )
         return super(Measurements, self).get_row_key(parameter_id, date)
 
-class AveragesStore(DataPointStore):
+class AggregatesStore(DataPointStore):
+
+    def __init__(self):
+        super(AggregatesStore, self).__init__()
+        self.column_family.default_validation_class = MappingType()
+
+    @classmethod
+    def create(cls, system_manager, keyspace, **additional_kwargs):
+        additional_kwargs.setdefault(
+            'default_validation_class',
+            pycassa_types.BytesType()
+        )
+        super(AggregatesStore, cls).create(
+            system_manager,
+            keyspace,
+            **additional_kwargs
+        )
 
     def get_data_points(self, parameter_id, start_date=None, end_date=None):
         if start_date is not None:
             start_date = self.force_precision(start_date)
         if end_date is not None:
             end_date = self.force_precision(end_date)
-        return super(AveragesStore, self).get_data_points(
+        return super(AggregatesStore, self).get_data_points(
             parameter_id,
             start_date,
             end_date
@@ -156,7 +202,7 @@ class AveragesStore(DataPointStore):
     def get_data_source(self):
         return Measurements()
 
-    def recalculate_averages(self, parameter_id, changed_dates):
+    def recalculate_aggregates(self, parameter_id, changed_dates):
         data_source = self.get_data_source()
         dates = list(set((
             self.force_precision(date) for date in changed_dates
@@ -166,18 +212,18 @@ class AveragesStore(DataPointStore):
             key = self.get_row_key(parameter_id, date)
             rows.setdefault(key, {})
             date_range = self.get_date_range(date)
-            average = data_source.average(
+            aggregate = data_source.aggregate(
                 parameter_id,
                 start_date=date_range[0],
                 end_date=date_range[1]
             )
-            if average is not None:
-                rows[key][date] = average
+            if aggregate is not None:
+                rows[key][date] = aggregate
         self.column_family.batch_insert(rows)
 
-class HourlyAverages(AveragesStore):
+class HourlyAggregates(AggregatesStore):
 
-    _column_family_name = 'HourlyAverages'
+    _column_family_name = 'HourlyAggregates'
 
     def get_row_key(self, parameter_id, date):
         if isinstance(date, datetime.date):
@@ -189,7 +235,7 @@ class HourlyAverages(AveragesStore):
                 second=0,
                 microsecond=0
             )
-        return super(HourlyAverages, self).get_row_key(parameter_id, start_date)
+        return super(HourlyAggregates, self).get_row_key(parameter_id, start_date)
 
     def force_precision(self, date):
         return date.replace(
@@ -204,9 +250,9 @@ class HourlyAverages(AveragesStore):
             (date + datetime.timedelta(hours=1) - datetime.time.resolution)
         )
 
-class DailyAverages(AveragesStore):
+class DailyAggregates(AggregatesStore):
 
-    _column_family_name = 'DailyAverages'
+    _column_family_name = 'DailyAggregates'
 
     def get_row_key(self, parameter_id, date):
         if isinstance(date, datetime.date):
@@ -222,7 +268,7 @@ class DailyAverages(AveragesStore):
                 second=0,
                 microsecond=0
             )
-        return super(DailyAverages, self).get_row_key(parameter_id, date)
+        return super(DailyAggregates, self).get_row_key(parameter_id, date)
 
     def force_precision(self, date):
         return date.replace(
@@ -238,9 +284,9 @@ class DailyAverages(AveragesStore):
             (date + datetime.timedelta(days=1) - datetime.time.resolution)
         )
 
-class MonthlyAverages(AveragesStore):
+class MonthlyAggregates(AggregatesStore):
 
-    _column_family_name = 'MonthlyAverages'
+    _column_family_name = 'MonthlyAggregates'
 
     def get_row_key(self, parameter_id, date):
         if isinstance(date, datetime.date):
@@ -260,7 +306,7 @@ class MonthlyAverages(AveragesStore):
                 second=0,
                 microsecond=0
             )
-        return super(MonthlyAverages, self).get_row_key(parameter_id, date)
+        return super(MonthlyAggregates, self).get_row_key(parameter_id, date)
 
     def force_precision(self, date):
         return date.replace(
@@ -278,12 +324,12 @@ class MonthlyAverages(AveragesStore):
         end_date = datetime.datetime.combine(end_day, datetime.time.max)
         return (date, end_date)
 
-class YearlyAverages(AveragesStore):
+class YearlyAggregates(AggregatesStore):
 
-    _column_family_name = 'YearlyAverages'
+    _column_family_name = 'YearlyAggregates'
 
     def get_row_key(self, parameter_id, date):
-        return super(YearlyAverages, self).get_row_key(
+        return super(YearlyAggregates, self).get_row_key(
             parameter_id,
             datetime.datetime.min
         )

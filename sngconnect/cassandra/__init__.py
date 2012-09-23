@@ -24,10 +24,10 @@ def initialize_keyspace(settings):
     # Create column families.
     column_family_proxy_classes = (
         parameters.Measurements,
-        parameters.HourlyAverages,
-        parameters.DailyAverages,
-        parameters.MonthlyAverages,
-        parameters.YearlyAverages,
+        parameters.HourlyAggregates,
+        parameters.DailyAggregates,
+        parameters.MonthlyAggregates,
+        parameters.YearlyAggregates,
         parameters.MeasurementDays,
     )
     for proxy_class in column_family_proxy_classes:

@@ -13,6 +13,16 @@ def _dp(datetime_tuple, decimal_string):
         decimal.Decimal(decimal_string)
     )
 
+def _dpa(datetime_tuple, aggregate_mapping):
+    """Takes care of data point aggregate types."""
+    return (
+        datetime.datetime(*datetime_tuple),
+        {
+            key: decimal.Decimal(value)
+            for key, value in aggregate_mapping.iteritems()
+        }
+    )
+
 class TestMeasurementDays(CassandraTestMixin, unittest.TestCase):
 
     def setUp(self):
@@ -50,12 +60,12 @@ class TestMeasurementDays(CassandraTestMixin, unittest.TestCase):
         ])
         self.assertSequenceEqual(self.measurement_days.get_days(1), [])
 
-class TestHourlyAverages(CassandraTestMixin, unittest.TestCase):
+class TestHourlyAggregates(CassandraTestMixin, unittest.TestCase):
 
     def setUp(self):
-        super(TestHourlyAverages, self).setUp()
+        super(TestHourlyAggregates, self).setUp()
         self.measurements = parameters.Measurements()
-        self.hourly_averages = parameters.HourlyAverages()
+        self.hourly_aggregates = parameters.HourlyAggregates()
 
     def test_basic_operation(self):
         parameter_id = 23555
@@ -66,34 +76,54 @@ class TestHourlyAverages(CassandraTestMixin, unittest.TestCase):
             _dp((2012,  9, 22, 15, 43, 12, 300144), '324255.12'),
         ]
         self.measurements.insert_data_points(parameter_id, data_points)
-        self.hourly_averages.recalculate_averages(parameter_id, [
+        self.hourly_aggregates.recalculate_aggregates(parameter_id, [
             date for date, value in data_points
         ])
-        averages = self.hourly_averages.get_data_points(
+        aggregates = self.hourly_aggregates.get_data_points(
             parameter_id,
             start_date=datetime.datetime(2012, 9, 22)
         )
-        self.assertSequenceEqual(averages, [
-            _dp((2012, 9, 22,  9), '23454.0000018'),
-            _dp((2012, 9, 22, 15), '162129.7317225'),
+        self.assertSequenceEqual(aggregates, [
+            _dpa((2012, 9, 22,  9), {
+                'minimum': '23454.0000018',
+                'maximum': '23454.0000018',
+                'average': '23454.0000018',
+            }),
+            _dpa((2012, 9, 22, 15), {
+                'minimum': '4.343445',
+                'maximum': '324255.12',
+                'average': '162129.7317225',
+            }),
         ])
-        averages = self.hourly_averages.get_data_points(
+        aggregates = self.hourly_aggregates.get_data_points(
             parameter_id,
             start_date=datetime.datetime(1998, 1, 12),
             end_date=datetime.datetime(5000, 12, 8)
         )
-        self.assertSequenceEqual(averages, [
-            _dp((2012, 9, 21, 23), '522.343445'),
-            _dp((2012, 9, 22,  9), '23454.0000018'),
-            _dp((2012, 9, 22, 15), '162129.7317225'),
+        self.assertSequenceEqual(aggregates, [
+            _dpa((2012, 9, 21, 23), {
+                'minimum': '522.343445',
+                'maximum': '522.343445',
+                'average': '522.343445',
+            }),
+            _dpa((2012, 9, 22,  9), {
+                'minimum': '23454.0000018',
+                'maximum': '23454.0000018',
+                'average': '23454.0000018',
+            }),
+            _dpa((2012, 9, 22, 15), {
+                'minimum': '4.343445',
+                'maximum': '324255.12',
+                'average': '162129.7317225',
+            }),
         ])
 
-class TestDailyAverages(CassandraTestMixin, unittest.TestCase):
+class TestDailyAggregates(CassandraTestMixin, unittest.TestCase):
 
     def setUp(self):
-        super(TestDailyAverages, self).setUp()
+        super(TestDailyAggregates, self).setUp()
         self.measurements = parameters.Measurements()
-        self.daily_averages = parameters.DailyAverages()
+        self.daily_aggregates = parameters.DailyAggregates()
 
     def test_basic_operation(self):
         parameter_id = 23555
@@ -105,27 +135,31 @@ class TestDailyAverages(CassandraTestMixin, unittest.TestCase):
         ]
         self.measurements.insert_data_points(parameter_id, data_points)
         changed_dates = [date for date, value in data_points]
-        self.daily_averages.recalculate_averages(parameter_id, changed_dates)
-        averages = self.daily_averages.get_data_points(
+        self.daily_aggregates.recalculate_aggregates(parameter_id, changed_dates)
+        aggregates = self.daily_aggregates.get_data_points(
             parameter_id,
             start_date=datetime.datetime(2012, 9, 22)
         )
-        self.assertSequenceEqual(averages, [
-            _dp((2012, 9, 22), '115904.4878156'),
+        self.assertSequenceEqual(aggregates, [
+            _dpa((2012, 9, 22), {
+                'minimum': '4.343445',
+                'maximum': '324255.12',
+                'average': '115904.4878156',
+            }),
         ])
-        averages = self.daily_averages.get_data_points(
+        aggregates = self.daily_aggregates.get_data_points(
             parameter_id,
             start_date=datetime.datetime(2018, 1, 12),
             end_date=datetime.datetime(5000, 12, 8)
         )
-        self.assertSequenceEqual(averages, [])
+        self.assertSequenceEqual(aggregates, [])
 
-class TestMonthlyAverages(CassandraTestMixin, unittest.TestCase):
+class TestMonthlyAggregates(CassandraTestMixin, unittest.TestCase):
 
     def setUp(self):
-        super(TestMonthlyAverages, self).setUp()
+        super(TestMonthlyAggregates, self).setUp()
         self.measurements = parameters.Measurements()
-        self.monthly_averages = parameters.MonthlyAverages()
+        self.monthly_aggregates = parameters.MonthlyAggregates()
 
     def test_basic_operation(self):
         parameter_id = 23555
@@ -137,27 +171,31 @@ class TestMonthlyAverages(CassandraTestMixin, unittest.TestCase):
         ]
         self.measurements.insert_data_points(parameter_id, data_points)
         changed_dates = [date for date, value in data_points]
-        self.monthly_averages.recalculate_averages(parameter_id, changed_dates)
-        averages = self.monthly_averages.get_data_points(
+        self.monthly_aggregates.recalculate_aggregates(parameter_id, changed_dates)
+        aggregates = self.monthly_aggregates.get_data_points(
             parameter_id,
             start_date=datetime.datetime(2012, 9, 1)
         )
-        self.assertSequenceEqual(averages, [
-            _dp((2012, 9, 1), '87058.95172295'),
+        self.assertSequenceEqual(aggregates, [
+            _dpa((2012, 9, 1), {
+                'minimum': '4.343445',
+                'maximum': '324255.12',
+                'average': '87058.95172295',
+            }),
         ])
-        averages = self.monthly_averages.get_data_points(
+        aggregates = self.monthly_aggregates.get_data_points(
             parameter_id,
             start_date=datetime.datetime(2018, 1, 12),
             end_date=datetime.datetime(5000, 12, 8)
         )
-        self.assertSequenceEqual(averages, [])
+        self.assertSequenceEqual(aggregates, [])
 
-class TestYearlyAverages(CassandraTestMixin, unittest.TestCase):
+class TestYearlyAggregates(CassandraTestMixin, unittest.TestCase):
 
     def setUp(self):
-        super(TestYearlyAverages, self).setUp()
+        super(TestYearlyAggregates, self).setUp()
         self.measurements = parameters.Measurements()
-        self.yearly_averages = parameters.YearlyAverages()
+        self.yearly_aggregates = parameters.YearlyAggregates()
 
     def test_basic_operation(self):
         parameter_id = 23555
@@ -169,21 +207,29 @@ class TestYearlyAverages(CassandraTestMixin, unittest.TestCase):
         ]
         self.measurements.insert_data_points(parameter_id, data_points)
         changed_dates = [date for date, value in data_points]
-        self.yearly_averages.recalculate_averages(parameter_id, changed_dates)
-        averages = self.yearly_averages.get_data_points(
+        self.yearly_aggregates.recalculate_aggregates(parameter_id, changed_dates)
+        aggregates = self.yearly_aggregates.get_data_points(
             parameter_id,
             start_date=datetime.datetime(2012, 1, 1)
         )
-        self.assertSequenceEqual(averages, [
-            _dp((2012, 1, 1), '115904.4878156'),
+        self.assertSequenceEqual(aggregates, [
+            _dpa((2012, 1, 1), {
+                'minimum': '4.343445',
+                'maximum': '324255.12',
+                'average': '115904.4878156',
+            }),
         ])
-        averages = self.yearly_averages.get_data_points(
+        aggregates = self.yearly_aggregates.get_data_points(
             parameter_id,
             start_date=datetime.datetime(2011, 1, 12),
             end_date=datetime.datetime(2011, 12, 8)
         )
-        self.assertSequenceEqual(averages, [
-            _dp((2011, 1, 1), '522.343445'),
+        self.assertSequenceEqual(aggregates, [
+            _dpa((2011, 1, 1), {
+                'minimum': '522.343445',
+                'maximum': '522.343445',
+                'average': '522.343445',
+            }),
         ])
 
 class TestMeasurements(CassandraTestMixin, unittest.TestCase):
