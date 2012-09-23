@@ -11,13 +11,6 @@ class ParameterValues(ColumnFamilyProxy):
 
     _column_family_name = 'ParameterValues'
 
-    @classmethod
-    def row_key(cls, parameter_id, date):
-        return ':'.join((
-            str(parameter_id),
-            date.isoformat()
-        ))
-
     def __init__(self):
         super(ParameterValues, self).__init__()
         self.column_family.column_name_class = MicrosecondTimestampType()
@@ -42,7 +35,7 @@ class ParameterValues(ColumnFamilyProxy):
         rows = {}
         key_index = ParameterValuesKeyIndex()
         for measurement_datetime, value in data_points:
-            key = self.row_key(parameter_id, measurement_datetime.date())
+            key = self._row_key(parameter_id, measurement_datetime.date())
             if not key in rows:
                 rows[key] = {}
             rows[key][measurement_datetime] = value
@@ -59,7 +52,7 @@ class ParameterValues(ColumnFamilyProxy):
             # Data points from single day requested, we don't need to use
             # multiget.
             result = self.column_family.get(
-                self.row_key(parameter_id, start_date.date()),
+                self._row_key(parameter_id, start_date.date()),
                 column_start=start_date,
                 column_finish=end_date,
                 # Setting column count to Cassandra's maximum. We assume that
@@ -76,7 +69,7 @@ class ParameterValues(ColumnFamilyProxy):
                 start_date=start_date,
                 end_date=end_date
             )
-            keys = [self.row_key(parameter_id, date) for date in dates]
+            keys = [self._row_key(parameter_id, date) for date in dates]
             result = self.column_family.multiget(
                 keys,
                 column_start=start_date,
@@ -90,6 +83,13 @@ class ParameterValues(ColumnFamilyProxy):
                 data_points += columns.items()
             return data_points
 
+    @classmethod
+    def _row_key(cls, parameter_id, date):
+        return ':'.join((
+            str(parameter_id),
+            date.isoformat()
+        ))
+
 class ParameterValuesKeyIndex(ColumnFamilyProxy):
 
     _column_family_name = 'ParameterValuesKeyIndex'
@@ -102,7 +102,7 @@ class ParameterValuesKeyIndex(ColumnFamilyProxy):
         )
         additional_kwargs.setdefault(
             'default_validation_class',
-            pycassa_types.AsciiType()
+            pycassa_types.BytesType()
         )
         additional_kwargs.setdefault(
             'key_validation_class',
@@ -126,10 +126,7 @@ class ParameterValuesKeyIndex(ColumnFamilyProxy):
         )
         self.column_family.insert(
             parameter_id,
-            dict(
-                (date, ParameterValues.row_key(parameter_id, date))
-                for date in dates
-            )
+            dict((date, '') for date in dates)
         )
 
     def get_dates(self, parameter_id, start_date=datetime.datetime.min,
