@@ -2,7 +2,7 @@ import unittest
 import datetime
 import decimal
 
-from sngconnect.cassandra.parameters import *
+from sngconnect.cassandra import parameters
 
 from sngconnect.tests.cassandra import CassandraTestMixin
 
@@ -17,7 +17,7 @@ class TestMeasurementDays(CassandraTestMixin, unittest.TestCase):
 
     def setUp(self):
         super(TestMeasurementDays, self).setUp()
-        self.measurement_days = MeasurementDays()
+        self.measurement_days = parameters.MeasurementDays()
 
     def test_basic_operation(self):
         self.assertSequenceEqual(self.measurement_days.get_days(12), [])
@@ -54,8 +54,8 @@ class TestHourlyAverages(CassandraTestMixin, unittest.TestCase):
 
     def setUp(self):
         super(TestHourlyAverages, self).setUp()
-        self.measurements = Measurements()
-        self.hourly_averages = HourlyAverages()
+        self.measurements = parameters.Measurements()
+        self.hourly_averages = parameters.HourlyAverages()
 
     def test_basic_operation(self):
         parameter_id = 23555
@@ -92,8 +92,8 @@ class TestDailyAverages(CassandraTestMixin, unittest.TestCase):
 
     def setUp(self):
         super(TestDailyAverages, self).setUp()
-        self.measurements = Measurements()
-        self.daily_averages = DailyAverages()
+        self.measurements = parameters.Measurements()
+        self.daily_averages = parameters.DailyAverages()
 
     def test_basic_operation(self):
         parameter_id = 23555
@@ -124,8 +124,8 @@ class TestMonthlyAverages(CassandraTestMixin, unittest.TestCase):
 
     def setUp(self):
         super(TestMonthlyAverages, self).setUp()
-        self.measurements = Measurements()
-        self.monthly_averages = MonthlyAverages()
+        self.measurements = parameters.Measurements()
+        self.monthly_averages = parameters.MonthlyAverages()
 
     def test_basic_operation(self):
         parameter_id = 23555
@@ -156,8 +156,8 @@ class TestYearlyAverages(CassandraTestMixin, unittest.TestCase):
 
     def setUp(self):
         super(TestYearlyAverages, self).setUp()
-        self.measurements = Measurements()
-        self.yearly_averages = YearlyAverages()
+        self.measurements = parameters.Measurements()
+        self.yearly_averages = parameters.YearlyAverages()
 
     def test_basic_operation(self):
         parameter_id = 23555
@@ -190,7 +190,7 @@ class TestMeasurements(CassandraTestMixin, unittest.TestCase):
 
     def setUp(self):
         super(TestMeasurements, self).setUp()
-        self.measurements = Measurements()
+        self.measurements = parameters.Measurements()
 
     def test_basic_operation(self):
         parameter_id = 1253353566
