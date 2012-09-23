@@ -36,8 +36,7 @@ class ParameterValues(ColumnFamilyProxy):
         key_index = ParameterValuesKeyIndex()
         for measurement_datetime, value in data_points:
             key = self._row_key(parameter_id, measurement_datetime.date())
-            if not key in rows:
-                rows[key] = {}
+            rows.setdefault(key, {})
             rows[key][measurement_datetime] = value
         self.column_family.batch_insert(rows)
         key_index.add_dates(
