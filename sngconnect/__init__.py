@@ -3,14 +3,14 @@ from pyramid.config import Configurator
 
 from sngconnect.database import DBSession
 from sngconnect.routes import ROUTES
-from sngconnect import cassandra
+from sngconnect.cassandra import connection_pool as cassandra_connection_pool
 
 def main(global_config, **settings):
     # Configure the database connection.
     database_engine = sqlalchemy.engine_from_config(settings, 'database.')
     DBSession.configure(bind=database_engine)
     # Configure Cassandra connection.
-    cassandra.initialize_connection_pool(settings)
+    cassandra_connection_pool.initialize_connection_pool(settings)
     # Create application configurator.
     config = Configurator(settings=settings)
     # Include add-ons.
