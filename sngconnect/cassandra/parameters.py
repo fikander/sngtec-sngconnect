@@ -48,7 +48,7 @@ class DataPointStore(ColumnFamilyProxy):
             end_day = None
         if start_day is not None and start_day == end_day:
             return self.column_family.get(
-                self._row_key(parameter_id, start_date),
+                self.get_row_key(parameter_id, start_date),
                 **kwargs
             ).items()
         else:
@@ -58,21 +58,11 @@ class DataPointStore(ColumnFamilyProxy):
                 start_date=start_date,
                 end_date=end_date
             )
-            keys = [self._row_key(parameter_id, date) for date in dates]
+            keys = [self.get_row_key(parameter_id, date) for date in dates]
             result = self.column_family.multiget(keys, **kwargs)
             return sum((columns.items() for columns in result.values()), [])
 
-    @classmethod
-    def _row_key(cls, parameter_id, date):
-        if isinstance(date, datetime.date):
-            date = datetime.datetime.combine(date, datetime.time.min)
-        elif isinstance(date, datetime.datetime):
-            date = date.replace(
-                hour=0,
-                minute=0,
-                second=0,
-                microsecond=0
-            )
+    def get_row_key(self, parameter_id, date):
         return (parameter_id, date)
 
 class Measurements(DataPointStore):
@@ -83,7 +73,7 @@ class Measurements(DataPointStore):
         rows = {}
         measurement_days = MeasurementDays()
         for measurement_datetime, value in data_points:
-            key = self._row_key(parameter_id, measurement_datetime)
+            key = self.get_row_key(parameter_id, measurement_datetime)
             rows.setdefault(key, {})
             rows[key][measurement_datetime] = value
         self.column_family.batch_insert(rows)
@@ -92,37 +82,107 @@ class Measurements(DataPointStore):
             (date for date, value in data_points)
         )
 
-class HourlyAverages(DataPointStore):
-
-    _column_family_name = 'HourlyAverages'
-
-    def recalculate_averages(self, parameter_id, changed_dates):
-        measurements = Measurements()
-        hours = list(set((
-            date.replace(
+    def get_row_key(self, parameter_id, date):
+        if isinstance(date, datetime.date):
+            date = datetime.datetime.combine(date, datetime.time.min)
+        else:
+            date = date.replace(
+                hour=0,
                 minute=0,
                 second=0,
                 microsecond=0
             )
-            for date in changed_dates
+        return super(Measurements, self).get_row_key(parameter_id, date)
+
+class AveragesStore(DataPointStore):
+
+    def force_precision(self, date):
+        raise NotImplementedError
+
+    def get_date_range(self, date):
+        raise NotImplementedError
+
+    def recalculate_averages(self, parameter_id, changed_dates):
+        measurements = Measurements()
+        dates = list(set((
+            self.force_precision(date) for date in changed_dates
         )))
         rows = {}
-        for hour in hours:
-            key = self._row_key(parameter_id, hour.date())
+        for date in dates:
+            key = self.get_row_key(parameter_id, date)
             rows.setdefault(key, {})
+            date_range = self.get_date_range(date)
             data_points = measurements.get_data_points(
                 parameter_id,
-                start_date=hour,
-                end_date=(
-                    hour
-                    + datetime.timedelta(hours=1)
-                    - datetime.time.resolution
-                )
+                start_date=date_range[0],
+                end_date=date_range[1]
             )
             values = (value for date, value in data_points)
             average = sum(values, decimal.Decimal(0)) / len(data_points)
-            rows[key][hour] = average
+            rows[key][date] = average
         self.column_family.batch_insert(rows)
+
+class HourlyAverages(AveragesStore):
+
+    _column_family_name = 'HourlyAverages'
+
+    def get_row_key(self, parameter_id, date):
+        if isinstance(date, datetime.date):
+            date = datetime.datetime.combine(date, datetime.time.min)
+        else:
+            date = date.replace(
+                hour=0,
+                minute=0,
+                second=0,
+                microsecond=0
+            )
+        return super(HourlyAverages, self).get_row_key(parameter_id, date)
+
+    def force_precision(self, date):
+        return date.replace(
+            minute=0,
+            second=0,
+            microsecond=0
+        )
+
+    def get_date_range(self, date):
+        return (
+            date,
+            (date + datetime.timedelta(hours=1) - datetime.time.resolution)
+        )
+
+class DailyAverages(AveragesStore):
+
+    _column_family_name = 'DailyAverages'
+
+    def get_row_key(self, parameter_id, date):
+        if isinstance(date, datetime.date):
+            date = date.replace(
+                day=1
+            )
+        else:
+            date = date.replace(
+                day=1,
+                hour=0,
+                minute=0,
+                second=0,
+                microsecond=0
+            )
+        return super(HourlyAverages, self).get_row_key(parameter_id, date)
+
+    def force_precision(self, date):
+        return date.replace(
+            hour=0,
+            minute=0,
+            second=0,
+            microsecond=0
+        )
+
+    def get_date_range(self, date):
+        return (
+            date,
+            (date + datetime.timedelta(days=1) - datetime.time.resolution)
+        )
 
 class MeasurementDays(ColumnFamilyProxy):
 
