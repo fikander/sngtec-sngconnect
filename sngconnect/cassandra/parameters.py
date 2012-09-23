@@ -1,4 +1,5 @@
 import datetime
+import calendar
 import decimal
 
 import pycassa
@@ -7,6 +8,15 @@ from pycassa import types as pycassa_types
 from sngconnect.cassandra.types.microsecond_timestamp import (
     MicrosecondTimestampType)
 from sngconnect.cassandra.column_family_proxy import ColumnFamilyProxy
+
+__all__ = (
+    'Measurements',
+    'MeasurementDays',
+    'HourlyAverages',
+    'DailyAverages',
+    'MonthlyAverages',
+    'YearlyAverages',
+)
 
 class DataPointStore(ColumnFamilyProxy):
 
@@ -62,6 +72,36 @@ class DataPointStore(ColumnFamilyProxy):
             result = self.column_family.multiget(keys, **kwargs)
             return sum((columns.items() for columns in result.values()), [])
 
+    def average(self, parameter_id, start_date=None, end_date=None):
+        kwargs = {}
+        if start_date is not None:
+            kwargs['column_start'] = start_date
+        if end_date is not None:
+            kwargs['column_finish'] = end_date
+        measurement_days = MeasurementDays()
+        dates = measurement_days.get_days(
+            parameter_id,
+            start_date=start_date,
+            end_date=end_date
+        )
+        keys = [self.get_row_key(parameter_id, date) for date in dates]
+        count = sum(
+            self.column_family.multiget_count(keys, **kwargs).viewvalues()
+        )
+        if count == 0:
+            return None
+        values_sum = decimal.Decimal(0)
+        for key in keys:
+            try:
+                values_sum += sum((
+                    value
+                    for key, value
+                    in self.column_family.xget(key, **kwargs)
+                ))
+            except pycassa.NotFoundException:
+                pass
+        return (values_sum / count)
+
     def get_row_key(self, parameter_id, date):
         return (parameter_id, date)
 
@@ -96,6 +136,17 @@ class Measurements(DataPointStore):
 
 class AveragesStore(DataPointStore):
 
+    def get_data_points(self, parameter_id, start_date=None, end_date=None):
+        if start_date is not None:
+            start_date = self.force_precision(start_date)
+        if end_date is not None:
+            end_date = self.force_precision(end_date)
+        return super(AveragesStore, self).get_data_points(
+            parameter_id,
+            start_date,
+            end_date
+        )
+
     def force_precision(self, date):
         raise NotImplementedError
 
@@ -103,7 +154,7 @@ class AveragesStore(DataPointStore):
         raise NotImplementedError
 
     def get_data_source(self):
-        raise NotImplementedError
+        return Measurements()
 
     def recalculate_averages(self, parameter_id, changed_dates):
         data_source = self.get_data_source()
@@ -115,14 +166,13 @@ class AveragesStore(DataPointStore):
             key = self.get_row_key(parameter_id, date)
             rows.setdefault(key, {})
             date_range = self.get_date_range(date)
-            data_points = data_source.get_data_points(
+            average = data_source.average(
                 parameter_id,
                 start_date=date_range[0],
                 end_date=date_range[1]
             )
-            values = (value for date, value in data_points)
-            average = sum(values, decimal.Decimal(0)) / len(data_points)
-            rows[key][date] = average
+            if average is not None:
+                rows[key][date] = average
         self.column_family.batch_insert(rows)
 
 class HourlyAverages(AveragesStore):
@@ -131,15 +181,15 @@ class HourlyAverages(AveragesStore):
 
     def get_row_key(self, parameter_id, date):
         if isinstance(date, datetime.date):
-            date = datetime.datetime.combine(date, datetime.time.min)
+            start_date = datetime.datetime.combine(date, datetime.time.min)
         else:
-            date = date.replace(
+            start_date = date.replace(
                 hour=0,
                 minute=0,
                 second=0,
                 microsecond=0
             )
-        return super(HourlyAverages, self).get_row_key(parameter_id, date)
+        return super(HourlyAverages, self).get_row_key(parameter_id, start_date)
 
     def force_precision(self, date):
         return date.replace(
@@ -154,17 +204,15 @@ class HourlyAverages(AveragesStore):
             (date + datetime.timedelta(hours=1) - datetime.time.resolution)
         )
 
-    def get_data_source(self):
-        return Measurements()
-
 class DailyAverages(AveragesStore):
 
     _column_family_name = 'DailyAverages'
 
     def get_row_key(self, parameter_id, date):
         if isinstance(date, datetime.date):
-            date = date.replace(
-                day=1
+            date = datetime.datetime.combine(
+                date.replace(day=1),
+                datetime.time.min
             )
         else:
             date = date.replace(
@@ -174,7 +222,7 @@ class DailyAverages(AveragesStore):
                 second=0,
                 microsecond=0
             )
-        return super(HourlyAverages, self).get_row_key(parameter_id, date)
+        return super(DailyAverages, self).get_row_key(parameter_id, date)
 
     def force_precision(self, date):
         return date.replace(
@@ -190,18 +238,18 @@ class DailyAverages(AveragesStore):
             (date + datetime.timedelta(days=1) - datetime.time.resolution)
         )
 
-    def get_data_source(self):
-        return HourlyAverages()
-
 class MonthlyAverages(AveragesStore):
 
     _column_family_name = 'MonthlyAverages'
 
     def get_row_key(self, parameter_id, date):
         if isinstance(date, datetime.date):
-            date = date.replace(
-                month=1,
-                day=1
+            date = datetime.datetime.combine(
+                date.replace(
+                    month=1,
+                    day=1
+                ),
+                datetime.time.min
             )
         else:
             date = date.replace(
@@ -224,20 +272,18 @@ class MonthlyAverages(AveragesStore):
         )
 
     def get_date_range(self, date):
-        return (
-            date,
-            (date + datetime.timedelta(months=1) - datetime.time.resolution)
-        )
-
-    def get_data_source(self):
-        return DailyAverages()
+        end_day = date.replace(
+            day=calendar.monthrange(date.year, date.month)[1]
+        ).date()
+        end_date = datetime.datetime.combine(end_day, datetime.time.max)
+        return (date, end_date)
 
 class YearlyAverages(AveragesStore):
 
     _column_family_name = 'YearlyAverages'
 
     def get_row_key(self, parameter_id, date):
-        return super(MonthlyAverages, self).get_row_key(
+        return super(YearlyAverages, self).get_row_key(
             parameter_id,
             datetime.datetime.min
         )
@@ -253,13 +299,12 @@ class YearlyAverages(AveragesStore):
         )
 
     def get_date_range(self, date):
-        return (
-            date,
-            (date + datetime.timedelta(years=1) - datetime.time.resolution)
-        )
-
-    def get_data_source(self):
-        return MonthlyAverages()
+        end_day = date.replace(
+            month=12,
+            day=calendar.monthrange(date.year, 12)[1]
+        ).date()
+        end_date = datetime.datetime.combine(end_day, datetime.time.max)
+        return (date, end_date)
 
 class MeasurementDays(ColumnFamilyProxy):
 
@@ -289,9 +334,15 @@ class MeasurementDays(ColumnFamilyProxy):
     def get_days(self, parameter_id, start_date=None, end_date=None):
         kwargs = {}
         if start_date is not None:
-            kwargs['column_start'] = start_date
+            kwargs['column_start'] = datetime.datetime.combine(
+                start_date.date(),
+                datetime.time.min
+            )
         if end_date is not None:
-            kwargs['column_finish'] = end_date
+            kwargs['column_finish'] = datetime.datetime.combine(
+                end_date,
+                datetime.time.max
+            )
         try:
             dates = self.column_family.get(parameter_id, **kwargs).keys()
             return [date.date() for date in dates]
