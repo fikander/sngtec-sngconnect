@@ -1,35 +1,11 @@
 import unittest
 import datetime
 import decimal
-import logging
 
-from pyramid import testing
-
-from sngconnect import cassandra
-from sngconnect.cassandra import connection_pool
 from sngconnect.cassandra.parameter_values import (ParameterValuesKeyIndex,
     ParameterValues)
 
-class CassandraTestMixin(object):
-
-    def setUp(self):
-        logging.basicConfig(
-            format='%(levelname)s: %(message)s',
-            level=logging.WARNING
-        )
-        self.config = testing.setUp()
-        self.testing_cassandra_configuration = {
-            'cassandra.servers': 'localhost:9160',
-            'cassandra.keyspace': '__sngconnect_testing'
-        }
-        cassandra.initialize_keyspace(self.testing_cassandra_configuration)
-        connection_pool.initialize_connection_pool(
-            self.testing_cassandra_configuration
-        )
-
-    def tearDown(self):
-        testing.tearDown()
-        cassandra.drop_keyspace(self.testing_cassandra_configuration)
+from sngconnect.tests.cassandra import CassandraTestMixin
 
 class TestParameterValuesKeyIndex(CassandraTestMixin, unittest.TestCase):
 
