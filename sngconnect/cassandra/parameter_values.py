@@ -119,15 +119,12 @@ class ParameterValuesKeyIndex(ColumnFamilyProxy):
         self.column_family.column_name_class = MicrosecondTimestampType()
 
     def add_dates(self, parameter_id, dates):
-        dates = (
-            datetime.datetime.combine(date, datetime.time.min)
+        values = dict((
+            (datetime.datetime.combine(date, datetime.time.min), '')
             for date
             in set((date.date() for date in dates))
-        )
-        self.column_family.insert(
-            parameter_id,
-            dict((date, '') for date in dates)
-        )
+        ))
+        self.column_family.insert(parameter_id, values)
 
     def get_dates(self, parameter_id, start_date=None, end_date=None):
         if start_date is None:
