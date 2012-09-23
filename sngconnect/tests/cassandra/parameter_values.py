@@ -69,7 +69,7 @@ class TestHourlyAverages(CassandraTestMixin, unittest.TestCase):
         self.hourly_averages.recalculate_averages(parameter_id, [
             date for date, value in data_points
         ])
-        averages = self.hourly_averages.get_averages(
+        averages = self.hourly_averages.get_data_points(
             parameter_id,
             start_date=datetime.datetime(2012, 9, 22)
         )
