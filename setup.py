@@ -9,10 +9,12 @@ CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 requires = [
     'pyramid',
     'SQLAlchemy',
+    'Jinja2',
     'transaction',
     'py-bcrypt',
     'pycassa',
     'pyramid_tm',
+    'pyramid_jinja2',
     'pyramid_debugtoolbar',
     'zope.sqlalchemy',
     'waitress',
@@ -42,6 +44,8 @@ setup(
     [paste.app_factory]
     main = sngconnect:main
     [console_scripts]
+    sng_initailize_database = sngconnect.scripts.initialize_database:main
     sng_initailize_cassandra = sngconnect.scripts.initialize_cassandra:main
+    sng_generate_random_data = sngconnect.scripts.generate_random_data:main
     """,
 )

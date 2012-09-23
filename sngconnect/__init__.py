@@ -15,6 +15,7 @@ def main(global_config, **settings):
     config = Configurator(settings=settings)
     # Include add-ons.
     config.include('pyramid_tm')
+    config.include('pyramid_jinja2')
     # Configure routes.
     for name, pattern in ROUTES:
         config.add_route(name, pattern)

@@ -1,0 +1,14 @@
+{% extends "sngconnect:templates/base.jinja2" %}
+
+{% block body_content %}
+    <h1>Systems</h1>
+    <ul>
+        {% for system in systems %}
+            <li>
+                <a href="{{ request.route_url("dev.system", system_id=system.id) }}">
+                    {{ system.name }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

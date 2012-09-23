@@ -101,7 +101,7 @@ class Parameter(ModelBase):
 
     system = orm.relationship(
         System,
-        backref=orm.backref('parameters', order_by='name')
+        backref=orm.backref('parameters')
     )
 
     def __repr__(self):

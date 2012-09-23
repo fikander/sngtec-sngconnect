@@ -1,0 +1,47 @@
+{% extends "sngconnect:templates/base.jinja2" %}
+
+{% block body_content %}
+    <h1>{{ parameter.system.name }} / {{ parameter.name }}</h1>
+    <h2>Last week</h2>
+    <div id="graphdiv" style="width: 80%;"></div>
+    <script type="text/javascript">
+      g = new Dygraph(
+
+        // containing div
+        document.getElementById("graphdiv"),
+
+        // CSV or path to a CSV file.
+        "Date,{{ parameter.measurement_unit }}\n" +
+        {% for date, value in last_week %}
+        "{{ date.isoformat() }},{{ value.average }},{{ value.minimum }}\n"
+            {% if not loop.last %}+{% endif %}
+        {% endfor %},
+
+        {
+            errorBars: true
+        }
+
+      );
+    </script>
+    <h2>Last month</h2>
+    <div id="graphdiv2" style="width: 80%;"></div>
+    <script type="text/javascript">
+      g2 = new Dygraph(
+
+        // containing div
+        document.getElementById("graphdiv2"),
+
+        // CSV or path to a CSV file.
+        "Date,{{ parameter.measurement_unit }}\n" +
+        {% for date, value in last_month %}
+        "{{ date.isoformat() }},{{ value.average }},{{ value.minimum }}\n"
+            {% if not loop.last %}+{% endif %}
+        {% endfor %},
+
+        {
+            errorBars: true
+        }
+
+      );
+    </script>
+{% endblock %}
