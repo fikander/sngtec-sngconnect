@@ -44,9 +44,14 @@ class ParameterValues(ColumnFamilyProxy):
             (date for date, value in data_points)
         )
 
-    def get_data_points(self, parameter_id,
-            start_date=datetime.datetime.min,
-            end_date=datetime.datetime.max):
+    def get_data_points(self, parameter_id, start_date=None, end_date=None):
+        if start_date is None:
+            start_date = datetime.datetime.min
+        if end_date is None:
+            end_date = datetime.datetime.max
+        # Setting column count to Cassandra's maximum. We assume that
+        # clients of this API know what they're doing.
+        column_count = 2000000000
         if start_date.date() == end_date.date():
             # Data points from single day requested, we don't need to use
             # multiget.
@@ -54,9 +59,7 @@ class ParameterValues(ColumnFamilyProxy):
                 self._row_key(parameter_id, start_date.date()),
                 column_start=start_date,
                 column_finish=end_date,
-                # Setting column count to Cassandra's maximum. We assume that
-                # clients of this API know what they're doing.
-                column_count=2000000000
+                column_count=column_count
             )
             return result.items()
         else:
@@ -73,9 +76,7 @@ class ParameterValues(ColumnFamilyProxy):
                 keys,
                 column_start=start_date,
                 column_finish=end_date,
-                # Setting column count to Cassandra's maximum. We assume that
-                # clients of this API know what they're doing.
-                column_count=2000000000
+                column_count=column_count
             )
             data_points = []
             for key, columns in result.iteritems():
@@ -128,17 +129,17 @@ class ParameterValuesKeyIndex(ColumnFamilyProxy):
             dict((date, '') for date in dates)
         )
 
-    def get_dates(self, parameter_id, start_date=datetime.datetime.min,
-            end_date=datetime.datetime.max):
+    def get_dates(self, parameter_id, start_date=None, end_date=None):
+        if start_date is None:
+            start_date = datetime.datetime.min
+        if end_date is None:
+            end_date = datetime.datetime.max
         try:
-            return [
-                date.date()
-                for date
-                in self.column_family.get(
-                    parameter_id,
-                    column_start=start_date,
-                    column_finish=end_date
-                ).keys()
-            ]
+            dates = self.column_family.get(
+                parameter_id,
+                column_start=start_date,
+                column_finish=end_date
+            ).keys()
+            return [date.date() for date in dates]
         except pycassa.NotFoundException:
             return []
