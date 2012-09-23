@@ -8,6 +8,7 @@ from sngconnect.cassandra.parameters import (Measurements, MeasurementDays,
 from sngconnect.tests.cassandra import CassandraTestMixin
 
 def _dp(datetime_tuple, decimal_string):
+    """Takes care of data point types."""
     return (
         datetime.datetime(*datetime_tuple),
         decimal.Decimal(decimal_string)
