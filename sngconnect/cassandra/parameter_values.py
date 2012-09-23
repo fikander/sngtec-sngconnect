@@ -29,7 +29,7 @@ class ParameterValues(ColumnFamilyProxy):
             'key_validation_class',
             pycassa_types.CompositeType(
                 pycassa_types.IntegerType(),
-                pycassa_types.AsciiType()
+                pycassa_types.DateType()
             )
         )
         super(ParameterValues, cls).create(
@@ -92,7 +92,9 @@ class ParameterValues(ColumnFamilyProxy):
 
     @classmethod
     def _row_key(cls, parameter_id, date):
-        return (parameter_id, date.isoformat())
+        if isinstance(date, datetime.date):
+            date = datetime.datetime.combine(date, datetime.time.min)
+        return (parameter_id, date)
 
 class ParameterValuesKeyIndex(ColumnFamilyProxy):
 
