@@ -184,6 +184,68 @@ class DailyAverages(AveragesStore):
             (date + datetime.timedelta(days=1) - datetime.time.resolution)
         )
 
+class MonthlyAverages(AveragesStore):
+
+    _column_family_name = 'MonthlyAverages'
+
+    def get_row_key(self, parameter_id, date):
+        if isinstance(date, datetime.date):
+            date = date.replace(
+                month=1,
+                day=1
+            )
+        else:
+            date = date.replace(
+                month=1,
+                day=1,
+                hour=0,
+                minute=0,
+                second=0,
+                microsecond=0
+            )
+        return super(MonthlyAverages, self).get_row_key(parameter_id, date)
+
+    def force_precision(self, date):
+        return date.replace(
+            day=1,
+            hour=0,
+            minute=0,
+            second=0,
+            microsecond=0
+        )
+
+    def get_date_range(self, date):
+        return (
+            date,
+            (date + datetime.timedelta(months=1) - datetime.time.resolution)
+        )
+
+class YearlyAverages(AveragesStore):
+
+    _column_family_name = 'YearlyAverages'
+
+    def get_row_key(self, parameter_id, date):
+        return super(MonthlyAverages, self).get_row_key(
+            parameter_id,
+            datetime.datetime.min
+        )
+
+    def force_precision(self, date):
+        return date.replace(
+            month=1,
+            day=1,
+            hour=0,
+            minute=0,
+            second=0,
+            microsecond=0
+        )
+
+    def get_date_range(self, date):
+        return (
+            date,
+            (date + datetime.timedelta(years=1) - datetime.time.resolution)
+        )
+
 class MeasurementDays(ColumnFamilyProxy):
 
     _column_family_name = 'MeasurementDays'
