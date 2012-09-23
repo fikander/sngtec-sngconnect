@@ -62,15 +62,11 @@ class ParameterValues(ColumnFamilyProxy):
         else:
             end_day = None
         if start_day is not None and start_day == end_day:
-            # Data points from single day requested, we don't need to use
-            # multiget.
             return self.column_family.get(
                 self._row_key(parameter_id, start_date),
                 **kwargs
             ).items()
         else:
-            # Data points from possibly many days request, we have to use
-            # multiget.
             measurement_days = MeasurementDays()
             dates = measurement_days.get_days(
                 parameter_id,
@@ -78,14 +74,8 @@ class ParameterValues(ColumnFamilyProxy):
                 end_date=end_date
             )
             keys = [self._row_key(parameter_id, date) for date in dates]
-            result = self.column_family.multiget(
-                keys,
-                **kwargs
-            )
-            data_points = []
-            for key, columns in result.iteritems():
-                data_points += columns.items()
-            return data_points
+            result = self.column_family.multiget(keys, **kwargs)
+            return sum((columns.items() for columns in result.values()), [])
 
     @classmethod
     def _row_key(cls, parameter_id, date):
@@ -148,13 +138,38 @@ class HourlyAverages(ColumnFamilyProxy):
             rows[key][hour] = average
         self.column_family.batch_insert(rows)
 
-    def get_averages(self, parameter_id, day):
-        try:
-            return self.column_family.get(
-                self._row_key(parameter_id, day)
-            ).items()
-        except pycassa.NotFoundException:
-            return []
+    def get_averages(self, parameter_id, start_date=None, end_date=None):
+        kwargs = {
+            'column_count': 24,
+        }
+        if start_date is not None:
+            kwargs['column_start'] = start_date
+            start_day = start_date.date()
+        else:
+            start_day = None
+        if end_date is not None:
+            kwargs['column_finish'] = end_date
+            end_day = end_date.date()
+        else:
+            end_day = None
+        if start_day is not None and start_day == end_day:
+            try:
+                return self.column_family.get(
+                    self._row_key(parameter_id, start_day),
+                    **kwargs
+                ).items()
+            except pycassa.NotFoundException:
+                return []
+        else:
+            measurement_days = MeasurementDays()
+            days = measurement_days.get_days(
+                parameter_id,
+                start_date=start_date,
+                end_date=end_date
+            )
+            keys = [self._row_key(parameter_id, day) for day in days]
+            result = self.column_family.multiget(keys, **kwargs)
+            return sum((columns.items() for columns in result.values()), [])
 
     @classmethod
     def _row_key(cls, parameter_id, date):

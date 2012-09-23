@@ -71,7 +71,7 @@ class TestHourlyAverages(CassandraTestMixin, unittest.TestCase):
         ])
         averages = self.hourly_averages.get_averages(
             parameter_id,
-            datetime.date(2012, 9, 22)
+            start_date=datetime.datetime(2012, 9, 22)
         )
         self.assertSequenceEqual(averages, [
             _dp((2012, 9, 22,  9), '23454.0000018'),
