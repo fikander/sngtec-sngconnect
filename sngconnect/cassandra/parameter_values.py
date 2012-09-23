@@ -33,13 +33,13 @@ class ParameterValues(ColumnFamilyProxy):
 
     def insert_data_points(self, parameter_id, data_points):
         rows = {}
-        key_index = ParameterValuesKeyIndex()
+        measurement_days = MeasurementDays()
         for measurement_datetime, value in data_points:
             key = self._row_key(parameter_id, measurement_datetime)
             rows.setdefault(key, {})
             rows[key][measurement_datetime] = value
         self.column_family.batch_insert(rows)
-        key_index.add_dates(
+        measurement_days.add_days(
             parameter_id,
             (date for date, value in data_points)
         )
@@ -70,8 +70,8 @@ class ParameterValues(ColumnFamilyProxy):
         else:
             # Data points from possibly many days request, we have to use
             # multiget.
-            key_index = ParameterValuesKeyIndex()
-            dates = key_index.get_dates(
+            measurement_days = MeasurementDays()
+            dates = measurement_days.get_days(
                 parameter_id,
                 start_date=start_date,
                 end_date=end_date
@@ -119,9 +119,9 @@ class HourlyAverages(ColumnFamilyProxy):
             **additional_kwargs
         )
 
-class ParameterValuesKeyIndex(ColumnFamilyProxy):
+class MeasurementDays(ColumnFamilyProxy):
 
-    _column_family_name = 'ParameterValuesKeyIndex'
+    _column_family_name = 'MeasurementDays'
 
     @classmethod
     def create(cls, system_manager, keyspace, **additional_kwargs):
@@ -130,21 +130,21 @@ class ParameterValuesKeyIndex(ColumnFamilyProxy):
             'default_validation_class': pycassa_types.BytesType(),
             'key_validation_class': pycassa_types.IntegerType(),
         })
-        super(ParameterValuesKeyIndex, cls).create(
+        super(MeasurementDays, cls).create(
             system_manager,
             keyspace,
             **additional_kwargs
         )
 
-    def add_dates(self, parameter_id, dates):
+    def add_days(self, parameter_id, dates):
         values = dict((
-            (datetime.datetime.combine(date, datetime.time.min), '')
-            for date
+            (datetime.datetime.combine(day, datetime.time.min), '')
+            for day
             in set((date.date() for date in dates))
         ))
         self.column_family.insert(parameter_id, values)
 
-    def get_dates(self, parameter_id, start_date=None, end_date=None):
+    def get_days(self, parameter_id, start_date=None, end_date=None):
         kwargs = {}
         if start_date is not None:
             kwargs['column_start'] = start_date
@@ -155,5 +155,3 @@ class ParameterValuesKeyIndex(ColumnFamilyProxy):
             return [date.date() for date in dates]
         except pycassa.NotFoundException:
             return []
-        except:
-            print "START: %s\nEND: %s" % (start_date, end_date)

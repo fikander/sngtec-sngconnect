@@ -2,47 +2,47 @@ import unittest
 import datetime
 import decimal
 
-from sngconnect.cassandra.parameter_values import (ParameterValuesKeyIndex,
+from sngconnect.cassandra.parameter_values import (MeasurementDays,
     ParameterValues)
 
 from sngconnect.tests.cassandra import CassandraTestMixin
 
-class TestParameterValuesKeyIndex(CassandraTestMixin, unittest.TestCase):
+class TestMeasurementDays(CassandraTestMixin, unittest.TestCase):
 
     def setUp(self):
-        super(TestParameterValuesKeyIndex, self).setUp()
-        self.key_index = ParameterValuesKeyIndex()
+        super(TestMeasurementDays, self).setUp()
+        self.measurement_days = MeasurementDays()
 
     def test_basic_operation(self):
-        self.assertSequenceEqual(self.key_index.get_dates(12), [])
+        self.assertSequenceEqual(self.measurement_days.get_days(12), [])
         dates = [
             datetime.datetime(2012, 9, 11, 15, 18, 54),
             datetime.datetime(2012, 9, 15, 22,  0, 07),
             datetime.datetime(2012, 9, 18,  9, 12,  0),
             datetime.datetime(2012, 9, 19,  0,  0,  0),
         ]
-        self.key_index.add_dates(12, dates)
-        self.assertSequenceEqual(self.key_index.get_dates(12), [
+        self.measurement_days.add_days(12, dates)
+        self.assertSequenceEqual(self.measurement_days.get_days(12), [
             datetime.date(2012, 9, 11),
             datetime.date(2012, 9, 15),
             datetime.date(2012, 9, 18),
             datetime.date(2012, 9, 19),
         ])
-        self.assertSequenceEqual(self.key_index.get_dates(2452455), [])
-        self.key_index.add_dates(12, [
+        self.assertSequenceEqual(self.measurement_days.get_days(2452455), [])
+        self.measurement_days.add_days(12, [
             datetime.datetime(2012, 9, 15, 22,  0, 07),
             datetime.datetime(2012, 7, 20, 23, 59, 59),
             datetime.datetime(2012, 9, 18,  8,  9, 17),
             datetime.datetime(2012, 7, 20, 23, 59, 59),
         ])
-        self.assertSequenceEqual(self.key_index.get_dates(12), [
+        self.assertSequenceEqual(self.measurement_days.get_days(12), [
             datetime.date(2012, 7, 20),
             datetime.date(2012, 9, 11),
             datetime.date(2012, 9, 15),
             datetime.date(2012, 9, 18),
             datetime.date(2012, 9, 19),
         ])
-        self.assertSequenceEqual(self.key_index.get_dates(1), [])
+        self.assertSequenceEqual(self.measurement_days.get_days(1), [])
 
 class TestParameterValues(CassandraTestMixin, unittest.TestCase):
 

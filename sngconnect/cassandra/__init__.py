@@ -24,7 +24,8 @@ def initialize_keyspace(settings):
     # Create column families.
     column_family_proxy_classes = (
         parameter_values.ParameterValues,
-        parameter_values.ParameterValuesKeyIndex,
+        parameter_values.HourlyAverages,
+        parameter_values.MeasurementDays,
     )
     for proxy_class in column_family_proxy_classes:
         proxy_class.create(manager, arguments['keyspace'])
