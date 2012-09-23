@@ -25,6 +25,13 @@ class ParameterValues(ColumnFamilyProxy):
             'default_validation_class',
             pycassa_types.DecimalType()
         )
+        additional_kwargs.setdefault(
+            'key_validation_class',
+            pycassa_types.CompositeType(
+                pycassa_types.IntegerType(),
+                pycassa_types.AsciiType()
+            )
+        )
         super(ParameterValues, cls).create(
             system_manager,
             keyspace,
@@ -85,10 +92,7 @@ class ParameterValues(ColumnFamilyProxy):
 
     @classmethod
     def _row_key(cls, parameter_id, date):
-        return ':'.join((
-            str(parameter_id),
-            date.isoformat()
-        ))
+        return (parameter_id, date.isoformat())
 
 class ParameterValuesKeyIndex(ColumnFamilyProxy):
 
