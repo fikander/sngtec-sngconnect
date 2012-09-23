@@ -2,8 +2,8 @@ import unittest
 import datetime
 import decimal
 
-from sngconnect.cassandra.parameter_values import (MeasurementDays,
-    HourlyAverages, ParameterValues)
+from sngconnect.cassandra.parameters import (Measurements, MeasurementDays,
+    HourlyAverages)
 
 from sngconnect.tests.cassandra import CassandraTestMixin
 
@@ -54,7 +54,7 @@ class TestHourlyAverages(CassandraTestMixin, unittest.TestCase):
 
     def setUp(self):
         super(TestHourlyAverages, self).setUp()
-        self.parameter_values = ParameterValues()
+        self.measurements = Measurements()
         self.hourly_averages = HourlyAverages()
 
     def test_basic_operation(self):
@@ -65,7 +65,7 @@ class TestHourlyAverages(CassandraTestMixin, unittest.TestCase):
             _dp((2012,  9, 22,  9, 15,  5,   8001), '23454.0000018'),
             _dp((2012,  9, 22, 15, 43, 12, 300144), '324255.12'),
         ]
-        self.parameter_values.insert_data_points(parameter_id, data_points)
+        self.measurements.insert_data_points(parameter_id, data_points)
         self.hourly_averages.recalculate_averages(parameter_id, [
             date for date, value in data_points
         ])
@@ -78,15 +78,15 @@ class TestHourlyAverages(CassandraTestMixin, unittest.TestCase):
             _dp((2012, 9, 22, 15), '162129.7317225'),
         ])
 
-class TestParameterValues(CassandraTestMixin, unittest.TestCase):
+class TestMeasurements(CassandraTestMixin, unittest.TestCase):
 
     def setUp(self):
-        super(TestParameterValues, self).setUp()
-        self.parameter_values = ParameterValues()
+        super(TestMeasurements, self).setUp()
+        self.measurements = Measurements()
 
     def test_basic_operation(self):
         parameter_id = 1253353566
-        stored_data_points = self.parameter_values.get_data_points(
+        stored_data_points = self.measurements.get_data_points(
             parameter_id,
         )
         self.assertSequenceEqual(stored_data_points, [])
@@ -98,14 +98,14 @@ class TestParameterValues(CassandraTestMixin, unittest.TestCase):
             _dp((2012,  9, 22,  9, 15,  5,   8001), '23454.0000000001'),
         ]
         sorted_data_points = sorted(data_points, key=lambda x: x[0])
-        self.parameter_values.insert_data_points(parameter_id, data_points)
-        stored_data_points = self.parameter_values.get_data_points(
+        self.measurements.insert_data_points(parameter_id, data_points)
+        stored_data_points = self.measurements.get_data_points(
             parameter_id,
         )
         self.assertSequenceEqual(stored_data_points, sorted_data_points)
-        self.parameter_values.insert_data_points(parameter_id, data_points)
+        self.measurements.insert_data_points(parameter_id, data_points)
         # And now the idempotency.
-        stored_data_points = self.parameter_values.get_data_points(
+        stored_data_points = self.measurements.get_data_points(
             parameter_id,
         )
         self.assertSequenceEqual(stored_data_points, sorted_data_points)

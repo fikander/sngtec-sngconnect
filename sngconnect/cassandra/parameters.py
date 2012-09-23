@@ -75,9 +75,9 @@ class DataPointStore(ColumnFamilyProxy):
             )
         return (parameter_id, date)
 
-class ParameterValues(DataPointStore):
+class Measurements(DataPointStore):
 
-    _column_family_name = 'ParameterValues'
+    _column_family_name = 'Measurements'
 
     def insert_data_points(self, parameter_id, data_points):
         rows = {}
@@ -97,7 +97,7 @@ class HourlyAverages(DataPointStore):
     _column_family_name = 'HourlyAverages'
 
     def recalculate_averages(self, parameter_id, changed_dates):
-        parameter_values = ParameterValues()
+        measurements = Measurements()
         hours = list(set((
             date.replace(
                 minute=0,
@@ -110,7 +110,7 @@ class HourlyAverages(DataPointStore):
         for hour in hours:
             key = self._row_key(parameter_id, hour.date())
             rows.setdefault(key, {})
-            data_points = parameter_values.get_data_points(
+            data_points = measurements.get_data_points(
                 parameter_id,
                 start_date=hour,
                 end_date=(

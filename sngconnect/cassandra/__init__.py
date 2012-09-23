@@ -2,7 +2,7 @@ import logging
 
 from pycassa.system_manager import SIMPLE_STRATEGY
 
-from sngconnect.cassandra import configuration, parameter_values
+from sngconnect.cassandra import configuration, parameters
 
 logger = logging.getLogger(__name__)
 
@@ -23,9 +23,9 @@ def initialize_keyspace(settings):
         logger.info("Keyspace '%s' already exists." % arguments['keyspace'])
     # Create column families.
     column_family_proxy_classes = (
-        parameter_values.ParameterValues,
-        parameter_values.HourlyAverages,
-        parameter_values.MeasurementDays,
+        parameters.Measurements,
+        parameters.HourlyAverages,
+        parameters.MeasurementDays,
     )
     for proxy_class in column_family_proxy_classes:
         proxy_class.create(manager, arguments['keyspace'])
