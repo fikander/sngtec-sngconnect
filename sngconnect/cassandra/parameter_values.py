@@ -1,4 +1,5 @@
 import datetime
+import decimal
 
 import pycassa
 from pycassa import types as pycassa_types
@@ -118,6 +119,55 @@ class HourlyAverages(ColumnFamilyProxy):
             keyspace,
             **additional_kwargs
         )
+
+    def recalculate_averages(self, parameter_id, changed_dates):
+        parameter_values = ParameterValues()
+        hours = list(set((
+            date.replace(
+                minute=0,
+                second=0,
+                microsecond=0
+            )
+            for date in changed_dates
+        )))
+        rows = {}
+        for hour in hours:
+            key = self._row_key(parameter_id, hour.date())
+            rows.setdefault(key, {})
+            data_points = parameter_values.get_data_points(
+                parameter_id,
+                start_date=hour,
+                end_date=(
+                    hour
+                    + datetime.timedelta(hours=1)
+                    - datetime.time.resolution
+                )
+            )
+            values = (value for date, value in data_points)
+            average = sum(values, decimal.Decimal(0)) / len(data_points)
+            rows[key][hour] = average
+        self.column_family.batch_insert(rows)
+
+    def get_averages(self, parameter_id, day):
+        try:
+            return self.column_family.get(
+                self._row_key(parameter_id, day)
+            ).items()
+        except pycassa.NotFoundException:
+            return []
+
+    @classmethod
+    def _row_key(cls, parameter_id, date):
+        if isinstance(date, datetime.date):
+            date = datetime.datetime.combine(date, datetime.time.min)
+        elif isinstance(date, datetime.datetime):
+            date = date.replace(
+                hour=0,
+                minute=0,
+                second=0,
+                microsecond=0
+            )
+        return (parameter_id, date)
 
 class MeasurementDays(ColumnFamilyProxy):
 
