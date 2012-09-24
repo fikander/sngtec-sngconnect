@@ -13,7 +13,7 @@
         // CSV or path to a CSV file.
         "Date,{{ parameter.measurement_unit }}\n" +
         {% for date, value in last_week %}
-        "{{ date.isoformat() }},{{ value.average }},{{ value.minimum }}\n"
+        "{{ date.isoformat() }},{{ value.mean }},{{ value.minimum }}\n"
             {% if not loop.last %}+{% endif %}
         {% endfor %},
 
@@ -34,7 +34,7 @@
         // CSV or path to a CSV file.
         "Date,{{ parameter.measurement_unit }}\n" +
         {% for date, value in last_month %}
-        "{{ date.isoformat() }},{{ value.average }},{{ value.minimum }}\n"
+        "{{ date.isoformat() }},{{ value.mean }},{{ value.minimum }}\n"
             {% if not loop.last %}+{% endif %}
         {% endfor %},
 

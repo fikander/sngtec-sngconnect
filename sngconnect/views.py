@@ -1,5 +1,6 @@
 import datetime
 
+import numpy
 from pyramid.view import view_config
 
 from sngconnect.database import DBSession, System, Parameter
@@ -42,9 +43,9 @@ def dev_parameter(request):
     last_week = []
     for date, data in last_week_data:
         data['error'] = max(
-            data['average'] - data['minimum'],
-            data['average'] - data['maximum']
-        )
+            numpy.float128(data['mean']) - numpy.float128(data['minimum']),
+            numpy.float128(data['mean']) - numpy.float128(data['maximum'])
+        ) / 4
         last_week.append((date, data))
     last_month_data = DailyAggregates().get_data_points(
         parameter.id,
@@ -53,9 +54,9 @@ def dev_parameter(request):
     last_month = []
     for date, data in last_month_data:
         data['error'] = max(
-            data['average'] - data['minimum'],
-            data['average'] - data['maximum']
-        )
+            numpy.float128(data['mean']) - numpy.float128(data['minimum']),
+            numpy.float128(data['mean']) - numpy.float128(data['maximum'])
+        ) / 4
         last_month.append((date, data))
     return {
         'parameter': parameter,

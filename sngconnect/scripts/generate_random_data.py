@@ -4,8 +4,8 @@ import os
 import datetime
 import random
 import sys
-import decimal
 
+import numpy
 import transaction
 import sqlalchemy
 from pyramid.paster import get_appsettings, setup_logging
@@ -63,7 +63,7 @@ def generate_data(magnitude):
         data_points = []
         start = datetime.datetime.utcnow() - datetime.timedelta(days=30)
         end = datetime.datetime.utcnow()
-        last_value = decimal.Decimal(0)
+        last_value = numpy.float128(0)
         dates = []
         print "Generating..."
         j = 0
@@ -71,7 +71,7 @@ def generate_data(magnitude):
             start += datetime.timedelta(minutes=1)
             dates.append(start)
             last_value = (
-                (decimal.Decimal(random.uniform(-500000, 500000)) + last_value)
+                (5 * numpy.float128(random.uniform(-500000, 500000)) + last_value)
                 / 2
             )
             data_points.append((
