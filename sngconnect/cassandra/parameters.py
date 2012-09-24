@@ -324,34 +324,6 @@ class MonthlyAggregates(AggregatesStore):
         end_date = datetime.datetime.combine(end_day, datetime.time.max)
         return (date, end_date)
 
-class YearlyAggregates(AggregatesStore):
-
-    _column_family_name = 'YearlyAggregates'
-
-    def get_row_key(self, parameter_id, date):
-        return super(YearlyAggregates, self).get_row_key(
-            parameter_id,
-            datetime.datetime.min
-        )
-
-    def force_precision(self, date):
-        return date.replace(
-            month=1,
-            day=1,
-            hour=0,
-            minute=0,
-            second=0,
-            microsecond=0
-        )
-
-    def get_date_range(self, date):
-        end_day = date.replace(
-            month=12,
-            day=calendar.monthrange(date.year, 12)[1]
-        ).date()
-        end_date = datetime.datetime.combine(end_day, datetime.time.max)
-        return (date, end_date)
-
 class MeasurementDays(ColumnFamilyProxy):
 
     _column_family_name = 'MeasurementDays'

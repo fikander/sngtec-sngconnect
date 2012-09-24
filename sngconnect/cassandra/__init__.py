@@ -27,7 +27,6 @@ def initialize_keyspace(settings):
         parameters.HourlyAggregates,
         parameters.DailyAggregates,
         parameters.MonthlyAggregates,
-        parameters.YearlyAggregates,
         parameters.MeasurementDays,
     )
     for proxy_class in column_family_proxy_classes:
