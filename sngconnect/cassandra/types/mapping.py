@@ -1,4 +1,7 @@
-import pickle
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
 
 from pycassa import types, marshal
 

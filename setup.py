@@ -12,6 +12,7 @@ requires = [
     'Jinja2',
     'transaction',
     'py-bcrypt',
+    'numpy',
     'pycassa',
     'pyramid_tm',
     'pyramid_jinja2',

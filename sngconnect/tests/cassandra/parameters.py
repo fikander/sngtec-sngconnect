@@ -1,6 +1,5 @@
 import unittest
 import datetime
-import decimal
 
 from sngconnect.cassandra import parameters
 
@@ -10,17 +9,14 @@ def _dp(datetime_tuple, decimal_string):
     """Takes care of data point types."""
     return (
         datetime.datetime(*datetime_tuple),
-        decimal.Decimal(decimal_string)
+        decimal_string
     )
 
 def _dpa(datetime_tuple, aggregate_mapping):
     """Takes care of data point aggregate types."""
     return (
         datetime.datetime(*datetime_tuple),
-        {
-            key: decimal.Decimal(value)
-            for key, value in aggregate_mapping.iteritems()
-        }
+        aggregate_mapping
     )
 
 class TestMeasurementDays(CassandraTestMixin, unittest.TestCase):
@@ -83,16 +79,18 @@ class TestHourlyAggregates(CassandraTestMixin, unittest.TestCase):
             parameter_id,
             start_date=datetime.datetime(2012, 9, 22)
         )
-        self.assertSequenceEqual(aggregates, [
+        self.assertAggregatesEqual(aggregates, [
             _dpa((2012, 9, 22,  9), {
                 'minimum': '23454.0000018',
                 'maximum': '23454.0000018',
-                'average': '23454.0000018',
+                'mean': '23454.0000018',
+                'sum': '23454.0000018',
             }),
             _dpa((2012, 9, 22, 15), {
                 'minimum': '4.343445',
                 'maximum': '324255.12',
-                'average': '162129.7317225',
+                'mean': '162129.7317225',
+                'sum': '324259.463445',
             }),
         ])
         aggregates = self.hourly_aggregates.get_data_points(
@@ -100,21 +98,24 @@ class TestHourlyAggregates(CassandraTestMixin, unittest.TestCase):
             start_date=datetime.datetime(1998, 1, 12),
             end_date=datetime.datetime(5000, 12, 8)
         )
-        self.assertSequenceEqual(aggregates, [
+        self.assertAggregatesEqual(aggregates, [
             _dpa((2012, 9, 21, 23), {
                 'minimum': '522.343445',
                 'maximum': '522.343445',
-                'average': '522.343445',
+                'mean': '522.343445',
+                'sum': '522.343445',
             }),
             _dpa((2012, 9, 22,  9), {
                 'minimum': '23454.0000018',
                 'maximum': '23454.0000018',
-                'average': '23454.0000018',
+                'mean': '23454.0000018',
+                'sum': '23454.0000018',
             }),
             _dpa((2012, 9, 22, 15), {
                 'minimum': '4.343445',
                 'maximum': '324255.12',
-                'average': '162129.7317225',
+                'mean': '162129.7317225',
+                'sum': '324259.463445',
             }),
         ])
 
@@ -140,11 +141,12 @@ class TestDailyAggregates(CassandraTestMixin, unittest.TestCase):
             parameter_id,
             start_date=datetime.datetime(2012, 9, 22)
         )
-        self.assertSequenceEqual(aggregates, [
+        self.assertAggregatesEqual(aggregates, [
             _dpa((2012, 9, 22), {
                 'minimum': '4.343445',
                 'maximum': '324255.12',
-                'average': '115904.4878156',
+                'mean': '115904.4878156',
+                'sum': '347713.4634468',
             }),
         ])
         aggregates = self.daily_aggregates.get_data_points(
@@ -152,7 +154,7 @@ class TestDailyAggregates(CassandraTestMixin, unittest.TestCase):
             start_date=datetime.datetime(2018, 1, 12),
             end_date=datetime.datetime(5000, 12, 8)
         )
-        self.assertSequenceEqual(aggregates, [])
+        self.assertAggregatesEqual(aggregates, [])
 
 class TestMonthlyAggregates(CassandraTestMixin, unittest.TestCase):
 
@@ -176,11 +178,12 @@ class TestMonthlyAggregates(CassandraTestMixin, unittest.TestCase):
             parameter_id,
             start_date=datetime.datetime(2012, 9, 1)
         )
-        self.assertSequenceEqual(aggregates, [
+        self.assertAggregatesEqual(aggregates, [
             _dpa((2012, 9, 1), {
                 'minimum': '4.343445',
                 'maximum': '324255.12',
-                'average': '87058.95172295',
+                'mean': '87058.95172295',
+                'sum': '348235.8068918',
             }),
         ])
         aggregates = self.monthly_aggregates.get_data_points(
@@ -188,7 +191,7 @@ class TestMonthlyAggregates(CassandraTestMixin, unittest.TestCase):
             start_date=datetime.datetime(2018, 1, 12),
             end_date=datetime.datetime(5000, 12, 8)
         )
-        self.assertSequenceEqual(aggregates, [])
+        self.assertAggregatesEqual(aggregates, [])
 
 class TestMeasurements(CassandraTestMixin, unittest.TestCase):
 

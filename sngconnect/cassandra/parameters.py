@@ -1,11 +1,12 @@
 import datetime
 import calendar
-import decimal
 
+import numpy
 import pycassa
 from pycassa import types as pycassa_types
 
-from sngconnect.cassandra.types import MappingType, MicrosecondTimestampType
+from sngconnect.cassandra.types import (RealType, MappingType,
+    MicrosecondTimestampType)
 from sngconnect.cassandra.column_family_proxy import ColumnFamilyProxy
 
 __all__ = (
@@ -22,6 +23,7 @@ class DataPointStore(ColumnFamilyProxy):
     def __init__(self):
         super(DataPointStore, self).__init__()
         self.column_family.column_name_class = MicrosecondTimestampType()
+        self.column_family.default_validation_class = RealType()
 
     @classmethod
     def create(cls, system_manager, keyspace, **additional_kwargs):
@@ -31,7 +33,7 @@ class DataPointStore(ColumnFamilyProxy):
         )
         additional_kwargs.setdefault(
             'default_validation_class',
-            pycassa_types.DecimalType()
+            pycassa_types.AsciiType()
         )
         additional_kwargs.setdefault(
             'key_validation_class',
@@ -96,40 +98,33 @@ class DataPointStore(ColumnFamilyProxy):
         )
         if count == 0:
             return None
-        values_sum = decimal.Decimal(0)
+        values_sum = numpy.float128(0);
         minimum = None
         maximum = None
         for key in keys:
             try:
-                values_sum += sum((
-                    value
-                    for key, value
-                    in self.column_family.xget(key, **kwargs)
-                ))
-                local_minimum = min((
-                    value
-                    for key, value
-                    in self.column_family.xget(key, **kwargs)
-                ))
-                if minimum is None:
-                    minimum = local_minimum
-                else:
-                    minimum = min(minimum, local_minimum)
-                local_maximum = max((
-                    value
-                    for key, value
-                    in self.column_family.xget(key, **kwargs)
-                ))
-                if maximum is None:
-                    maximum = local_maximum
-                else:
-                    maximum = max(maximum, local_maximum)
+                values = numpy.array(
+                    self.column_family.get(key, **kwargs).values(),
+                    dtype=numpy.float128
+                )
             except pycassa.NotFoundException:
-                pass
+                continue
+            local_minimum = numpy.amin(values)
+            local_maximum = numpy.amax(values)
+            values_sum += numpy.sum(values)
+            if minimum is None:
+                minimum = local_minimum
+            else:
+                minimum = min(minimum, local_minimum)
+            if maximum is None:
+                maximum = local_maximum
+            else:
+                maximum = max(maximum, local_maximum)
         return {
-            'maximum': maximum,
-            'minimum': minimum,
-            'average': (values_sum / count),
+            'maximum': str(maximum),
+            'minimum': str(minimum),
+            'mean': str(values_sum / count),
+            'sum': str(values_sum),
         }
 
     def get_row_key(self, parameter_id, date):
@@ -199,11 +194,8 @@ class AggregatesStore(DataPointStore):
     def get_date_range(self, date):
         raise NotImplementedError
 
-    def get_data_source(self):
-        return Measurements()
-
     def recalculate_aggregates(self, parameter_id, changed_dates):
-        data_source = self.get_data_source()
+        data_source = Measurements()
         dates = list(set((
             self.force_precision(date) for date in changed_dates
         )))
