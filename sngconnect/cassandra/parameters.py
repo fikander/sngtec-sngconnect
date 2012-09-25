@@ -150,20 +150,15 @@ class Measurements(DataPointStore):
         if isinstance(date, datetime.date):
             date = datetime.datetime.combine(date, datetime.time.min)
         else:
-            date = date.replace(
-                hour=0,
-                minute=0,
-                second=0,
-                microsecond=0
-            )
+            date = date.replace(hour=0, minute=0, second=0, microsecond=0)
         return super(Measurements, self).get_row_key(parameter_id, date)
 
 class AggregatesStore(DataPointStore):
 
     def __init__(self):
         super(AggregatesStore, self).__init__()
-        self.column_family.column_name_class = pycassa_types.AsciiType()
         self.column_family.super_column_name_class = MicrosecondTimestampType()
+        self.column_family.column_name_class = pycassa_types.AsciiType()
 
     @classmethod
     def create(cls, system_manager, keyspace, **additional_kwargs):
@@ -192,17 +187,9 @@ class AggregatesStore(DataPointStore):
             end_date
         )
 
-    def force_precision(self, date):
-        raise NotImplementedError
-
-    def get_date_range(self, date):
-        raise NotImplementedError
-
     def recalculate_aggregates(self, parameter_id, changed_dates):
         data_source = Measurements()
-        dates = list(set((
-            self.force_precision(date) for date in changed_dates
-        )))
+        dates = set((self.force_precision(date) for date in changed_dates))
         rows = {}
         for date in dates:
             key = self.get_row_key(parameter_id, date)
@@ -217,6 +204,12 @@ class AggregatesStore(DataPointStore):
                 rows[key][date] = aggregate
         self.column_family.batch_insert(rows)
 
+    def force_precision(self, date):
+        raise NotImplementedError
+
+    def get_date_range(self, date):
+        raise NotImplementedError
+
 class HourlyAggregates(AggregatesStore):
 
     _column_family_name = 'HourlyAggregates'
@@ -225,20 +218,14 @@ class HourlyAggregates(AggregatesStore):
         if isinstance(date, datetime.date):
             start_date = datetime.datetime.combine(date, datetime.time.min)
         else:
-            start_date = date.replace(
-                hour=0,
-                minute=0,
-                second=0,
-                microsecond=0
-            )
-        return super(HourlyAggregates, self).get_row_key(parameter_id, start_date)
+            start_date = date.replace(hour=0, minute=0, second=0, microsecond=0)
+        return super(HourlyAggregates, self).get_row_key(
+            parameter_id,
+            start_date
+        )
 
     def force_precision(self, date):
-        return date.replace(
-            minute=0,
-            second=0,
-            microsecond=0
-        )
+        return date.replace(minute=0, second=0, microsecond=0)
 
     def get_date_range(self, date):
         return (
@@ -267,12 +254,7 @@ class DailyAggregates(AggregatesStore):
         return super(DailyAggregates, self).get_row_key(parameter_id, date)
 
     def force_precision(self, date):
-        return date.replace(
-            hour=0,
-            minute=0,
-            second=0,
-            microsecond=0
-        )
+        return date.replace(hour=0, minute=0, second=0, microsecond=0)
 
     def get_date_range(self, date):
         return (
@@ -287,10 +269,7 @@ class MonthlyAggregates(AggregatesStore):
     def get_row_key(self, parameter_id, date):
         if isinstance(date, datetime.date):
             date = datetime.datetime.combine(
-                date.replace(
-                    month=1,
-                    day=1
-                ),
+                date.replace(month=1, day=1),
                 datetime.time.min
             )
         else:
@@ -305,13 +284,7 @@ class MonthlyAggregates(AggregatesStore):
         return super(MonthlyAggregates, self).get_row_key(parameter_id, date)
 
     def force_precision(self, date):
-        return date.replace(
-            day=1,
-            hour=0,
-            minute=0,
-            second=0,
-            microsecond=0
-        )
+        return date.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
 
     def get_date_range(self, date):
         end_day = date.replace(
