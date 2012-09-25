@@ -45,28 +45,24 @@ def dev_parameter(request):
         parameter.id,
         start_date=(datetime.datetime.utcnow() - datetime.timedelta(days=1))
     )
-    last_week_data = HourlyAggregates().get_data_points(
+    last_week = HourlyAggregates().get_data_points(
         parameter.id,
         start_date=(datetime.datetime.utcnow() - datetime.timedelta(days=7))
     )
-    last_week = []
-    for date, data in last_week_data:
-        data['error'] = max(
-            numpy.float128(data['mean']) - numpy.float128(data['minimum']),
-            numpy.float128(data['mean']) - numpy.float128(data['maximum'])
-        ) / 4
-        last_week.append((date, data))
-    last_month_data = DailyAggregates().get_data_points(
+    for i in range(len(last_week)):
+        last_week[i][1]['mean'] = (
+            numpy.float128(last_week[i][1]['sum'])
+            / numpy.float128(last_week[i][1]['count'])
+        )
+    last_month = DailyAggregates().get_data_points(
         parameter.id,
         start_date=(datetime.datetime.utcnow() - datetime.timedelta(days=30))
     )
-    last_month = []
-    for date, data in last_month_data:
-        data['error'] = max(
-            numpy.float128(data['mean']) - numpy.float128(data['minimum']),
-            numpy.float128(data['mean']) - numpy.float128(data['maximum'])
-        ) / 4
-        last_month.append((date, data))
+    for i in range(len(last_month)):
+        last_month[i][1]['mean'] = (
+            numpy.float128(last_month[i][1]['sum'])
+            / numpy.float128(last_month[i][1]['count'])
+        )
     return {
         'parameter': parameter,
         'last_hour': last_hour,

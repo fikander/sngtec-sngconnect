@@ -122,8 +122,8 @@ class DataPointStore(ColumnFamilyProxy):
         return {
             'maximum': str(maximum),
             'minimum': str(minimum),
-            'mean': str(values_sum / count),
             'sum': str(values_sum),
+            'count': str(count),
         }
 
     def get_row_key(self, parameter_id, date):

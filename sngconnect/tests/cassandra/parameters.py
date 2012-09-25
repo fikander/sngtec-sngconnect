@@ -83,14 +83,14 @@ class TestHourlyAggregates(CassandraTestMixin, unittest.TestCase):
             _dpa((2012, 9, 22,  9), {
                 'minimum': '23454.0000018',
                 'maximum': '23454.0000018',
-                'mean': '23454.0000018',
                 'sum': '23454.0000018',
+                'count': '1',
             }),
             _dpa((2012, 9, 22, 15), {
                 'minimum': '4.343445',
                 'maximum': '324255.12',
-                'mean': '162129.7317225',
                 'sum': '324259.463445',
+                'count': '2',
             }),
         ])
         aggregates = self.hourly_aggregates.get_data_points(
@@ -102,20 +102,20 @@ class TestHourlyAggregates(CassandraTestMixin, unittest.TestCase):
             _dpa((2012, 9, 21, 23), {
                 'minimum': '522.343445',
                 'maximum': '522.343445',
-                'mean': '522.343445',
                 'sum': '522.343445',
+                'count': '1',
             }),
             _dpa((2012, 9, 22,  9), {
                 'minimum': '23454.0000018',
                 'maximum': '23454.0000018',
-                'mean': '23454.0000018',
                 'sum': '23454.0000018',
+                'count': '1',
             }),
             _dpa((2012, 9, 22, 15), {
                 'minimum': '4.343445',
                 'maximum': '324255.12',
-                'mean': '162129.7317225',
                 'sum': '324259.463445',
+                'count': '2',
             }),
         ])
 
@@ -145,8 +145,8 @@ class TestDailyAggregates(CassandraTestMixin, unittest.TestCase):
             _dpa((2012, 9, 22), {
                 'minimum': '4.343445',
                 'maximum': '324255.12',
-                'mean': '115904.4878156',
                 'sum': '347713.4634468',
+                'count': '3',
             }),
         ])
         aggregates = self.daily_aggregates.get_data_points(
@@ -182,8 +182,8 @@ class TestMonthlyAggregates(CassandraTestMixin, unittest.TestCase):
             _dpa((2012, 9, 1), {
                 'minimum': '4.343445',
                 'maximum': '324255.12',
-                'mean': '87058.95172295',
                 'sum': '348235.8068918',
+                'count': '4',
             }),
         ])
         aggregates = self.monthly_aggregates.get_data_points(

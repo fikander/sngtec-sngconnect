@@ -3,12 +3,12 @@
 {% block body_content %}
     <h1>{{ parameter.system.name }} / {{ parameter.name }}</h1>
     <h2>Last hour</h2>
-    <div id="graphdiv3" style="width: 80%;"></div>
+    <div id="last-hour-plot" style="width: 80%;"></div>
     <script type="text/javascript">
-      g3 = new Dygraph(
+      var last_hour_plot = new Dygraph(
 
         // containing div
-        document.getElementById("graphdiv3"),
+        document.getElementById("last-hour-plot"),
 
         // CSV or path to a CSV file.
         "Date,{{ parameter.measurement_unit }}\n" +
@@ -16,16 +16,15 @@
         "{{ date.isoformat() }},{{ value }}\n"
             {% if not loop.last %}+{% endif %}
         {% endfor %}
-
       );
     </script>
     <h2>Last day</h2>
-    <div id="graphdiv4" style="width: 80%;"></div>
+    <div id="last-day-plot" style="width: 80%;"></div>
     <script type="text/javascript">
-      g3 = new Dygraph(
+      var last_day_plot = new Dygraph(
 
         // containing div
-        document.getElementById("graphdiv4"),
+        document.getElementById("last-day-plot"),
 
         // CSV or path to a CSV file.
         "Date,{{ parameter.measurement_unit }}\n" +
@@ -33,49 +32,38 @@
         "{{ date.isoformat() }},{{ value }}\n"
             {% if not loop.last %}+{% endif %}
         {% endfor %}
-
       );
     </script>
     <h2>Last week</h2>
-    <div id="graphdiv" style="width: 80%;"></div>
+    <div id="last-week-plot" style="width: 80%;"></div>
     <script type="text/javascript">
-      g = new Dygraph(
+      var last_week_plot = new Dygraph(
 
         // containing div
-        document.getElementById("graphdiv"),
+        document.getElementById("last-week-plot"),
 
         // CSV or path to a CSV file.
-        "Date,{{ parameter.measurement_unit }}\n" +
+        "Date,Mean,Minimum,Maximum\n" +
         {% for date, value in last_week %}
-        "{{ date.isoformat() }},{{ value.mean }},{{ value.minimum }}\n"
+        "{{ date.isoformat() }},{{ value.mean }},{{ value.minimum }},{{ value.maximum }}\n"
             {% if not loop.last %}+{% endif %}
-        {% endfor %},
-
-        {
-            errorBars: true
-        }
-
+        {% endfor %}
       );
     </script>
     <h2>Last month</h2>
-    <div id="graphdiv2" style="width: 80%;"></div>
+    <div id="last-month-plot" style="width: 80%;"></div>
     <script type="text/javascript">
-      g2 = new Dygraph(
+      var last_month_plot = new Dygraph(
 
         // containing div
-        document.getElementById("graphdiv2"),
+        document.getElementById("last-month-plot"),
 
         // CSV or path to a CSV file.
-        "Date,{{ parameter.measurement_unit }}\n" +
+        "Date,Mean,Minimum,Maximum\n" +
         {% for date, value in last_month %}
-        "{{ date.isoformat() }},{{ value.mean }},{{ value.minimum }}\n"
+        "{{ date.isoformat() }},{{ value.mean }},{{ value.minimum }},{{ value.maximum }}\n"
             {% if not loop.last %}+{% endif %}
-        {% endfor %},
-
-        {
-            errorBars: true
-        }
-
+        {% endfor %}
       );
     </script>
 {% endblock %}
