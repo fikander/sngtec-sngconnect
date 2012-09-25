@@ -4,12 +4,14 @@ import os
 import datetime
 import random
 import sys
+import time
 
 import numpy
 import transaction
 import sqlalchemy
 from pyramid.paster import get_appsettings, setup_logging
 
+from sngconnect import cassandra
 from sngconnect.database import DBSession
 from sngconnect.cassandra import connection_pool as cassandra_connection_pool
 from sngconnect.database import System, Parameter
@@ -31,14 +33,19 @@ def main(argv=sys.argv):
     settings = get_appsettings(config_uri)
     database_engine = sqlalchemy.engine_from_config(settings, 'database.')
     DBSession.configure(bind=database_engine)
+    DBSession.query(System).delete()
+    DBSession.query(Parameter).delete()
+    transaction.commit()
+    cassandra.drop_keyspace(settings)
+    cassandra.initialize_keyspace(settings)
     cassandra_connection_pool.initialize_connection_pool(settings)
     generate_data(magnitude)
 
 def generate_data(magnitude):
-    for i in range(1, 3):
+    for i in range(1, 2):
         system = System(name="System %d" % i)
         DBSession.add(system)
-        for i in range(1, 5):
+        for i in range(1, 2):
             parameter = Parameter(
                 name="Parameter %d" % i,
                 measurement_unit=random.choice([
@@ -60,26 +67,30 @@ def generate_data(magnitude):
     count = len(parameters)
     for parameter in parameters:
         print "Parameter %d/%d:" % (i, count)
+        i += 1
         data_points = []
-        start = datetime.datetime.utcnow() - datetime.timedelta(days=30)
+        start = datetime.datetime.utcnow() - datetime.timedelta(days=60)
         end = datetime.datetime.utcnow()
-        last_value = numpy.float128(0)
+        last_value = numpy.float128(2000)
         dates = []
         print "Generating..."
         j = 0
         while start < end:
-            start += datetime.timedelta(minutes=1)
-            dates.append(start)
-            last_value = (
-                (5 * numpy.float128(random.uniform(-500000, 500000)) + last_value)
-                / 2
-            )
+            end -= datetime.timedelta(seconds=5)
+            dates.append(end)
+            last_value = numpy.float128(
+                (
+                    numpy.sin(numpy.float128(j) / numpy.float128(10.0))
+                    * numpy.float128(20)
+                    + numpy.float128(random.uniform(-100, 100))
+                ) + (last_value * 2)
+            ) / 2
             data_points.append((
-                start,
+                end,
                 last_value
             ))
             j += 1
-            if j % 1000000 == 0:
+            if j % 10000 == 0:
                 print "Inserting..."
                 measurements.insert_data_points(parameter.id, data_points)
                 print "Aggregating..."
@@ -89,6 +100,7 @@ def generate_data(magnitude):
                 data_points = []
                 dates = []
                 print "%d done" % j
+                time.sleep(5)
         print "Inserting..."
         measurements.insert_data_points(parameter.id, data_points)
         print "Aggregating..."

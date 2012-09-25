@@ -2,6 +2,40 @@
 
 {% block body_content %}
     <h1>{{ parameter.system.name }} / {{ parameter.name }}</h1>
+    <h2>Last hour</h2>
+    <div id="graphdiv3" style="width: 80%;"></div>
+    <script type="text/javascript">
+      g3 = new Dygraph(
+
+        // containing div
+        document.getElementById("graphdiv3"),
+
+        // CSV or path to a CSV file.
+        "Date,{{ parameter.measurement_unit }}\n" +
+        {% for date, value in last_hour %}
+        "{{ date.isoformat() }},{{ value }}\n"
+            {% if not loop.last %}+{% endif %}
+        {% endfor %}
+
+      );
+    </script>
+    <h2>Last day</h2>
+    <div id="graphdiv4" style="width: 80%;"></div>
+    <script type="text/javascript">
+      g3 = new Dygraph(
+
+        // containing div
+        document.getElementById("graphdiv4"),
+
+        // CSV or path to a CSV file.
+        "Date,{{ parameter.measurement_unit }}\n" +
+        {% for date, value in last_day %}
+        "{{ date.isoformat() }},{{ value }}\n"
+            {% if not loop.last %}+{% endif %}
+        {% endfor %}
+
+      );
+    </script>
     <h2>Last week</h2>
     <div id="graphdiv" style="width: 80%;"></div>
     <script type="text/javascript">
