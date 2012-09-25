@@ -75,7 +75,9 @@ class DataPointStore(ColumnFamilyProxy):
                 start_date=start_date,
                 end_date=end_date
             )
-            keys = [self.get_row_key(parameter_id, date) for date in dates]
+            keys = [
+                self.get_row_key(parameter_id, date) for date in dates
+            ]
             result = self.column_family.multiget(keys, **kwargs)
             return sum((columns.items() for columns in result.values()), [])
 
@@ -91,7 +93,7 @@ class DataPointStore(ColumnFamilyProxy):
             start_date=start_date,
             end_date=end_date
         )
-        keys = [self.get_row_key(parameter_id, date) for date in dates]
+        keys = set((self.get_row_key(parameter_id, date) for date in dates))
         count = sum(
             self.column_family.multiget_count(keys, **kwargs).viewvalues()
         )
@@ -119,12 +121,15 @@ class DataPointStore(ColumnFamilyProxy):
                 maximum = local_maximum
             else:
                 maximum = max(maximum, local_maximum)
-        return {
-            'maximum': str(maximum),
-            'minimum': str(minimum),
+        result = {
             'sum': str(values_sum),
             'count': str(count),
         }
+        if maximum is not None:
+            result['maximum'] = str(maximum)
+        if minimum is not None:
+            result['minimum'] = str(minimum)
+        return result
 
     def get_row_key(self, parameter_id, date):
         return (parameter_id, date)
@@ -187,8 +192,67 @@ class AggregatesStore(DataPointStore):
             end_date
         )
 
+    def aggregate(self, parameter_id, start_date=None, end_date=None):
+        kwargs = {}
+        if start_date is not None:
+            kwargs['column_start'] = start_date
+        if end_date is not None:
+            kwargs['column_finish'] = end_date
+        measurement_days = MeasurementDays()
+        dates = measurement_days.get_days(
+            parameter_id,
+            start_date=start_date,
+            end_date=end_date
+        )
+        keys = set((self.get_row_key(parameter_id, date) for date in dates))
+        values_sum = numpy.float128(0);
+        minimum = None
+        maximum = None
+        count = numpy.float128(0)
+        for key in keys:
+            try:
+                result= map(
+                    lambda point: (
+                        point['minimum'],
+                        point['maximum'],
+                        point['count'],
+                        point['sum'],
+                    ),
+                    self.column_family.get(
+                        key,
+                        **kwargs
+                    ).values()
+                )
+            except pycassa.NotFoundException:
+                continue
+            aggregates = numpy.array(
+                result,
+                dtype=numpy.float128
+            )
+            local_minimum = aggregates[:,0].min()
+            local_maximum = aggregates[:,1].max()
+            count += aggregates[:,2].sum()
+            values_sum += aggregates[:,3].sum()
+            if minimum is None:
+                minimum = local_minimum
+            else:
+                minimum = min(minimum, local_minimum)
+            if maximum is None:
+                maximum = local_maximum
+            else:
+                maximum = max(maximum, local_maximum)
+        result = {
+            'sum': str(values_sum),
+            'count': str(count),
+        }
+        if maximum is not None:
+            result['maximum'] = str(maximum)
+        if minimum is not None:
+            result['minimum'] = str(minimum)
+        return result
+
     def recalculate_aggregates(self, parameter_id, changed_dates):
-        data_source = Measurements()
+        data_source = self.get_data_source()
         dates = set((self.force_precision(date) for date in changed_dates))
         rows = {}
         for date in dates:
@@ -208,6 +272,9 @@ class AggregatesStore(DataPointStore):
         raise NotImplementedError
 
     def get_date_range(self, date):
+        raise NotImplementedError
+
+    def get_data_source(self):
         raise NotImplementedError
 
 class HourlyAggregates(AggregatesStore):
@@ -232,6 +299,9 @@ class HourlyAggregates(AggregatesStore):
             date,
             (date + datetime.timedelta(hours=1) - datetime.time.resolution)
         )
+
+    def get_data_source(self):
+        return Measurements()
 
 class DailyAggregates(AggregatesStore):
 
@@ -261,6 +331,9 @@ class DailyAggregates(AggregatesStore):
             date,
             (date + datetime.timedelta(days=1) - datetime.time.resolution)
         )
+
+    def get_data_source(self):
+        return HourlyAggregates()
 
 class MonthlyAggregates(AggregatesStore):
 
@@ -292,6 +365,9 @@ class MonthlyAggregates(AggregatesStore):
         ).date()
         end_date = datetime.datetime.combine(end_day, datetime.time.max)
         return (date, end_date)
+
+    def get_data_source(self):
+        return DailyAggregates()
 
 class MeasurementDays(ColumnFamilyProxy):
 

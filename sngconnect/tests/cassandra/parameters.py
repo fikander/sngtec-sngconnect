@@ -124,6 +124,7 @@ class TestDailyAggregates(CassandraTestMixin, unittest.TestCase):
     def setUp(self):
         super(TestDailyAggregates, self).setUp()
         self.measurements = parameters.Measurements()
+        self.hourly_aggregates = parameters.HourlyAggregates()
         self.daily_aggregates = parameters.DailyAggregates()
 
     def test_basic_operation(self):
@@ -136,6 +137,7 @@ class TestDailyAggregates(CassandraTestMixin, unittest.TestCase):
         ]
         self.measurements.insert_data_points(parameter_id, data_points)
         changed_dates = [date for date, value in data_points]
+        self.hourly_aggregates.recalculate_aggregates(parameter_id, changed_dates)
         self.daily_aggregates.recalculate_aggregates(parameter_id, changed_dates)
         aggregates = self.daily_aggregates.get_data_points(
             parameter_id,
@@ -161,6 +163,8 @@ class TestMonthlyAggregates(CassandraTestMixin, unittest.TestCase):
     def setUp(self):
         super(TestMonthlyAggregates, self).setUp()
         self.measurements = parameters.Measurements()
+        self.hourly_aggregates = parameters.HourlyAggregates()
+        self.daily_aggregates = parameters.DailyAggregates()
         self.monthly_aggregates = parameters.MonthlyAggregates()
 
     def test_basic_operation(self):
@@ -173,6 +177,8 @@ class TestMonthlyAggregates(CassandraTestMixin, unittest.TestCase):
         ]
         self.measurements.insert_data_points(parameter_id, data_points)
         changed_dates = [date for date, value in data_points]
+        self.hourly_aggregates.recalculate_aggregates(parameter_id, changed_dates)
+        self.daily_aggregates.recalculate_aggregates(parameter_id, changed_dates)
         self.monthly_aggregates.recalculate_aggregates(parameter_id, changed_dates)
         aggregates = self.monthly_aggregates.get_data_points(
             parameter_id,
