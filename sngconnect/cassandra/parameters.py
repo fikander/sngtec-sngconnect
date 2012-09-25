@@ -5,8 +5,7 @@ import numpy
 import pycassa
 from pycassa import types as pycassa_types
 
-from sngconnect.cassandra.types import (RealType, MappingType,
-    MicrosecondTimestampType)
+from sngconnect.cassandra.types import RealType, MicrosecondTimestampType
 from sngconnect.cassandra.column_family_proxy import ColumnFamilyProxy
 
 __all__ = (
@@ -163,13 +162,18 @@ class AggregatesStore(DataPointStore):
 
     def __init__(self):
         super(AggregatesStore, self).__init__()
-        self.column_family.default_validation_class = MappingType()
+        self.column_family.column_name_class = pycassa_types.AsciiType()
+        self.column_family.super_column_name_class = MicrosecondTimestampType()
 
     @classmethod
     def create(cls, system_manager, keyspace, **additional_kwargs):
         additional_kwargs.setdefault(
-            'default_validation_class',
-            pycassa_types.BytesType()
+            'super',
+            True
+        )
+        additional_kwargs.setdefault(
+            'subcomparator_type',
+            pycassa_types.AsciiType()
         )
         super(AggregatesStore, cls).create(
             system_manager,
