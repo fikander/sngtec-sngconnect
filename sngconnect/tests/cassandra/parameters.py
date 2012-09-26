@@ -1,9 +1,28 @@
+import os
+import gzip
+import csv
 import unittest
 import datetime
+
+import isodate
 
 from sngconnect.cassandra import parameters
 
 from sngconnect.tests.cassandra import CassandraTestMixin
+
+TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
+
+def _get_test_data_points():
+    reader = csv.reader(
+        gzip.open(os.path.join(TEST_DATA_DIR, 'data_points.csv.gz'), 'r')
+    )
+    return (
+        (
+            isodate.parse_datetime(date_iso),
+            value
+        )
+        for date_iso, value in reader
+    )
 
 def _dp(datetime_tuple, decimal_string):
     """Takes care of data point types."""
@@ -207,26 +226,48 @@ class TestMeasurements(CassandraTestMixin, unittest.TestCase):
 
     def test_basic_operation(self):
         parameter_id = 1253353566
-        stored_data_points = self.measurements.get_data_points(
-            parameter_id,
+        self.assertSequenceEqual(
+            self.measurements.get_data_points(parameter_id),
+            []
         )
-        self.assertSequenceEqual(stored_data_points, [])
-        data_points = [
-            _dp((2012,  9, 23, 15, 11, 12,      0), '2345554.3445'),
-            _dp((2089, 12, 14, 11,  5,  5,   8001), '-2.2455555221'),
-            _dp((2012,  9,  1, 15, 11, 12,      0), '4.343445'),
-            _dp((2012,  1, 22, 15, 43, 12, 300144), '324255.12'),
-            _dp((2012,  9, 22,  9, 15,  5,   8001), '23454.0000000001'),
-        ]
-        sorted_data_points = sorted(data_points, key=lambda x: x[0])
-        self.measurements.insert_data_points(parameter_id, data_points)
-        stored_data_points = self.measurements.get_data_points(
+        data_points = list(_get_test_data_points())
+        self.measurements.insert_data_points(
             parameter_id,
+            # Shuffled to ensure database ordering.
+            data_points[500:] + data_points[:500]
         )
-        self.assertSequenceEqual(stored_data_points, sorted_data_points)
-        self.measurements.insert_data_points(parameter_id, data_points)
-        # And now the idempotency.
-        stored_data_points = self.measurements.get_data_points(
-            parameter_id,
+        self.assertSequenceEqual(
+            self.measurements.get_data_points(parameter_id + 1),
+            []
         )
-        self.assertSequenceEqual(stored_data_points, sorted_data_points)
+        self.assertSequenceEqual(
+            self.measurements.get_data_points(parameter_id),
+            list(reversed(data_points))
+        )
+        self.assertSequenceEqual(
+            self.measurements.get_data_points(
+                parameter_id,
+                start_date=datetime.datetime(2012, 9, 26, 11, 19),
+                end_date=datetime.datetime(2012, 9, 26, 11, 19, 27)
+            ),
+            (
+                _dp((2012, 9, 26, 11, 19, 8, 977706), '3.37492001487'),
+                _dp((2012, 9, 26, 11, 19, 26, 721242), '-6.07781090375'),
+            )
+        )
+        self.assertSequenceEqual(
+            self.measurements.get_data_points(
+                parameter_id,
+                start_date=datetime.datetime(2015, 9, 26, 11, 19),
+                end_date=datetime.datetime(2050, 9, 26, 11, 19, 27)
+            ),
+            []
+        )
+        self.assertSequenceEqual(
+            self.measurements.get_data_points(
+                parameter_id,
+                start_date=datetime.datetime(2015, 9, 26, 11, 19),
+                end_date=datetime.datetime(2050, 9, 26, 11, 19, 27)
+            ),
+            []
+        )
