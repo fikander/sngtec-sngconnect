@@ -70,14 +70,12 @@ class DataPointStore(ColumnFamilyProxy):
             ).items()
         else:
             measurement_days = MeasurementDays()
-            dates = measurement_days.get_days(
+            days = measurement_days.get_days(
                 parameter_id,
                 start_date=start_date,
                 end_date=end_date
             )
-            keys = [
-                self.get_row_key(parameter_id, date) for date in dates
-            ]
+            keys = [self.get_row_key(parameter_id, day) for day in days]
             result = self.column_family.multiget(keys, **kwargs)
             return sum((columns.items() for columns in result.values()), [])
 
@@ -94,14 +92,10 @@ class DataPointStore(ColumnFamilyProxy):
             end_date=end_date
         )
         keys = set((self.get_row_key(parameter_id, date) for date in dates))
-        count = sum(
-            self.column_family.multiget_count(keys, **kwargs).viewvalues()
-        )
-        if count == 0:
-            return None
         values_sum = numpy.float128(0);
-        minimum = None
-        maximum = None
+        values_minimum = None
+        values_maximum = None
+        values_count = 0
         for key in keys:
             try:
                 values = numpy.array(
@@ -113,22 +107,23 @@ class DataPointStore(ColumnFamilyProxy):
             local_minimum = numpy.amin(values)
             local_maximum = numpy.amax(values)
             values_sum += numpy.sum(values)
-            if minimum is None:
-                minimum = local_minimum
+            values_count += len(values)
+            if values_minimum is None:
+                values_minimum = local_minimum
             else:
-                minimum = min(minimum, local_minimum)
-            if maximum is None:
-                maximum = local_maximum
+                values_minimum = min(values_minimum, local_minimum)
+            if values_maximum is None:
+                values_maximum = local_maximum
             else:
-                maximum = max(maximum, local_maximum)
+                values_maximum = max(values_maximum, local_maximum)
         result = {
             'sum': str(values_sum),
-            'count': str(count),
+            'count': str(values_count),
         }
-        if maximum is not None:
-            result['maximum'] = str(maximum)
-        if minimum is not None:
-            result['minimum'] = str(minimum)
+        if values_maximum is not None:
+            result['maximum'] = str(values_maximum)
+        if values_minimum is not None:
+            result['minimum'] = str(values_minimum)
         return result
 
     def get_row_key(self, parameter_id, date):
@@ -140,13 +135,12 @@ class Measurements(DataPointStore):
 
     def insert_data_points(self, parameter_id, data_points):
         rows = {}
-        measurement_days = MeasurementDays()
         for measurement_datetime, value in data_points:
             key = self.get_row_key(parameter_id, measurement_datetime)
             rows.setdefault(key, {})
             rows[key][measurement_datetime] = value
         self.column_family.batch_insert(rows)
-        measurement_days.add_days(
+        MeasurementDays().add_days(
             parameter_id,
             (date for date, value in data_points)
         )
@@ -154,8 +148,13 @@ class Measurements(DataPointStore):
     def get_row_key(self, parameter_id, date):
         if isinstance(date, datetime.date):
             date = datetime.datetime.combine(date, datetime.time.min)
-        else:
+        elif isinstance(date, datetime.datetime):
             date = date.replace(hour=0, minute=0, second=0, microsecond=0)
+        else:
+            raise ValueError(
+                "`date` parameter must be a `datetime.date` or"
+                " `datetime.datetime` object."
+            )
         return super(Measurements, self).get_row_key(parameter_id, date)
 
 class AggregatesStore(DataPointStore):
@@ -206,12 +205,12 @@ class AggregatesStore(DataPointStore):
         )
         keys = set((self.get_row_key(parameter_id, date) for date in dates))
         values_sum = numpy.float128(0);
-        minimum = None
-        maximum = None
-        count = numpy.float128(0)
+        values_count = numpy.float128(0)
+        values_minimum = None
+        values_maximum = None
         for key in keys:
             try:
-                result= map(
+                result = map(
                     lambda point: (
                         point['minimum'],
                         point['maximum'],
@@ -231,24 +230,24 @@ class AggregatesStore(DataPointStore):
             )
             local_minimum = aggregates[:,0].min()
             local_maximum = aggregates[:,1].max()
-            count += aggregates[:,2].sum()
+            values_count += aggregates[:,2].sum()
             values_sum += aggregates[:,3].sum()
-            if minimum is None:
-                minimum = local_minimum
+            if values_minimum is None:
+                values_minimum = local_minimum
             else:
-                minimum = min(minimum, local_minimum)
-            if maximum is None:
-                maximum = local_maximum
+                values_minimum = min(values_minimum, local_minimum)
+            if values_maximum is None:
+                values_maximum = local_maximum
             else:
-                maximum = max(maximum, local_maximum)
+                values_maximum = max(values_maximum, local_maximum)
         result = {
             'sum': str(values_sum),
-            'count': str(count),
+            'count': str(int(values_count)),
         }
-        if maximum is not None:
-            result['maximum'] = str(maximum)
-        if minimum is not None:
-            result['minimum'] = str(minimum)
+        if values_maximum is not None:
+            result['maximum'] = str(values_maximum)
+        if values_minimum is not None:
+            result['minimum'] = str(values_minimum)
         return result
 
     def recalculate_aggregates(self, parameter_id, changed_dates):
@@ -284,8 +283,13 @@ class HourlyAggregates(AggregatesStore):
     def get_row_key(self, parameter_id, date):
         if isinstance(date, datetime.date):
             start_date = datetime.datetime.combine(date, datetime.time.min)
-        else:
+        elif isinstance(date, datetime.datetime):
             start_date = date.replace(hour=0, minute=0, second=0, microsecond=0)
+        else:
+            raise ValueError(
+                "`date` parameter must be a `datetime.date` or"
+                " `datetime.datetime` object."
+            )
         return super(HourlyAggregates, self).get_row_key(
             parameter_id,
             start_date
@@ -313,13 +317,18 @@ class DailyAggregates(AggregatesStore):
                 date.replace(day=1),
                 datetime.time.min
             )
-        else:
+        elif isinstance(date, datetime.datetime):
             date = date.replace(
                 day=1,
                 hour=0,
                 minute=0,
                 second=0,
                 microsecond=0
+            )
+        else:
+            raise ValueError(
+                "`date` parameter must be a `datetime.date` or"
+                " `datetime.datetime` object."
             )
         return super(DailyAggregates, self).get_row_key(parameter_id, date)
 
@@ -345,7 +354,7 @@ class MonthlyAggregates(AggregatesStore):
                 date.replace(month=1, day=1),
                 datetime.time.min
             )
-        else:
+        elif isinstance(date, datetime.datetime):
             date = date.replace(
                 month=1,
                 day=1,
@@ -353,6 +362,11 @@ class MonthlyAggregates(AggregatesStore):
                 minute=0,
                 second=0,
                 microsecond=0
+            )
+        else:
+            raise ValueError(
+                "`date` parameter must be a `datetime.date` or"
+                " `datetime.datetime` object."
             )
         return super(MonthlyAggregates, self).get_row_key(parameter_id, date)
 
@@ -375,11 +389,18 @@ class MeasurementDays(ColumnFamilyProxy):
 
     @classmethod
     def create(cls, system_manager, keyspace, **additional_kwargs):
-        additional_kwargs.update({
-            'comparator_type': pycassa_types.DateType(),
-            'default_validation_class': pycassa_types.BytesType(),
-            'key_validation_class': pycassa_types.IntegerType(),
-        })
+        additional_kwargs.setdefault(
+            'comparator_type',
+            pycassa_types.DateType()
+        )
+        additional_kwargs.setdefault(
+            'default_validation_class',
+            pycassa_types.BytesType()
+        )
+        additional_kwargs.setdefault(
+            'key_validation_class',
+            pycassa_types.IntegerType(),
+        )
         super(MeasurementDays, cls).create(
             system_manager,
             keyspace,
@@ -387,27 +408,30 @@ class MeasurementDays(ColumnFamilyProxy):
         )
 
     def add_days(self, parameter_id, dates):
-        values = dict((
-            (datetime.datetime.combine(day, datetime.time.min), '')
-            for day
-            in set((date.date() for date in dates))
-        ))
+        values = dict(set((
+            (self.force_precision(date), '') for date in dates
+        )))
         self.column_family.insert(parameter_id, values)
 
     def get_days(self, parameter_id, start_date=None, end_date=None):
         kwargs = {}
         if start_date is not None:
-            kwargs['column_start'] = datetime.datetime.combine(
-                start_date.date(),
-                datetime.time.min
-            )
+            kwargs['column_start'] = self.force_precision(start_date)
         if end_date is not None:
-            kwargs['column_finish'] = datetime.datetime.combine(
-                end_date,
-                datetime.time.max
-            )
+            kwargs['column_finish'] = self.force_precision(end_date)
         try:
             dates = self.column_family.get(parameter_id, **kwargs).keys()
             return [date.date() for date in dates]
         except pycassa.NotFoundException:
             return []
+
+    def force_precision(self, date):
+        if isinstance(date, datetime.date):
+            return datetime.datetime.combine(date, datetime.time.min)
+        elif isinstance(date, datetime.datetime):
+            return date.replace(hour=0, minute=0, second=0, microsecond=0)
+        else:
+            raise ValueError(
+                "`date` parameter must be a `datetime.date` or"
+                " `datetime.datetime` object."
+            )
