@@ -80,7 +80,11 @@ class DataPointStore(ColumnFamilyProxy):
             return sum((columns.items() for columns in result.values()), [])
 
     def aggregate(self, parameter_id, start_date=None, end_date=None):
-        kwargs = {}
+        kwargs = {
+            # Setting column count to Cassandra's maximum. We assume that
+            # clients of this API know what they're doing.
+            'column_count': 2000000000,
+        }
         if start_date is not None:
             kwargs['column_start'] = start_date
         if end_date is not None:
@@ -192,7 +196,11 @@ class AggregatesStore(DataPointStore):
         )
 
     def aggregate(self, parameter_id, start_date=None, end_date=None):
-        kwargs = {}
+        kwargs = {
+            # Setting column count to Cassandra's maximum. We assume that
+            # clients of this API know what they're doing.
+            'column_count': 2000000000,
+        }
         if start_date is not None:
             kwargs['column_start'] = start_date
         if end_date is not None:

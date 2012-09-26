@@ -71,7 +71,7 @@ if __name__ == '__main__':
                 'minimum': None,
                 'maximum': None,
                 'sum': numpy.float128(0),
-                'count': numpy.uint64(0),
+                'count': 0,
             }
         )
         if hourly_aggregates[key]['minimum'] is None:
@@ -84,7 +84,7 @@ if __name__ == '__main__':
         if hourly_aggregates[key]['maximum'] is None:
             hourly_aggregates[key]['maximum'] = value
         else:
-            hourly_aggregates[key]['maximum'] = min(
+            hourly_aggregates[key]['maximum'] = max(
                 hourly_aggregates[key]['maximum'],
                 value
             )
@@ -101,7 +101,7 @@ if __name__ == '__main__':
                 'minimum': None,
                 'maximum': None,
                 'sum': numpy.float128(0),
-                'count': numpy.uint64(0),
+                'count': 0,
             }
         )
         if daily_aggregates[key]['minimum'] is None:
@@ -114,7 +114,7 @@ if __name__ == '__main__':
         if daily_aggregates[key]['maximum'] is None:
             daily_aggregates[key]['maximum'] = value
         else:
-            daily_aggregates[key]['maximum'] = min(
+            daily_aggregates[key]['maximum'] = max(
                 daily_aggregates[key]['maximum'],
                 value
             )
@@ -131,7 +131,7 @@ if __name__ == '__main__':
                 'minimum': None,
                 'maximum': None,
                 'sum': numpy.float128(0),
-                'count': numpy.uint64(0),
+                'count': 0,
             }
         )
         if monthly_aggregates[key]['minimum'] is None:
@@ -144,7 +144,7 @@ if __name__ == '__main__':
         if monthly_aggregates[key]['maximum'] is None:
             monthly_aggregates[key]['maximum'] = value
         else:
-            monthly_aggregates[key]['maximum'] = min(
+            monthly_aggregates[key]['maximum'] = max(
                 monthly_aggregates[key]['maximum'],
                 value
             )
