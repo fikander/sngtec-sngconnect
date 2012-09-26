@@ -45,35 +45,51 @@ class TestMeasurementDays(CassandraTestMixin, unittest.TestCase):
         self.measurement_days = parameters.MeasurementDays()
 
     def test_basic_operation(self):
-        self.assertSequenceEqual(self.measurement_days.get_days(12), [])
+        parameter_id = 12245
+        self.assertSequenceEqual(
+            self.measurement_days.get_days(parameter_id),
+            []
+        )
         dates = [
             datetime.datetime(2012, 9, 11, 15, 18, 54),
             datetime.datetime(2012, 9, 15, 22,  0, 07),
             datetime.datetime(2012, 9, 18,  9, 12,  0),
             datetime.datetime(2012, 9, 19,  0,  0,  0),
         ]
-        self.measurement_days.add_days(12, dates)
-        self.assertSequenceEqual(self.measurement_days.get_days(12), [
-            datetime.date(2012, 9, 11),
-            datetime.date(2012, 9, 15),
-            datetime.date(2012, 9, 18),
-            datetime.date(2012, 9, 19),
-        ])
-        self.assertSequenceEqual(self.measurement_days.get_days(2452455), [])
-        self.measurement_days.add_days(12, [
+        self.measurement_days.add_days(parameter_id, dates)
+        self.assertSequenceEqual(
+            self.measurement_days.get_days(parameter_id),
+            [
+                datetime.date(2012, 9, 11),
+                datetime.date(2012, 9, 15),
+                datetime.date(2012, 9, 18),
+                datetime.date(2012, 9, 19),
+            ]
+        )
+        self.assertSequenceEqual(
+            self.measurement_days.get_days(parameter_id + 13),
+            []
+        )
+        self.measurement_days.add_days(parameter_id, [
             datetime.datetime(2012, 9, 15, 22,  0, 07),
             datetime.datetime(2012, 7, 20, 23, 59, 59),
             datetime.datetime(2012, 9, 18,  8,  9, 17),
             datetime.datetime(2012, 7, 20, 23, 59, 59),
         ])
-        self.assertSequenceEqual(self.measurement_days.get_days(12), [
-            datetime.date(2012, 7, 20),
-            datetime.date(2012, 9, 11),
-            datetime.date(2012, 9, 15),
-            datetime.date(2012, 9, 18),
-            datetime.date(2012, 9, 19),
-        ])
-        self.assertSequenceEqual(self.measurement_days.get_days(1), [])
+        self.assertSequenceEqual(
+            self.measurement_days.get_days(parameter_id),
+            [
+                datetime.date(2012, 7, 20),
+                datetime.date(2012, 9, 11),
+                datetime.date(2012, 9, 15),
+                datetime.date(2012, 9, 18),
+                datetime.date(2012, 9, 19),
+            ]
+        )
+        self.assertSequenceEqual(
+            self.measurement_days.get_days(parameter_id + 1),
+            []
+        )
 
 class TestHourlyAggregates(CassandraTestMixin, unittest.TestCase):
 
