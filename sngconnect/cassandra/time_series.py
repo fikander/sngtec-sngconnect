@@ -29,20 +29,20 @@ class TimeSeriesDateIndex(ColumnFamilyProxy):
             **additional_kwargs
         )
 
-    def add_days(self, parameter_id, dates):
+    def add_days(self, timeline_id, dates):
         values = dict(set((
             (self.force_precision(date), '') for date in dates
         )))
-        self.column_family.insert(parameter_id, values)
+        self.column_family.insert(timeline_id, values)
 
-    def get_days(self, parameter_id, start_date=None, end_date=None):
+    def get_days(self, timeline_id, start_date=None, end_date=None):
         kwargs = {}
         if start_date is not None:
             kwargs['column_start'] = self.force_precision(start_date)
         if end_date is not None:
             kwargs['column_finish'] = self.force_precision(end_date)
         try:
-            dates = self.column_family.get(parameter_id, **kwargs).keys()
+            dates = self.column_family.get(timeline_id, **kwargs).keys()
             return [date.date() for date in dates]
         except pycassa.NotFoundException:
             return []
@@ -90,7 +90,7 @@ class TimeSeries(ColumnFamilyProxy):
             **additional_kwargs
         )
 
-    def get_data_points(self, parameter_id, start_date=None, end_date=None):
+    def get_data_points(self, timeline_id, start_date=None, end_date=None):
         kwargs = {
             # Setting column count to Cassandra's maximum. We assume that
             # clients of this API know what they're doing.
@@ -108,21 +108,21 @@ class TimeSeries(ColumnFamilyProxy):
             end_day = None
         if start_day is not None and start_day == end_day:
             return self.column_family.get(
-                self.get_row_key(parameter_id, start_date),
+                self.get_row_key(timeline_id, start_date),
                 **kwargs
             ).items()
         else:
             measurement_days = self._date_index_class()
             days = measurement_days.get_days(
-                parameter_id,
+                timeline_id,
                 start_date=start_date,
                 end_date=end_date
             )
-            keys = [self.get_row_key(parameter_id, day) for day in days]
+            keys = [self.get_row_key(timeline_id, day) for day in days]
             result = self.column_family.multiget(keys, **kwargs)
             return sum((columns.items() for columns in result.values()), [])
 
-    def aggregate(self, parameter_id, start_date=None, end_date=None):
+    def aggregate(self, timeline_id, start_date=None, end_date=None):
         kwargs = {
             # Setting column count to Cassandra's maximum. We assume that
             # clients of this API know what they're doing.
@@ -134,11 +134,11 @@ class TimeSeries(ColumnFamilyProxy):
             kwargs['column_finish'] = end_date
         measurement_days = self._date_index_class()
         dates = measurement_days.get_days(
-            parameter_id,
+            timeline_id,
             start_date=start_date,
             end_date=end_date
         )
-        keys = set((self.get_row_key(parameter_id, date) for date in dates))
+        keys = set((self.get_row_key(timeline_id, date) for date in dates))
         values_sum = numpy.float128(0);
         values_minimum = None
         values_maximum = None
@@ -173,5 +173,5 @@ class TimeSeries(ColumnFamilyProxy):
             result['minimum'] = str(values_minimum)
         return result
 
-    def get_row_key(self, parameter_id, date):
-        return (parameter_id, date)
+    def get_row_key(self, timeline_id, date):
+        return (timeline_id, date)
