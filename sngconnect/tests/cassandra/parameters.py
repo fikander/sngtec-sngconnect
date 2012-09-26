@@ -159,7 +159,6 @@ class TestHourlyAggregates(CassandraTestMixin, unittest.TestCase):
         aggregates = self.hourly_aggregates.get_data_points(parameter_id + 2)
         self.assertAggregatesEqual(aggregates, [])
 
-
 class TestDailyAggregates(CassandraTestMixin, unittest.TestCase):
 
     def setUp(self):
@@ -170,34 +169,96 @@ class TestDailyAggregates(CassandraTestMixin, unittest.TestCase):
 
     def test_basic_operation(self):
         parameter_id = 23555
-        data_points = [
-            _dp((2012,  9, 21, 23, 59, 59, 999999), '522.343445'),
-            _dp((2012,  9, 22, 15, 11, 12,      0), '4.343445'),
-            _dp((2012,  9, 22,  9, 15,  5,   8001), '23454.0000018'),
-            _dp((2012,  9, 22, 15, 43, 12, 300144), '324255.12'),
-        ]
-        self.measurements.insert_data_points(parameter_id, data_points)
-        changed_dates = [date for date, value in data_points]
-        self.hourly_aggregates.recalculate_aggregates(parameter_id, changed_dates)
-        self.daily_aggregates.recalculate_aggregates(parameter_id, changed_dates)
-        aggregates = self.daily_aggregates.get_data_points(
+        data_points = list(_get_test_data_points())
+        self.measurements.insert_data_points(
             parameter_id,
-            start_date=datetime.datetime(2012, 9, 22)
+            # Shuffled to ensure database ordering.
+            data_points[500:] + data_points[:500]
         )
-        self.assertAggregatesEqual(aggregates, [
-            _dpa((2012, 9, 22), {
-                'minimum': '4.343445',
-                'maximum': '324255.12',
-                'sum': '347713.4634468',
-                'count': '3',
-            }),
-        ])
-        aggregates = self.daily_aggregates.get_data_points(
-            parameter_id,
-            start_date=datetime.datetime(2018, 1, 12),
-            end_date=datetime.datetime(5000, 12, 8)
-        )
+        aggregates = self.daily_aggregates.get_data_points(parameter_id)
         self.assertAggregatesEqual(aggregates, [])
+        self.hourly_aggregates.recalculate_aggregates(parameter_id, [
+            date for date, value in data_points
+        ])
+        self.daily_aggregates.recalculate_aggregates(parameter_id, [
+            date for date, value in data_points
+        ])
+        daily_aggregates_data = list(sorted([
+            (
+                isodate.parse_datetime(date_iso),
+                {
+                    'minimum': minimum,
+                    'maximum': maximum,
+                    'sum': sum,
+                    'count': count,
+                }
+            )
+            for date_iso, minimum, maximum, sum, count
+            in csv.reader(
+                gzip.open(
+                    os.path.join(TEST_DATA_DIR, 'daily_aggregates.csv.gz'),
+                    'r'
+                )
+            )
+        ], key=lambda x: x[0]))
+        aggregates = self.daily_aggregates.get_data_points(parameter_id)
+        self.assertAggregatesEqual(
+            aggregates,
+            daily_aggregates_data
+        )
+        aggregates = self.daily_aggregates.get_data_points(
+            parameter_id,
+            start_date=datetime.datetime(2012, 9, 24),
+            end_date=datetime.datetime(2012, 9, 25)
+        )
+        self.assertAggregatesEqual(
+            aggregates,
+            (
+                _dpa((2012, 9, 24), {
+                    'minimum': '-34.1889758363',
+                    'maximum': '34.0196311155',
+                    'sum': '-741.140138924',
+                    'count': '1374',
+                }),
+                _dpa((2012, 9, 25), {
+                    'minimum': '-42.9091583044',
+                    'maximum': '33.9159915355',
+                    'sum': '-3098.25337205',
+                    'count': '2862',
+                }),
+            )
+        )
+        aggregates = self.daily_aggregates.get_data_points(parameter_id + 2)
+        self.assertAggregatesEqual(aggregates, [])
+
+#        data_points = [
+#            _dp((2012,  9, 21, 23, 59, 59, 999999), '522.343445'),
+#            _dp((2012,  9, 22, 15, 11, 12,      0), '4.343445'),
+#            _dp((2012,  9, 22,  9, 15,  5,   8001), '23454.0000018'),
+#            _dp((2012,  9, 22, 15, 43, 12, 300144), '324255.12'),
+#        ]
+#        self.measurements.insert_data_points(parameter_id, data_points)
+#        changed_dates = [date for date, value in data_points]
+#        self.hourly_aggregates.recalculate_aggregates(parameter_id, changed_dates)
+#        self.daily_aggregates.recalculate_aggregates(parameter_id, changed_dates)
+#        aggregates = self.daily_aggregates.get_data_points(
+#            parameter_id,
+#            start_date=datetime.datetime(2012, 9, 22)
+#        )
+#        self.assertAggregatesEqual(aggregates, [
+#            _dpa((2012, 9, 22), {
+#                'minimum': '4.343445',
+#                'maximum': '324255.12',
+#                'sum': '347713.4634468',
+#                'count': '3',
+#            }),
+#        ])
+#        aggregates = self.daily_aggregates.get_data_points(
+#            parameter_id,
+#            start_date=datetime.datetime(2018, 1, 12),
+#            end_date=datetime.datetime(5000, 12, 8)
+#        )
+#        self.assertAggregatesEqual(aggregates, [])
 
 class TestMonthlyAggregates(CassandraTestMixin, unittest.TestCase):
 
