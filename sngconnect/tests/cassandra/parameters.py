@@ -358,3 +358,54 @@ class TestMeasurements(CassandraTestMixin, unittest.TestCase):
             ),
             []
         )
+
+    def test_timezone_support(self):
+        parameter_id = 1253353566
+        self.measurements.insert_data_points(
+            parameter_id,
+            (
+                (
+                    pytz.timezone('Europe/Warsaw').localize(
+                        datetime.datetime(2012, 9, 28, 17, 35, 12, 543123)
+                    ),
+                    '3543.44555'
+                ),
+                (
+                    pytz.timezone('Australia/Melbourne').localize(
+                        datetime.datetime(2012, 10, 28, 19, 13, 4, 17)
+                    ),
+                    '-24444.45'
+                ),
+                (
+                    pytz.timezone('Asia/Qyzylorda').localize(
+                        datetime.datetime(2011, 12, 1, 9, 59, 59, 999999)
+                    ),
+                    '0.000002'
+                ),
+                (
+                    pytz.timezone('Pacific/Samoa').localize(
+                        datetime.datetime(2012, 9, 1, 23, 59, 59, 999999)
+                    ),
+                    '0.1'
+                ),
+            )
+        )
+        self.assertSequenceEqual(
+            self.measurements.get_data_points(parameter_id),
+            (
+                (_utc_datetime(2011, 12, 1, 3, 59, 59, 999999), '0.000002'),
+                (_utc_datetime(2012, 9, 2, 10, 59, 59, 999999), '0.1'),
+                (_utc_datetime(2012, 9, 28, 15, 35, 12, 543123), '3543.44555'),
+                (_utc_datetime(2012, 10, 28, 8, 13, 4, 17), '-24444.45'),
+            )
+        )
+        self.assertSequenceEqual(
+            self.measurements.get_data_points(
+                parameter_id,
+                start_date=_utc_datetime(2012, 9, 2, 10),
+                end_date=_utc_datetime(2012, 9, 2, 12)
+            ),
+            (
+                (_utc_datetime(2012, 9, 2, 10, 59, 59, 999999), '0.1'),
+            )
+        )
