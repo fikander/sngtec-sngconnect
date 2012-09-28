@@ -20,10 +20,6 @@ def initialize_connection_pool(settings):
         credentials=arguments['credentials'],
         pool_size=pool_size
     )
-    logger.debug("Opened %d connections to Cassandra servers: %s" % (
-        pool_size,
-        ', '.join(arguments['server_list'])
-    ))
 
 def get_column_family(column_family_name):
     global CONNECTION_POOL
