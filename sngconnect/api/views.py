@@ -17,7 +17,7 @@ def system_parameter(request):
         parameter_id = int(request.matchdict['parameter_id'])
     except (KeyError, ValueError):
         raise httpexceptions.HTTPNotFound("Invalid request arguments.")
-    parameter_count = DBSession().query(Parameter).filter(
+    parameter_count = DBSession.query(Parameter).filter(
         System.id == system_id,
         Parameter.id == parameter_id
     ).count()
