@@ -1,6 +1,7 @@
 import datetime
 import calendar
 
+import pytz
 import numpy
 import pycassa
 from pycassa import types as pycassa_types
@@ -30,15 +31,14 @@ class Measurements(TimeSeries):
         )
 
     def get_row_key(self, parameter_id, date):
-        if isinstance(date, datetime.date):
-            date = datetime.datetime.combine(date, datetime.time.min)
-        elif isinstance(date, datetime.datetime):
-            date = date.replace(hour=0, minute=0, second=0, microsecond=0)
-        else:
-            raise ValueError(
-                "`date` parameter must be a `datetime.date` or"
-                " `datetime.datetime` object."
-            )
+        if date.tzinfo is None:
+            raise ValueError("Naive datetime is not supported.")
+        date = pytz.utc.normalize(date.astimezone(pytz.utc)).replace(
+            hour=0,
+            minute=0,
+            second=0,
+            microsecond=0
+        )
         return super(Measurements, self).get_row_key(parameter_id, date)
 
 class AggregatesStore(TimeSeries):
@@ -171,18 +171,17 @@ class HourlyAggregates(AggregatesStore):
     _column_family_name = 'HourlyAggregates'
 
     def get_row_key(self, parameter_id, date):
-        if isinstance(date, datetime.date):
-            start_date = datetime.datetime.combine(date, datetime.time.min)
-        elif isinstance(date, datetime.datetime):
-            start_date = date.replace(hour=0, minute=0, second=0, microsecond=0)
-        else:
-            raise ValueError(
-                "`date` parameter must be a `datetime.date` or"
-                " `datetime.datetime` object."
-            )
+        if date.tzinfo is None:
+            raise ValueError("Naive datetime is not supported.")
+        date = pytz.utc.normalize(date.astimezone(pytz.utc)).replace(
+            hour=0,
+            minute=0,
+            second=0,
+            microsecond=0
+        )
         return super(HourlyAggregates, self).get_row_key(
             parameter_id,
-            start_date
+            date
         )
 
     def force_precision(self, date):
@@ -202,24 +201,15 @@ class DailyAggregates(AggregatesStore):
     _column_family_name = 'DailyAggregates'
 
     def get_row_key(self, parameter_id, date):
-        if isinstance(date, datetime.date):
-            date = datetime.datetime.combine(
-                date.replace(day=1),
-                datetime.time.min
-            )
-        elif isinstance(date, datetime.datetime):
-            date = date.replace(
-                day=1,
-                hour=0,
-                minute=0,
-                second=0,
-                microsecond=0
-            )
-        else:
-            raise ValueError(
-                "`date` parameter must be a `datetime.date` or"
-                " `datetime.datetime` object."
-            )
+        if date.tzinfo is None:
+            raise ValueError("Naive datetime is not supported.")
+        date = pytz.utc.normalize(date.astimezone(pytz.utc)).replace(
+            day=1,
+            hour=0,
+            minute=0,
+            second=0,
+            microsecond=0
+        )
         return super(DailyAggregates, self).get_row_key(parameter_id, date)
 
     def force_precision(self, date):
@@ -239,35 +229,29 @@ class MonthlyAggregates(AggregatesStore):
     _column_family_name = 'MonthlyAggregates'
 
     def get_row_key(self, parameter_id, date):
-        if isinstance(date, datetime.date):
-            date = datetime.datetime.combine(
-                date.replace(month=1, day=1),
-                datetime.time.min
-            )
-        elif isinstance(date, datetime.datetime):
-            date = date.replace(
-                month=1,
-                day=1,
-                hour=0,
-                minute=0,
-                second=0,
-                microsecond=0
-            )
-        else:
-            raise ValueError(
-                "`date` parameter must be a `datetime.date` or"
-                " `datetime.datetime` object."
-            )
+        if date.tzinfo is None:
+            raise ValueError("Naive datetime is not supported.")
+        date = pytz.utc.normalize(date.astimezone(pytz.utc)).replace(
+            month=1,
+            day=1,
+            hour=0,
+            minute=0,
+            second=0,
+            microsecond=0
+        )
         return super(MonthlyAggregates, self).get_row_key(parameter_id, date)
 
     def force_precision(self, date):
         return date.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
 
     def get_date_range(self, date):
-        end_day = date.replace(
-            day=calendar.monthrange(date.year, date.month)[1]
-        ).date()
-        end_date = datetime.datetime.combine(end_day, datetime.time.max)
+        end_date = date.replace(
+            day=calendar.monthrange(date.year, date.month)[1],
+            hour=23,
+            minute=59,
+            second=59,
+            microsecond=999999
+        )
         return (date, end_date)
 
     def get_data_source(self):

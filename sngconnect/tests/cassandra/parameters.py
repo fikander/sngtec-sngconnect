@@ -4,6 +4,7 @@ import csv
 import unittest
 import datetime
 
+import pytz
 import isodate
 
 from sngconnect.cassandra import parameters
@@ -11,6 +12,9 @@ from sngconnect.cassandra import parameters
 from sngconnect.tests.cassandra import CassandraTestMixin
 
 TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
+
+def _utc_datetime(*datetime_tuple):
+    return pytz.utc.localize(datetime.datetime(*datetime_tuple))
 
 def _get_test_data_points():
     reader = csv.reader(
@@ -27,14 +31,14 @@ def _get_test_data_points():
 def _dp(datetime_tuple, decimal_string):
     """Takes care of data point types."""
     return (
-        datetime.datetime(*datetime_tuple),
+        _utc_datetime(*datetime_tuple),
         decimal_string
     )
 
 def _dpa(datetime_tuple, aggregate_mapping):
     """Takes care of data point aggregate types."""
     return (
-        datetime.datetime(*datetime_tuple),
+        _utc_datetime(*datetime_tuple),
         aggregate_mapping
     )
 
@@ -51,19 +55,19 @@ class TestMeasurementDays(CassandraTestMixin, unittest.TestCase):
             []
         )
         dates = [
-            datetime.datetime(2012, 9, 11, 15, 18, 54),
-            datetime.datetime(2012, 9, 15, 22,  0, 07),
-            datetime.datetime(2012, 9, 18,  9, 12,  0),
-            datetime.datetime(2012, 9, 19,  0,  0,  0),
+            _utc_datetime(2012, 9, 11, 15, 18, 54),
+            _utc_datetime(2012, 9, 15, 22,  0, 07),
+            _utc_datetime(2012, 9, 18,  9, 12,  0),
+            _utc_datetime(2012, 9, 19,  0,  0,  0),
         ]
         self.measurement_days.add_days(parameter_id, dates)
         self.assertSequenceEqual(
             self.measurement_days.get_days(parameter_id),
             [
-                datetime.date(2012, 9, 11),
-                datetime.date(2012, 9, 15),
-                datetime.date(2012, 9, 18),
-                datetime.date(2012, 9, 19),
+                _utc_datetime(2012, 9, 11),
+                _utc_datetime(2012, 9, 15),
+                _utc_datetime(2012, 9, 18),
+                _utc_datetime(2012, 9, 19),
             ]
         )
         self.assertSequenceEqual(
@@ -71,19 +75,19 @@ class TestMeasurementDays(CassandraTestMixin, unittest.TestCase):
             []
         )
         self.measurement_days.add_days(parameter_id, [
-            datetime.datetime(2012, 9, 15, 22,  0, 07),
-            datetime.datetime(2012, 7, 20, 23, 59, 59),
-            datetime.datetime(2012, 9, 18,  8,  9, 17),
-            datetime.datetime(2012, 7, 20, 23, 59, 59),
+            _utc_datetime(2012, 9, 15, 22,  0, 07),
+            _utc_datetime(2012, 7, 20, 23, 59, 59),
+            _utc_datetime(2012, 9, 18,  8,  9, 17),
+            _utc_datetime(2012, 7, 20, 23, 59, 59),
         ])
         self.assertSequenceEqual(
             self.measurement_days.get_days(parameter_id),
             [
-                datetime.date(2012, 7, 20),
-                datetime.date(2012, 9, 11),
-                datetime.date(2012, 9, 15),
-                datetime.date(2012, 9, 18),
-                datetime.date(2012, 9, 19),
+                _utc_datetime(2012, 7, 20),
+                _utc_datetime(2012, 9, 11),
+                _utc_datetime(2012, 9, 15),
+                _utc_datetime(2012, 9, 18),
+                _utc_datetime(2012, 9, 19),
             ]
         )
         self.assertSequenceEqual(
@@ -136,8 +140,8 @@ class TestHourlyAggregates(CassandraTestMixin, unittest.TestCase):
         )
         aggregates = self.hourly_aggregates.get_data_points(
             parameter_id,
-            start_date=datetime.datetime(2012, 9, 24, 12),
-            end_date=datetime.datetime(2012, 9, 24, 13)
+            start_date=_utc_datetime(2012, 9, 24, 12),
+            end_date=_utc_datetime(2012, 9, 24, 13)
         )
         self.assertAggregatesEqual(
             aggregates,
@@ -208,8 +212,8 @@ class TestDailyAggregates(CassandraTestMixin, unittest.TestCase):
         )
         aggregates = self.daily_aggregates.get_data_points(
             parameter_id,
-            start_date=datetime.datetime(2012, 9, 24),
-            end_date=datetime.datetime(2012, 9, 25)
+            start_date=_utc_datetime(2012, 9, 24),
+            end_date=_utc_datetime(2012, 9, 25)
         )
         self.assertAggregatesEqual(
             aggregates,
@@ -284,8 +288,8 @@ class TestMonthlyAggregates(CassandraTestMixin, unittest.TestCase):
         )
         aggregates = self.monthly_aggregates.get_data_points(
             parameter_id,
-            start_date=datetime.datetime(2012, 9, 1),
-            end_date=datetime.datetime(2012, 9, 1)
+            start_date=_utc_datetime(2012, 9, 1),
+            end_date=_utc_datetime(2012, 9, 1)
         )
         self.assertAggregatesEqual(
             aggregates,
@@ -330,8 +334,8 @@ class TestMeasurements(CassandraTestMixin, unittest.TestCase):
         self.assertSequenceEqual(
             self.measurements.get_data_points(
                 parameter_id,
-                start_date=datetime.datetime(2012, 9, 26, 11, 18),
-                end_date=datetime.datetime(2012, 9, 26, 11, 18, 34)
+                start_date=_utc_datetime(2012, 9, 26, 11, 18),
+                end_date=_utc_datetime(2012, 9, 26, 11, 18, 34)
             ),
             (
                 _dp((2012, 9, 26, 11, 18, 0, 379482), '-22.7874213891'),
@@ -341,16 +345,16 @@ class TestMeasurements(CassandraTestMixin, unittest.TestCase):
         self.assertSequenceEqual(
             self.measurements.get_data_points(
                 parameter_id,
-                start_date=datetime.datetime(2015, 9, 26, 11, 19),
-                end_date=datetime.datetime(2050, 9, 26, 11, 19, 27)
+                start_date=_utc_datetime(2015, 9, 26, 11, 19),
+                end_date=_utc_datetime(2050, 9, 26, 11, 19, 27)
             ),
             []
         )
         self.assertSequenceEqual(
             self.measurements.get_data_points(
                 parameter_id,
-                start_date=datetime.datetime(2015, 9, 26, 11, 19),
-                end_date=datetime.datetime(2050, 9, 26, 11, 19, 27)
+                start_date=_utc_datetime(2015, 9, 26, 11, 19),
+                end_date=_utc_datetime(2050, 9, 26, 11, 19, 27)
             ),
             []
         )

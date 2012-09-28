@@ -14,6 +14,8 @@ requires = [
     'py-bcrypt',
     'numpy',
     'isodate',
+    'pytz',
+    'colander',
     'pycassa',
     'pyramid_tm',
     'pyramid_jinja2',

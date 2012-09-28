@@ -3,12 +3,17 @@
 import unittest
 import datetime
 
+import pytz
+
 from sngconnect.cassandra import log
 
 from sngconnect.tests.cassandra import CassandraTestMixin
 
+def _utc_datetime(*datetime_tuple):
+    return pytz.utc.localize(datetime.datetime(*datetime_tuple))
+
 def _dp(datetime_tuple, message):
-    return (datetime.datetime(*datetime_tuple), message)
+    return (_utc_datetime(*datetime_tuple), message)
 
 class TestLogs(CassandraTestMixin, unittest.TestCase):
 
@@ -45,7 +50,7 @@ class TestLogs(CassandraTestMixin, unittest.TestCase):
         self.assertSequenceEqual(
             self.logs.get_log_entries(
                 log_id,
-                start_date=datetime.datetime(2012, 9, 26)
+                start_date=_utc_datetime(2012, 9, 26)
             ),
             (
                 _dp((2012, 9, 26, 11, 17,  0,      8), u"대중적 음식의 하나."),
@@ -55,8 +60,8 @@ class TestLogs(CassandraTestMixin, unittest.TestCase):
         self.assertSequenceEqual(
             self.logs.get_log_entries(
                 log_id,
-                start_date=datetime.datetime(2012, 9, 26),
-                end_date=datetime.datetime(2012, 9, 26, 12)
+                start_date=_utc_datetime(2012, 9, 26),
+                end_date=_utc_datetime(2012, 9, 26, 12)
             ),
             (
                 _dp((2012, 9, 26, 11, 17,  0,      8), u"대중적 음식의 하나."),

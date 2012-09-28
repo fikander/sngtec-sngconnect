@@ -1,4 +1,4 @@
 from sngconnect.tests import TestMixin
 
-class CassandraTestMixin(TestMixin):
+class ApiTestMixin(TestMixin):
     pass

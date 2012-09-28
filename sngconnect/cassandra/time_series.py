@@ -1,5 +1,4 @@
-import datetime
-
+import pytz
 import numpy
 import pycassa
 from pycassa import types as pycassa_types
@@ -42,21 +41,22 @@ class TimeSeriesDateIndex(ColumnFamilyProxy):
         if end_date is not None:
             kwargs['column_finish'] = self.force_precision(end_date)
         try:
-            dates = self.column_family.get(timeline_id, **kwargs).keys()
-            return [date.date() for date in dates]
+            return map(
+                pytz.utc.localize,
+                self.column_family.get(timeline_id, **kwargs).keys()
+            )
         except pycassa.NotFoundException:
             return []
 
     def force_precision(self, date):
-        if isinstance(date, datetime.date):
-            return datetime.datetime.combine(date, datetime.time.min)
-        elif isinstance(date, datetime.datetime):
-            return date.replace(hour=0, minute=0, second=0, microsecond=0)
-        else:
-            raise ValueError(
-                "`date` parameter must be a `datetime.date` or"
-                " `datetime.datetime` object."
-            )
+        if date.tzinfo is None:
+            raise ValueError("Naive datetimes are not supported.")
+        return pytz.utc.normalize(date.astimezone(pytz.utc)).replace(
+            hour=0,
+            minute=0,
+            second=0,
+            microsecond=0
+        )
 
 class TimeSeries(ColumnFamilyProxy):
 
@@ -98,12 +98,22 @@ class TimeSeries(ColumnFamilyProxy):
         }
         if start_date is not None:
             kwargs['column_start'] = start_date
-            start_day = start_date.date()
+            start_day = start_date.replace(
+                hour=0,
+                minute=0,
+                second=0,
+                microsecond=0
+            )
         else:
             start_day = None
         if end_date is not None:
             kwargs['column_finish'] = end_date
-            end_day = end_date.date()
+            end_day = end_date.replace(
+                hour=0,
+                minute=0,
+                second=0,
+                microsecond=0
+            )
         else:
             end_day = None
         if start_day is not None and start_day == end_day:
@@ -174,4 +184,4 @@ class TimeSeries(ColumnFamilyProxy):
         return result
 
     def get_row_key(self, timeline_id, date):
-        return (timeline_id, date)
+        return (timeline_id, date.replace(tzinfo=None))
