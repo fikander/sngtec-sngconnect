@@ -12,6 +12,9 @@ from sngconnect.cassandra.parameters import Measurements
 
 from sngconnect.tests.api import ApiTestMixin
 
+def _utc_datetime(*datetime_tuple):
+    return pytz.utc.localize(datetime.datetime(*datetime_tuple))
+
 class TestSystemParameterPut(ApiTestMixin, unittest.TestCase):
 
     def setUp(self):
@@ -65,7 +68,7 @@ class TestSystemParameterPut(ApiTestMixin, unittest.TestCase):
                     'value': '234254234.2344',
                 },
                 {
-                    'at': '2012-09-26T18:14:35.425Z',
+                    'at': '2012-09-26T18:14:35.425-07:00',
                     'value': '-234234444.24525',
                 },
             ]
@@ -76,17 +79,11 @@ class TestSystemParameterPut(ApiTestMixin, unittest.TestCase):
             Measurements().get_data_points(1),
             (
                 (
-                    datetime.datetime(
-                        2012, 9, 26, 18, 14, 34, 345123,
-                        tzinfo=pytz.utc
-                    ),
+                    _utc_datetime(2012, 9, 26, 18, 14, 34, 345123),
                     '234254234.2344'
                 ),
                 (
-                    datetime.datetime(
-                        2012, 9, 26, 18, 14, 35, 425000,
-                        tzinfo=pytz.utc
-                    ),
+                    _utc_datetime(2012, 9, 27, 1, 14, 35, 425000),
                     '-234234444.24525'
                 ),
             )
