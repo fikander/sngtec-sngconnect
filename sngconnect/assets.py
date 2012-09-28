@@ -1,0 +1,2 @@
+ASSET_BUNDLES = {
+}

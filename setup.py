@@ -16,10 +16,13 @@ requires = [
     'isodate',
     'pytz',
     'colander',
+    'webassets',
+    'cssmin',
     'pycassa',
     'pyramid_tm',
     'pyramid_jinja2',
     'pyramid_debugtoolbar',
+    'pyramid_webassets',
     'zope.sqlalchemy',
     'waitress',
 ]
