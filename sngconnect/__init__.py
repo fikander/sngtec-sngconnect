@@ -17,6 +17,8 @@ def main(global_config, **settings):
             'static'
         ),
         'webassets.base_url': '/static/',
+        # Jinja2
+        'jinja2.i18n.domain': 'sngconnect',
     })
     # Configure the database connection.
     database_engine = sqlalchemy.engine_from_config(settings, 'database.')
@@ -25,6 +27,11 @@ def main(global_config, **settings):
     cassandra_connection_pool.initialize_connection_pool(settings)
     # Create application configurator.
     config = Configurator(settings=settings)
+    # Add translation directories.
+    config.add_translation_dirs(os.path.join(
+        os.path.dirname(__file__),
+        'locale'
+    ))
     # Include add-ons.
     config.include('pyramid_tm')
     config.include('pyramid_jinja2')

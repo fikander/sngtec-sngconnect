@@ -1,0 +1,70 @@
+# Translations template for sngconnect.
+# Copyright (C) 2012 ORGANIZATION
+# This file is distributed under the same license as the sngconnect project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2012.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: sngconnect 0.0\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2012-09-30 09:39+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.6\n"
+
+#: sngconnect/errors/templates/not_found.jinja2:9
+msgid "Page not found..."
+msgstr ""
+
+#: sngconnect/errors/templates/not_found.jinja2:10
+#, python-format
+msgid ""
+"Sorry, it appears the page you were looking for doesn't exist anymore or "
+"might have been moved. If the problem persists, please contact our support at"
+" <a href=\"mailto:%(email)s\">%(email)s</a>."
+msgstr ""
+
+#: sngconnect/errors/templates/not_found.jinja2:11
+msgid "Back to Dashboard"
+msgstr ""
+
+#: sngconnect/telemetry/templates/dashboard.jinja2:33
+msgid "Systems"
+msgstr ""
+
+#: sngconnect/telemetry/templates/dashboard.jinja2:38
+#, python-format
+msgid ""
+"You have <code>%(count)s</code> systems with alarm active. If you don't know "
+"what it means - contact your system's administrator."
+msgstr ""
+
+#: sngconnect/telemetry/templates/dashboard.jinja2:43
+msgid "Map"
+msgstr ""
+
+#: sngconnect/telemetry/templates/dashboard.jinja2:45
+msgid "Monitored systems"
+msgstr ""
+
+#: sngconnect/telemetry/templates/dashboard.jinja2:49
+msgid "Name"
+msgstr ""
+
+#: sngconnect/telemetry/templates/dashboard.jinja2:50
+msgid "Alarms"
+msgstr ""
+
+#: sngconnect/telemetry/templates/dashboard.jinja2:51
+msgid "System"
+msgstr ""
+
+#: sngconnect/telemetry/templates/dashboard.jinja2:52
+msgid "Owner"
+msgstr ""
+

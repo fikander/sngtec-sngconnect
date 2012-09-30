@@ -1,0 +1,324 @@
+//
+// Wuxia settings
+// --------------------------------------------------
+
+// Colors: Dark
+@templateDark:                                       #33363b;
+@templateDarkNavLink:                                #959b9d;
+@templateDarkLoading:                                "../img/icons/loading_dark.gif";
+
+// Colors: Red
+@templateRed:                                        #d43f3f;
+@templateRedNavLink:                                 #ffc7bf;
+@templateRedLoading:                                 "../img/icons/loading_red.gif";
+
+// Colors: Green
+@templateGreen:                                      #6b9b20;
+@templateGreenNavLink:                               #d3dea3;
+@templateGreenLoading:                               "../img/icons/loading_green.gif";
+
+// Colors: Blue
+@templateBlue:                                       #389abe;
+@templateBlueNavLink:                                #fffbdb;
+@templateBlueLoading:                                "../img/icons/loading_blue.gif";
+
+// Colors: Orange
+@templateOrange:                                     #fa9300;
+@templateOrangeNavLink:                              #f6f6e8;
+@templateOrangeLoading:                              "../img/icons/loading_orange.gif";
+
+// Colors: Purple
+@templatePurple:                                     #8960a7;
+@templatePurpleNavLink:                              #ffcaff;
+@templatePurpleLoading:                              "../img/icons/loading_purple.gif";
+
+
+// Fast customization
+// --------------------------------------------------
+
+// Fast color replacing
+@wuxiaColor:                                         @templateRed;
+@wuxiaNavLink:                                       @templateRedNavLink;
+@wuxiaLoading:                                       @templateRedLoading;
+
+// Template style
+@templateColor:                                      @wuxiaColor;
+@linkColor:                                          @wuxiaColor;
+@linkColorHover:                                     darken(@linkColor, 20%);
+@loginBackgroundImg:                                 "../img/assets/bg_login.png";
+
+// General styles
+@templateLogo:                                       "../img/template_logo.png";
+@baseBorderRadius:                                   5px;
+
+
+// Globals
+// --------------------------------------------------
+// Scaffolding
+@bodyBackground:                                     #f6f6f6;
+@textColor:                                          #878D96;
+@baseMargin:                                         20px;
+
+// Content container
+@contentBackgroundImage:                             "../img/assets/bg_content.jpg";
+@contentBackground:                                  #fdfdfd;
+@contentBorder:                                      #e0e0e0;
+
+// Dashboard
+@dashboardBackground:                                #fcfcfc;
+@dashboardBorder:                                    #e0e0e0;
+
+// Typography
+@sansFontFamily:                                     "Helvetica Neue", Helvetica, Arial, sans-serif;
+@serifFontFamily:                                    Georgia, "Times New Roman", Times, serif;
+@monoFontFamily:                                     Monaco, Menlo, Consolas, "Courier New", monospace;
+
+@baseFontSize:                                       13px;
+@baseFontFamily:                                     @sansFontFamily;
+@baseLineHeight:                                     18px;
+@altFontFamily:                                      @serifFontFamily;
+
+@headingsFontFamily:                                 inherit;
+@headingsFontWeight:                                 bold;
+@headingsColor:                                      #525252; 
+
+
+// Links
+@linkColor:                                          @wuxiaColor;
+@linkColorHover:                                     darken(@linkColor, 15%);
+
+
+// Tables
+@tableBackground:                                    transparent;
+@tableBackgroundAccent:                              #f9f9f9;
+@tableBackgroundHover:                               #f5f5f5;
+@tableBorder:                                        #ddd;
+
+
+// Buttons
+@btnBackground:                                      #f0f1f2;
+@btnBackgroundHighlight:                             darken(@white, 10%);
+@btnBorder:                                          #bbb;
+
+@btnPrimaryBackground:                               @linkColor;
+@btnPrimaryBackgroundHighlight:                      spin(@btnPrimaryBackground, 15%);
+
+@btnInfoBackground:                                  @templateBlue;
+@btnInfoBackgroundHighlight:                         spin(@btnInfoBackground, 15%);
+
+@btnSuccessBackground:                               @templateGreen;
+@btnSuccessBackgroundHighlight:                      darken(@btnSuccessBackground, 10%);
+
+@btnWarningBackground:                               @templateOrange;
+@btnWarningBackgroundHighlight:                      darken(@btnWarningBackground, 10%);
+
+@btnDangerBackground:                                @templateRed;
+@btnDangerBackgroundHighlight:                       darken(@btnDangerBackground, 10%);
+
+@btnInverseBackground:                               @templateDark;
+@btnInverseBackgroundHighlight:                      darken(@btnInverseBackground, 10%);
+
+
+// Forms
+@inputBackground:                                    @white;
+@inputBorder:                                        #ccc;
+@inputBorderRadius:                                  3px;
+@inputDisabledBackground:                            @grayLighter;
+@formActionsBackground:                              #f5f5f5;
+@placeholderText:                                    @grayLight;
+
+
+// Form states and alerts
+@warningText:                                        #c09853;
+@warningBackground:                                  #fcf8e3;
+@warningBorder:                                      darken(spin(@warningBackground, -10), 3%);
+
+@errorText:                                          #b94a48;
+@errorBackground:                                    #f2dede;
+@errorBorder:                                        darken(spin(@errorBackground, -10), 3%);
+
+@successText:                                        #468847;
+@successBackground:                                  #dff0d8;
+@successBorder:                                      darken(spin(@successBackground, -10), 5%);
+
+@infoText:                                           #3a87ad;
+@infoBackground:                                     #d9edf7;
+@infoBorder:                                         darken(spin(@infoBackground, -10), 7%);
+
+
+// Dropdowns
+@dropdownBackground:                                 @white;
+@dropdownBorder:                                     rgba(0,0,0,.2);
+@dropdownDividerTop:                                 #e5e5e5;
+@dropdownDividerBottom:                              @white;
+
+@dropdownLinkColor:                                  @grayDark;
+@dropdownLinkColorHover:                             @white;
+@dropdownLinkBackgroundHover:                        @dropdownLinkBackgroundActive;
+@dropdownLinkColorActive:                            @dropdownLinkColor;
+@dropdownLinkBackgroundActive:                       @linkColor;
+
+
+// Icons paths
+@iconSpritePath:                                     '../../img/icons/glyphicons-halflings.png';
+@iconWhiteSpritePath:                                '../../img/icons/glyphicons-halflings-white.png';
+@iconFamFamFamPath:                                  '../../img/icons/famfamfam-icons.png';
+@iconEmoticonPath:                                   '../../img/icons/emoticons-icons.png';
+@fontAwesomePath:                                    '../../css/font';
+
+// Breadcrumbs
+@breadcrumbDivider:                                   "../img/assets/breadcrumbs_divider.png";
+
+// Z-index master list
+@zindexDropdown:                                     1000;
+@zindexPopover:                                      1010;
+@zindexTooltip:                                      1030;
+@zindexFixedNavbar:                                  1030;
+@zindexModalBackdrop:                                1040;
+@zindexModal:                                        1050;
+
+
+// Colors
+// --------------------------------------------------
+// Grays
+@black:                                              #000;
+@grayDarker:                                         #222;
+@grayDark:                                           #333;
+@gray:                                               #555;
+@grayLight:                                          #999;
+@grayLighter:                                        #eee;
+@white:                                              #fff;
+
+
+// Accent colors
+@blue:                                               @templateBlue;
+@blueDark:                                           #0064cd;
+@green:                                              @templateGreen;
+@red:                                                @templateRed;
+@yellow:                                             #ffc40d;
+@orange:                                             @templateOrange;
+@pink:                                               #c3325f;
+@purple:                                             @templatePurple;
+
+
+// Componenets
+// --------------------------------------------------
+// Pagination
+@paginationBackground:                               #fff;
+@paginationBorder:                                   #ddd;
+@paginationActiveBackground:                         #f5f5f5;
+
+
+// Hero unit
+@heroUnitBackground:                                 @grayLighter;
+@heroUnitHeadingColor:                               inherit;
+@heroUnitLeadColor:                                  inherit;
+
+
+// Horizontal forms & lists
+@horizontalComponentOffset:                          180px;
+
+
+// Hr border color
+@hrBorder:                                           @grayLighter;
+
+
+// Wells
+@wellBackground:                                     #f5f5f5;
+
+
+// Tooltips and popovers
+@tooltipColor:                                       #fff;
+@tooltipBackground:                                  #000;
+@tooltipArrowWidth:                                  5px;
+@tooltipArrowColor:                                  @tooltipBackground;
+
+@popoverBackground:                                  #fff;
+@popoverArrowWidth:                                  10px;
+@popoverArrowColor:                                  #fff;
+@popoverTitleBackground:                             darken(@popoverBackground, 3%);
+
+// Special enhancement for popovers
+@popoverArrowOuterWidth:                             @popoverArrowWidth + 1;
+@popoverArrowOuterColor:                             rgba(0,0,0,.25);
+
+
+// Navbar
+@navbarCollapseWidth:                                979px;
+
+@navbarHeight:                                       45px;
+@navbarBackground:                                   @templateColor;
+@navbarBackgroundHighlight:                          lighten(@templateColor, 5%);
+@navbarBorder:                                       darken(@navbarBackground, 12%);
+
+@navbarText:                                         @gray;
+@navbarLinkColor:                                    @wuxiaNavLink;
+@navbarLinkColorHover:                               @white;
+@navbarLinkColorActive:                              @white;
+@navbarLinkBackgroundHover:                          transparent;
+@navbarLinkBackgroundActive:                         darken(@navbarBackground, 5%);
+
+@navbarBrandColor:                                   @navbarLinkColor;
+
+// Inverted navbar
+@navbarInverseBackground:                            #111111;
+@navbarInverseBackgroundHighlight:                   #222222;
+@navbarInverseBorder:                                #252525;
+
+@navbarInverseText:                                  @grayLight;
+@navbarInverseLinkColor:                             @grayLight;
+@navbarInverseLinkColorHover:                        @white;
+@navbarInverseLinkColorActive:                       @navbarInverseLinkColorHover;
+@navbarInverseLinkBackgroundHover:                   transparent;
+@navbarInverseLinkBackgroundActive:                  @navbarInverseBackground;
+
+@navbarInverseSearchBackground:                      lighten(@navbarInverseBackground, 25%);
+@navbarInverseSearchBackgroundFocus:                 @white;
+@navbarInverseSearchBorder:                          @navbarInverseBackground;
+@navbarInverseSearchPlaceholderColor:                #ccc;
+
+@navbarInverseBrandColor:                            @navbarInverseLinkColor;
+
+
+// Grid
+// --------------------------------------------------
+// Default 940px grid
+@gridColumns:                                        12;
+@gridColumnWidth:                                    60px;
+@gridGutterWidth:                                    20px;
+@gridRowWidth:                                       (@gridColumns * @gridColumnWidth) + (@gridGutterWidth * (@gridColumns - 1));
+@fluidGridColumnWidth:                               percentage(@gridColumnWidth/@gridRowWidth);
+@fluidGridGutterWidth:                               percentage(@gridGutterWidth/@gridRowWidth);
+
+// 1200px min
+@gridColumnWidth1200:                                70px;
+@gridGutterWidth1200:                                30px;
+@gridRowWidth1200:                                   (@gridColumns * @gridColumnWidth1200) + (@gridGutterWidth1200 * (@gridColumns - 1));
+@fluidGridColumnWidth1200:                           percentage(@gridColumnWidth1200/@gridRowWidth1200);
+@fluidGridGutterWidth1200:                           percentage(@gridGutterWidth1200/@gridRowWidth1200);
+
+// 768px-979px
+@gridColumnWidth768:                                 42px;
+@gridGutterWidth768:                                 20px;
+@gridRowWidth768:                                    (@gridColumns * @gridColumnWidth768) + (@gridGutterWidth768 * (@gridColumns - 1));
+@fluidGridColumnWidth768:                            percentage(@gridColumnWidth768/@gridRowWidth768);
+@fluidGridGutterWidth768:                            percentage(@gridGutterWidth768/@gridRowWidth768);
+
+
+// Plugins
+// --------------------------------------------------
+
+// Plugin: DataTables
+@datatablesSortBothImg:                              "../img/plugins/dataTables/sort_both.png";
+@datatablesSortAscImg:                               "../img/plugins/dataTables/sort_asc.png";
+@datatablesSortDescImg:                              "../img/plugins/dataTables/sort_desc.png";
+@datatablesSortAscDisabledImg:                       "../img/plugins/dataTables/sort_asc_disabled.png";
+@datatablesSortDescDisabledImg:                      "../img/plugins/dataTables/sort_desc_disabled.png";
+
+// Plugin: jWYSIWYG
+@jwysiwygIcons:                                      "../img/plugins/jWYSIWYG/jquery.wysiwyg.gif";
+
+// Plugin: Color picker
+@cpSaturation:                                       "../img/plugins/colorpicker/saturation.png";
+@cpHue:                                              "../img/plugins/colorpicker/hue.png";
+@cpAlpha:                                            "../img/plugins/colorpicker/alpha.png";

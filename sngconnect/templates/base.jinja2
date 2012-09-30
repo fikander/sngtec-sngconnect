@@ -3,8 +3,77 @@
     <head>
         <meta charset="utf-8">
         <title>SNG</title>
+        {% block head_stylesheets %}
+            {% assets "base_css" %}
+                <link rel="stylesheet" href="{{ ASSET_URL }}">
+            {% endassets %}
+        {% endblock %}
+        {% block head_scripts %}
+            {% assets "base_js" %}
+                <script src="{{ ASSET_URL }}"></script>
+            {% endassets %}
+        {% endblock %}
     </head>
     <body>
-        Hello world
+        {% block body %}
+            <header class="navbar navbar-fixed-top">
+                <div class="navbar-inner">
+                    <div class="container">
+                        <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".user">
+                            <span class="awe-user"></span>
+                        </button>
+                        <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".navigation">
+                            <span class="awe-chevron-down"></span>
+                        </button>
+                        <a class="brand" href="{{ request.route_url("sngconnect.telemetry.dashboard") }}">SNG</a>
+                        <nav class="nav-collapse navigation">
+                            <ul class="nav active-arrows" role="navigation">
+                                <li class="active"><a href="{{ request.route_url("sngconnect.telemetry.dashboard") }}" title="{% trans %}Dashboard{% endtrans %}"><span class="awe-home"></span> {% trans %}Dashboard{% endtrans %}</a></li>
+                            </ul>
+                        </nav>
+                        <nav class="nav-collapse user">
+                            <div class="user-info pull-right">
+                                <div class="btn-group">
+                                    <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+                                        <div><strong>John Frusciante</strong>Administrator</div>
+                                        <span class="caret"></span>
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        <li><a href="#"><span class="awe-cogs"></span> {% trans %}Account settings{% endtrans %}</a></li>
+                                        <li><a href="#"><span class="awe-bell"></span> {% trans %}Preferences{% endtrans %}</a></li>
+                                        <li><a href="#"><span class="awe-envelope"></span> {% trans %}Email notifications{% endtrans %}</a></li>
+                                        <li class="divider"></li>
+                                        <li><a href="{{ request.route_url("sngconnect.accounts.sign_out") }}"><span class="awe-signout"></span> {% trans %}Sign out{% endtrans %}</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </nav>
+                    </div>
+                </div>
+            </header>
+            <div class="container" role="main">
+                <ul class="breadcrumb">
+                    {% block main_breadcrumb %}
+                        <li><a href="{{ request.route_url("sngconnect.telemetry.dashboard") }}" title="{% trans %}Dashboard{% endtrans %}"><span class="awe-home"></span> {% trans %}Dashboard{% endtrans %}</a></li>
+                    {% endblock %}
+                </ul>
+                <div class="content">
+                    {% block main_content %}
+                    {% endblock %}
+                </div>
+            </div>
+            <footer class="container">
+                <nav>
+                    <ul>
+                        <li>Copyright &copy; 2012 SNG Technologies Ltd. All rights reserved.</li>
+                        <li><a href="#">{% trans %}Help{% endtrans %}</a></li>
+                        <li><a href="#">{% trans %}Contact{% endtrans %}</a></li>
+                        <li><a href="#">{% trans %}Terms of Service{% endtrans %}</a></li>
+                    </ul>
+                </nav>
+            </footer>
+            {% block body_scripts %}
+            {% endblock %}
+        {% endblock %}
     </body>
 </html>

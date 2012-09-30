@@ -1,1 +1,78 @@
 {% extends "sngconnect:templates/base.jinja2" %}
+
+{% block head_stylesheets %}
+    {{ super() }}
+    <style>
+        #systems-map {
+            width: 100%;
+            height: 300px;
+            margin-bottom: 20px;
+        }
+    </style>
+{% endblock %}
+
+{% block body_scripts %}
+    {{ super() }}
+    <script src="//maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&amp;sensor=false"></script>
+    <script>
+        $(function(){
+            var map = new google.maps.Map(
+                document.getElementById("systems-map"),
+                {
+                    center: new google.maps.LatLng(52.232222, 21.008333),
+                    zoom: 10,
+                    mapTypeId: google.maps.MapTypeId.ROADMAP,
+                    streetViewControl: false
+                }
+            );
+            var marker1 = new google.maps.Marker({
+                position: new google.maps.LatLng(52.232222, 21.008333),
+                map: map,
+                title: 'System 1'
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block main_content %}
+    <div class="page-header">
+        <h1>{% trans %}Systems{% endtrans %}</h1>
+    </div>
+    <div class="page-container">
+        {% if systems_with_alarm_active > 0 %}
+            <div class="alert alert-error">
+                {% trans count=systems_with_alarm_active -%}
+                    You have <code>{{ count }}</code> systems with alarm active. If you don't know what it means - contact your system's administrator.
+                {%- endtrans %}
+            </div>
+        {% endif %}
+        <h2><span class="awe-globe"></span> {% trans %}Map{% endtrans %}</h2>
+        <div id="systems-map"></div>
+        <h2><span class="awe-cogs"></span> {% trans %}Monitored systems{% endtrans %}</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>{% trans %}Name{% endtrans %}</th>
+                    <th>{% trans %}Alarms{% endtrans %}</th>
+                    <th>{% trans %}System{% endtrans %}</th>
+                    <th>{% trans %}Owner{% endtrans %}</th>
+                </tr>
+            <tbody>
+                {% for system in systems %}
+                    <tr>
+                        <td><a href="{{ system.dashboard_url }}">{{ system.name }}</a></td>
+                        <td>
+                            <span class="badge
+                                {%- if system.alarm_count > 1 %} badge-important{%- endif -%}
+                            ">
+                                {{ system.alarm_count }}
+                            </span>
+                        </td>
+                        <td>{{ system.system }}</td>
+                        <td>{{ system.owner }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

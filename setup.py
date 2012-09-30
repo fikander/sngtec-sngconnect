@@ -19,6 +19,7 @@ requires = [
     'webassets',
     'cssmin',
     'pycassa',
+    'Babel',
     'pyramid_tm',
     'pyramid_jinja2',
     'pyramid_debugtoolbar',

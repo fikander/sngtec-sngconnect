@@ -30,8 +30,8 @@ ROUTES = (
         'system/{system_id:\d+}/history'
     ),
     # sngconnect.accounts
-    ('sngconnect.accounts.login', 'accounts/login'),
-    ('sngconnect.accounts.logout', 'accounts/logout'),
+    ('sngconnect.accounts.sign_in', 'accounts/sign_in'),
+    ('sngconnect.accounts.sign_out', 'accounts/sign_out'),
     # sngconnect.api
     (
         'sngconnect.api.system_parameter',

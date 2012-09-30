@@ -1,1 +1,16 @@
-400 Bad Request
+{% extends "sngconnect:templates/base.jinja2" %}
+
+{% block body %}
+    <div class="error-page">
+        <section>
+            <div class="error404">
+                <h1>400</h1>
+                <div>
+                    <p class="description">Whoops! Bad Request...</p>
+                    <p>Sorry, it appears your browser did something we do not fully understand. If the problem persists, please contact our support at (FIXME) example@domain.com.</p>
+                    <a href="{{ request.route_url("sngconnect.telemetry.dashboard") }}" class="btn btn-wuxia btn-primary btn-large">Back to dashboard</a>
+                </div>
+            </div>
+        </section>
+    </div>
+{% endblock %}
