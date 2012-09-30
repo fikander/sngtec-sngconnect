@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sngconnect 0.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2012-09-30 10:55+0200\n"
+"POT-Creation-Date: 2012-09-30 12:04+0200\n"
 "PO-Revision-Date: 2012-09-29 13:57+0200\n"
 "Last-Translator: Mikołaj Siedlarek <m.siedlarek@fatico.com>\n"
 "Language-Team: pl <LL@li.org>\n"
@@ -20,17 +20,18 @@ msgstr ""
 
 #: sngconnect/errors/templates/bad_request.jinja2:9
 msgid "Bad Request..."
-msgstr ""
+msgstr "Błędne zapytanie..."
 
 #: sngconnect/errors/templates/bad_request.jinja2:10
+#, python-format
 msgid ""
 "Sorry, it appears your browser did something we do not fully understand. "
 "If the problem persists, please contact our support at <a "
 "href=\"mailto:%(email)s\">%(email)s</a>."
 msgstr ""
-"Przepraszamy, wygląda na to że Twoja przeglądarka zrobiła coś, czego do końca "
-"nie rozumiemy. Jeżeli problem będzie się utrzymywał, skontaktuj się z "
-"naszym działem wsparcia klientów pod adresem <a "
+"Przepraszamy, wygląda na to że Twoja przeglądarka zrobiła coś, czego do "
+"końca nie rozumiemy. Jeżeli problem będzie się utrzymywał, skontaktuj się"
+" z naszym działem wsparcia klientów pod adresem <a "
 "href=\"mailto:%(email)s\">%(email)s</a>."
 
 #: sngconnect/errors/templates/bad_request.jinja2:11
@@ -91,32 +92,36 @@ msgstr "Urządzenie"
 msgid "Owner"
 msgstr "Właściciel"
 
-#: sngconnect/telemetry/templates/system_dashboard.jinja2:15
+#: sngconnect/telemetry/templates/system_base.jinja2:15
 msgid "Dashboard"
 msgstr "Pulpit"
 
-#: sngconnect/telemetry/templates/system_dashboard.jinja2:24
+#: sngconnect/telemetry/templates/system_base.jinja2:24
+#: sngconnect/telemetry/templates/system_charts.jinja2:6
 msgid "Charts"
 msgstr "Wykresy"
 
-#: sngconnect/telemetry/templates/system_dashboard.jinja2:30
+#: sngconnect/telemetry/templates/system_base.jinja2:30
+#: sngconnect/telemetry/templates/system_parameters.jinja2:6
 msgid "Parameters"
 msgstr "Parametry"
 
-#: sngconnect/telemetry/templates/system_dashboard.jinja2:36
+#: sngconnect/telemetry/templates/system_base.jinja2:36
+#: sngconnect/telemetry/templates/system_settings.jinja2:6
 msgid "Settings"
 msgstr "Ustawienia"
 
-#: sngconnect/telemetry/templates/system_dashboard.jinja2:42
-#: sngconnect/telemetry/templates/system_dashboard.jinja2:103
+#: sngconnect/telemetry/templates/system_base.jinja2:42
+#: sngconnect/telemetry/templates/system_dashboard.jinja2:61
+#: sngconnect/telemetry/templates/system_history.jinja2:6
 msgid "History"
 msgstr "Historia"
 
-#: sngconnect/telemetry/templates/system_dashboard.jinja2:54
+#: sngconnect/telemetry/templates/system_dashboard.jinja2:12
 msgid "Active alarms"
 msgstr "Aktywne alarmy"
 
-#: sngconnect/telemetry/templates/system_dashboard.jinja2:56
+#: sngconnect/telemetry/templates/system_dashboard.jinja2:14
 #, python-format
 msgid ""
 "You have <code>%(count)s</code> alarms active. If you don't know what it "
@@ -125,34 +130,34 @@ msgstr ""
 "Masz <code>%(count)s</code> aktywne alarmy. Jeśli nie wiesz o co chodzi, "
 "skontaktuj się z administratorem urządzeń."
 
-#: sngconnect/telemetry/templates/system_dashboard.jinja2:63
+#: sngconnect/telemetry/templates/system_dashboard.jinja2:21
 msgid "Activation date"
 msgstr "Data aktywacji"
 
-#: sngconnect/telemetry/templates/system_dashboard.jinja2:64
+#: sngconnect/telemetry/templates/system_dashboard.jinja2:22
 msgid "Parameter"
 msgstr "Parametr"
 
-#: sngconnect/telemetry/templates/system_dashboard.jinja2:65
+#: sngconnect/telemetry/templates/system_dashboard.jinja2:23
 msgid "Alarm type"
 msgstr "Typ alarmu"
 
-#: sngconnect/telemetry/templates/system_dashboard.jinja2:66
+#: sngconnect/telemetry/templates/system_dashboard.jinja2:24
 msgid "Description"
 msgstr "Opis"
 
-#: sngconnect/telemetry/templates/system_dashboard.jinja2:85
+#: sngconnect/telemetry/templates/system_dashboard.jinja2:43
 msgid "Important parameters"
 msgstr "Najważniejsze parametry"
 
-#: sngconnect/telemetry/templates/system_dashboard.jinja2:88
+#: sngconnect/telemetry/templates/system_dashboard.jinja2:46
 msgid "Chart"
 msgstr "Wykres"
 
-#: sngconnect/telemetry/templates/system_dashboard.jinja2:93
+#: sngconnect/telemetry/templates/system_dashboard.jinja2:51
 msgid "Information"
 msgstr "Informacje"
 
-#: sngconnect/telemetry/templates/system_dashboard.jinja2:96
+#: sngconnect/telemetry/templates/system_dashboard.jinja2:54
 msgid "Position"
 msgstr "Lokalizacja"
