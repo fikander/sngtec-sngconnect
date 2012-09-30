@@ -1,0 +1,48 @@
+{% extends "sngconnect:templates/base.jinja2" %}
+
+{% block main_breadcrumb %}
+    {{ super() }}
+    <li><a href="{{ system.dashboard_url }}" title="{{ system.name }}">{{ system.name }}</a></li>
+{% endblock %}
+
+{% block body_main %}
+    <div class="nav-secondary">
+        <nav>
+            <ul>
+                <li{% if active_secondary_navigation == "dashboard" %} class="active"{% endif %}>
+                    <a href="{{ system.dashboard_url }}">
+                        <span class="awe-info-sign"></span>
+                        {% trans %}Dashboard{% endtrans %}
+                    </a>
+                    {% if active_alarms %}
+                        <span class="badge badge-important">{{ active_alarms|length }}</span>
+                    {% endif %}
+                </li>
+                <li{% if active_secondary_navigation == "charts" %} class="active"{% endif %}>
+                    <a href="{{ system.charts_url }}">
+                        <span class="awe-signal"></span>
+                        {% trans %}Charts{% endtrans %}
+                    </a>
+                </li>
+                <li{% if active_secondary_navigation == "parameters" %} class="active"{% endif %}>
+                    <a href="{{ system.parameters_url }}">
+                        <span class="awe-th-list"></span>
+                        {% trans %}Parameters{% endtrans %}
+                    </a>
+                </li>
+                <li{% if active_secondary_navigation == "settings" %} class="active"{% endif %}>
+                    <a href="{{ system.settings_url }}">
+                        <span class="awe-cog"></span>
+                        {% trans %}Settings{% endtrans %}
+                    </a>
+                </li>
+                <li{% if active_secondary_navigation == "history" %} class="active"{% endif %}>
+                    <a href="{{ system.history_url }}">
+                        <span class="awe-calendar"></span>
+                        {% trans %}History{% endtrans %}
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+{% endblock %}

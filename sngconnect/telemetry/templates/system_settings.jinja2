@@ -1,0 +1,19 @@
+{% extends "sngconnect.telemetry:templates/system_base.jinja2" %}
+{% set active_secondary_navigation = "settings" %}
+
+{% block main_breadcrumb %}
+    {{ super() }}
+    <li><a href="{{ system.settings_url }}" title="{% trans %}Settings{% endtrans %}">{% trans %}Settings{% endtrans %}</a></li>
+{% endblock %}
+
+{% block body_main %}
+    {{ super() }}
+    <div class="content">
+        <div class="page-header">
+            <h1>{{ system.name }}</h1>
+        </div>
+        <div class="page-container">
+            Ustawienia
+        </div>
+    </div>
+{% endblock %}

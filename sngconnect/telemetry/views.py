@@ -36,9 +36,38 @@ def dashboard(request):
     }
 
 @view_config(
+    route_name='sngconnect.telemetry.systems',
+    request_method='GET'
+)
+def systems(request):
+    raise httpexceptions.HTTPSeeOther(
+        request.route_url('sngconnect.telemetry.dashboard')
+    )
+
+@view_config(
     route_name='sngconnect.telemetry.system_dashboard',
     request_method='GET',
     renderer='sngconnect.telemetry:templates/system_dashboard.jinja2'
+)
+@view_config(
+    route_name='sngconnect.telemetry.system_charts',
+    request_method='GET',
+    renderer='sngconnect.telemetry:templates/system_charts.jinja2'
+)
+@view_config(
+    route_name='sngconnect.telemetry.system_parameters',
+    request_method='GET',
+    renderer='sngconnect.telemetry:templates/system_parameters.jinja2'
+)
+@view_config(
+    route_name='sngconnect.telemetry.system_settings',
+    request_method='GET',
+    renderer='sngconnect.telemetry:templates/system_settings.jinja2'
+)
+@view_config(
+    route_name='sngconnect.telemetry.system_history',
+    request_method='GET',
+    renderer='sngconnect.telemetry:templates/system_history.jinja2'
 )
 def system_dashboard(request):
     try:
@@ -72,6 +101,22 @@ def system_dashboard(request):
             'name': system.name,
             'dashboard_url': request.route_url(
                 'sngconnect.telemetry.system_dashboard',
+                system_id=system.id
+            ),
+            'charts_url': request.route_url(
+                'sngconnect.telemetry.system_charts',
+                system_id=system.id
+            ),
+            'parameters_url': request.route_url(
+                'sngconnect.telemetry.system_parameters',
+                system_id=system.id
+            ),
+            'settings_url': request.route_url(
+                'sngconnect.telemetry.system_settings',
+                system_id=system.id
+            ),
+            'history_url': request.route_url(
+                'sngconnect.telemetry.system_history',
                 system_id=system.id
             ),
         }

@@ -1,50 +1,8 @@
-{% extends "sngconnect:templates/base.jinja2" %}
-
-{% block main_breadcrumb %}
-    {{ super() }}
-    <li><a href="{{ system.dashboard_url }}" title="{{ system.name }}">{{ system.name }}</a></li>
-{% endblock %}
+{% extends "sngconnect.telemetry:templates/system_base.jinja2" %}
+{% set active_secondary_navigation = "dashboard" %}
 
 {% block body_main %}
-    <div class="nav-secondary">
-        <nav>
-            <ul>
-                <li class="active">
-                    <a href="{{ system.dashboard_url }}">
-                        <span class="awe-info-sign"></span>
-                        {% trans %}Dashboard{% endtrans %}
-                    </a>
-                    {% if active_alarms %}
-                        <span class="badge badge-important">{{ active_alarms|length }}</span>
-                    {% endif %}
-                </li>
-                <li>
-                    <a href="#">
-                        <span class="awe-signal"></span>
-                        {% trans %}Charts{% endtrans %}
-                    </a>
-                </li>
-                <li>
-                    <a href="#">
-                        <span class="awe-th-list"></span>
-                        {% trans %}Parameters{% endtrans %}
-                    </a>
-                </li>
-                <li>
-                    <a href="#">
-                        <span class="awe-cog"></span>
-                        {% trans %}Settings{% endtrans %}
-                    </a>
-                </li>
-                <li>
-                    <a href="#">
-                        <span class="awe-calendar"></span>
-                        {% trans %}History{% endtrans %}
-                    </a>
-                </li>
-            </ul>
-        </nav>
-    </div>
+    {{ super() }}
     <div class="content">
         <div class="page-header">
             <h1>{{ system.name }}</h1>

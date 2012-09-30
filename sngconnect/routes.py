@@ -1,33 +1,34 @@
 ROUTES = (
     # sngconnect.telemetry
     ('sngconnect.telemetry.dashboard', ''),
+    ('sngconnect.telemetry.systems', 'systems'),
     (
         'sngconnect.telemetry.system_dashboard',
-        'system/{system_id:\d+}'
+        'systems/{system_id:\d+}'
     ),
     (
         'sngconnect.telemetry.system_charts',
-        'system/{system_id:\d+}/charts'
+        'systems/{system_id:\d+}/charts'
     ),
     (
         'sngconnect.telemetry.system_parameters',
-        'system/{system_id:\d+}/parameters'
+        'systems/{system_id:\d+}/parameters'
     ),
     (
         'sngconnect.telemetry.parameter',
-        'system/{system_id:\d+}/parameters/{parameter_id:\d+}'
+        'systems/{system_id:\d+}/parameters/{parameter_id:\d+}'
     ),
     (
         'sngconnect.telemetry.system_settings',
-        'system/{system_id:\d+}/settings'
+        'systems/{system_id:\d+}/settings'
     ),
     (
         'sngconnect.telemetry.setting',
-        'system/{system_id:\d+}/settings/{parameter_id:\d+}'
+        'systems/{system_id:\d+}/settings/{parameter_id:\d+}'
     ),
     (
         'sngconnect.telemetry.system_history',
-        'system/{system_id:\d+}/history'
+        'systems/{system_id:\d+}/history'
     ),
     # sngconnect.accounts
     ('sngconnect.accounts.sign_in', 'accounts/sign_in'),
