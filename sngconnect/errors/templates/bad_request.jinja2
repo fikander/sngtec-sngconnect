@@ -6,9 +6,9 @@
             <div class="error404">
                 <h1>400</h1>
                 <div>
-                    <p class="description">Whoops! Bad Request...</p>
-                    <p>Sorry, it appears your browser did something we do not fully understand. If the problem persists, please contact our support at (FIXME) example@domain.com.</p>
-                    <a href="{{ request.route_url("sngconnect.telemetry.dashboard") }}" class="btn btn-wuxia btn-primary btn-large">Back to dashboard</a>
+                    <p class="description">{% trans %}Bad Request...{% endtrans %}</p>
+                    <p>{% trans email="support@example.com" %}Sorry, it appears your browser did something we do not fully understand. If the problem persists, please contact our support at <a href="mailto:{{ email }}">{{ email }}</a>.{% endtrans %}</p>
+                    <a href="{{ request.route_url("sngconnect.telemetry.dashboard") }}" class="btn btn-wuxia btn-primary btn-large">{% trans %}Back to Dashboard{% endtrans %}</a>
                 </div>
             </div>
         </section>

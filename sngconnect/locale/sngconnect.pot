@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sngconnect 0.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2012-09-30 09:39+0200\n"
+"POT-Creation-Date: 2012-09-30 10:55+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,6 +16,23 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.6\n"
+
+#: sngconnect/errors/templates/bad_request.jinja2:9
+msgid "Bad Request..."
+msgstr ""
+
+#: sngconnect/errors/templates/bad_request.jinja2:10
+#, python-format
+msgid ""
+"Sorry, it appears your browser did something we do not fully understand. If "
+"the problem persists, please contact our support at <a "
+"href=\"mailto:%(email)s\">%(email)s</a>."
+msgstr ""
+
+#: sngconnect/errors/templates/bad_request.jinja2:11
+#: sngconnect/errors/templates/not_found.jinja2:11
+msgid "Back to Dashboard"
+msgstr ""
 
 #: sngconnect/errors/templates/not_found.jinja2:9
 msgid "Page not found..."
@@ -29,42 +46,102 @@ msgid ""
 " <a href=\"mailto:%(email)s\">%(email)s</a>."
 msgstr ""
 
-#: sngconnect/errors/templates/not_found.jinja2:11
-msgid "Back to Dashboard"
-msgstr ""
-
-#: sngconnect/telemetry/templates/dashboard.jinja2:33
+#: sngconnect/telemetry/templates/dashboard.jinja2:39
 msgid "Systems"
 msgstr ""
 
-#: sngconnect/telemetry/templates/dashboard.jinja2:38
+#: sngconnect/telemetry/templates/dashboard.jinja2:44
 #, python-format
 msgid ""
 "You have <code>%(count)s</code> systems with alarm active. If you don't know "
 "what it means - contact your system's administrator."
 msgstr ""
 
-#: sngconnect/telemetry/templates/dashboard.jinja2:43
+#: sngconnect/telemetry/templates/dashboard.jinja2:49
 msgid "Map"
 msgstr ""
 
-#: sngconnect/telemetry/templates/dashboard.jinja2:45
+#: sngconnect/telemetry/templates/dashboard.jinja2:51
 msgid "Monitored systems"
 msgstr ""
 
-#: sngconnect/telemetry/templates/dashboard.jinja2:49
+#: sngconnect/telemetry/templates/dashboard.jinja2:55
 msgid "Name"
 msgstr ""
 
-#: sngconnect/telemetry/templates/dashboard.jinja2:50
+#: sngconnect/telemetry/templates/dashboard.jinja2:56
 msgid "Alarms"
 msgstr ""
 
-#: sngconnect/telemetry/templates/dashboard.jinja2:51
+#: sngconnect/telemetry/templates/dashboard.jinja2:57
 msgid "System"
 msgstr ""
 
-#: sngconnect/telemetry/templates/dashboard.jinja2:52
+#: sngconnect/telemetry/templates/dashboard.jinja2:58
 msgid "Owner"
+msgstr ""
+
+#: sngconnect/telemetry/templates/system_dashboard.jinja2:15
+msgid "Dashboard"
+msgstr ""
+
+#: sngconnect/telemetry/templates/system_dashboard.jinja2:24
+msgid "Charts"
+msgstr ""
+
+#: sngconnect/telemetry/templates/system_dashboard.jinja2:30
+msgid "Parameters"
+msgstr ""
+
+#: sngconnect/telemetry/templates/system_dashboard.jinja2:36
+msgid "Settings"
+msgstr ""
+
+#: sngconnect/telemetry/templates/system_dashboard.jinja2:42
+#: sngconnect/telemetry/templates/system_dashboard.jinja2:103
+msgid "History"
+msgstr ""
+
+#: sngconnect/telemetry/templates/system_dashboard.jinja2:54
+msgid "Active alarms"
+msgstr ""
+
+#: sngconnect/telemetry/templates/system_dashboard.jinja2:56
+#, python-format
+msgid ""
+"You have <code>%(count)s</code> alarms active. If you don't know what it "
+"means - contact your system's administrator."
+msgstr ""
+
+#: sngconnect/telemetry/templates/system_dashboard.jinja2:63
+msgid "Activation date"
+msgstr ""
+
+#: sngconnect/telemetry/templates/system_dashboard.jinja2:64
+msgid "Parameter"
+msgstr ""
+
+#: sngconnect/telemetry/templates/system_dashboard.jinja2:65
+msgid "Alarm type"
+msgstr ""
+
+#: sngconnect/telemetry/templates/system_dashboard.jinja2:66
+msgid "Description"
+msgstr ""
+
+#: sngconnect/telemetry/templates/system_dashboard.jinja2:85
+msgid "Important parameters"
+msgstr ""
+
+#: sngconnect/telemetry/templates/system_dashboard.jinja2:88
+msgid "Chart"
+msgstr ""
+
+#: sngconnect/telemetry/templates/system_dashboard.jinja2:93
+msgid "Information"
+msgstr ""
+
+#: sngconnect/telemetry/templates/system_dashboard.jinja2:96
+msgid "Position"
 msgstr ""
 

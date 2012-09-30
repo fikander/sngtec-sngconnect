@@ -57,10 +57,12 @@
                         <li><a href="{{ request.route_url("sngconnect.telemetry.dashboard") }}" title="{% trans %}Dashboard{% endtrans %}"><span class="awe-home"></span> {% trans %}Dashboard{% endtrans %}</a></li>
                     {% endblock %}
                 </ul>
-                <div class="content">
-                    {% block main_content %}
-                    {% endblock %}
-                </div>
+                {% block body_main %}
+                    <div class="content">
+                        {% block main_content %}
+                        {% endblock %}
+                    </div>
+                {% endblock %}
             </div>
             <footer class="container">
                 <nav>

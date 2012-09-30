@@ -1,0 +1,106 @@
+{% extends "sngconnect:templates/base.jinja2" %}
+
+{% block main_breadcrumb %}
+    {{ super() }}
+    <li><a href="{{ system.dashboard_url }}" title="{{ system.name }}">{{ system.name }}</a></li>
+{% endblock %}
+
+{% block body_main %}
+    <div class="nav-secondary">
+        <nav>
+            <ul>
+                <li class="active">
+                    <a href="{{ system.dashboard_url }}">
+                        <span class="awe-info-sign"></span>
+                        {% trans %}Dashboard{% endtrans %}
+                    </a>
+                    {% if active_alarms %}
+                        <span class="badge badge-important">{{ active_alarms|length }}</span>
+                    {% endif %}
+                </li>
+                <li>
+                    <a href="#">
+                        <span class="awe-signal"></span>
+                        {% trans %}Charts{% endtrans %}
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <span class="awe-th-list"></span>
+                        {% trans %}Parameters{% endtrans %}
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <span class="awe-cog"></span>
+                        {% trans %}Settings{% endtrans %}
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <span class="awe-calendar"></span>
+                        {% trans %}History{% endtrans %}
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    <div class="content">
+        <div class="page-header">
+            <h1>{{ system.name }}</h1>
+        </div>
+    </div>
+    <div class="hero-unit blow">
+        <h2><span class="awe-exclamation-sign"></span> {% trans %}Active alarms{% endtrans %}</h2>
+        <div class="alert alert-error">
+            {% trans count=active_alarms|length -%}
+                You have <code>{{ count }}</code> alarms active. If you don't know what it means - contact your system's administrator.
+            {%- endtrans %}
+        </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>{% trans %}Activation date{% endtrans %}</th>
+                    <th>{% trans %}Parameter{% endtrans %}</th>
+                    <th>{% trans %}Alarm type{% endtrans %}</th>
+                    <th>{% trans %}Description{% endtrans %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for alarm in active_alarms %}
+                    <tr>
+                        <td>{{ alarm.activation_date }}</td>
+                        <td>{{ alarm.parameter }}</td>
+                        <td>{{ alarm.type }}</td>
+                        <td>{{ alarm.description }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="content">
+        <div class="page-container">
+            <div class="row">
+                <article class="span6">
+                    <h2><span class="awe-eye-open"></span> {% trans %}Important parameters{% endtrans %}</h2>
+                </article>
+                <article class="span6">
+                    <h2><span class="awe-signal"></span> {% trans %}Chart{% endtrans %}</h2>
+                </article>
+            </div>
+            <div class="row">
+                <article class="span6">
+                    <h2><span class="awe-info-sign"></span> {% trans %}Information{% endtrans %}</h2>
+                </article>
+                <article class="span6">
+                    <h2><span class="awe-globe"></span> {% trans %}Position{% endtrans %}</h2>
+                </article>
+            </div>
+        </div>
+    </div>
+    <div class="content">
+        <div class="page-container">
+            <h2><span class="awe-calendar"></span> {% trans %}History{% endtrans %}</h2>
+        </div>
+    </div>
+{% endblock %}
