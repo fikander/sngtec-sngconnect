@@ -185,11 +185,21 @@ class SystemParameter(SystemViewBase):
             )
         except IndexError:
             this_month = None
+        last_data_point = (
+            parameters_store.LastDataPoints().get_last_parameter_data_point(
+                self.system.id,
+                parameter.id
+            )
+        )
         self.context.update({
             'parameter': {
                 'id': parameter.id,
                 'name': parameter.name,
                 'description': parameter.description,
+                'last_value': {
+                    'date': last_data_point[0],
+                    'value': decimal.Decimal(last_data_point[1]),
+                } if last_data_point else None,
                 'this_hour': dict(map(
                     lambda x: (x[0], decimal.Decimal(x[1])),
                     this_hour.items()

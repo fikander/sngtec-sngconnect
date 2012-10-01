@@ -17,7 +17,7 @@ from sngconnect.database import DBSession
 from sngconnect.cassandra import connection_pool as cassandra_connection_pool
 from sngconnect.database import System, Parameter
 from sngconnect.cassandra.parameters import (Measurements, HourlyAggregates,
-    DailyAggregates, MonthlyAggregates)
+    DailyAggregates, MonthlyAggregates, LastDataPoints)
 
 def usage(argv):
     cmd = os.path.basename(argv[0])
@@ -126,3 +126,4 @@ def generate_data(system_count):
         HourlyAggregates().recalculate_aggregates(parameter.id, dates)
         DailyAggregates().recalculate_aggregates(parameter.id, dates)
         MonthlyAggregates().recalculate_aggregates(parameter.id, dates)
+        LastDataPoints().update(parameter.system.id, parameter.id)

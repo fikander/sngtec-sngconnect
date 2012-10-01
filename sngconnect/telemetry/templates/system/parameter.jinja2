@@ -24,7 +24,13 @@
                 <tbody>
                     <tr>
                         <th>{% trans %}Current value{% endtrans %}</th>
-                        <td></td>
+                        {% if parameter.last_value %}
+                            <td>{{ parameter.last_value.value|round(precision=6) }}</td>
+                            <th>{% trans %}Last update{% endtrans %}</th>
+                            <td>{{ parameter.last_value.date }}</td>
+                        {% else %}
+                            <td class="no-data">{% trans %}no data{% endtrans %}</td>
+                        {% endif %}
                     </tr>
                 </tbody>
             </table>
