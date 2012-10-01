@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sngconnect 0.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2012-10-01 18:37+0200\n"
+"POT-Creation-Date: 2012-10-01 19:19+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -84,6 +84,7 @@ msgid "Owner"
 msgstr ""
 
 #: sngconnect/telemetry/templates/system/base.jinja2:15
+#: sngconnect/templates/base.jinja2:31 sngconnect/templates/base.jinja2:57
 msgid "Dashboard"
 msgstr ""
 
@@ -105,6 +106,7 @@ msgstr ""
 #: sngconnect/telemetry/templates/system/base.jinja2:42
 #: sngconnect/telemetry/templates/system/dashboard.jinja2:102
 #: sngconnect/telemetry/templates/system/history.jinja2:6
+#: sngconnect/telemetry/templates/system/parameter.jinja2:91
 msgid "History"
 msgstr ""
 
@@ -132,6 +134,7 @@ msgid "Alarm type"
 msgstr ""
 
 #: sngconnect/telemetry/templates/system/dashboard.jinja2:29
+#: sngconnect/telemetry/templates/system/parameter.jinja2:75
 msgid "Description"
 msgstr ""
 
@@ -140,6 +143,7 @@ msgid "Important parameters"
 msgstr ""
 
 #: sngconnect/telemetry/templates/system/dashboard.jinja2:51
+#: sngconnect/telemetry/templates/system/parameter.jinja2:88
 msgid "Chart"
 msgstr ""
 
@@ -167,6 +171,79 @@ msgstr ""
 msgid "GPS Coordinates"
 msgstr ""
 
+#: sngconnect/telemetry/templates/system/parameter.jinja2:12
+msgid "Values"
+msgstr ""
+
+#: sngconnect/telemetry/templates/system/parameter.jinja2:16
+msgid "Current value"
+msgstr ""
+
+#: sngconnect/telemetry/templates/system/parameter.jinja2:20
+#: sngconnect/telemetry/templates/system/parameter.jinja2:48
+#: sngconnect/telemetry/templates/system/parameter.jinja2:58
+#: sngconnect/telemetry/templates/system/parameter.jinja2:68
+#: sngconnect/telemetry/templates/system/parameters.jinja2:27
+#: sngconnect/telemetry/templates/system/parameters.jinja2:32
+msgid "no data"
+msgstr ""
+
+#: sngconnect/telemetry/templates/system/parameter.jinja2:25
+msgid "Last update"
+msgstr ""
+
+#: sngconnect/telemetry/templates/system/parameter.jinja2:34
+msgid "Period"
+msgstr ""
+
+#: sngconnect/telemetry/templates/system/parameter.jinja2:35
+msgid "Mean value"
+msgstr ""
+
+#: sngconnect/telemetry/templates/system/parameter.jinja2:36
+msgid "Minimum value"
+msgstr ""
+
+#: sngconnect/telemetry/templates/system/parameter.jinja2:37
+msgid "Maximum value"
+msgstr ""
+
+#: sngconnect/telemetry/templates/system/parameter.jinja2:42
+msgid "This hour"
+msgstr ""
+
+#: sngconnect/telemetry/templates/system/parameter.jinja2:52
+msgid "Today"
+msgstr ""
+
+#: sngconnect/telemetry/templates/system/parameter.jinja2:62
+msgid "This month"
+msgstr ""
+
+#: sngconnect/telemetry/templates/system/parameter.jinja2:81
+msgid "Allowed values"
+msgstr ""
+
+#: sngconnect/telemetry/templates/system/parameter.jinja2:84
+msgid "Notifications"
+msgstr ""
+
+#: sngconnect/telemetry/templates/system/parameter.jinja2:103
+msgid "Last week"
+msgstr ""
+
+#: sngconnect/telemetry/templates/system/parameter.jinja2:131
+msgid "Maximum"
+msgstr ""
+
+#: sngconnect/telemetry/templates/system/parameter.jinja2:143
+msgid "Mean"
+msgstr ""
+
+#: sngconnect/telemetry/templates/system/parameter.jinja2:155
+msgid "Minimum"
+msgstr ""
+
 #: sngconnect/telemetry/templates/system/parameters.jinja2:10
 msgid "Current parameter values"
 msgstr ""
@@ -187,8 +264,31 @@ msgstr ""
 msgid "Allowed minimum/maximum"
 msgstr ""
 
-#: sngconnect/telemetry/templates/system/parameters.jinja2:27
-#: sngconnect/telemetry/templates/system/parameters.jinja2:32
-msgid "no data"
+#: sngconnect/templates/base.jinja2:42
+msgid "Account settings"
+msgstr ""
+
+#: sngconnect/templates/base.jinja2:43
+msgid "Preferences"
+msgstr ""
+
+#: sngconnect/templates/base.jinja2:44
+msgid "Email notifications"
+msgstr ""
+
+#: sngconnect/templates/base.jinja2:46
+msgid "Sign out"
+msgstr ""
+
+#: sngconnect/templates/base.jinja2:71
+msgid "Help"
+msgstr ""
+
+#: sngconnect/templates/base.jinja2:72
+msgid "Contact"
+msgstr ""
+
+#: sngconnect/templates/base.jinja2:73
+msgid "Terms of Service"
 msgstr ""
 
