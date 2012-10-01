@@ -25,11 +25,26 @@
                     streetViewControl: false
                 }
             );
-            var marker1 = new google.maps.Marker({
-                position: new google.maps.LatLng(52.232222, 21.008333),
-                map: map,
-                title: 'System 1'
+            var markers = new Array();
+            var bounds = new google.maps.LatLngBounds();
+            var data = [
+                {%- for system in systems -%}
+                    [{{ system.name|tojson|safe }},{{ system.latitude }},{{ system.longitude }}]
+                    {%- if not loop.last %},{% endif %}
+                {%- endfor -%}
+            ];
+            $.each(data, function(index, system){
+                var position = new google.maps.LatLng(system[1], system[2]);
+                bounds.extend(position);
+                markers.push(
+                    new google.maps.Marker({
+                        map: map,
+                        title: system[0],
+                        position: position
+                    })
+                );
             });
+            map.fitBounds(bounds);
         });
     </script>
 {% endblock %}

@@ -64,6 +64,14 @@ class System(ModelBase):
         nullable=False,
         doc="Name identifying concrete instance of a system."
     )
+    latitude = sql.Column(
+        sql.Numeric(precision=10, scale=6),
+        nullable=False
+    )
+    longitude = sql.Column(
+        sql.Numeric(precision=10, scale=6),
+        nullable=False
+    )
 
     def __repr__(self):
         return '<System(id=%s, name=\'%s\')>' % (self.id, self.name)

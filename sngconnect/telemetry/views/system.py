@@ -52,6 +52,8 @@ class SystemViewBase(object):
             'system': {
                 'id': system.id,
                 'name': system.name,
+                'latitude': system.latitude,
+                'longitude': system.longitude,
                 'dashboard_url': request.route_url(
                     'sngconnect.telemetry.system_dashboard',
                     system_id=system.id

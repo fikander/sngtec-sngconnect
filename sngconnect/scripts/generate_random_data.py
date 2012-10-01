@@ -6,6 +6,7 @@ import random
 import sys
 import time
 
+import pytz
 import numpy
 import transaction
 import sqlalchemy
@@ -20,15 +21,15 @@ from sngconnect.cassandra.parameters import (Measurements, HourlyAggregates,
 
 def usage(argv):
     cmd = os.path.basename(argv[0])
-    print('usage: %s <config_uri> <magnitude>\n'
-          '(example: "%s development.ini 5000")' % (cmd, cmd))
+    print('usage: %s <config_uri> <system_count>\n'
+          '(example: "%s development.ini 3")' % (cmd, cmd))
     sys.exit(1)
 
 def main(argv=sys.argv):
     if len(argv) != 3:
         usage(argv)
     config_uri = argv[1]
-    magnitude = int(argv[2])
+    system_count = int(argv[2])
     setup_logging(config_uri)
     settings = get_appsettings(config_uri)
     database_engine = sqlalchemy.engine_from_config(settings, 'database.')
@@ -39,13 +40,17 @@ def main(argv=sys.argv):
     cassandra.drop_keyspace(settings)
     cassandra.initialize_keyspace(settings)
     cassandra_connection_pool.initialize_connection_pool(settings)
-    generate_data(magnitude)
+    generate_data(system_count)
 
-def generate_data(magnitude):
-    for i in range(1, 2):
-        system = System(name="System %d" % i)
+def generate_data(system_count):
+    for i in range(1, system_count + 1):
+        system = System(
+            name="System %d" % i,
+            latitude=random.uniform(49.0, 54.833333),
+            longitude=random.uniform(14.116666, 24.15)
+        )
         DBSession.add(system)
-        for i in range(1, 2):
+        for i in range(1, 3):
             parameter = Parameter(
                 name="Parameter %d" % i,
                 measurement_unit=random.choice([
@@ -69,14 +74,17 @@ def generate_data(magnitude):
         print "Parameter %d/%d:" % (i, count)
         i += 1
         data_points = []
-        start = datetime.datetime.utcnow() - datetime.timedelta(days=60)
-        end = datetime.datetime.utcnow()
+        start = (
+            pytz.utc.localize(datetime.datetime.utcnow())
+            - datetime.timedelta(days=30)
+        )
+        end = pytz.utc.localize(datetime.datetime.utcnow())
         last_value = numpy.float128(2000)
         dates = []
         print "Generating..."
         j = 0
         while start < end:
-            end -= datetime.timedelta(seconds=5)
+            end -= datetime.timedelta(seconds=10)
             dates.append(end)
             last_value = numpy.float128(
                 (

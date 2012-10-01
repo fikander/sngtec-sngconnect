@@ -1,4 +1,5 @@
 import os
+import json
 
 import sqlalchemy
 from pyramid.config import Configurator
@@ -43,6 +44,7 @@ def main(global_config, **settings):
     config.add_jinja2_extension('webassets.ext.jinja2.AssetsExtension')
     webassets_environment = config.get_webassets_env()
     config.get_jinja2_environment().assets_environment = webassets_environment
+    config.get_jinja2_environment().filters['tojson'] = json.dumps
     # Configure routes.
     for name, pattern in ROUTES:
         config.add_route(name, pattern)
