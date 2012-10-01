@@ -12,12 +12,26 @@
         <thead>
             <th>{% trans %}Name{% endtrans %}</th>
             <th>{% trans %}Unit of measurement{% endtrans %}</th>
+            <th>{% trans %}Last known value{% endtrans %}</th>
+            <th>{% trans %}Today minimum/maximum{% endtrans %}</th>
+            <th>{% trans %}Allowed minimum/maximum{% endtrans %}</th>
         </thead>
         <tbody>
             {% for parameter in parameters %}
                 <tr>
                     <td><a href="{{ parameter.url }}">{{ parameter.name }}</a></td>
                     <td>{{ parameter.measurement_unit }}</td>
+                    {% if parameter.last_value %}
+                        <td><code>{{ parameter.last_value.value|round(precision=6) }}</code></td>
+                    {% else %}
+                        <td class="no-data">{% trans %}no data{% endtrans %}</td>
+                    {% endif %}
+                    {% if parameter.today %}
+                        <td><code>{{ parameter.today.minimum }}</code> / <code>{{ parameter.today.maximum }}</code></td>
+                    {% else %}
+                        <td class="no-data">{% trans %}no data{% endtrans %}</td>
+                    {% endif %}
+                    <td><code>{{ parameter.minimal_value }}</code> / <code>{{ parameter.maximal_value }}</code></td>
                 </tr>
             {% endfor %}
         </tbody>

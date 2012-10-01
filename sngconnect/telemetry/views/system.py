@@ -113,20 +113,48 @@ class SystemParameters(SystemViewBase):
         ).order_by(
             Parameter.name
         )
-        self.context.update({
-            'parameters': [
-                {
-                    'id': parameter.id,
-                    'name': parameter.name,
-                    'measurement_unit': parameter.measurement_unit,
-                    'url': self.request.route_url(
-                        'sngconnect.telemetry.system_parameter',
-                        system_id=self.system.id,
-                        parameter_id=parameter.id
-                    ),
+        last_data_points = (
+            parameters_store.LastDataPoints().get_last_parameter_data_points(
+                self.system.id
+            )
+        )
+        parameters_serialized = []
+        for parameter in parameters:
+            daily_aggregates = (
+                parameters_store.DailyAggregates().get_data_points(
+                    parameter.id,
+                    start_date=pytz.utc.localize(datetime.datetime.utcnow()),
+                    end_date=pytz.utc.localize(datetime.datetime.utcnow())
+                )
+            )
+            try:
+                today = daily_aggregates[0][1]
+            except IndexError:
+                today = None
+            data_point = last_data_points.get(parameter.id, None)
+            if data_point is None:
+                last_value = None
+            else:
+                last_value = {
+                    'value': decimal.Decimal(data_point[1]),
+                    'date': data_point[0],
                 }
-                for parameter in parameters
-            ]
+            parameters_serialized.append({
+                'id': parameter.id,
+                'name': parameter.name,
+                'minimal_value': parameter.minimal_value,
+                'maximal_value': parameter.maximal_value,
+                'measurement_unit': parameter.measurement_unit,
+                'url': self.request.route_url(
+                    'sngconnect.telemetry.system_parameter',
+                    system_id=self.system.id,
+                    parameter_id=parameter.id
+                ),
+                'last_value': last_value,
+                'today': today,
+            })
+        self.context.update({
+            'parameters': parameters_serialized,
         })
         return self.context
 
