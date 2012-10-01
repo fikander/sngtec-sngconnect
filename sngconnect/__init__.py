@@ -40,6 +40,8 @@ def main(global_config, **settings):
     # Configure asset bundles
     for name, bundle in ASSET_BUNDLES.iteritems():
         config.add_webasset(name, bundle)
+    # Add Jinja2 extensions.
+    config.add_jinja2_extension('jinja2.ext.with_')
     # Add webassets extension to Jinja2
     config.add_jinja2_extension('webassets.ext.jinja2.AssetsExtension')
     webassets_environment = config.get_webassets_env()

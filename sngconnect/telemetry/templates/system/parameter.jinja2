@@ -85,5 +85,84 @@
         </article>
     </div>
     <h2><span class="awe-signal"></span> {% trans %}Chart{% endtrans %}</h2>
+    <div id="last-week-chart"></div>
     <h2><span class="awe-calendar"></span> {% trans %}History{% endtrans %}</h2>
+{% endblock %}
+
+{% block body_scripts %}
+    {{ super() }}
+    <script>
+        $(function(){
+            var chart;
+            $(document).ready(function(){
+                chart = new Highcharts.Chart({
+                    chart: {renderTo: "last-week-chart",},
+                    title: {text: {% filter tojson %}{% trans %}Last week{% endtrans %}{% endfilter %}},
+                    xAxis: {type: "datetime"},
+                    yAxis: {
+                        title: {text: {{ parameter.name|tojson|safe }} + " [" + {{ parameter.measurement_unit|tojson|safe }} + "]"}
+                    },
+                    tooltip: {shared: true},
+                    legend: {enabled: true},
+                    colors: ['#AA4643', '#80699B', '#4572A7'],
+                    plotOptions: {
+                        area: {
+                            lineWidth: 1,
+                            marker: {
+                                enabled: false,
+                                states: {
+                                    hover: {
+                                        enabled: true,
+                                        radius: 5
+                                    }
+                                }
+                            },
+                            shadow: false,
+                            states: {
+                                hover: {lineWidth: 1}
+                            }
+                        }
+                    },
+                    series: [
+                        {
+                            name: "{% trans %}Maximum{% endtrans %}",
+                            type: "area",
+                            data: [
+                                {%- for data_point in parameter.last_week_values -%}
+                                    {%- with d = data_point[0] -%}
+                                        [Date.UTC({{ d.year }},{{ d.month }},{{ d.day}},{{ d.hour }},{{ d.minute }},{{ d.second }},{{ d.microsecond / 1000 }}),{{ data_point[1].maximum }}]
+                                        {%- if not loop.last %},{% endif -%}
+                                    {%- endwith -%}
+                                {%- endfor -%}
+                            ]
+                        },
+                        {
+                            name: "{% trans %}Mean{% endtrans %}",
+                            type: "area",
+                            data: [
+                                {%- for data_point in parameter.last_week_values -%}
+                                    {%- with d = data_point[0] -%}
+                                        [Date.UTC({{ d.year }},{{ d.month }},{{ d.day}},{{ d.hour }},{{ d.minute }},{{ d.second }},{{ d.microsecond / 1000 }}),{{ data_point[1].mean }}]
+                                        {%- if not loop.last %},{% endif -%}
+                                    {%- endwith -%}
+                                {%- endfor -%}
+                            ]
+                        },
+                        {
+                            name: "{% trans %}Minimum{% endtrans %}",
+                            type: "area",
+                            data: [
+                                {%- for data_point in parameter.last_week_values -%}
+                                    {%- with d = data_point[0] -%}
+                                        [Date.UTC({{ d.year }},{{ d.month }},{{ d.day}},{{ d.hour }},{{ d.minute }},{{ d.second }},{{ d.microsecond / 1000 }}),{{ data_point[1].minimum }}]
+                                        {%- if not loop.last %},{% endif -%}
+                                    {%- endwith -%}
+                                {%- endfor -%}
+                            ]
+                        }
+                    ]
+                });
+            });
+        });
+    </script>
 {% endblock %}

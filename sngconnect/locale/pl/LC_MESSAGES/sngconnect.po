@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sngconnect 0.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2012-10-01 17:20+0200\n"
+"POT-Creation-Date: 2012-10-01 18:20+0200\n"
 "PO-Revision-Date: 2012-09-29 13:57+0200\n"
 "Last-Translator: Mikołaj Siedlarek <m.siedlarek@fatico.com>\n"
 "Language-Team: pl <LL@li.org>\n"
@@ -116,7 +116,6 @@ msgstr "Ustawienia"
 #: sngconnect/telemetry/templates/system/base.jinja2:42
 #: sngconnect/telemetry/templates/system/dashboard.jinja2:102
 #: sngconnect/telemetry/templates/system/history.jinja2:6
-#: sngconnect/telemetry/templates/system/parameter.jinja2:88
 msgid "History"
 msgstr "Historia"
 
@@ -146,7 +145,6 @@ msgid "Alarm type"
 msgstr "Typ alarmu"
 
 #: sngconnect/telemetry/templates/system/dashboard.jinja2:29
-#: sngconnect/telemetry/templates/system/parameter.jinja2:75
 msgid "Description"
 msgstr "Opis"
 
@@ -155,7 +153,6 @@ msgid "Important parameters"
 msgstr "Najważniejsze parametry"
 
 #: sngconnect/telemetry/templates/system/dashboard.jinja2:51
-#: sngconnect/telemetry/templates/system/parameter.jinja2:87
 msgid "Chart"
 msgstr "Wykres"
 
@@ -183,63 +180,6 @@ msgstr "Adres"
 msgid "GPS Coordinates"
 msgstr "Współrzędne GPS"
 
-#: sngconnect/telemetry/templates/system/parameter.jinja2:12
-msgid "Values"
-msgstr "Wartości"
-
-#: sngconnect/telemetry/templates/system/parameter.jinja2:16
-msgid "Current value"
-msgstr "Aktualna wartość"
-
-#: sngconnect/telemetry/templates/system/parameter.jinja2:20
-#: sngconnect/telemetry/templates/system/parameter.jinja2:48
-#: sngconnect/telemetry/templates/system/parameter.jinja2:58
-#: sngconnect/telemetry/templates/system/parameter.jinja2:68
-#: sngconnect/telemetry/templates/system/parameters.jinja2:27
-#: sngconnect/telemetry/templates/system/parameters.jinja2:32
-msgid "no data"
-msgstr "brak danych"
-
-#: sngconnect/telemetry/templates/system/parameter.jinja2:25
-msgid "Last update"
-msgstr "Ostatnia aktualizacja"
-
-#: sngconnect/telemetry/templates/system/parameter.jinja2:34
-msgid "Period"
-msgstr "Okres"
-
-#: sngconnect/telemetry/templates/system/parameter.jinja2:35
-msgid "Mean value"
-msgstr "Wartość średnia"
-
-#: sngconnect/telemetry/templates/system/parameter.jinja2:36
-msgid "Minimum value"
-msgstr "Wartość minimalna"
-
-#: sngconnect/telemetry/templates/system/parameter.jinja2:37
-msgid "Maximum value"
-msgstr "Wartość maksymalna"
-
-#: sngconnect/telemetry/templates/system/parameter.jinja2:42
-msgid "This hour"
-msgstr "Ta godzina"
-
-#: sngconnect/telemetry/templates/system/parameter.jinja2:52
-msgid "Today"
-msgstr "Dzisiaj"
-
-#: sngconnect/telemetry/templates/system/parameter.jinja2:62
-msgid "This month"
-msgstr "Ten miesiąc"
-
-#: sngconnect/telemetry/templates/system/parameter.jinja2:81
-msgid "Allowed values"
-msgstr "Dozwolone wartości"
-
-#: sngconnect/telemetry/templates/system/parameter.jinja2:84
-msgid "Notifications"
-msgstr "Powiadomienia"
-
 #: sngconnect/telemetry/templates/system/parameters.jinja2:10
 msgid "Current parameter values"
 msgstr "Aktualne wartości parametrów"
@@ -259,3 +199,8 @@ msgstr "Dzisiejsze minimum/maksimum"
 #: sngconnect/telemetry/templates/system/parameters.jinja2:17
 msgid "Allowed minimum/maximum"
 msgstr "Dozwolone minimum/maksimum"
+
+#: sngconnect/telemetry/templates/system/parameters.jinja2:27
+#: sngconnect/telemetry/templates/system/parameters.jinja2:32
+msgid "no data"
+msgstr "brak danych"

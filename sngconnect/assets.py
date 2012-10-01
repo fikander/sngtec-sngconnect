@@ -12,6 +12,7 @@ ASSET_BUNDLES = {
         'wuxia/js/libs/modernizr.js',
         'wuxia/js/libs/selectivizr.js',
         'wuxia/js/bootstrap/bootstrap-dropdown.js',
+        'highcharts/js/highcharts.js',
         'sngconnect/js/base.js',
         filters='rjsmin',
         output='compressed/base.js'
