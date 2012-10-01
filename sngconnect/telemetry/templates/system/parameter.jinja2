@@ -1,0 +1,10 @@
+{% extends "sngconnect.telemetry:templates/system/parameters.jinja2" %}
+
+{% block main_breadcrumb %}
+    {{ super() }}
+    <li><a href="{{ parameter_url }}" title="{{ parameter.name }}">{{ parameter.name }}</a></li>
+{% endblock %}
+
+{% block page_content %}
+    <h2>{{ parameter.name }}</h2>
+{% endblock %}

@@ -15,7 +15,7 @@ ROUTES = (
         'systems/{system_id:\d+}/parameters'
     ),
     (
-        'sngconnect.telemetry.parameter',
+        'sngconnect.telemetry.system_parameter',
         'systems/{system_id:\d+}/parameters/{parameter_id:\d+}'
     ),
     (
@@ -23,7 +23,7 @@ ROUTES = (
         'systems/{system_id:\d+}/settings'
     ),
     (
-        'sngconnect.telemetry.setting',
+        'sngconnect.telemetry.system_setting',
         'systems/{system_id:\d+}/settings/{parameter_id:\d+}'
     ),
     (

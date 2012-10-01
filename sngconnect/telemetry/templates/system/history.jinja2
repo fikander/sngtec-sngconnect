@@ -6,14 +6,6 @@
     <li><a href="{{ system.history_url }}" title="{% trans %}History{% endtrans %}">{% trans %}History{% endtrans %}</a></li>
 {% endblock %}
 
-{% block body_main %}
-    {{ super() }}
-    <div class="content">
-        <div class="page-header">
-            <h1>{{ system.name }}</h1>
-        </div>
-        <div class="page-container">
-            Historia
-        </div>
-    </div>
+{% block page_content %}
+    Historia
 {% endblock %}

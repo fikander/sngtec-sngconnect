@@ -7,7 +7,7 @@ from sqlalchemy.orm import exc as database_exceptions
 from pyramid.view import view_config
 from pyramid import httpexceptions
 
-from sngconnect.database import DBSession, System
+from sngconnect.database import DBSession, System, Parameter
 
 @view_config(
     route_name='sngconnect.telemetry.systems',
@@ -28,7 +28,8 @@ class SystemViewBase(object):
         except database_exceptions.NoResultFound:
             raise httpexceptions.HTTPNotFound()
         self.request = request
-        self.base_context = {
+        self.system = system
+        self.context = {
             # FIXME
             'active_alarms': [
                 {
@@ -75,7 +76,7 @@ class SystemViewBase(object):
         }
 
     def __call__(self):
-        return self.base_context
+        return self.context
 
 @view_config(
     route_name='sngconnect.telemetry.system_dashboard',
@@ -99,7 +100,47 @@ class SystemCharts(SystemViewBase):
     renderer='sngconnect.telemetry:templates/system/parameters.jinja2'
 )
 class SystemParameters(SystemViewBase):
-    pass
+    def __call__(self):
+        parameters = DBSession.query(Parameter).filter(
+            System.id == self.system.id
+        ).order_by(
+            Parameter.name
+        )
+        self.context.update({
+            'parameters': [
+                {
+                    'id': parameter.id,
+                    'name': parameter.name,
+                    'measurement_unit': parameter.measurement_unit,
+                    'url': self.request.route_url(
+                        'sngconnect.telemetry.system_parameter',
+                        system_id=self.system.id,
+                        parameter_id=parameter.id
+                    ),
+                }
+                for parameter in parameters
+            ]
+        })
+        return self.context
+
+@view_config(
+    route_name='sngconnect.telemetry.system_parameter',
+    request_method='GET',
+    renderer='sngconnect.telemetry:templates/system/parameter.jinja2'
+)
+class SystemParameter(SystemViewBase):
+    def __call__(self):
+        try:
+            parameter = DBSession.query(Parameter).filter(
+                System.id == self.system.id,
+                Parameter.id == self.request.matchdict['parameter_id']
+            ).one()
+        except database_exceptions.NoResultFound:
+            raise httpexceptions.HTTPNotFound()
+        self.context.update({
+            'parameter': parameter,
+        })
+        return self.context
 
 @view_config(
     route_name='sngconnect.telemetry.system_settings',
@@ -107,6 +148,14 @@ class SystemParameters(SystemViewBase):
     renderer='sngconnect.telemetry:templates/system/settings.jinja2'
 )
 class SystemSettings(SystemViewBase):
+    pass
+
+@view_config(
+    route_name='sngconnect.telemetry.system_setting',
+    request_method='GET',
+    renderer='sngconnect.telemetry:templates/system/setting.jinja2'
+)
+class SystemSetting(SystemViewBase):
     pass
 
 @view_config(
