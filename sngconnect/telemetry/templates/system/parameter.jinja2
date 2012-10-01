@@ -1,5 +1,15 @@
 {% extends "sngconnect.telemetry:templates/system/parameters.jinja2" %}
 
+{% block head_stylesheets %}
+    {{ super() }}
+    <style>
+        table td.no-data {
+            text-align: center;
+            color: #bbb;
+        }
+    </style>
+{% endblock %}
+
 {% block main_breadcrumb %}
     {{ super() }}
     <li><a href="{{ parameter_url }}" title="{{ parameter.name }}">{{ parameter.name }}</a></li>
@@ -7,4 +17,73 @@
 
 {% block page_content %}
     <h2>{{ parameter.name }}</h2>
+    <div class="row">
+        <article class="span6">
+            <h2><span class="awe-th-list"></span> {% trans %}Values{% endtrans %}</h2>
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th>{% trans %}Current value{% endtrans %}</th>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>{% trans %}Period{% endtrans %}</th>
+                        <th>{% trans %}Mean value{% endtrans %}</th>
+                        <th>{% trans %}Minimum value{% endtrans %}</th>
+                        <th>{% trans %}Maximum value{% endtrans %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th>{% trans %}This hour{% endtrans %}</td>
+                        {% if parameter.this_hour %}
+                            <td>{{ parameter.this_hour.mean|round(precision=6) }}</td>
+                            <td>{{ parameter.this_hour.minimum|round(precision=6) }}</td>
+                            <td>{{ parameter.this_hour.maximum|round(precision=6) }}</td>
+                        {% else %}
+                            <td class="no-data" colspan="3">{% trans %}no data{% endtrans %}</td>
+                        {% endif %}
+                    </tr>
+                    <tr>
+                        <th>{% trans %}Today{% endtrans %}</td>
+                        {% if parameter.today %}
+                            <td>{{ parameter.today.mean|round(precision=6) }}</td>
+                            <td>{{ parameter.today.minimum|round(precision=6) }}</td>
+                            <td>{{ parameter.today.maximum|round(precision=6) }}</td>
+                        {% else %}
+                            <td class="no-data" colspan="3">{% trans %}no data{% endtrans %}</td>
+                        {% endif %}
+                    </tr>
+                    <tr>
+                        <th>{% trans %}This month{% endtrans %}</td>
+                        {% if parameter.this_month %}
+                            <td>{{ parameter.this_month.mean|round(precision=6) }}</td>
+                            <td>{{ parameter.this_month.minimum|round(precision=6) }}</td>
+                            <td>{{ parameter.this_month.maximum|round(precision=6) }}</td>
+                        {% else %}
+                            <td class="no-data" colspan="3">{% trans %}no data{% endtrans %}</td>
+                        {% endif %}
+                    </tr>
+                </tbody>
+            </table>
+        </article>
+        <article class="span6">
+            <h2><span class="awe-info-sign"></span> {% trans %}Description{% endtrans %}</h2>
+            <p>{{ parameter.description }}</p>
+        </article>
+    </div>
+    <div class="row">
+        <article class="span6">
+            <h2><span class="awe-th-list"></span> {% trans %}Allowed values{% endtrans %}</h2>
+        </article>
+        <article class="span6">
+            <h2><span class="awe-info-sign"></span> {% trans %}Notifications{% endtrans %}</h2>
+        </article>
+    </div>
+    <h2><span class="awe-signal"></span> {% trans %}Chart{% endtrans %}</h2>
+    <h2><span class="awe-calendar"></span> {% trans %}History{% endtrans %}</h2>
 {% endblock %}

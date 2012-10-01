@@ -108,6 +108,9 @@ class Parameter(ModelBase):
         doc="Name identifying firmly one of related system's measurable"
             " parameters."
     )
+    description = sql.Column(
+        sql.UnicodeText
+    )
     measurement_unit = sql.Column(
         sql.Unicode(length=50),
         nullable=False,
@@ -117,6 +120,14 @@ class Parameter(ModelBase):
         sql.Boolean,
         nullable=False,
         doc="Whether to allow setting the parameter from the application."
+    )
+    minimal_value = sql.Column(
+        sql.Numeric(precision=20),
+        doc="Minimal allowed value."
+    )
+    maximal_value = sql.Column(
+        sql.Numeric(precision=20),
+        doc="Maximal allowed value."
     )
 
     system = orm.relationship(

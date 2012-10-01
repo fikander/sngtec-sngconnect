@@ -56,9 +56,12 @@ def generate_data(system_count):
             )
         )
         DBSession.add(system)
-        for i in range(1, 3):
+        for j in range(1, 3):
             parameter = Parameter(
-                name="Parameter %d" % i,
+                name=u"Parameter %d" % j,
+                description=u"Tutaj można wyświetlić aktualną temperaturę wody"
+                            u" na wyjściu z pompy ciepła zasilającej system"
+                            u" grzewczy.",
                 measurement_unit=random.choice([
                     u'kW',
                     u'm',
@@ -68,6 +71,8 @@ def generate_data(system_count):
                     u'cm³',
                 ]),
                 writable=random.choice([True, False, False]),
+                minimal_value=random.uniform(-1000, 0),
+                maximal_value=random.uniform(0, 1000),
                 system=system
             )
             DBSession.add(parameter)

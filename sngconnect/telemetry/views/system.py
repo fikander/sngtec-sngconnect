@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import datetime
+import decimal
 
 import pytz
 from sqlalchemy.orm import exc as database_exceptions
@@ -8,6 +9,7 @@ from pyramid.view import view_config
 from pyramid import httpexceptions
 
 from sngconnect.database import DBSession, System, Parameter
+from sngconnect.cassandra import parameters as parameters_store
 
 @view_config(
     route_name='sngconnect.telemetry.systems',
@@ -142,8 +144,65 @@ class SystemParameter(SystemViewBase):
             ).one()
         except database_exceptions.NoResultFound:
             raise httpexceptions.HTTPNotFound()
+        hourly_aggregates = parameters_store.HourlyAggregates().get_data_points(
+            parameter.id,
+            start_date=pytz.utc.localize(datetime.datetime.utcnow()),
+            end_date=pytz.utc.localize(datetime.datetime.utcnow())
+        )
+        try:
+            this_hour = hourly_aggregates[0][1]
+            this_hour['mean'] = (
+                decimal.Decimal(this_hour['sum'])
+                / decimal.Decimal(this_hour['count'])
+            )
+        except IndexError:
+            this_hour = None
+        daily_aggregates = parameters_store.DailyAggregates().get_data_points(
+            parameter.id,
+            start_date=pytz.utc.localize(datetime.datetime.utcnow()),
+            end_date=pytz.utc.localize(datetime.datetime.utcnow())
+        )
+        try:
+            today = daily_aggregates[0][1]
+            today['mean'] = (
+                decimal.Decimal(today['sum'])
+                / decimal.Decimal(today['count'])
+            )
+        except IndexError:
+            today = None
+        monthly_aggregates = (
+            parameters_store.MonthlyAggregates().get_data_points(
+                parameter.id,
+                start_date=pytz.utc.localize(datetime.datetime.utcnow()),
+                end_date=pytz.utc.localize(datetime.datetime.utcnow())
+            )
+        )
+        try:
+            this_month = monthly_aggregates[0][1]
+            this_month['mean'] = (
+                decimal.Decimal(this_month['sum'])
+                / decimal.Decimal(this_month['count'])
+            )
+        except IndexError:
+            this_month = None
         self.context.update({
-            'parameter': parameter,
+            'parameter': {
+                'id': parameter.id,
+                'name': parameter.name,
+                'description': parameter.description,
+                'this_hour': dict(map(
+                    lambda x: (x[0], decimal.Decimal(x[1])),
+                    this_hour.items()
+                )) if this_hour is not None else None,
+                'today': dict(map(
+                    lambda x: (x[0], decimal.Decimal(x[1])),
+                    today.items()
+                )) if today is not None else None,
+                'this_month': dict(map(
+                    lambda x: (x[0], decimal.Decimal(x[1])),
+                    this_month.items()
+                )) if this_month is not None else None,
+            },
         })
         return self.context
 

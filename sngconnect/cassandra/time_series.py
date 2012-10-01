@@ -117,10 +117,13 @@ class TimeSeries(ColumnFamilyProxy):
         else:
             end_day = None
         if start_day is not None and start_day == end_day:
-            return self.column_family.get(
-                self.get_row_key(timeline_id, start_date),
-                **kwargs
-            ).items()
+            try:
+                return self.column_family.get(
+                    self.get_row_key(timeline_id, start_date),
+                    **kwargs
+                ).items()
+            except pycassa.NotFoundException:
+                return []
         else:
             measurement_days = self._date_index_class()
             days = measurement_days.get_days(
