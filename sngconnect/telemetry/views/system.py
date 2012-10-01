@@ -27,6 +27,7 @@ class SystemViewBase(object):
             ).one()
         except database_exceptions.NoResultFound:
             raise httpexceptions.HTTPNotFound()
+        self.request = request
         self.base_context = {
             # FIXME
             'active_alarms': [
@@ -79,7 +80,7 @@ class SystemViewBase(object):
 @view_config(
     route_name='sngconnect.telemetry.system_dashboard',
     request_method='GET',
-    renderer='sngconnect.telemetry:templates/system_dashboard.jinja2'
+    renderer='sngconnect.telemetry:templates/system/dashboard.jinja2'
 )
 class SystemDashboard(SystemViewBase):
     pass
@@ -87,7 +88,7 @@ class SystemDashboard(SystemViewBase):
 @view_config(
     route_name='sngconnect.telemetry.system_charts',
     request_method='GET',
-    renderer='sngconnect.telemetry:templates/system_charts.jinja2'
+    renderer='sngconnect.telemetry:templates/system/charts.jinja2'
 )
 class SystemCharts(SystemViewBase):
     pass
@@ -95,7 +96,7 @@ class SystemCharts(SystemViewBase):
 @view_config(
     route_name='sngconnect.telemetry.system_parameters',
     request_method='GET',
-    renderer='sngconnect.telemetry:templates/system_parameters.jinja2'
+    renderer='sngconnect.telemetry:templates/system/parameters.jinja2'
 )
 class SystemParameters(SystemViewBase):
     pass
@@ -103,7 +104,7 @@ class SystemParameters(SystemViewBase):
 @view_config(
     route_name='sngconnect.telemetry.system_settings',
     request_method='GET',
-    renderer='sngconnect.telemetry:templates/system_settings.jinja2'
+    renderer='sngconnect.telemetry:templates/system/settings.jinja2'
 )
 class SystemSettings(SystemViewBase):
     pass
@@ -111,7 +112,7 @@ class SystemSettings(SystemViewBase):
 @view_config(
     route_name='sngconnect.telemetry.system_history',
     request_method='GET',
-    renderer='sngconnect.telemetry:templates/system_history.jinja2'
+    renderer='sngconnect.telemetry:templates/system/history.jinja2'
 )
 class SystemHistory(SystemViewBase):
     pass
