@@ -48,6 +48,17 @@ class TimeSeriesDateIndex(ColumnFamilyProxy):
         except pycassa.NotFoundException:
             return []
 
+    def get_last_day(self, timeline_id):
+        try:
+            result = self.column_family.get(
+                timeline_id,
+                column_count=1,
+                column_reversed=True
+            )
+        except pycassa.NotFoundException:
+            return None
+        return pytz.utc.localize(result.keys()[0])
+
     def force_precision(self, date):
         if date.tzinfo is None:
             raise ValueError("Naive datetimes are not supported.")
@@ -134,6 +145,16 @@ class TimeSeries(ColumnFamilyProxy):
             keys = [self.get_row_key(timeline_id, day) for day in days]
             result = self.column_family.multiget(keys, **kwargs)
             return sum((columns.items() for columns in result.values()), [])
+
+    def get_last_data_point(self, timeline_id):
+        last_day = self._date_index_class().get_last_day(timeline_id)
+        if last_day is None:
+            return None
+        return self.column_family.get(
+            self.get_row_key(timeline_id, last_day),
+            column_count=1,
+            column_reversed=True
+        ).items()[0]
 
     def aggregate(self, timeline_id, start_date=None, end_date=None):
         kwargs = {

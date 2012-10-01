@@ -28,6 +28,7 @@ def initialize_keyspace(settings):
         parameters.DailyAggregates,
         parameters.MonthlyAggregates,
         parameters.MeasurementDays,
+        parameters.LastDataPoints,
         log.Logs,
         log.LoggingDays,
     )

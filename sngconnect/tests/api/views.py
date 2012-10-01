@@ -21,11 +21,16 @@ class TestSystemParameterPut(ApiTestMixin, unittest.TestCase):
         super(TestSystemParameterPut, self).setUp()
         system = System(
             id=1,
-            name=u"System 1"
+            name=u"System 1",
+            description=u"Description",
+            latitude=20.5,
+            longitude=15.3,
+            created=pytz.utc.localize(datetime.datetime.utcnow())
         )
         parameter = Parameter(
             id=1,
             name=u"Parameter 1",
+            description=u"Description",
             measurement_unit=u"cm",
             system=system,
             writable=False

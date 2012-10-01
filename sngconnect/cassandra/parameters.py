@@ -1,13 +1,15 @@
 import datetime
 import calendar
+import time
 
 import pytz
 import numpy
 import pycassa
 from pycassa import types as pycassa_types
 
+from sngconnect.cassandra.column_family_proxy import ColumnFamilyProxy
 from sngconnect.cassandra.time_series import TimeSeries, TimeSeriesDateIndex
-from sngconnect.cassandra.types import MicrosecondTimestampType
+from sngconnect.cassandra.types import RealType, MicrosecondTimestampType
 
 class MeasurementDays(TimeSeriesDateIndex):
 
@@ -256,3 +258,83 @@ class MonthlyAggregates(AggregatesStore):
 
     def get_data_source(self):
         return DailyAggregates()
+
+class LastDataPoints(ColumnFamilyProxy):
+
+    _column_family_name = 'LastDataPoints'
+
+    @classmethod
+    def create(cls, system_manager, keyspace, **additional_kwargs):
+        additional_kwargs.setdefault(
+            'comparator_type',
+            pycassa_types.IntegerType()
+        )
+        additional_kwargs.setdefault(
+            'default_validation_class',
+            pycassa_types.AsciiType()
+        )
+        additional_kwargs.setdefault(
+            'key_validation_class',
+            pycassa_types.IntegerType(),
+        )
+        super(LastDataPoints, cls).create(
+            system_manager,
+            keyspace,
+            **additional_kwargs
+        )
+
+    def __init__(self):
+        super(LastDataPoints, self).__init__()
+        self.column_family.default_validation_class = RealType()
+
+    def update(self, system_id, parameter_id):
+        last_data_point = Measurements().get_last_data_point(parameter_id)
+        if last_data_point is None:
+            return
+
+        date = pytz.utc.normalize(last_data_point[0].astimezone(pytz.utc))
+        timestamp = (
+            int(
+                time.mktime(date.replace(tzinfo=None).timetuple())
+                * 1000000
+            )
+            + date.microsecond
+        )
+        self.column_family.insert(
+            system_id,
+            {parameter_id: last_data_point[1]},
+            timestamp=timestamp
+        )
+
+    def get_last_parameter_data_points(self, system_id):
+        try:
+            result = self.column_family.get(
+                system_id,
+                include_timestamp=True
+            )
+        except pycassa.NotFoundException:
+            return {}
+        return dict(map(
+            lambda x: (x[0], (self._datetime_from_timestamp(x[1][1]), x[1][0])),
+            result.items()
+        ))
+
+    def get_last_parameter_data_point(self, system_id, parameter_id):
+        try:
+            result = self.column_family.get(
+                system_id,
+                columns=(parameter_id,),
+                include_timestamp=True
+            ).items()[0][1]
+        except pycassa.NotFoundException:
+            return None
+        return (self._datetime_from_timestamp(result[1]), result[0])
+
+    def _datetime_from_timestamp(self, timestamp):
+        return pytz.utc.localize(
+            datetime.datetime.fromtimestamp(
+                timestamp / 1000000
+            ).replace(
+                microsecond=(timestamp % 1000000)
+            )
+        )

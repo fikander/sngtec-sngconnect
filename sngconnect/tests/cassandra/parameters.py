@@ -54,6 +54,10 @@ class TestMeasurementDays(CassandraTestMixin, unittest.TestCase):
             self.measurement_days.get_days(parameter_id),
             []
         )
+        self.assertEqual(
+            self.measurement_days.get_last_day(parameter_id),
+            None
+        )
         dates = [
             _utc_datetime(2012, 9, 11, 15, 18, 54),
             _utc_datetime(2012, 9, 15, 22,  0, 07),
@@ -69,6 +73,14 @@ class TestMeasurementDays(CassandraTestMixin, unittest.TestCase):
                 _utc_datetime(2012, 9, 18),
                 _utc_datetime(2012, 9, 19),
             ]
+        )
+        self.assertEqual(
+            self.measurement_days.get_last_day(parameter_id),
+            _utc_datetime(2012, 9, 19)
+        )
+        self.assertEqual(
+            self.measurement_days.get_last_day(parameter_id + 9),
+            None
         )
         self.assertSequenceEqual(
             self.measurement_days.get_days(parameter_id + 13),
@@ -89,6 +101,10 @@ class TestMeasurementDays(CassandraTestMixin, unittest.TestCase):
                 _utc_datetime(2012, 9, 18),
                 _utc_datetime(2012, 9, 19),
             ]
+        )
+        self.assertEqual(
+            self.measurement_days.get_last_day(parameter_id),
+            _utc_datetime(2012, 9, 19)
         )
         self.assertSequenceEqual(
             self.measurement_days.get_days(parameter_id + 1),
@@ -317,15 +333,27 @@ class TestMeasurements(CassandraTestMixin, unittest.TestCase):
             self.measurements.get_data_points(parameter_id),
             []
         )
+        self.assertEqual(
+            self.measurements.get_last_data_point(parameter_id),
+            None
+        )
         data_points = list(_get_test_data_points())
         self.measurements.insert_data_points(
             parameter_id,
             # Shuffled to ensure database ordering.
             data_points[500:] + data_points[:500]
         )
+        self.assertEqual(
+            self.measurements.get_last_data_point(parameter_id + 2),
+            None
+        )
         self.assertSequenceEqual(
             self.measurements.get_data_points(parameter_id + 1),
             []
+        )
+        self.assertSequenceEqual(
+            self.measurements.get_last_data_point(parameter_id),
+            _dp((2012, 9, 26, 12, 17, 25, 739851), '11.207354924')
         )
         self.assertSequenceEqual(
             self.measurements.get_data_points(parameter_id),
@@ -408,4 +436,70 @@ class TestMeasurements(CassandraTestMixin, unittest.TestCase):
             (
                 (_utc_datetime(2012, 9, 2, 10, 59, 59, 999999), '0.1'),
             )
+        )
+
+class TestLastDataPoints(CassandraTestMixin, unittest.TestCase):
+
+    def setUp(self):
+        super(TestLastDataPoints, self).setUp()
+        self.measurements = parameters.Measurements()
+        self.last_data_points = parameters.LastDataPoints()
+
+    def test_basic_operation(self):
+        system_id = 23455
+        parameter_id = 1253353566
+        self.assertDictEqual(
+            self.last_data_points.get_last_parameter_data_points(system_id),
+            {}
+        )
+        self.assertEqual(
+            self.last_data_points.get_last_parameter_data_point(
+                system_id,
+                parameter_id
+            ),
+            None
+        )
+        self.measurements.insert_data_points(
+            parameter_id,
+            [
+                _dp((2012, 12, 8, 11, 45, 9, 123384), '2344.421'),
+                _dp((2012,  7, 1,  9, 45, 9, 123383), '2344.421'),
+                _dp((2012, 12, 8, 11, 45, 9, 123383), '2344.421'),
+            ]
+        )
+        self.last_data_points.update(system_id, parameter_id)
+        self.assertDictEqual(
+            self.last_data_points.get_last_parameter_data_points(system_id),
+            {
+                parameter_id: _dp((2012, 12, 8, 11, 45, 9, 123384), '2344.421')
+            }
+        )
+        self.assertEqual(
+            self.last_data_points.get_last_parameter_data_point(
+                system_id,
+                parameter_id
+            ),
+            _dp((2012, 12, 8, 11, 45, 9, 123384), '2344.421')
+        )
+        self.measurements.insert_data_points(
+            parameter_id,
+            [
+                _dp((2012, 12, 9, 11,  0, 9,      0), '15.3'),
+                _dp((2013,  7, 4, 23,  0, 1,     87), '2344.421'),
+                _dp((2012, 12, 8, 11, 45, 9, 123383), '2344.421'),
+            ]
+        )
+        self.last_data_points.update(system_id, parameter_id)
+        self.assertDictEqual(
+            self.last_data_points.get_last_parameter_data_points(system_id),
+            {
+                parameter_id: _dp((2013, 7, 4, 23, 0, 1, 87), '2344.421')
+            }
+        )
+        self.assertEqual(
+            self.last_data_points.get_last_parameter_data_point(
+                system_id,
+                parameter_id
+            ),
+            _dp((2013,  7, 4, 23,  0, 1,     87), '2344.421')
         )
