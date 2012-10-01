@@ -64,12 +64,24 @@ class System(ModelBase):
         nullable=False,
         doc="Name identifying concrete instance of a system."
     )
+    description = sql.Column(
+        sql.UnicodeText,
+        doc="Instance description provided by the fixer."
+    )
+    address = sql.Column(
+        sql.Unicode(length=200),
+        doc="Instance address."
+    )
     latitude = sql.Column(
         sql.Numeric(precision=10, scale=6),
         nullable=False
     )
     longitude = sql.Column(
         sql.Numeric(precision=10, scale=6),
+        nullable=False
+    )
+    created = sql.Column(
+        sql.DateTime(timezone=True),
         nullable=False
     )
 

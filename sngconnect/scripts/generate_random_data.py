@@ -45,9 +45,15 @@ def main(argv=sys.argv):
 def generate_data(system_count):
     for i in range(1, system_count + 1):
         system = System(
-            name="System %d" % i,
+            name=u"System %d" % i,
+            description=u"Opis instalacji wprowadzony przez instalatora. Moze"
+                        u" zawierac np. jakies notatki.",
+            address=u"1600 Ampitheater Pkwy., Mountain View, CA",
             latitude=random.uniform(49.0, 54.833333),
-            longitude=random.uniform(14.116666, 24.15)
+            longitude=random.uniform(14.116666, 24.15),
+            created=pytz.timezone('Europe/Warsaw').localize(
+                datetime.datetime.now() - datetime.timedelta(days=80)
+            )
         )
         DBSession.add(system)
         for i in range(1, 3):
@@ -61,7 +67,7 @@ def generate_data(system_count):
                     u'mm',
                     u'cm³',
                 ]),
-                writable=False,
+                writable=random.choice([True, False, False]),
                 system=system
             )
             DBSession.add(parameter)

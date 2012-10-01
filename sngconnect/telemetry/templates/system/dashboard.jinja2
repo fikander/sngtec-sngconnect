@@ -57,12 +57,23 @@
                     <table class="table">
                         <tbody>
                             <tr>
+                                <td colspan="2">
+                                    <div class="well">
+                                        {{ system.description }}
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
                                 <th>{% trans %}ID{% endtrans %}</th>
                                 <td>#{{ system.id }}</td>
                             </tr>
                             <tr>
                                 <th>{% trans %}Name{% endtrans %}</th>
                                 <td>{{ system.name }}</td>
+                            </tr>
+                            <tr>
+                                <th>{% trans %}Added to the application{% endtrans %}</th>
+                                <td>{{ system.created }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -72,6 +83,10 @@
                     <div id="system-location-map"></div>
                     <table class="table">
                         <tbody>
+                            <tr>
+                                <th>{% trans %}Address{% endtrans %}</th>
+                                <td>{{ system.address }}</td>
+                            </tr>
                             <tr>
                                 <th>{% trans %}GPS Coordinates{% endtrans %}</th>
                                 <td>{{ system.latitude }} {{ system.longitude }}</td>
