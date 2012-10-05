@@ -126,4 +126,5 @@ def generate_data(system_count):
         HourlyAggregates().recalculate_aggregates(parameter.id, dates)
         DailyAggregates().recalculate_aggregates(parameter.id, dates)
         MonthlyAggregates().recalculate_aggregates(parameter.id, dates)
+        print "Updating last values..."
         LastDataPoints().update(parameter.system.id, parameter.id)
