@@ -219,6 +219,13 @@ class SystemParameter(SystemViewBase):
                 parameter.id
             )
         )
+        last_day_values = parameters_store.Measurements().get_data_points(
+            parameter.id,
+            start_date=pytz.utc.localize(
+                datetime.datetime.utcnow() - datetime.timedelta(days=1)
+            ),
+            end_date=pytz.utc.localize(datetime.datetime.utcnow())
+        )
         last_week_values = parameters_store.HourlyAggregates().get_data_points(
             parameter.id,
             start_date=pytz.utc.localize(
@@ -230,6 +237,18 @@ class SystemParameter(SystemViewBase):
             last_week_values[i][1]['mean'] = (
                 decimal.Decimal(last_week_values[i][1]['sum'])
                 / decimal.Decimal(last_week_values[i][1]['count'])
+            )
+        last_year_values = parameters_store.DailyAggregates().get_data_points(
+            parameter.id,
+            start_date=pytz.utc.localize(
+                datetime.datetime.utcnow() - datetime.timedelta(days=365)
+            ),
+            end_date=pytz.utc.localize(datetime.datetime.utcnow())
+        )
+        for i in range(len(last_year_values)):
+            last_year_values[i][1]['mean'] = (
+                decimal.Decimal(last_year_values[i][1]['sum'])
+                / decimal.Decimal(last_year_values[i][1]['count'])
             )
         self.context.update({
             'parameter': {
@@ -253,7 +272,9 @@ class SystemParameter(SystemViewBase):
                     lambda x: (x[0], decimal.Decimal(x[1])),
                     this_month.items()
                 )) if this_month is not None else None,
+                'last_day_values': last_day_values,
                 'last_week_values': last_week_values,
+                'last_year_values': last_year_values,
             },
         })
         return self.context
