@@ -96,8 +96,8 @@ class AggregatesStore(TimeSeries):
             end_date=end_date
         )
         keys = set((self.get_row_key(parameter_id, date) for date in dates))
-        values_sum = numpy.float128(0);
-        values_count = numpy.float128(0)
+        values_sum = numpy.float64(0);
+        values_count = numpy.float64(0)
         values_minimum = None
         values_maximum = None
         for key in keys:
@@ -118,7 +118,7 @@ class AggregatesStore(TimeSeries):
                 continue
             aggregates = numpy.array(
                 result,
-                dtype=numpy.float128
+                dtype=numpy.float64
             )
             local_minimum = aggregates[:,0].min()
             local_maximum = aggregates[:,1].max()

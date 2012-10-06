@@ -173,7 +173,7 @@ class TimeSeries(ColumnFamilyProxy):
             end_date=end_date
         )
         keys = set((self.get_row_key(timeline_id, date) for date in dates))
-        values_sum = numpy.float128(0);
+        values_sum = numpy.float64(0);
         values_minimum = None
         values_maximum = None
         values_count = 0
@@ -181,7 +181,7 @@ class TimeSeries(ColumnFamilyProxy):
             try:
                 values = numpy.array(
                     self.column_family.get(key, **kwargs).values(),
-                    dtype=numpy.float128
+                    dtype=numpy.float64
                 )
             except pycassa.NotFoundException:
                 continue

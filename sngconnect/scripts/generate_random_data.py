@@ -90,18 +90,18 @@ def generate_data(system_count):
             - datetime.timedelta(days=30)
         )
         end = pytz.utc.localize(datetime.datetime.utcnow())
-        last_value = numpy.float128(2000)
+        last_value = numpy.float64(2000)
         dates = []
         print "Generating..."
         j = 0
         while start < end:
             end -= datetime.timedelta(seconds=10)
             dates.append(end)
-            last_value = numpy.float128(
+            last_value = numpy.float64(
                 (
-                    numpy.sin(numpy.float128(j) / numpy.float128(10.0))
-                    * numpy.float128(20)
-                    + numpy.float128(random.uniform(-100, 100))
+                    numpy.sin(numpy.float64(j) / numpy.float64(10.0))
+                    * numpy.float64(20)
+                    + numpy.float64(random.uniform(-100, 100))
                 ) + (last_value * 2)
             ) / 2
             data_points.append((

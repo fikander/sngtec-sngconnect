@@ -32,8 +32,8 @@ if __name__ == '__main__':
     date = datetime.datetime.now()
     end_date = date - datetime.timedelta(days=2)
 
-    iteration = numpy.float128(0)
-    last_value = numpy.float128(0)
+    iteration = numpy.float64(0)
+    last_value = numpy.float64(0)
 
     data_points = []
 
@@ -70,7 +70,7 @@ if __name__ == '__main__':
             {
                 'minimum': None,
                 'maximum': None,
-                'sum': numpy.float128(0),
+                'sum': numpy.float64(0),
                 'count': 0,
             }
         )
@@ -100,7 +100,7 @@ if __name__ == '__main__':
             {
                 'minimum': None,
                 'maximum': None,
-                'sum': numpy.float128(0),
+                'sum': numpy.float64(0),
                 'count': 0,
             }
         )
@@ -130,7 +130,7 @@ if __name__ == '__main__':
             {
                 'minimum': None,
                 'maximum': None,
-                'sum': numpy.float128(0),
+                'sum': numpy.float64(0),
                 'count': 0,
             }
         )
