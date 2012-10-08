@@ -4,7 +4,8 @@ from pyramid import httpexceptions
 from pyramid.response import Response
 
 from sngconnect.database import DBSession, System, Parameter
-from sngconnect.cassandra.parameters import Measurements
+from sngconnect.cassandra.parameters import (Measurements, HourlyAggregates,
+    DailyAggregates, MonthlyAggregates, LastDataPoints)
 from sngconnect.api import schemas
 
 @view_config(
@@ -47,4 +48,11 @@ def system_parameter(request):
         for point in request_appstruct['datapoints']
     ]
     Measurements().insert_data_points(parameter_id, data_points)
+    # FIXME This is not wise for production use due to race condition concerns.
+    dates = map(lambda x: x[0], data_points)
+    HourlyAggregates().recalculate_aggregates(parameter_id, dates)
+    DailyAggregates().recalculate_aggregates(parameter_id, dates)
+    MonthlyAggregates().recalculate_aggregates(parameter_id, dates)
+    LastDataPoints().update(system_id, parameter_id)
+    # end of FIXME
     return Response()
