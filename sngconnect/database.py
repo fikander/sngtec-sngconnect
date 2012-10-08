@@ -141,3 +141,46 @@ class Parameter(ModelBase):
             self.system_id,
             self.name
         )
+
+class AlarmDefinition(ModelBase):
+
+    __tablename__ = 'sngconnect_alarm_definitions'
+    __table_args__ = (
+        sql.UniqueConstraint('parameter_id', 'alarm_type'),
+    )
+
+    id = sql.Column(
+        sql.Integer,
+        primary_key=True
+    )
+    parameter_id = sql.Column(
+        sql.Integer,
+        sql.ForeignKey(Parameter.id),
+        nullable=False,
+        doc="Related parameter's identifier."
+    )
+    alarm_type = sql.Column(
+        sql.Enum(
+            'MAXIMUM_VALUE',
+            'MINIMUM_VALUE'
+        ),
+        nullable=False
+    )
+    boundary = sql.Column(
+        sql.Numeric(precision=10, scale=6),
+        nullable=False
+    )
+
+    parameter = orm.relationship(
+        Parameter,
+        backref=orm.backref('alarm_definitions')
+    )
+
+    def __repr__(self):
+        return ('<AlarmDefinition(id=%s, parameter_id=%s, alarm_type=\'%s\')>' %
+            (
+                self.id,
+                self.parameter_id,
+                self.alarm_type
+            )
+        )
