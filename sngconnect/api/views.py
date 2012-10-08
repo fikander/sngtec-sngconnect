@@ -3,9 +3,10 @@ from pyramid.view import view_config
 from pyramid import httpexceptions
 from pyramid.response import Response
 
-from sngconnect.database import DBSession, System, Parameter
+from sngconnect.database import DBSession, System, Parameter, AlarmDefinition
 from sngconnect.cassandra.parameters import (Measurements, HourlyAggregates,
     DailyAggregates, MonthlyAggregates, LastDataPoints)
+from sngconnect.cassandra.alarms import Alarms
 from sngconnect.api import schemas
 
 @view_config(
@@ -54,5 +55,21 @@ def system_parameter(request):
     DailyAggregates().recalculate_aggregates(parameter_id, dates)
     MonthlyAggregates().recalculate_aggregates(parameter_id, dates)
     LastDataPoints().update(system_id, parameter_id)
+    alarm_definitions = DBSession.query(AlarmDefinition).filter(
+        AlarmDefinition.parameter_id == parameter_id
+    )
+    last_date, last_value = LastDataPoints().get_last_parameter_data_point(
+        system_id,
+        parameter_id
+    )
+    alarms_on = []
+    alarms_off = []
+    for alarm_definition in alarm_definitions:
+        if alarm_definition.check_value(last_value) is None:
+            alarms_off.append(alarm_definition.id)
+        else:
+            alarms_on.append(alarm_definition.id)
+    Alarms().set_alarms_on(system_id, parameter_id, alarms_on, last_date)
+    Alarms().set_alarms_off(system_id, parameter_id, alarms_off)
     # end of FIXME
     return Response()

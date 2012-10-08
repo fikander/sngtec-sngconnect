@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sngconnect 0.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2012-10-01 19:19+0200\n"
+"POT-Creation-Date: 2012-10-08 17:37+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,6 +16,14 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.6\n"
+
+#: sngconnect/database.py:197
+msgid "Value (${actual_value}) is greater than maximal value (${maximal_value})."
+msgstr ""
+
+#: sngconnect/database.py:207
+msgid "Value (${actual_value}) is less than minimal value (${minimal_value})."
+msgstr ""
 
 #: sngconnect/errors/templates/bad_request.jinja2:9
 msgid "Bad Request..."
@@ -106,7 +114,7 @@ msgstr ""
 #: sngconnect/telemetry/templates/system/base.jinja2:42
 #: sngconnect/telemetry/templates/system/dashboard.jinja2:102
 #: sngconnect/telemetry/templates/system/history.jinja2:6
-#: sngconnect/telemetry/templates/system/parameter.jinja2:91
+#: sngconnect/telemetry/templates/system/parameter.jinja2:93
 msgid "History"
 msgstr ""
 
@@ -228,20 +236,35 @@ msgstr ""
 msgid "Notifications"
 msgstr ""
 
-#: sngconnect/telemetry/templates/system/parameter.jinja2:103
+#: sngconnect/telemetry/templates/system/parameter.jinja2:105
+msgid "Last day"
+msgstr ""
+
+#: sngconnect/telemetry/templates/system/parameter.jinja2:133
+msgid "Value"
+msgstr ""
+
+#: sngconnect/telemetry/templates/system/parameter.jinja2:153
 msgid "Last week"
 msgstr ""
 
-#: sngconnect/telemetry/templates/system/parameter.jinja2:131
+#: sngconnect/telemetry/templates/system/parameter.jinja2:181
+#: sngconnect/telemetry/templates/system/parameter.jinja2:253
 msgid "Maximum"
 msgstr ""
 
-#: sngconnect/telemetry/templates/system/parameter.jinja2:143
+#: sngconnect/telemetry/templates/system/parameter.jinja2:193
+#: sngconnect/telemetry/templates/system/parameter.jinja2:265
 msgid "Mean"
 msgstr ""
 
-#: sngconnect/telemetry/templates/system/parameter.jinja2:155
+#: sngconnect/telemetry/templates/system/parameter.jinja2:205
+#: sngconnect/telemetry/templates/system/parameter.jinja2:277
 msgid "Minimum"
+msgstr ""
+
+#: sngconnect/telemetry/templates/system/parameter.jinja2:225
+msgid "Last year"
 msgstr ""
 
 #: sngconnect/telemetry/templates/system/parameters.jinja2:10

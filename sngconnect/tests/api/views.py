@@ -7,8 +7,9 @@ from pyramid import testing
 from pyramid import httpexceptions
 
 from sngconnect.api import views
-from sngconnect.database import DBSession, System, Parameter
+from sngconnect.database import DBSession, System, Parameter, AlarmDefinition
 from sngconnect.cassandra.parameters import Measurements
+from sngconnect.cassandra.alarms import Alarms
 
 from sngconnect.tests.api import ApiTestMixin
 
@@ -35,7 +36,24 @@ class TestSystemParameterPut(ApiTestMixin, unittest.TestCase):
             system=system,
             writable=False
         )
-        DBSession.add_all([system, parameter])
+        alarm_definition_1 = AlarmDefinition(
+            id=1,
+            alarm_type='MINIMAL_VALUE',
+            boundary=-5,
+            parameter=parameter
+        )
+        alarm_definition_2 = AlarmDefinition(
+            id=2,
+            alarm_type='MAXIMAL_VALUE',
+            boundary=1000,
+            parameter=parameter
+        )
+        DBSession.add_all([
+            system,
+            parameter,
+            alarm_definition_1,
+            alarm_definition_2,
+        ])
         transaction.commit()
 
     def get_request(self, system_id, parameter_id, json_body='',
@@ -93,3 +111,67 @@ class TestSystemParameterPut(ApiTestMixin, unittest.TestCase):
                 ),
             )
         )
+
+    def test_alarms(self):
+        request = self.get_request(1, 1, json_body={
+            'datapoints': [
+                {
+                    'at': '2012-09-26T18:14:34.345123Z',
+                    'value': '134.2344',
+                },
+                {
+                    'at': '2012-09-26T18:14:35.425Z',
+                    'value': '-23.24525',
+                },
+            ]
+        })
+        response = views.system_parameter(request)
+        self.assertEqual(response.status_code, 200)
+        active_alarms = Alarms().get_active_alarms(1, 1)
+        self.assertDictEqual(active_alarms, {
+            1: _utc_datetime(2012, 9, 26, 18, 14, 35, 425000)
+        })
+        request = self.get_request(1, 1, json_body={
+            'datapoints': [
+                {
+                    'at': '2012-09-25T18:14:34.345123Z',
+                    'value': '245255.2344',
+                },
+                {
+                    'at': '2012-09-25T18:14:35.425Z',
+                    'value': '0.24525',
+                },
+            ]
+        })
+        response = views.system_parameter(request)
+        self.assertEqual(response.status_code, 200)
+        active_alarms = Alarms().get_active_alarms(1, 1)
+        self.assertDictEqual(active_alarms, {
+            1: _utc_datetime(2012, 9, 26, 18, 14, 35, 425000)
+        })
+        request = self.get_request(1, 1, json_body={
+            'datapoints': [
+                {
+                    'at': '2012-09-27T18:14:35.425Z',
+                    'value': '121344441344.24525',
+                },
+            ]
+        })
+        response = views.system_parameter(request)
+        self.assertEqual(response.status_code, 200)
+        active_alarms = Alarms().get_active_alarms(1, 1)
+        self.assertDictEqual(active_alarms, {
+            2: _utc_datetime(2012, 9, 27, 18, 14, 35, 425000)
+        })
+        request = self.get_request(1, 1, json_body={
+            'datapoints': [
+                {
+                    'at': '2012-09-27T18:15:35.425Z',
+                    'value': '234.2',
+                },
+            ]
+        })
+        response = views.system_parameter(request)
+        self.assertEqual(response.status_code, 200)
+        active_alarms = Alarms().get_active_alarms(1, 1)
+        self.assertDictEqual(active_alarms, {})

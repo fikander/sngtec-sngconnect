@@ -1,8 +1,12 @@
+import decimal
+
 import bcrypt
 import sqlalchemy as sql
 from sqlalchemy import orm
 from sqlalchemy.ext.declarative import declarative_base
 from zope.sqlalchemy import ZopeTransactionExtension
+
+from sngconnect.translation import _
 
 DBSession = orm.scoped_session(
     orm.sessionmaker(extension=ZopeTransactionExtension())
@@ -161,8 +165,8 @@ class AlarmDefinition(ModelBase):
     )
     alarm_type = sql.Column(
         sql.Enum(
-            'MAXIMUM_VALUE',
-            'MINIMUM_VALUE'
+            'MAXIMAL_VALUE',
+            'MINIMAL_VALUE'
         ),
         nullable=False
     )
@@ -184,3 +188,30 @@ class AlarmDefinition(ModelBase):
                 self.alarm_type
             )
         )
+
+    def check_value(self, value):
+        if isinstance(value, basestring):
+            value = decimal.Decimal(value)
+        if self.alarm_type == 'MAXIMAL_VALUE':
+            if value > self.boundary:
+                return _(
+                    "Value (${actual_value}) is greater than maximal value"
+                    " (${maximal_value}).",
+                    mapping={
+                        'actual_value': value,
+                        'maximal_value': self.boundary,
+                    }
+                )
+        elif self.alarm_type == 'MINIMAL_VALUE':
+            if value < self.boundary:
+                return _(
+                    "Value (${actual_value}) is less than minimal value"
+                    " (${minimal_value}).",
+                    mapping={
+                        'actual_value': value,
+                        'minimal_value': self.boundary,
+                    }
+                )
+        else:
+            raise RuntimeError("Unknown alarm type.")
+        return None
