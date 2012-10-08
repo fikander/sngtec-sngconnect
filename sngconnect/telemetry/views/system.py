@@ -8,8 +8,9 @@ from sqlalchemy.orm import exc as database_exceptions
 from pyramid.view import view_config
 from pyramid import httpexceptions
 
-from sngconnect.database import DBSession, System, Parameter
+from sngconnect.database import DBSession, System, Parameter, AlarmDefinition
 from sngconnect.cassandra import parameters as parameters_store
+from sngconnect.cassandra import alarms as alarms_store
 
 @view_config(
     route_name='sngconnect.telemetry.systems',
@@ -31,26 +32,20 @@ class SystemViewBase(object):
             raise httpexceptions.HTTPNotFound()
         self.request = request
         self.system = system
+        # FIXME getting alarms out is kind of dumb
+        result = alarms_store.Alarms().get_active_alarms(system.id)
+        active_alarms = []
+        for parameter_id, alarms in result:
+            parameter = Parameter(id=parameter_id)
+            for definition_id, activation_date in alarms:
+                definition = AlarmDefinition(id=definition_id)
+                active_alarms.append({
+                    'activation_date': activation_date,
+                    'parameter': parameter.name,
+                    'type': definition.alarm_type,
+                })
         self.context = {
-            # FIXME
-            'active_alarms': [
-                {
-                    'activation_date': pytz.timezone('Europe/Warsaw').localize(
-                        datetime.datetime(2012, 12, 1, 15, 16, 45)
-                    ),
-                    'parameter': u"nazwa parametru",
-                    'type': u"temperatura kotła",
-                    'description': u"jakiś niewielki błąd",
-                },
-                {
-                    'activation_date': pytz.timezone('Europe/Warsaw').localize(
-                        datetime.datetime(2012, 12, 1, 9, 21, 4)
-                    ),
-                    'parameter': u"temperatura wyjścia B",
-                    'type': u"wartość minimalna przekroczona",
-                    'description': u"jakiś straszliwy błąd",
-                },
-            ],
+            'active_alarms': active_alarms,
             'system': {
                 'id': system.id,
                 'name': system.name,

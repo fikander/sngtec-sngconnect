@@ -38,4 +38,12 @@ ROUTES = (
         'sngconnect.api.system_parameter',
         'api/v1/feeds/{system_id:\d+}/datastreams/{parameter_id:\d+}.json'
     ),
+    (
+        'sngconnect.api.system',
+        'api/v1/feeds/{system_id:\d+}.json'
+    ),
+    (
+        'sngconnect.api.events',
+        'api/v1/feeds/{system_id:\d+}/events.json'
+    ),
 )
