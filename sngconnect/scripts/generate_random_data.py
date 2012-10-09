@@ -15,13 +15,13 @@ from pyramid.paster import get_appsettings, setup_logging
 from sngconnect import cassandra
 from sngconnect.database import DBSession
 from sngconnect.cassandra import connection_pool as cassandra_connection_pool
-from sngconnect.database import System, Parameter
-from sngconnect.cassandra.parameters import (Measurements, HourlyAggregates,
+from sngconnect.database import Feed, DataStream
+from sngconnect.cassandra.data_streams import (Measurements, HourlyAggregates,
     DailyAggregates, MonthlyAggregates, LastDataPoints)
 
 def usage(argv):
     cmd = os.path.basename(argv[0])
-    print('usage: %s <config_uri> <system_count>\n'
+    print('usage: %s <config_uri> <feed_count>\n'
           '(example: "%s development.ini 3")' % (cmd, cmd))
     sys.exit(1)
 
@@ -29,23 +29,23 @@ def main(argv=sys.argv):
     if len(argv) != 3:
         usage(argv)
     config_uri = argv[1]
-    system_count = int(argv[2])
+    feed_count = int(argv[2])
     setup_logging(config_uri)
     settings = get_appsettings(config_uri)
     database_engine = sqlalchemy.engine_from_config(settings, 'database.')
     DBSession.configure(bind=database_engine)
-    DBSession.query(System).delete()
-    DBSession.query(Parameter).delete()
+    DBSession.query(Feed).delete()
+    DBSession.query(DataStream).delete()
     transaction.commit()
     cassandra.drop_keyspace(settings)
     cassandra.initialize_keyspace(settings)
     cassandra_connection_pool.initialize_connection_pool(settings)
-    generate_data(system_count)
+    generate_data(feed_count)
 
-def generate_data(system_count):
-    for i in range(1, system_count + 1):
-        system = System(
-            name=u"System %d" % i,
+def generate_data(feed_count):
+    for i in range(1, feed_count + 1):
+        feed = Feed(
+            name=u"Feed %d" % i,
             description=u"Opis instalacji wprowadzony przez instalatora. Moze"
                         u" zawierac np. jakies notatki.",
             address=u"1600 Ampitheater Pkwy., Mountain View, CA",
@@ -55,12 +55,12 @@ def generate_data(system_count):
                 datetime.datetime.now() - datetime.timedelta(days=80)
             )
         )
-        DBSession.add(system)
+        DBSession.add(feed)
         for j in range(1, 3):
-            parameter = Parameter(
-                name=u"Parameter %d" % j,
+            data_stream = DataStream(
+                name=u"DataStream %d" % j,
                 description=u"Tutaj można wyświetlić aktualną temperaturę wody"
-                            u" na wyjściu z pompy ciepła zasilającej system"
+                            u" na wyjściu z pompy ciepła zasilającej feed"
                             u" grzewczy.",
                 measurement_unit=random.choice([
                     u'kW',
@@ -73,16 +73,16 @@ def generate_data(system_count):
                 writable=random.choice([True, False, False]),
                 minimal_value=random.uniform(-1000, 0),
                 maximal_value=random.uniform(0, 1000),
-                system=system
+                feed=feed
             )
-            DBSession.add(parameter)
+            DBSession.add(data_stream)
     transaction.commit()
-    parameters = DBSession.query(Parameter).all()
+    data_streams = DBSession.query(DataStream).all()
     measurements = Measurements()
     i = 1
-    count = len(parameters)
-    for parameter in parameters:
-        print "Parameter %d/%d:" % (i, count)
+    count = len(data_streams)
+    for data_stream in data_streams:
+        print "DataStream %d/%d:" % (i, count)
         i += 1
         data_points = []
         start = (
@@ -111,20 +111,20 @@ def generate_data(system_count):
             j += 1
             if j % 10000 == 0:
                 print "Inserting..."
-                measurements.insert_data_points(parameter.id, data_points)
+                measurements.insert_data_points(data_stream.id, data_points)
                 print "Aggregating..."
-                HourlyAggregates().recalculate_aggregates(parameter.id, dates)
-                DailyAggregates().recalculate_aggregates(parameter.id, dates)
-                MonthlyAggregates().recalculate_aggregates(parameter.id, dates)
+                HourlyAggregates().recalculate_aggregates(data_stream.id, dates)
+                DailyAggregates().recalculate_aggregates(data_stream.id, dates)
+                MonthlyAggregates().recalculate_aggregates(data_stream.id, dates)
                 data_points = []
                 dates = []
                 print "%d done" % j
                 time.sleep(5)
         print "Inserting..."
-        measurements.insert_data_points(parameter.id, data_points)
+        measurements.insert_data_points(data_stream.id, data_points)
         print "Aggregating..."
-        HourlyAggregates().recalculate_aggregates(parameter.id, dates)
-        DailyAggregates().recalculate_aggregates(parameter.id, dates)
-        MonthlyAggregates().recalculate_aggregates(parameter.id, dates)
+        HourlyAggregates().recalculate_aggregates(data_stream.id, dates)
+        DailyAggregates().recalculate_aggregates(data_stream.id, dates)
+        MonthlyAggregates().recalculate_aggregates(data_stream.id, dates)
         print "Updating last values..."
-        LastDataPoints().update(parameter.system.id, parameter.id)
+        LastDataPoints().update(data_stream.feed.id, data_stream.id)

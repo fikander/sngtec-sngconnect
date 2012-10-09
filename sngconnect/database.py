@@ -32,7 +32,7 @@ class User(ModelBase):
     password_hash = sql.Column(
         sql.String(length=100),
         nullable=False,
-        doc="Password used to sign in to the system; hashed using bcrypt."
+        doc="Password used to sign in to the feed; hashed using bcrypt."
     )
     phone = sql.Column(
         sql.String(length=50),
@@ -55,9 +55,9 @@ class User(ModelBase):
     def __repr__(self):
         return '<User(id=%s, email=\'%s\')>' % (self.id, self.email)
 
-class System(ModelBase):
+class Feed(ModelBase):
 
-    __tablename__ = 'sngconnect_systems'
+    __tablename__ = 'sngconnect_feeds'
 
     id = sql.Column(
         sql.Integer,
@@ -66,7 +66,7 @@ class System(ModelBase):
     name = sql.Column(
         sql.Unicode(length=200),
         nullable=False,
-        doc="Name identifying concrete instance of a system."
+        doc="Name identifying concrete instance of a feed."
     )
     description = sql.Column(
         sql.UnicodeText,
@@ -90,27 +90,27 @@ class System(ModelBase):
     )
 
     def __repr__(self):
-        return '<System(id=%s, name=\'%s\')>' % (self.id, self.name)
+        return '<Feed(id=%s, name=\'%s\')>' % (self.id, self.name)
 
-class Parameter(ModelBase):
+class DataStream(ModelBase):
 
-    __tablename__ = 'sngconnect_parameters'
+    __tablename__ = 'sngconnect_data_streams'
 
     id = sql.Column(
         sql.Integer,
         primary_key=True
     )
-    system_id = sql.Column(
+    feed_id = sql.Column(
         sql.Integer,
-        sql.ForeignKey(System.id),
+        sql.ForeignKey(Feed.id),
         nullable=False,
-        doc="Related system's identifier."
+        doc="Related feed's identifier."
     )
     name = sql.Column(
         sql.Unicode(length=200),
         nullable=False,
-        doc="Name identifying firmly one of related system's measurable"
-            " parameters."
+        doc="Name identifying firmly one of related feed's measurable"
+            " data_streams."
     )
     description = sql.Column(
         sql.UnicodeText
@@ -118,12 +118,12 @@ class Parameter(ModelBase):
     measurement_unit = sql.Column(
         sql.Unicode(length=50),
         nullable=False,
-        doc="Unit of measurement in which parameter values are expressed."
+        doc="Unit of measurement in which data_stream values are expressed."
     )
     writable = sql.Column(
         sql.Boolean,
         nullable=False,
-        doc="Whether to allow setting the parameter from the application."
+        doc="Whether to allow setting the data_stream from the application."
     )
     minimal_value = sql.Column(
         sql.Numeric(precision=20),
@@ -134,15 +134,15 @@ class Parameter(ModelBase):
         doc="Maximal allowed value."
     )
 
-    system = orm.relationship(
-        System,
-        backref=orm.backref('parameters')
+    feed = orm.relationship(
+        Feed,
+        backref=orm.backref('data_streams')
     )
 
     def __repr__(self):
-        return '<Parameter(id=%s, system_id=%s, name=\'%s\')>' % (
+        return '<DataStream(id=%s, feed_id=%s, name=\'%s\')>' % (
             self.id,
-            self.system_id,
+            self.feed_id,
             self.name
         )
 
@@ -150,18 +150,18 @@ class AlarmDefinition(ModelBase):
 
     __tablename__ = 'sngconnect_alarm_definitions'
     __table_args__ = (
-        sql.UniqueConstraint('parameter_id', 'alarm_type'),
+        sql.UniqueConstraint('data_stream_id', 'alarm_type'),
     )
 
     id = sql.Column(
         sql.Integer,
         primary_key=True
     )
-    parameter_id = sql.Column(
+    data_stream_id = sql.Column(
         sql.Integer,
-        sql.ForeignKey(Parameter.id),
+        sql.ForeignKey(DataStream.id),
         nullable=False,
-        doc="Related parameter's identifier."
+        doc="Related data_stream's identifier."
     )
     alarm_type = sql.Column(
         sql.Enum(
@@ -175,16 +175,16 @@ class AlarmDefinition(ModelBase):
         nullable=False
     )
 
-    parameter = orm.relationship(
-        Parameter,
+    data_stream = orm.relationship(
+        DataStream,
         backref=orm.backref('alarm_definitions')
     )
 
     def __repr__(self):
-        return ('<AlarmDefinition(id=%s, parameter_id=%s, alarm_type=\'%s\')>' %
+        return ('<AlarmDefinition(id=%s, data_stream_id=%s, alarm_type=\'%s\')>' %
             (
                 self.id,
-                self.parameter_id,
+                self.data_stream_id,
                 self.alarm_type
             )
         )

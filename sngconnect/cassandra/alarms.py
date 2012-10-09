@@ -46,33 +46,33 @@ class Alarms(ColumnFamilyProxy):
         super(Alarms, self).__init__()
         self.column_family.default_validation_class = MicrosecondTimestampType()
 
-    def set_alarms_on(self, system_id, parameter_id, alarm_ids, date):
+    def set_alarms_on(self, feed_id, data_stream_id, alarm_ids, date):
         self.column_family.insert(
-            system_id,
+            feed_id,
             {
-                parameter_id: {
+                data_stream_id: {
                     alarm_id: date for alarm_id in alarm_ids
                 },
             }
         )
 
-    def set_alarms_off(self, system_id, parameter_id, alarm_ids):
+    def set_alarms_off(self, feed_id, data_stream_id, alarm_ids):
         self.column_family.remove(
-            system_id,
+            feed_id,
             alarm_ids,
-            super_column=parameter_id
+            super_column=data_stream_id
         )
 
-    def get_active_alarms(self, system_id, parameter_id=None):
-        if parameter_id is None:
+    def get_active_alarms(self, feed_id, data_stream_id=None):
+        if data_stream_id is None:
             try:
                 return {
-                    parameter_id: {
+                    data_stream_id: {
                         alarm_id: date
                         for alarm_id, date in alarms.iteritems()
                     }
-                    for parameter_id, alarms
-                    in self.column_family.get(system_id).iteritems()
+                    for data_stream_id, alarms
+                    in self.column_family.get(feed_id).iteritems()
                 }
             except pycassa.NotFoundException:
                 return {}
@@ -81,8 +81,8 @@ class Alarms(ColumnFamilyProxy):
                 return {
                     alarm_id: date
                     for alarm_id, date in self.column_family.get(
-                        system_id,
-                        super_column=parameter_id
+                        feed_id,
+                        super_column=data_stream_id
                     ).iteritems()
                 }
             except pycassa.NotFoundException:

@@ -7,7 +7,7 @@ import datetime
 import pytz
 import isodate
 
-from sngconnect.cassandra import parameters
+from sngconnect.cassandra import data_streams
 
 from sngconnect.tests.cassandra import CassandraTestMixin
 
@@ -46,16 +46,16 @@ class TestMeasurementDays(CassandraTestMixin, unittest.TestCase):
 
     def setUp(self):
         super(TestMeasurementDays, self).setUp()
-        self.measurement_days = parameters.MeasurementDays()
+        self.measurement_days = data_streams.MeasurementDays()
 
     def test_basic_operation(self):
-        parameter_id = 12245
+        data_stream_id = 12245
         self.assertSequenceEqual(
-            self.measurement_days.get_days(parameter_id),
+            self.measurement_days.get_days(data_stream_id),
             []
         )
         self.assertEqual(
-            self.measurement_days.get_last_day(parameter_id),
+            self.measurement_days.get_last_day(data_stream_id),
             None
         )
         dates = [
@@ -64,9 +64,9 @@ class TestMeasurementDays(CassandraTestMixin, unittest.TestCase):
             _utc_datetime(2012, 9, 18,  9, 12,  0),
             _utc_datetime(2012, 9, 19,  0,  0,  0),
         ]
-        self.measurement_days.add_days(parameter_id, dates)
+        self.measurement_days.add_days(data_stream_id, dates)
         self.assertSequenceEqual(
-            self.measurement_days.get_days(parameter_id),
+            self.measurement_days.get_days(data_stream_id),
             [
                 _utc_datetime(2012, 9, 11),
                 _utc_datetime(2012, 9, 15),
@@ -75,25 +75,25 @@ class TestMeasurementDays(CassandraTestMixin, unittest.TestCase):
             ]
         )
         self.assertEqual(
-            self.measurement_days.get_last_day(parameter_id),
+            self.measurement_days.get_last_day(data_stream_id),
             _utc_datetime(2012, 9, 19)
         )
         self.assertEqual(
-            self.measurement_days.get_last_day(parameter_id + 9),
+            self.measurement_days.get_last_day(data_stream_id + 9),
             None
         )
         self.assertSequenceEqual(
-            self.measurement_days.get_days(parameter_id + 13),
+            self.measurement_days.get_days(data_stream_id + 13),
             []
         )
-        self.measurement_days.add_days(parameter_id, [
+        self.measurement_days.add_days(data_stream_id, [
             _utc_datetime(2012, 9, 15, 22,  0, 07),
             _utc_datetime(2012, 7, 20, 23, 59, 59),
             _utc_datetime(2012, 9, 18,  8,  9, 17),
             _utc_datetime(2012, 7, 20, 23, 59, 59),
         ])
         self.assertSequenceEqual(
-            self.measurement_days.get_days(parameter_id),
+            self.measurement_days.get_days(data_stream_id),
             [
                 _utc_datetime(2012, 7, 20),
                 _utc_datetime(2012, 9, 11),
@@ -103,11 +103,11 @@ class TestMeasurementDays(CassandraTestMixin, unittest.TestCase):
             ]
         )
         self.assertEqual(
-            self.measurement_days.get_last_day(parameter_id),
+            self.measurement_days.get_last_day(data_stream_id),
             _utc_datetime(2012, 9, 19)
         )
         self.assertSequenceEqual(
-            self.measurement_days.get_days(parameter_id + 1),
+            self.measurement_days.get_days(data_stream_id + 1),
             []
         )
 
@@ -115,20 +115,20 @@ class TestHourlyAggregates(CassandraTestMixin, unittest.TestCase):
 
     def setUp(self):
         super(TestHourlyAggregates, self).setUp()
-        self.measurements = parameters.Measurements()
-        self.hourly_aggregates = parameters.HourlyAggregates()
+        self.measurements = data_streams.Measurements()
+        self.hourly_aggregates = data_streams.HourlyAggregates()
 
     def test_basic_operation(self):
-        parameter_id = 3423423
+        data_stream_id = 3423423
         data_points = list(_get_test_data_points())
         self.measurements.insert_data_points(
-            parameter_id,
+            data_stream_id,
             # Shuffled to ensure database ordering.
             data_points[500:] + data_points[:500]
         )
-        aggregates = self.hourly_aggregates.get_data_points(parameter_id)
+        aggregates = self.hourly_aggregates.get_data_points(data_stream_id)
         self.assertAggregatesEqual(aggregates, [])
-        self.hourly_aggregates.recalculate_aggregates(parameter_id, [
+        self.hourly_aggregates.recalculate_aggregates(data_stream_id, [
             date for date, value in data_points
         ])
         hourly_aggregates_data = list(sorted([
@@ -149,13 +149,13 @@ class TestHourlyAggregates(CassandraTestMixin, unittest.TestCase):
                 )
             )
         ], key=lambda x: x[0]))
-        aggregates = self.hourly_aggregates.get_data_points(parameter_id)
+        aggregates = self.hourly_aggregates.get_data_points(data_stream_id)
         self.assertAggregatesEqual(
             aggregates,
             hourly_aggregates_data
         )
         aggregates = self.hourly_aggregates.get_data_points(
-            parameter_id,
+            data_stream_id,
             start_date=_utc_datetime(2012, 9, 24, 12),
             end_date=_utc_datetime(2012, 9, 24, 13)
         )
@@ -176,31 +176,31 @@ class TestHourlyAggregates(CassandraTestMixin, unittest.TestCase):
                 }),
             )
         )
-        aggregates = self.hourly_aggregates.get_data_points(parameter_id + 2)
+        aggregates = self.hourly_aggregates.get_data_points(data_stream_id + 2)
         self.assertAggregatesEqual(aggregates, [])
 
 class TestDailyAggregates(CassandraTestMixin, unittest.TestCase):
 
     def setUp(self):
         super(TestDailyAggregates, self).setUp()
-        self.measurements = parameters.Measurements()
-        self.hourly_aggregates = parameters.HourlyAggregates()
-        self.daily_aggregates = parameters.DailyAggregates()
+        self.measurements = data_streams.Measurements()
+        self.hourly_aggregates = data_streams.HourlyAggregates()
+        self.daily_aggregates = data_streams.DailyAggregates()
 
     def test_basic_operation(self):
-        parameter_id = 23555
+        data_stream_id = 23555
         data_points = list(_get_test_data_points())
         self.measurements.insert_data_points(
-            parameter_id,
+            data_stream_id,
             # Shuffled to ensure database ordering.
             data_points[500:] + data_points[:500]
         )
-        aggregates = self.daily_aggregates.get_data_points(parameter_id)
+        aggregates = self.daily_aggregates.get_data_points(data_stream_id)
         self.assertAggregatesEqual(aggregates, [])
-        self.hourly_aggregates.recalculate_aggregates(parameter_id, [
+        self.hourly_aggregates.recalculate_aggregates(data_stream_id, [
             date for date, value in data_points
         ])
-        self.daily_aggregates.recalculate_aggregates(parameter_id, [
+        self.daily_aggregates.recalculate_aggregates(data_stream_id, [
             date for date, value in data_points
         ])
         daily_aggregates_data = list(sorted([
@@ -221,13 +221,13 @@ class TestDailyAggregates(CassandraTestMixin, unittest.TestCase):
                 )
             )
         ], key=lambda x: x[0]))
-        aggregates = self.daily_aggregates.get_data_points(parameter_id)
+        aggregates = self.daily_aggregates.get_data_points(data_stream_id)
         self.assertAggregatesEqual(
             aggregates,
             daily_aggregates_data
         )
         aggregates = self.daily_aggregates.get_data_points(
-            parameter_id,
+            data_stream_id,
             start_date=_utc_datetime(2012, 9, 24),
             end_date=_utc_datetime(2012, 9, 25)
         )
@@ -248,35 +248,35 @@ class TestDailyAggregates(CassandraTestMixin, unittest.TestCase):
                 }),
             )
         )
-        aggregates = self.daily_aggregates.get_data_points(parameter_id + 2)
+        aggregates = self.daily_aggregates.get_data_points(data_stream_id + 2)
         self.assertAggregatesEqual(aggregates, [])
 
 class TestMonthlyAggregates(CassandraTestMixin, unittest.TestCase):
 
     def setUp(self):
         super(TestMonthlyAggregates, self).setUp()
-        self.measurements = parameters.Measurements()
-        self.hourly_aggregates = parameters.HourlyAggregates()
-        self.daily_aggregates = parameters.DailyAggregates()
-        self.monthly_aggregates = parameters.MonthlyAggregates()
+        self.measurements = data_streams.Measurements()
+        self.hourly_aggregates = data_streams.HourlyAggregates()
+        self.daily_aggregates = data_streams.DailyAggregates()
+        self.monthly_aggregates = data_streams.MonthlyAggregates()
 
     def test_basic_operation(self):
-        parameter_id = 23555
+        data_stream_id = 23555
         data_points = list(_get_test_data_points())
         self.measurements.insert_data_points(
-            parameter_id,
+            data_stream_id,
             # Shuffled to ensure database ordering.
             data_points[500:] + data_points[:500]
         )
-        aggregates = self.monthly_aggregates.get_data_points(parameter_id)
+        aggregates = self.monthly_aggregates.get_data_points(data_stream_id)
         self.assertAggregatesEqual(aggregates, [])
-        self.hourly_aggregates.recalculate_aggregates(parameter_id, [
+        self.hourly_aggregates.recalculate_aggregates(data_stream_id, [
             date for date, value in data_points
         ])
-        self.daily_aggregates.recalculate_aggregates(parameter_id, [
+        self.daily_aggregates.recalculate_aggregates(data_stream_id, [
             date for date, value in data_points
         ])
-        self.monthly_aggregates.recalculate_aggregates(parameter_id, [
+        self.monthly_aggregates.recalculate_aggregates(data_stream_id, [
             date for date, value in data_points
         ])
         monthly_aggregates_data = list(sorted([
@@ -297,13 +297,13 @@ class TestMonthlyAggregates(CassandraTestMixin, unittest.TestCase):
                 )
             )
         ], key=lambda x: x[0]))
-        aggregates = self.monthly_aggregates.get_data_points(parameter_id)
+        aggregates = self.monthly_aggregates.get_data_points(data_stream_id)
         self.assertAggregatesEqual(
             aggregates,
             monthly_aggregates_data
         )
         aggregates = self.monthly_aggregates.get_data_points(
-            parameter_id,
+            data_stream_id,
             start_date=_utc_datetime(2012, 9, 1),
             end_date=_utc_datetime(2012, 9, 1)
         )
@@ -318,50 +318,50 @@ class TestMonthlyAggregates(CassandraTestMixin, unittest.TestCase):
                 }),
             )
         )
-        aggregates = self.monthly_aggregates.get_data_points(parameter_id + 2)
+        aggregates = self.monthly_aggregates.get_data_points(data_stream_id + 2)
         self.assertAggregatesEqual(aggregates, [])
 
 class TestMeasurements(CassandraTestMixin, unittest.TestCase):
 
     def setUp(self):
         super(TestMeasurements, self).setUp()
-        self.measurements = parameters.Measurements()
+        self.measurements = data_streams.Measurements()
 
     def test_basic_operation(self):
-        parameter_id = 1253353566
+        data_stream_id = 1253353566
         self.assertSequenceEqual(
-            self.measurements.get_data_points(parameter_id),
+            self.measurements.get_data_points(data_stream_id),
             []
         )
         self.assertEqual(
-            self.measurements.get_last_data_point(parameter_id),
+            self.measurements.get_last_data_point(data_stream_id),
             None
         )
         data_points = list(_get_test_data_points())
         self.measurements.insert_data_points(
-            parameter_id,
+            data_stream_id,
             # Shuffled to ensure database ordering.
             data_points[500:] + data_points[:500]
         )
         self.assertEqual(
-            self.measurements.get_last_data_point(parameter_id + 2),
+            self.measurements.get_last_data_point(data_stream_id + 2),
             None
         )
         self.assertSequenceEqual(
-            self.measurements.get_data_points(parameter_id + 1),
+            self.measurements.get_data_points(data_stream_id + 1),
             []
         )
         self.assertSequenceEqual(
-            self.measurements.get_last_data_point(parameter_id),
+            self.measurements.get_last_data_point(data_stream_id),
             _dp((2012, 9, 26, 12, 17, 25, 739851), '11.207354924')
         )
         self.assertSequenceEqual(
-            self.measurements.get_data_points(parameter_id),
+            self.measurements.get_data_points(data_stream_id),
             list(reversed(data_points))
         )
         self.assertSequenceEqual(
             self.measurements.get_data_points(
-                parameter_id,
+                data_stream_id,
                 start_date=_utc_datetime(2012, 9, 26, 11, 18),
                 end_date=_utc_datetime(2012, 9, 26, 11, 18, 34)
             ),
@@ -372,7 +372,7 @@ class TestMeasurements(CassandraTestMixin, unittest.TestCase):
         )
         self.assertSequenceEqual(
             self.measurements.get_data_points(
-                parameter_id,
+                data_stream_id,
                 start_date=_utc_datetime(2015, 9, 26, 11, 19),
                 end_date=_utc_datetime(2050, 9, 26, 11, 19, 27)
             ),
@@ -380,7 +380,7 @@ class TestMeasurements(CassandraTestMixin, unittest.TestCase):
         )
         self.assertSequenceEqual(
             self.measurements.get_data_points(
-                parameter_id,
+                data_stream_id,
                 start_date=_utc_datetime(2015, 9, 26, 11, 19),
                 end_date=_utc_datetime(2050, 9, 26, 11, 19, 27)
             ),
@@ -388,9 +388,9 @@ class TestMeasurements(CassandraTestMixin, unittest.TestCase):
         )
 
     def test_timezone_support(self):
-        parameter_id = 1253353566
+        data_stream_id = 1253353566
         self.measurements.insert_data_points(
-            parameter_id,
+            data_stream_id,
             (
                 (
                     pytz.timezone('Europe/Warsaw').localize(
@@ -419,7 +419,7 @@ class TestMeasurements(CassandraTestMixin, unittest.TestCase):
             )
         )
         self.assertSequenceEqual(
-            self.measurements.get_data_points(parameter_id),
+            self.measurements.get_data_points(data_stream_id),
             (
                 (_utc_datetime(2011, 12, 1, 3, 59, 59, 999999), '0.000002'),
                 (_utc_datetime(2012, 9, 2, 10, 59, 59, 999999), '0.1'),
@@ -429,7 +429,7 @@ class TestMeasurements(CassandraTestMixin, unittest.TestCase):
         )
         self.assertSequenceEqual(
             self.measurements.get_data_points(
-                parameter_id,
+                data_stream_id,
                 start_date=_utc_datetime(2012, 9, 2, 10),
                 end_date=_utc_datetime(2012, 9, 2, 12)
             ),
@@ -442,64 +442,64 @@ class TestLastDataPoints(CassandraTestMixin, unittest.TestCase):
 
     def setUp(self):
         super(TestLastDataPoints, self).setUp()
-        self.measurements = parameters.Measurements()
-        self.last_data_points = parameters.LastDataPoints()
+        self.measurements = data_streams.Measurements()
+        self.last_data_points = data_streams.LastDataPoints()
 
     def test_basic_operation(self):
-        system_id = 23455
-        parameter_id = 1253353566
+        feed_id = 23455
+        data_stream_id = 1253353566
         self.assertDictEqual(
-            self.last_data_points.get_last_parameter_data_points(system_id),
+            self.last_data_points.get_last_data_stream_data_points(feed_id),
             {}
         )
         self.assertEqual(
-            self.last_data_points.get_last_parameter_data_point(
-                system_id,
-                parameter_id
+            self.last_data_points.get_last_data_stream_data_point(
+                feed_id,
+                data_stream_id
             ),
             None
         )
         self.measurements.insert_data_points(
-            parameter_id,
+            data_stream_id,
             [
                 _dp((2012, 12, 8, 11, 45, 9, 123384), '2344.421'),
                 _dp((2012,  7, 1,  9, 45, 9, 123383), '2344.421'),
                 _dp((2012, 12, 8, 11, 45, 9, 123383), '2344.421'),
             ]
         )
-        self.last_data_points.update(system_id, parameter_id)
+        self.last_data_points.update(feed_id, data_stream_id)
         self.assertDictEqual(
-            self.last_data_points.get_last_parameter_data_points(system_id),
+            self.last_data_points.get_last_data_stream_data_points(feed_id),
             {
-                parameter_id: _dp((2012, 12, 8, 11, 45, 9, 123384), '2344.421')
+                data_stream_id: _dp((2012, 12, 8, 11, 45, 9, 123384), '2344.421')
             }
         )
         self.assertEqual(
-            self.last_data_points.get_last_parameter_data_point(
-                system_id,
-                parameter_id
+            self.last_data_points.get_last_data_stream_data_point(
+                feed_id,
+                data_stream_id
             ),
             _dp((2012, 12, 8, 11, 45, 9, 123384), '2344.421')
         )
         self.measurements.insert_data_points(
-            parameter_id,
+            data_stream_id,
             [
                 _dp((2012, 12, 9, 11,  0, 9,      0), '15.3'),
                 _dp((2013,  7, 4, 23,  0, 1,     87), '2344.421'),
                 _dp((2012, 12, 8, 11, 45, 9, 123383), '2344.421'),
             ]
         )
-        self.last_data_points.update(system_id, parameter_id)
+        self.last_data_points.update(feed_id, data_stream_id)
         self.assertDictEqual(
-            self.last_data_points.get_last_parameter_data_points(system_id),
+            self.last_data_points.get_last_data_stream_data_points(feed_id),
             {
-                parameter_id: _dp((2013, 7, 4, 23, 0, 1, 87), '2344.421')
+                data_stream_id: _dp((2013, 7, 4, 23, 0, 1, 87), '2344.421')
             }
         )
         self.assertEqual(
-            self.last_data_points.get_last_parameter_data_point(
-                system_id,
-                parameter_id
+            self.last_data_points.get_last_data_stream_data_point(
+                feed_id,
+                data_stream_id
             ),
             _dp((2013,  7, 4, 23,  0, 1,     87), '2344.421')
         )

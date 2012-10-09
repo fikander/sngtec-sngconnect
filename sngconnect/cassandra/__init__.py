@@ -2,7 +2,7 @@ import logging
 
 from pycassa.system_manager import SIMPLE_STRATEGY
 
-from sngconnect.cassandra import configuration, parameters, log, alarms
+from sngconnect.cassandra import configuration, data_streams, log, alarms
 
 logger = logging.getLogger(__name__)
 
@@ -23,12 +23,12 @@ def initialize_keyspace(settings):
         logger.info("Keyspace '%s' already exists." % arguments['keyspace'])
     # Create column families.
     column_family_proxy_classes = (
-        parameters.Measurements,
-        parameters.HourlyAggregates,
-        parameters.DailyAggregates,
-        parameters.MonthlyAggregates,
-        parameters.MeasurementDays,
-        parameters.LastDataPoints,
+        data_streams.Measurements,
+        data_streams.HourlyAggregates,
+        data_streams.DailyAggregates,
+        data_streams.MonthlyAggregates,
+        data_streams.MeasurementDays,
+        data_streams.LastDataPoints,
         log.Logs,
         log.LoggingDays,
         alarms.Alarms,

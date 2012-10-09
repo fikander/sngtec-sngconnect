@@ -8,71 +8,71 @@ from sqlalchemy.orm import exc as database_exceptions
 from pyramid.view import view_config
 from pyramid import httpexceptions
 
-from sngconnect.database import DBSession, System, Parameter, AlarmDefinition
-from sngconnect.cassandra import parameters as parameters_store
+from sngconnect.database import DBSession, Feed, DataStream, AlarmDefinition
+from sngconnect.cassandra import data_streams as data_streams_store
 from sngconnect.cassandra import alarms as alarms_store
 
 @view_config(
-    route_name='sngconnect.telemetry.systems',
+    route_name='sngconnect.telemetry.feeds',
     request_method='GET'
 )
-def systems(request):
+def feeds(request):
     raise httpexceptions.HTTPSeeOther(
         request.route_url('sngconnect.telemetry.dashboard')
     )
 
-class SystemViewBase(object):
+class FeedViewBase(object):
 
     def __init__(self, request):
         try:
-            system = DBSession.query(System).filter(
-                System.id == request.matchdict['system_id']
+            feed = DBSession.query(Feed).filter(
+                Feed.id == request.matchdict['feed_id']
             ).one()
         except database_exceptions.NoResultFound:
             raise httpexceptions.HTTPNotFound()
         self.request = request
-        self.system = system
+        self.feed = feed
         # FIXME getting alarms out is kind of dumb
-        result = alarms_store.Alarms().get_active_alarms(system.id)
+        result = alarms_store.Alarms().get_active_alarms(feed.id)
         active_alarms = []
-        for parameter_id, alarms in result:
-            parameter = Parameter(id=parameter_id)
+        for data_stream_id, alarms in result:
+            data_stream = DataStream(id=data_stream_id)
             for definition_id, activation_date in alarms:
                 definition = AlarmDefinition(id=definition_id)
                 active_alarms.append({
                     'activation_date': activation_date,
-                    'parameter': parameter.name,
+                    'data_stream': data_stream.name,
                     'type': definition.alarm_type,
                 })
         self.context = {
             'active_alarms': active_alarms,
-            'system': {
-                'id': system.id,
-                'name': system.name,
-                'description': system.description,
-                'address': system.address,
-                'latitude': system.latitude,
-                'longitude': system.longitude,
-                'created': system.created,
+            'feed': {
+                'id': feed.id,
+                'name': feed.name,
+                'description': feed.description,
+                'address': feed.address,
+                'latitude': feed.latitude,
+                'longitude': feed.longitude,
+                'created': feed.created,
                 'dashboard_url': request.route_url(
-                    'sngconnect.telemetry.system_dashboard',
-                    system_id=system.id
+                    'sngconnect.telemetry.feed_dashboard',
+                    feed_id=feed.id
                 ),
                 'charts_url': request.route_url(
-                    'sngconnect.telemetry.system_charts',
-                    system_id=system.id
+                    'sngconnect.telemetry.feed_charts',
+                    feed_id=feed.id
                 ),
-                'parameters_url': request.route_url(
-                    'sngconnect.telemetry.system_parameters',
-                    system_id=system.id
+                'data_streams_url': request.route_url(
+                    'sngconnect.telemetry.feed_data_streams',
+                    feed_id=feed.id
                 ),
                 'settings_url': request.route_url(
-                    'sngconnect.telemetry.system_settings',
-                    system_id=system.id
+                    'sngconnect.telemetry.feed_settings',
+                    feed_id=feed.id
                 ),
                 'history_url': request.route_url(
-                    'sngconnect.telemetry.system_history',
-                    system_id=system.id
+                    'sngconnect.telemetry.feed_history',
+                    feed_id=feed.id
                 ),
             }
         }
@@ -81,43 +81,43 @@ class SystemViewBase(object):
         return self.context
 
 @view_config(
-    route_name='sngconnect.telemetry.system_dashboard',
+    route_name='sngconnect.telemetry.feed_dashboard',
     request_method='GET',
-    renderer='sngconnect.telemetry:templates/system/dashboard.jinja2'
+    renderer='sngconnect.telemetry:templates/feed/dashboard.jinja2'
 )
-class SystemDashboard(SystemViewBase):
+class FeedDashboard(FeedViewBase):
     pass
 
 @view_config(
-    route_name='sngconnect.telemetry.system_charts',
+    route_name='sngconnect.telemetry.feed_charts',
     request_method='GET',
-    renderer='sngconnect.telemetry:templates/system/charts.jinja2'
+    renderer='sngconnect.telemetry:templates/feed/charts.jinja2'
 )
-class SystemCharts(SystemViewBase):
+class FeedCharts(FeedViewBase):
     pass
 
 @view_config(
-    route_name='sngconnect.telemetry.system_parameters',
+    route_name='sngconnect.telemetry.feed_data_streams',
     request_method='GET',
-    renderer='sngconnect.telemetry:templates/system/parameters.jinja2'
+    renderer='sngconnect.telemetry:templates/feed/data_streams.jinja2'
 )
-class SystemParameters(SystemViewBase):
+class FeedDataStreams(FeedViewBase):
     def __call__(self):
-        parameters = DBSession.query(Parameter).filter(
-            System.id == self.system.id
+        data_streams = DBSession.query(DataStream).filter(
+            Feed.id == self.feed.id
         ).order_by(
-            Parameter.name
+            DataStream.name
         )
         last_data_points = (
-            parameters_store.LastDataPoints().get_last_parameter_data_points(
-                self.system.id
+            data_streams_store.LastDataPoints().get_last_data_stream_data_points(
+                self.feed.id
             )
         )
-        parameters_serialized = []
-        for parameter in parameters:
+        data_streams_serialized = []
+        for data_stream in data_streams:
             daily_aggregates = (
-                parameters_store.DailyAggregates().get_data_points(
-                    parameter.id,
+                data_streams_store.DailyAggregates().get_data_points(
+                    data_stream.id,
                     start_date=pytz.utc.localize(datetime.datetime.utcnow()),
                     end_date=pytz.utc.localize(datetime.datetime.utcnow())
                 )
@@ -126,7 +126,7 @@ class SystemParameters(SystemViewBase):
                 today = daily_aggregates[0][1]
             except IndexError:
                 today = None
-            data_point = last_data_points.get(parameter.id, None)
+            data_point = last_data_points.get(data_stream.id, None)
             if data_point is None:
                 last_value = None
             else:
@@ -134,41 +134,41 @@ class SystemParameters(SystemViewBase):
                     'value': decimal.Decimal(data_point[1]),
                     'date': data_point[0],
                 }
-            parameters_serialized.append({
-                'id': parameter.id,
-                'name': parameter.name,
-                'minimal_value': parameter.minimal_value,
-                'maximal_value': parameter.maximal_value,
-                'measurement_unit': parameter.measurement_unit,
+            data_streams_serialized.append({
+                'id': data_stream.id,
+                'name': data_stream.name,
+                'minimal_value': data_stream.minimal_value,
+                'maximal_value': data_stream.maximal_value,
+                'measurement_unit': data_stream.measurement_unit,
                 'url': self.request.route_url(
-                    'sngconnect.telemetry.system_parameter',
-                    system_id=self.system.id,
-                    parameter_id=parameter.id
+                    'sngconnect.telemetry.feed_data_stream',
+                    feed_id=self.feed.id,
+                    data_stream_id=data_stream.id
                 ),
                 'last_value': last_value,
                 'today': today,
             })
         self.context.update({
-            'parameters': parameters_serialized,
+            'data_streams': data_streams_serialized,
         })
         return self.context
 
 @view_config(
-    route_name='sngconnect.telemetry.system_parameter',
+    route_name='sngconnect.telemetry.feed_data_stream',
     request_method='GET',
-    renderer='sngconnect.telemetry:templates/system/parameter.jinja2'
+    renderer='sngconnect.telemetry:templates/feed/data_stream.jinja2'
 )
-class SystemParameter(SystemViewBase):
+class FeedDataStream(FeedViewBase):
     def __call__(self):
         try:
-            parameter = DBSession.query(Parameter).filter(
-                System.id == self.system.id,
-                Parameter.id == self.request.matchdict['parameter_id']
+            data_stream = DBSession.query(DataStream).filter(
+                Feed.id == self.feed.id,
+                DataStream.id == self.request.matchdict['data_stream_id']
             ).one()
         except database_exceptions.NoResultFound:
             raise httpexceptions.HTTPNotFound()
-        hourly_aggregates = parameters_store.HourlyAggregates().get_data_points(
-            parameter.id,
+        hourly_aggregates = data_streams_store.HourlyAggregates().get_data_points(
+            data_stream.id,
             start_date=pytz.utc.localize(datetime.datetime.utcnow()),
             end_date=pytz.utc.localize(datetime.datetime.utcnow())
         )
@@ -180,8 +180,8 @@ class SystemParameter(SystemViewBase):
             )
         except IndexError:
             this_hour = None
-        daily_aggregates = parameters_store.DailyAggregates().get_data_points(
-            parameter.id,
+        daily_aggregates = data_streams_store.DailyAggregates().get_data_points(
+            data_stream.id,
             start_date=pytz.utc.localize(datetime.datetime.utcnow()),
             end_date=pytz.utc.localize(datetime.datetime.utcnow())
         )
@@ -194,8 +194,8 @@ class SystemParameter(SystemViewBase):
         except IndexError:
             today = None
         monthly_aggregates = (
-            parameters_store.MonthlyAggregates().get_data_points(
-                parameter.id,
+            data_streams_store.MonthlyAggregates().get_data_points(
+                data_stream.id,
                 start_date=pytz.utc.localize(datetime.datetime.utcnow()),
                 end_date=pytz.utc.localize(datetime.datetime.utcnow())
             )
@@ -209,20 +209,20 @@ class SystemParameter(SystemViewBase):
         except IndexError:
             this_month = None
         last_data_point = (
-            parameters_store.LastDataPoints().get_last_parameter_data_point(
-                self.system.id,
-                parameter.id
+            data_streams_store.LastDataPoints().get_last_data_stream_data_point(
+                self.feed.id,
+                data_stream.id
             )
         )
-        last_day_values = parameters_store.Measurements().get_data_points(
-            parameter.id,
+        last_day_values = data_streams_store.Measurements().get_data_points(
+            data_stream.id,
             start_date=pytz.utc.localize(
                 datetime.datetime.utcnow() - datetime.timedelta(days=1)
             ),
             end_date=pytz.utc.localize(datetime.datetime.utcnow())
         )
-        last_week_values = parameters_store.HourlyAggregates().get_data_points(
-            parameter.id,
+        last_week_values = data_streams_store.HourlyAggregates().get_data_points(
+            data_stream.id,
             start_date=pytz.utc.localize(
                 datetime.datetime.utcnow() - datetime.timedelta(days=7)
             ),
@@ -233,8 +233,8 @@ class SystemParameter(SystemViewBase):
                 decimal.Decimal(last_week_values[i][1]['sum'])
                 / decimal.Decimal(last_week_values[i][1]['count'])
             )
-        last_year_values = parameters_store.DailyAggregates().get_data_points(
-            parameter.id,
+        last_year_values = data_streams_store.DailyAggregates().get_data_points(
+            data_stream.id,
             start_date=pytz.utc.localize(
                 datetime.datetime.utcnow() - datetime.timedelta(days=365)
             ),
@@ -246,11 +246,11 @@ class SystemParameter(SystemViewBase):
                 / decimal.Decimal(last_year_values[i][1]['count'])
             )
         self.context.update({
-            'parameter': {
-                'id': parameter.id,
-                'name': parameter.name,
-                'measurement_unit': parameter.measurement_unit,
-                'description': parameter.description,
+            'data_stream': {
+                'id': data_stream.id,
+                'name': data_stream.name,
+                'measurement_unit': data_stream.measurement_unit,
+                'description': data_stream.description,
                 'last_value': {
                     'date': last_data_point[0],
                     'value': decimal.Decimal(last_data_point[1]),
@@ -275,25 +275,25 @@ class SystemParameter(SystemViewBase):
         return self.context
 
 @view_config(
-    route_name='sngconnect.telemetry.system_settings',
+    route_name='sngconnect.telemetry.feed_settings',
     request_method='GET',
-    renderer='sngconnect.telemetry:templates/system/settings.jinja2'
+    renderer='sngconnect.telemetry:templates/feed/settings.jinja2'
 )
-class SystemSettings(SystemViewBase):
+class FeedSettings(FeedViewBase):
     pass
 
 @view_config(
-    route_name='sngconnect.telemetry.system_setting',
+    route_name='sngconnect.telemetry.feed_setting',
     request_method='GET',
-    renderer='sngconnect.telemetry:templates/system/setting.jinja2'
+    renderer='sngconnect.telemetry:templates/feed/setting.jinja2'
 )
-class SystemSetting(SystemViewBase):
+class FeedSetting(FeedViewBase):
     pass
 
 @view_config(
-    route_name='sngconnect.telemetry.system_history',
+    route_name='sngconnect.telemetry.feed_history',
     request_method='GET',
-    renderer='sngconnect.telemetry:templates/system/history.jinja2'
+    renderer='sngconnect.telemetry:templates/feed/history.jinja2'
 )
-class SystemHistory(SystemViewBase):
+class FeedHistory(FeedViewBase):
     pass

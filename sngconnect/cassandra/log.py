@@ -74,7 +74,7 @@ class Logs(TimeSeries):
             date = date.replace(hour=0, minute=0, second=0, microsecond=0)
         else:
             raise ValueError(
-                "`date` parameter must be a `datetime.date` or"
+                "`date` data_stream must be a `datetime.date` or"
                 " `datetime.datetime` object."
             )
         return super(Logs, self).get_row_key(log_id, date)

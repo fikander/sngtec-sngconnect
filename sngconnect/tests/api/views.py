@@ -7,8 +7,8 @@ from pyramid import testing
 from pyramid import httpexceptions
 
 from sngconnect.api import views
-from sngconnect.database import DBSession, System, Parameter, AlarmDefinition
-from sngconnect.cassandra.parameters import Measurements
+from sngconnect.database import DBSession, Feed, DataStream, AlarmDefinition
+from sngconnect.cassandra.data_streams import Measurements
 from sngconnect.cassandra.alarms import Alarms
 
 from sngconnect.tests.api import ApiTestMixin
@@ -16,53 +16,53 @@ from sngconnect.tests.api import ApiTestMixin
 def _utc_datetime(*datetime_tuple):
     return pytz.utc.localize(datetime.datetime(*datetime_tuple))
 
-class TestSystemParameterPut(ApiTestMixin, unittest.TestCase):
+class TestFeedDataStreamPut(ApiTestMixin, unittest.TestCase):
 
     def setUp(self):
-        super(TestSystemParameterPut, self).setUp()
-        system = System(
+        super(TestFeedDataStreamPut, self).setUp()
+        feed = Feed(
             id=1,
-            name=u"System 1",
+            name=u"Feed 1",
             description=u"Description",
             latitude=20.5,
             longitude=15.3,
             created=pytz.utc.localize(datetime.datetime.utcnow())
         )
-        parameter = Parameter(
+        data_stream = DataStream(
             id=1,
-            name=u"Parameter 1",
+            name=u"DataStream 1",
             description=u"Description",
             measurement_unit=u"cm",
-            system=system,
+            feed=feed,
             writable=False
         )
         alarm_definition_1 = AlarmDefinition(
             id=1,
             alarm_type='MINIMAL_VALUE',
             boundary=-5,
-            parameter=parameter
+            data_stream=data_stream
         )
         alarm_definition_2 = AlarmDefinition(
             id=2,
             alarm_type='MAXIMAL_VALUE',
             boundary=1000,
-            parameter=parameter
+            data_stream=data_stream
         )
         DBSession.add_all([
-            system,
-            parameter,
+            feed,
+            data_stream,
             alarm_definition_1,
             alarm_definition_2,
         ])
         transaction.commit()
 
-    def get_request(self, system_id, parameter_id, json_body='',
+    def get_request(self, feed_id, data_stream_id, json_body='',
             content_type='application/json'):
         request = testing.DummyRequest()
         request.content_type = content_type
         request.matchdict.update({
-            'system_id': system_id,
-            'parameter_id': parameter_id,
+            'feed_id': feed_id,
+            'data_stream_id': data_stream_id,
         })
         request.json_body = json_body
         return request
@@ -71,7 +71,7 @@ class TestSystemParameterPut(ApiTestMixin, unittest.TestCase):
         request = self.get_request(123, 435)
         self.assertRaises(
             httpexceptions.HTTPNotFound,
-            views.system_parameter,
+            views.feed_data_stream,
             request
         )
 
@@ -79,7 +79,7 @@ class TestSystemParameterPut(ApiTestMixin, unittest.TestCase):
         request = self.get_request(1, 1, json_body={'foobar':[]})
         self.assertRaises(
             httpexceptions.HTTPBadRequest,
-            views.system_parameter,
+            views.feed_data_stream,
             request
         )
 
@@ -96,7 +96,7 @@ class TestSystemParameterPut(ApiTestMixin, unittest.TestCase):
                 },
             ]
         })
-        response = views.system_parameter(request)
+        response = views.feed_data_stream(request)
         self.assertEqual(response.status_code, 200)
         self.assertSequenceEqual(
             Measurements().get_data_points(1),
@@ -125,7 +125,7 @@ class TestSystemParameterPut(ApiTestMixin, unittest.TestCase):
                 },
             ]
         })
-        response = views.system_parameter(request)
+        response = views.feed_data_stream(request)
         self.assertEqual(response.status_code, 200)
         active_alarms = Alarms().get_active_alarms(1, 1)
         self.assertDictEqual(active_alarms, {
@@ -143,7 +143,7 @@ class TestSystemParameterPut(ApiTestMixin, unittest.TestCase):
                 },
             ]
         })
-        response = views.system_parameter(request)
+        response = views.feed_data_stream(request)
         self.assertEqual(response.status_code, 200)
         active_alarms = Alarms().get_active_alarms(1, 1)
         self.assertDictEqual(active_alarms, {
@@ -157,7 +157,7 @@ class TestSystemParameterPut(ApiTestMixin, unittest.TestCase):
                 },
             ]
         })
-        response = views.system_parameter(request)
+        response = views.feed_data_stream(request)
         self.assertEqual(response.status_code, 200)
         active_alarms = Alarms().get_active_alarms(1, 1)
         self.assertDictEqual(active_alarms, {
@@ -171,7 +171,7 @@ class TestSystemParameterPut(ApiTestMixin, unittest.TestCase):
                 },
             ]
         })
-        response = views.system_parameter(request)
+        response = views.feed_data_stream(request)
         self.assertEqual(response.status_code, 200)
         active_alarms = Alarms().get_active_alarms(1, 1)
         self.assertDictEqual(active_alarms, {})

@@ -3,7 +3,7 @@
 {% block head_stylesheets %}
     {{ super() }}
     <style>
-        #system-location-map {
+        #feed-location-map {
             width: 100%;
             height: 300px;
             margin-bottom: 20px;
@@ -13,40 +13,40 @@
 
 {% block main_content %}
     <div class="page-header">
-        <h1>{% trans %}Systems{% endtrans %}</h1>
+        <h1>{% trans %}Devices{% endtrans %}</h1>
     </div>
     <div class="page-container">
-        {% if systems_with_alarm_active > 0 %}
+        {% if feeds_with_alarm_active > 0 %}
             <div class="alert alert-error">
-                {% trans count=systems_with_alarm_active -%}
-                    You have <code>{{ count }}</code> systems with alarm active. If you don't know what it means - contact your system's administrator.
+                {% trans count=feeds_with_alarm_active -%}
+                    You have <code>{{ count }}</code> devices with alarm active. If you don't know what it means - contact your devices's administrator.
                 {%- endtrans %}
             </div>
         {% endif %}
         <h2><span class="awe-globe"></span> {% trans %}Map{% endtrans %}</h2>
-        <div id="system-location-map"></div>
-        <h2><span class="awe-cogs"></span> {% trans %}Monitored systems{% endtrans %}</h2>
+        <div id="feed-location-map"></div>
+        <h2><span class="awe-cogs"></span> {% trans %}Monitored devices{% endtrans %}</h2>
         <table class="table">
             <thead>
                 <tr>
                     <th>{% trans %}Name{% endtrans %}</th>
                     <th>{% trans %}Alarms{% endtrans %}</th>
-                    <th>{% trans %}System{% endtrans %}</th>
+                    <th>{% trans %}Device{% endtrans %}</th>
                     <th>{% trans %}Owner{% endtrans %}</th>
                 </tr>
             <tbody>
-                {% for system in systems %}
+                {% for feed in feeds %}
                     <tr>
-                        <td><a href="{{ system.dashboard_url }}">{{ system.name }}</a></td>
+                        <td><a href="{{ feed.dashboard_url }}">{{ feed.name }}</a></td>
                         <td>
                             <span class="badge
-                                {%- if system.alarm_count > 1 %} badge-important{%- endif -%}
+                                {%- if feed.alarm_count > 1 %} badge-important{%- endif -%}
                             ">
-                                {{ system.alarm_count }}
+                                {{ feed.alarm_count }}
                             </span>
                         </td>
-                        <td>{{ system.system }}</td>
-                        <td>{{ system.owner }}</td>
+                        <td>{{ feed.feed }}</td>
+                        <td>{{ feed.owner }}</td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -60,7 +60,7 @@
     <script>
         $(function(){
             var map = new google.maps.Map(
-                document.getElementById("system-location-map"),
+                document.getElementById("feed-location-map"),
                 {
                     zoom: 10,
                     mapTypeId: google.maps.MapTypeId.ROADMAP,
@@ -70,18 +70,18 @@
             var markers = new Array();
             var bounds = new google.maps.LatLngBounds();
             var data = [
-                {%- for system in systems -%}
-                    [{{ system.name|tojson|safe }},{{ system.latitude }},{{ system.longitude }}]
+                {%- for feed in feeds -%}
+                    [{{ feed.name|tojson|safe }},{{ feed.latitude }},{{ feed.longitude }}]
                     {%- if not loop.last %},{% endif %}
                 {%- endfor -%}
             ];
-            $.each(data, function(index, system){
-                var position = new google.maps.LatLng(system[1], system[2]);
+            $.each(data, function(index, feed){
+                var position = new google.maps.LatLng(feed[1], feed[2]);
                 bounds.extend(position);
                 markers.push(
                     new google.maps.Marker({
                         map: map,
-                        title: system[0],
+                        title: feed[0],
                         position: position
                     })
                 );

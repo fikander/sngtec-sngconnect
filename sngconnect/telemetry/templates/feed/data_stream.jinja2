@@ -1,12 +1,12 @@
-{% extends "sngconnect.telemetry:templates/system/parameters.jinja2" %}
+{% extends "sngconnect.telemetry:templates/feed/data_streams.jinja2" %}
 
 {% block main_breadcrumb %}
     {{ super() }}
-    <li><a href="{{ parameter_url }}" title="{{ parameter.name }}">{{ parameter.name }}</a></li>
+    <li><a href="{{ data_stream_url }}" title="{{ data_stream.name }}">{{ data_stream.name }}</a></li>
 {% endblock %}
 
 {% block page_content %}
-    <h2>{{ parameter.name }}</h2>
+    <h2>{{ data_stream.name }}</h2>
     <div class="row">
         <article class="span6">
             <h2><span class="awe-th-list"></span> {% trans %}Values{% endtrans %}</h2>
@@ -14,16 +14,16 @@
                 <tbody>
                     <tr>
                         <th>{% trans %}Current value{% endtrans %}</th>
-                        {% if parameter.last_value %}
-                            <td><code>{{ parameter.last_value.value|round(precision=6) }}</code></td>
+                        {% if data_stream.last_value %}
+                            <td><code>{{ data_stream.last_value.value|round(precision=6) }}</code></td>
                         {% else %}
                             <td class="no-data">{% trans %}no data{% endtrans %}</td>
                         {% endif %}
                     </tr>
-                    {% if parameter.last_value %}
+                    {% if data_stream.last_value %}
                         <tr>
                             <th>{% trans %}Last update{% endtrans %}</th>
-                            <td>{{ parameter.last_value.date }}</td>
+                            <td>{{ data_stream.last_value.date }}</td>
                         </tr>
                     {% endif %}
                 </tbody>
@@ -40,30 +40,30 @@
                 <tbody>
                     <tr>
                         <th>{% trans %}This hour{% endtrans %}</td>
-                        {% if parameter.this_hour %}
-                            <td><code>{{ parameter.this_hour.mean|round(precision=6) }}</code></td>
-                            <td><code>{{ parameter.this_hour.minimum|round(precision=6) }}</code></td>
-                            <td><code>{{ parameter.this_hour.maximum|round(precision=6) }}</code></td>
+                        {% if data_stream.this_hour %}
+                            <td><code>{{ data_stream.this_hour.mean|round(precision=6) }}</code></td>
+                            <td><code>{{ data_stream.this_hour.minimum|round(precision=6) }}</code></td>
+                            <td><code>{{ data_stream.this_hour.maximum|round(precision=6) }}</code></td>
                         {% else %}
                             <td class="no-data" colspan="3">{% trans %}no data{% endtrans %}</td>
                         {% endif %}
                     </tr>
                     <tr>
                         <th>{% trans %}Today{% endtrans %}</td>
-                        {% if parameter.today %}
-                            <td><code>{{ parameter.today.mean|round(precision=6) }}</code></td>
-                            <td><code>{{ parameter.today.minimum|round(precision=6) }}</code></td>
-                            <td><code>{{ parameter.today.maximum|round(precision=6) }}</code></td>
+                        {% if data_stream.today %}
+                            <td><code>{{ data_stream.today.mean|round(precision=6) }}</code></td>
+                            <td><code>{{ data_stream.today.minimum|round(precision=6) }}</code></td>
+                            <td><code>{{ data_stream.today.maximum|round(precision=6) }}</code></td>
                         {% else %}
                             <td class="no-data" colspan="3">{% trans %}no data{% endtrans %}</td>
                         {% endif %}
                     </tr>
                     <tr>
                         <th>{% trans %}This month{% endtrans %}</td>
-                        {% if parameter.this_month %}
-                            <td><code>{{ parameter.this_month.mean|round(precision=6) }}</code></td>
-                            <td><code>{{ parameter.this_month.minimum|round(precision=6) }}</code></td>
-                            <td><code>{{ parameter.this_month.maximum|round(precision=6) }}</code></td>
+                        {% if data_stream.this_month %}
+                            <td><code>{{ data_stream.this_month.mean|round(precision=6) }}</code></td>
+                            <td><code>{{ data_stream.this_month.minimum|round(precision=6) }}</code></td>
+                            <td><code>{{ data_stream.this_month.maximum|round(precision=6) }}</code></td>
                         {% else %}
                             <td class="no-data" colspan="3">{% trans %}no data{% endtrans %}</td>
                         {% endif %}
@@ -73,7 +73,7 @@
         </article>
         <article class="span6">
             <h2><span class="awe-info-sign"></span> {% trans %}Description{% endtrans %}</h2>
-            <p>{{ parameter.description }}</p>
+            <p>{{ data_stream.description }}</p>
         </article>
     </div>
     <div class="row">
@@ -84,7 +84,7 @@
             <h2><span class="awe-info-sign"></span> {% trans %}Notifications{% endtrans %}</h2>
         </article>
     </div>
-    {% if parameter.last_day_values or parameter.last_week_values or parameter.last_year_values%}
+    {% if data_stream.last_day_values or data_stream.last_week_values or data_stream.last_year_values%}
         <h2><span class="awe-signal"></span> {% trans %}Chart{% endtrans %}</h2>
         <div id="last-day-chart"></div>
         <div id="last-week-chart"></div>
@@ -95,7 +95,7 @@
 
 {% block body_scripts %}
     {{ super() }}
-    {% if parameter.last_week_values %}
+    {% if data_stream.last_week_values %}
         <script>
             $(function(){
                 var last_day_chart;
@@ -105,7 +105,7 @@
                         title: {text: {% filter tojson %}{% trans %}Last day{% endtrans %}{% endfilter %}},
                         xAxis: {type: "datetime"},
                         yAxis: {
-                            title: {text: {{ parameter.name|tojson|safe }} + " [" + {{ parameter.measurement_unit|tojson|safe }} + "]"}
+                            title: {text: {{ data_stream.name|tojson|safe }} + " [" + {{ data_stream.measurement_unit|tojson|safe }} + "]"}
                         },
                         tooltip: {shared: true},
                         legend: {enabled: true},
@@ -133,7 +133,7 @@
                                 name: "{% trans %}Value{% endtrans %}",
                                 type: "area",
                                 data: [
-                                    {%- for data_point in parameter.last_day_values -%}
+                                    {%- for data_point in data_stream.last_day_values -%}
                                         {%- with d = data_point[0] -%}
                                             [Date.UTC({{ d.year }},{{ d.month }},{{ d.day}},{{ d.hour }},{{ d.minute }},{{ d.second }},{{ d.microsecond / 1000 }}),{{ data_point[1] }}]
                                             {%- if not loop.last %},{% endif -%}
@@ -153,7 +153,7 @@
                         title: {text: {% filter tojson %}{% trans %}Last week{% endtrans %}{% endfilter %}},
                         xAxis: {type: "datetime"},
                         yAxis: {
-                            title: {text: {{ parameter.name|tojson|safe }} + " [" + {{ parameter.measurement_unit|tojson|safe }} + "]"}
+                            title: {text: {{ data_stream.name|tojson|safe }} + " [" + {{ data_stream.measurement_unit|tojson|safe }} + "]"}
                         },
                         tooltip: {shared: true},
                         legend: {enabled: true},
@@ -181,7 +181,7 @@
                                 name: "{% trans %}Maximum{% endtrans %}",
                                 type: "area",
                                 data: [
-                                    {%- for data_point in parameter.last_week_values -%}
+                                    {%- for data_point in data_stream.last_week_values -%}
                                         {%- with d = data_point[0] -%}
                                             [Date.UTC({{ d.year }},{{ d.month }},{{ d.day}},{{ d.hour }},{{ d.minute }},{{ d.second }},{{ d.microsecond / 1000 }}),{{ data_point[1].maximum }}]
                                             {%- if not loop.last %},{% endif -%}
@@ -193,7 +193,7 @@
                                 name: "{% trans %}Mean{% endtrans %}",
                                 type: "area",
                                 data: [
-                                    {%- for data_point in parameter.last_week_values -%}
+                                    {%- for data_point in data_stream.last_week_values -%}
                                         {%- with d = data_point[0] -%}
                                             [Date.UTC({{ d.year }},{{ d.month }},{{ d.day}},{{ d.hour }},{{ d.minute }},{{ d.second }},{{ d.microsecond / 1000 }}),{{ data_point[1].mean }}]
                                             {%- if not loop.last %},{% endif -%}
@@ -205,7 +205,7 @@
                                 name: "{% trans %}Minimum{% endtrans %}",
                                 type: "area",
                                 data: [
-                                    {%- for data_point in parameter.last_week_values -%}
+                                    {%- for data_point in data_stream.last_week_values -%}
                                         {%- with d = data_point[0] -%}
                                             [Date.UTC({{ d.year }},{{ d.month }},{{ d.day}},{{ d.hour }},{{ d.minute }},{{ d.second }},{{ d.microsecond / 1000 }}),{{ data_point[1].minimum }}]
                                             {%- if not loop.last %},{% endif -%}
@@ -225,7 +225,7 @@
                         title: {text: {% filter tojson %}{% trans %}Last year{% endtrans %}{% endfilter %}},
                         xAxis: {type: "datetime"},
                         yAxis: {
-                            title: {text: {{ parameter.name|tojson|safe }} + " [" + {{ parameter.measurement_unit|tojson|safe }} + "]"}
+                            title: {text: {{ data_stream.name|tojson|safe }} + " [" + {{ data_stream.measurement_unit|tojson|safe }} + "]"}
                         },
                         tooltip: {shared: true},
                         legend: {enabled: true},
@@ -253,7 +253,7 @@
                                 name: "{% trans %}Maximum{% endtrans %}",
                                 type: "area",
                                 data: [
-                                    {%- for data_point in parameter.last_year_values -%}
+                                    {%- for data_point in data_stream.last_year_values -%}
                                         {%- with d = data_point[0] -%}
                                             [Date.UTC({{ d.year }},{{ d.month }},{{ d.day}},{{ d.hour }},{{ d.minute }},{{ d.second }},{{ d.microsecond / 1000 }}),{{ data_point[1].maximum }}]
                                             {%- if not loop.last %},{% endif -%}
@@ -265,7 +265,7 @@
                                 name: "{% trans %}Mean{% endtrans %}",
                                 type: "area",
                                 data: [
-                                    {%- for data_point in parameter.last_year_values -%}
+                                    {%- for data_point in data_stream.last_year_values -%}
                                         {%- with d = data_point[0] -%}
                                             [Date.UTC({{ d.year }},{{ d.month }},{{ d.day}},{{ d.hour }},{{ d.minute }},{{ d.second }},{{ d.microsecond / 1000 }}),{{ data_point[1].mean }}]
                                             {%- if not loop.last %},{% endif -%}
@@ -277,7 +277,7 @@
                                 name: "{% trans %}Minimum{% endtrans %}",
                                 type: "area",
                                 data: [
-                                    {%- for data_point in parameter.last_year_values -%}
+                                    {%- for data_point in data_stream.last_year_values -%}
                                         {%- with d = data_point[0] -%}
                                             [Date.UTC({{ d.year }},{{ d.month }},{{ d.day}},{{ d.hour }},{{ d.minute }},{{ d.second }},{{ d.microsecond / 1000 }}),{{ data_point[1].minimum }}]
                                             {%- if not loop.last %},{% endif -%}

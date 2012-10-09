@@ -2,7 +2,7 @@
 
 {% block main_breadcrumb %}
     {{ super() }}
-    <li><a href="{{ system.dashboard_url }}" title="{{ system.name }}">{{ system.name }}</a></li>
+    <li><a href="{{ feed.dashboard_url }}" title="{{ feed.name }}">{{ feed.name }}</a></li>
 {% endblock %}
 
 {% block body_main %}
@@ -10,7 +10,7 @@
         <nav>
             <ul>
                 <li{% if active_secondary_navigation == "dashboard" %} class="active"{% endif %}>
-                    <a href="{{ system.dashboard_url }}">
+                    <a href="{{ feed.dashboard_url }}">
                         <span class="awe-info-sign"></span>
                         {% trans %}Dashboard{% endtrans %}
                     </a>
@@ -19,25 +19,25 @@
                     {% endif %}
                 </li>
                 <li{% if active_secondary_navigation == "charts" %} class="active"{% endif %}>
-                    <a href="{{ system.charts_url }}">
+                    <a href="{{ feed.charts_url }}">
                         <span class="awe-signal"></span>
                         {% trans %}Charts{% endtrans %}
                     </a>
                 </li>
-                <li{% if active_secondary_navigation == "parameters" %} class="active"{% endif %}>
-                    <a href="{{ system.parameters_url }}">
+                <li{% if active_secondary_navigation == "data_streams" %} class="active"{% endif %}>
+                    <a href="{{ feed.data_streams_url }}">
                         <span class="awe-th-list"></span>
                         {% trans %}Parameters{% endtrans %}
                     </a>
                 </li>
                 <li{% if active_secondary_navigation == "settings" %} class="active"{% endif %}>
-                    <a href="{{ system.settings_url }}">
+                    <a href="{{ feed.settings_url }}">
                         <span class="awe-cog"></span>
                         {% trans %}Settings{% endtrans %}
                     </a>
                 </li>
                 <li{% if active_secondary_navigation == "history" %} class="active"{% endif %}>
-                    <a href="{{ system.history_url }}">
+                    <a href="{{ feed.history_url }}">
                         <span class="awe-calendar"></span>
                         {% trans %}History{% endtrans %}
                     </a>
@@ -47,7 +47,7 @@
     </div>
     <div class="content">
         <div class="page-header">
-            <h1>{{ system.name }}</h1>
+            <h1>{{ feed.name }}</h1>
         </div>
         <div class="page-container">
             {% block page_content %}

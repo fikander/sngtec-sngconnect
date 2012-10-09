@@ -1,10 +1,10 @@
-{% extends "sngconnect.telemetry:templates/system/base.jinja2" %}
+{% extends "sngconnect.telemetry:templates/feed/base.jinja2" %}
 {% set active_secondary_navigation = "dashboard" %}
 
 {% block head_stylesheets %}
     {{ super() }}
     <style>
-        #system-location-map {
+        #feed-location-map {
             width: 100%;
             height: 300px;
         }
@@ -18,7 +18,7 @@
             <h2><span class="awe-exclamation-sign"></span> {% trans %}Active alarms{% endtrans %}</h2>
             <div class="alert alert-error">
                 {% trans count=active_alarms|length -%}
-                    You have <code>{{ count }}</code> alarms active. If you don't know what it means - contact your system's administrator.
+                    You have <code>{{ count }}</code> alarms active. If you don't know what it means - contact your device's administrator.
                 {%- endtrans %}
             </div>
             <table class="table">
@@ -33,7 +33,7 @@
                     {% for alarm in active_alarms %}
                         <tr>
                             <td>{{ alarm.activation_date }}</td>
-                            <td>{{ alarm.parameter }}</td>
+                            <td>{{ alarm.data_stream }}</td>
                             <td>{{ alarm.type }}</td>
                         </tr>
                     {% endfor %}
@@ -59,37 +59,37 @@
                             <tr>
                                 <td colspan="2">
                                     <div class="well">
-                                        {{ system.description }}
+                                        {{ feed.description }}
                                     </div>
                                 </td>
                             </tr>
                             <tr>
                                 <th>{% trans %}ID{% endtrans %}</th>
-                                <td>#{{ system.id }}</td>
+                                <td>#{{ feed.id }}</td>
                             </tr>
                             <tr>
                                 <th>{% trans %}Name{% endtrans %}</th>
-                                <td>{{ system.name }}</td>
+                                <td>{{ feed.name }}</td>
                             </tr>
                             <tr>
                                 <th>{% trans %}Added to the application{% endtrans %}</th>
-                                <td>{{ system.created }}</td>
+                                <td>{{ feed.created }}</td>
                             </tr>
                         </tbody>
                     </table>
                 </article>
                 <article class="span6">
                     <h2><span class="awe-globe"></span> {% trans %}Position{% endtrans %}</h2>
-                    <div id="system-location-map"></div>
+                    <div id="feed-location-map"></div>
                     <table class="table">
                         <tbody>
                             <tr>
                                 <th>{% trans %}Address{% endtrans %}</th>
-                                <td>{{ system.address }}</td>
+                                <td>{{ feed.address }}</td>
                             </tr>
                             <tr>
                                 <th>{% trans %}GPS Coordinates{% endtrans %}</th>
-                                <td>{{ system.latitude }} {{ system.longitude }}</td>
+                                <td>{{ feed.latitude }} {{ feed.longitude }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -109,9 +109,9 @@
     <script src="//maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&amp;sensor=false"></script>
     <script>
         $(function(){
-            var position = new google.maps.LatLng({{ system.latitude }}, {{ system.longitude }});
+            var position = new google.maps.LatLng({{ feed.latitude }}, {{ feed.longitude }});
             var map = new google.maps.Map(
-                document.getElementById("system-location-map"),
+                document.getElementById("feed-location-map"),
                 {
                     center: position,
                     zoom: 10,
@@ -121,7 +121,7 @@
             );
             var marker = new google.maps.Marker({
                 map: map,
-                title: {{ system.name|tojson|safe }},
+                title: {{ feed.name|tojson|safe }},
                 position: position
             });
         });

@@ -1,9 +1,9 @@
-{% extends "sngconnect.telemetry:templates/system/base.jinja2" %}
-{% set active_secondary_navigation = "parameters" %}
+{% extends "sngconnect.telemetry:templates/feed/base.jinja2" %}
+{% set active_secondary_navigation = "data_streams" %}
 
 {% block main_breadcrumb %}
     {{ super() }}
-    <li><a href="{{ system.parameters_url }}" title="{% trans %}Parameters{% endtrans %}">{% trans %}Parameters{% endtrans %}</a></li>
+    <li><a href="{{ feed.data_streams_url }}" title="{% trans %}Parameters{% endtrans %}">{% trans %}Parameters{% endtrans %}</a></li>
 {% endblock %}
 
 {% block page_content %}
@@ -17,21 +17,21 @@
             <th>{% trans %}Allowed minimum/maximum{% endtrans %}</th>
         </thead>
         <tbody>
-            {% for parameter in parameters %}
+            {% for data_stream in data_streams %}
                 <tr>
-                    <td><a href="{{ parameter.url }}">{{ parameter.name }}</a></td>
-                    <td>{{ parameter.measurement_unit }}</td>
-                    {% if parameter.last_value %}
-                        <td><code>{{ parameter.last_value.value|round(precision=6) }}</code></td>
+                    <td><a href="{{ data_stream.url }}">{{ data_stream.name }}</a></td>
+                    <td>{{ data_stream.measurement_unit }}</td>
+                    {% if data_stream.last_value %}
+                        <td><code>{{ data_stream.last_value.value|round(precision=6) }}</code></td>
                     {% else %}
                         <td class="no-data">{% trans %}no data{% endtrans %}</td>
                     {% endif %}
-                    {% if parameter.today %}
-                        <td><code>{{ parameter.today.minimum }}</code> / <code>{{ parameter.today.maximum }}</code></td>
+                    {% if data_stream.today %}
+                        <td><code>{{ data_stream.today.minimum }}</code> / <code>{{ data_stream.today.maximum }}</code></td>
                     {% else %}
                         <td class="no-data">{% trans %}no data{% endtrans %}</td>
                     {% endif %}
-                    <td><code>{{ parameter.minimal_value }}</code> / <code>{{ parameter.maximal_value }}</code></td>
+                    <td><code>{{ data_stream.minimal_value }}</code> / <code>{{ data_stream.maximal_value }}</code></td>
                 </tr>
             {% endfor %}
         </tbody>
