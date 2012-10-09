@@ -7,7 +7,8 @@ from pyramid import testing
 from pyramid import httpexceptions
 
 from sngconnect.api import views
-from sngconnect.database import DBSession, Feed, DataStream, AlarmDefinition
+from sngconnect.database import (DBSession, FeedTemplate, Feed,
+    DataStreamTemplate, DataStream, AlarmDefinition)
 from sngconnect.cassandra.data_streams import Measurements
 from sngconnect.cassandra.alarms import Alarms
 
@@ -20,21 +21,27 @@ class TestFeedDataStreamPut(ApiTestMixin, unittest.TestCase):
 
     def setUp(self):
         super(TestFeedDataStreamPut, self).setUp()
+        feed_template = FeedTemplate(id=1)
         feed = Feed(
             id=1,
+            template=feed_template,
             name=u"Feed 1",
             description=u"Description",
             latitude=20.5,
             longitude=15.3,
             created=pytz.utc.localize(datetime.datetime.utcnow())
         )
-        data_stream = DataStream(
+        data_stream_template = DataStreamTemplate(
             id=1,
             name=u"DataStream 1",
             description=u"Description",
             measurement_unit=u"cm",
-            feed=feed,
             writable=False
+        )
+        data_stream = DataStream(
+            id=1,
+            template=data_stream_template,
+            feed=feed,
         )
         alarm_definition_1 = AlarmDefinition(
             id=1,

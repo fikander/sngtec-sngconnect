@@ -15,7 +15,8 @@ from pyramid.paster import get_appsettings, setup_logging
 from sngconnect import cassandra
 from sngconnect.database import DBSession
 from sngconnect.cassandra import connection_pool as cassandra_connection_pool
-from sngconnect.database import Feed, DataStream
+from sngconnect.database import (FeedTemplate, Feed, DataStreamTemplate,
+    DataStream)
 from sngconnect.cassandra.data_streams import (Measurements, HourlyAggregates,
     DailyAggregates, MonthlyAggregates, LastDataPoints)
 
@@ -44,7 +45,9 @@ def main(argv=sys.argv):
 
 def generate_data(feed_count):
     for i in range(1, feed_count + 1):
+        feed_template = FeedTemplate()
         feed = Feed(
+            template=feed_template,
             name=u"Feed %d" % i,
             description=u"Opis instalacji wprowadzony przez instalatora. Moze"
                         u" zawierac np. jakies notatki.",
@@ -55,9 +58,9 @@ def generate_data(feed_count):
                 datetime.datetime.now() - datetime.timedelta(days=80)
             )
         )
-        DBSession.add(feed)
+        DBSession.add_all([feed_template, feed])
         for j in range(1, 3):
-            data_stream = DataStream(
+            data_stream_template = DataStreamTemplate(
                 name=u"DataStream %d" % j,
                 description=u"Tutaj można wyświetlić aktualną temperaturę wody"
                             u" na wyjściu z pompy ciepła zasilającej feed"
@@ -71,11 +74,12 @@ def generate_data(feed_count):
                     u'cm³',
                 ]),
                 writable=random.choice([True, False, False]),
-                minimal_value=random.uniform(-1000, 0),
-                maximal_value=random.uniform(0, 1000),
+            )
+            data_stream = DataStream(
+                template=data_stream_template,
                 feed=feed
             )
-            DBSession.add(data_stream)
+            DBSession.add_all([data_stream_template, data_stream])
     transaction.commit()
     data_streams = DBSession.query(DataStream).all()
     measurements = Measurements()

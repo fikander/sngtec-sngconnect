@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sngconnect 0.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2012-10-09 14:06+0200\n"
+"POT-Creation-Date: 2012-10-09 14:38+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,11 +17,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.6\n"
 
-#: sngconnect/database.py:197
+#: sngconnect/database.py:246
 msgid "Value (${actual_value}) is greater than maximal value (${maximal_value})."
 msgstr ""
 
-#: sngconnect/database.py:207
+#: sngconnect/database.py:256
 msgid "Value (${actual_value}) is less than minimal value (${minimal_value})."
 msgstr ""
 
@@ -186,8 +186,8 @@ msgstr ""
 #: sngconnect/telemetry/templates/feed/data_stream.jinja2:48
 #: sngconnect/telemetry/templates/feed/data_stream.jinja2:58
 #: sngconnect/telemetry/templates/feed/data_stream.jinja2:68
-#: sngconnect/telemetry/templates/feed/data_streams.jinja2:27
-#: sngconnect/telemetry/templates/feed/data_streams.jinja2:32
+#: sngconnect/telemetry/templates/feed/data_streams.jinja2:26
+#: sngconnect/telemetry/templates/feed/data_streams.jinja2:31
 msgid "no data"
 msgstr ""
 
@@ -280,10 +280,6 @@ msgstr ""
 
 #: sngconnect/telemetry/templates/feed/data_streams.jinja2:16
 msgid "Today minimum/maximum"
-msgstr ""
-
-#: sngconnect/telemetry/templates/feed/data_streams.jinja2:17
-msgid "Allowed minimum/maximum"
 msgstr ""
 
 #: sngconnect/templates/base.jinja2:42

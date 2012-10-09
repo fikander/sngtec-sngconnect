@@ -55,6 +55,15 @@ class User(ModelBase):
     def __repr__(self):
         return '<User(id=%s, email=\'%s\')>' % (self.id, self.email)
 
+class FeedTemplate(ModelBase):
+
+    __tablename__ = 'sngconnect_feed_templates'
+
+    id = sql.Column(
+        sql.Integer,
+        primary_key=True
+    )
+
 class Feed(ModelBase):
 
     __tablename__ = 'sngconnect_feeds'
@@ -62,6 +71,12 @@ class Feed(ModelBase):
     id = sql.Column(
         sql.Integer,
         primary_key=True
+    )
+    template_id = sql.Column(
+        sql.Integer,
+        sql.ForeignKey(FeedTemplate.id),
+        nullable=False,
+        doc="Related template's identifier."
     )
     name = sql.Column(
         sql.Unicode(length=200),
@@ -89,22 +104,22 @@ class Feed(ModelBase):
         nullable=False
     )
 
+    template = orm.relationship(
+        FeedTemplate,
+        backref=orm.backref('feeds'),
+        lazy='joined'
+    )
+
     def __repr__(self):
         return '<Feed(id=%s, name=\'%s\')>' % (self.id, self.name)
 
-class DataStream(ModelBase):
+class DataStreamTemplate(ModelBase):
 
-    __tablename__ = 'sngconnect_data_streams'
+    __tablename__ = 'sngconnect_data_stream_templates'
 
     id = sql.Column(
         sql.Integer,
         primary_key=True
-    )
-    feed_id = sql.Column(
-        sql.Integer,
-        sql.ForeignKey(Feed.id),
-        nullable=False,
-        doc="Related feed's identifier."
     )
     name = sql.Column(
         sql.Unicode(length=200),
@@ -125,15 +140,33 @@ class DataStream(ModelBase):
         nullable=False,
         doc="Whether to allow setting the data_stream from the application."
     )
-    minimal_value = sql.Column(
-        sql.Numeric(precision=20),
-        doc="Minimal allowed value."
+
+class DataStream(ModelBase):
+
+    __tablename__ = 'sngconnect_data_streams'
+
+    id = sql.Column(
+        sql.Integer,
+        primary_key=True
     )
-    maximal_value = sql.Column(
-        sql.Numeric(precision=20),
-        doc="Maximal allowed value."
+    template_id = sql.Column(
+        sql.Integer,
+        sql.ForeignKey(DataStreamTemplate.id),
+        nullable=False,
+        doc="Related template's identifier."
+    )
+    feed_id = sql.Column(
+        sql.Integer,
+        sql.ForeignKey(Feed.id),
+        nullable=False,
+        doc="Related feed's identifier."
     )
 
+    template = orm.relationship(
+        DataStreamTemplate,
+        backref=orm.backref('data_streams'),
+        lazy='joined'
+    )
     feed = orm.relationship(
         Feed,
         backref=orm.backref('data_streams')
@@ -145,6 +178,22 @@ class DataStream(ModelBase):
             self.feed_id,
             self.name
         )
+
+    @property
+    def name(self):
+        return self.template.name
+
+    @property
+    def description(self):
+        return self.template.description
+
+    @property
+    def measurement_unit(self):
+        return self.template.measurement_unit
+
+    @property
+    def writeable(self):
+        return self.template.writeable
 
 class AlarmDefinition(ModelBase):
 

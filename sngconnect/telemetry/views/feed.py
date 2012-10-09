@@ -8,7 +8,8 @@ from sqlalchemy.orm import exc as database_exceptions
 from pyramid.view import view_config
 from pyramid import httpexceptions
 
-from sngconnect.database import DBSession, Feed, DataStream, AlarmDefinition
+from sngconnect.database import (DBSession, Feed, DataStreamTemplate,
+    DataStream, AlarmDefinition)
 from sngconnect.cassandra import data_streams as data_streams_store
 from sngconnect.cassandra import alarms as alarms_store
 
@@ -103,10 +104,12 @@ class FeedCharts(FeedViewBase):
 )
 class FeedDataStreams(FeedViewBase):
     def __call__(self):
-        data_streams = DBSession.query(DataStream).filter(
+        data_streams = DBSession.query(DataStream).join(
+            DataStreamTemplate
+        ).filter(
             Feed.id == self.feed.id
         ).order_by(
-            DataStream.name
+            DataStreamTemplate.name
         )
         last_data_points = (
             data_streams_store.LastDataPoints().get_last_data_stream_data_points(
@@ -137,8 +140,6 @@ class FeedDataStreams(FeedViewBase):
             data_streams_serialized.append({
                 'id': data_stream.id,
                 'name': data_stream.name,
-                'minimal_value': data_stream.minimal_value,
-                'maximal_value': data_stream.maximal_value,
                 'measurement_unit': data_stream.measurement_unit,
                 'url': self.request.route_url(
                     'sngconnect.telemetry.feed_data_stream',

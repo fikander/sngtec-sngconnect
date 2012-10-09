@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sngconnect 0.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2012-10-09 14:06+0200\n"
+"POT-Creation-Date: 2012-10-09 14:38+0200\n"
 "PO-Revision-Date: 2012-09-29 13:57+0200\n"
 "Last-Translator: Mikołaj Siedlarek <m.siedlarek@fatico.com>\n"
 "Language-Team: pl <LL@li.org>\n"
@@ -18,13 +18,13 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.6\n"
 
-#: sngconnect/database.py:197
+#: sngconnect/database.py:246
 msgid "Value (${actual_value}) is greater than maximal value (${maximal_value})."
 msgstr ""
 "Wartość (${actual_value}) jest większa niż maksymalna wartość "
 "(${maximal_value})."
 
-#: sngconnect/database.py:207
+#: sngconnect/database.py:256
 msgid "Value (${actual_value}) is less than minimal value (${minimal_value})."
 msgstr ""
 "Wartość (${actual_value}) jest mniejsza niż minimalna wartość "
@@ -72,6 +72,7 @@ msgid "Devices"
 msgstr "Urządzenia"
 
 #: sngconnect/telemetry/templates/dashboard.jinja2:21
+#, python-format
 msgid ""
 "You have <code>%(count)s</code> devices with alarm active. If you don't "
 "know what it means - contact your devices's administrator."
@@ -137,6 +138,7 @@ msgid "Active alarms"
 msgstr "Aktywne alarmy"
 
 #: sngconnect/telemetry/templates/feed/dashboard.jinja2:20
+#, python-format
 msgid ""
 "You have <code>%(count)s</code> alarms active. If you don't know what it "
 "means - contact your device's administrator."
@@ -201,8 +203,8 @@ msgstr "Aktualna wartość"
 #: sngconnect/telemetry/templates/feed/data_stream.jinja2:48
 #: sngconnect/telemetry/templates/feed/data_stream.jinja2:58
 #: sngconnect/telemetry/templates/feed/data_stream.jinja2:68
-#: sngconnect/telemetry/templates/feed/data_streams.jinja2:27
-#: sngconnect/telemetry/templates/feed/data_streams.jinja2:32
+#: sngconnect/telemetry/templates/feed/data_streams.jinja2:26
+#: sngconnect/telemetry/templates/feed/data_streams.jinja2:31
 msgid "no data"
 msgstr "brak danych"
 
@@ -296,10 +298,6 @@ msgstr "Ostatnia znana wartość"
 #: sngconnect/telemetry/templates/feed/data_streams.jinja2:16
 msgid "Today minimum/maximum"
 msgstr "Dzisiejsze minimum/maksimum"
-
-#: sngconnect/telemetry/templates/feed/data_streams.jinja2:17
-msgid "Allowed minimum/maximum"
-msgstr "Dozwolone minimum/maksimum"
 
 #: sngconnect/templates/base.jinja2:42
 msgid "Account settings"
