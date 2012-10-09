@@ -29,8 +29,6 @@ def initialize_keyspace(settings):
         data_streams.MonthlyAggregates,
         data_streams.MeasurementDays,
         data_streams.LastDataPoints,
-        log.Logs,
-        log.LoggingDays,
         alarms.Alarms,
     )
     for proxy_class in column_family_proxy_classes:
