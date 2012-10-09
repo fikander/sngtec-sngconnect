@@ -1,9 +1,12 @@
+import json
+
 import colander
 from pyramid.view import view_config
 from pyramid import httpexceptions
 from pyramid.response import Response
 
-from sngconnect.database import DBSession, Feed, DataStream, AlarmDefinition
+from sngconnect.database import (DBSession, Feed, DataStreamTemplate,
+    DataStream, AlarmDefinition)
 from sngconnect.cassandra.data_streams import (Measurements, HourlyAggregates,
     DailyAggregates, MonthlyAggregates, LastDataPoints)
 from sngconnect.cassandra.alarms import Alarms
@@ -73,3 +76,42 @@ def feed_data_stream(request):
     Alarms().set_alarms_off(feed_id, data_stream_id, alarms_off)
     # end of FIXME
     return Response()
+
+@view_config(
+    route_name='sngconnect.api.feed',
+    request_method='GET'
+)
+def feed(request):
+    try:
+        feed_id = int(request.matchdict['feed_id'])
+    except (KeyError, ValueError):
+        raise httpexceptions.HTTPNotFound("Invalid request arguments.")
+    feed_count = DBSession.query(Feed).filter(
+        Feed.id == feed_id
+    ).count()
+    if feed_count == 0:
+        raise httpexceptions.HTTPNotFound("Feed not found.")
+    data_streams = DBSession.query(
+        DataStream.id,
+        DataStream.requested_value,
+        DataStream.value_requested_at
+    ).join(DataStreamTemplate).filter(
+        Feed.id == feed_id,
+        DataStreamTemplate.writable == True,
+        DataStream.requested_value != None,
+        DataStream.value_requested_at != None
+    )
+    cstruct = schemas.GetChangedDataStreamsResponse().serialize({
+        'datastreams': [
+            {
+                'id': data_stream.id,
+                'current_value': data_stream.requested_value,
+                'at': data_stream.value_requested_at,
+            }
+            for data_stream in data_streams
+        ]
+    })
+    return Response(
+        json.dumps(cstruct),
+        content_type='application/json'
+    )

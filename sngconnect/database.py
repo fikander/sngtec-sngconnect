@@ -161,6 +161,16 @@ class DataStream(ModelBase):
         nullable=False,
         doc="Related feed's identifier."
     )
+    requested_value = sql.Column(
+        sql.Numeric(precision=50),
+        nullable=True,
+        doc="Value requested by user."
+    )
+    value_requested_at = sql.Column(
+        sql.DateTime(timezone=True),
+        nullable=True,
+        doc="Time the `requested_value` was set at."
+    )
 
     template = orm.relationship(
         DataStreamTemplate,
@@ -220,7 +230,7 @@ class AlarmDefinition(ModelBase):
         nullable=False
     )
     boundary = sql.Column(
-        sql.Numeric(precision=10, scale=6),
+        sql.Numeric(precision=50),
         nullable=False
     )
 

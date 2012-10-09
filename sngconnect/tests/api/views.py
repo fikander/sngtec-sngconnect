@@ -1,5 +1,7 @@
 import unittest
 import datetime
+import decimal
+import json
 
 import pytz
 import transaction
@@ -56,7 +58,9 @@ class TestFeedDataStreamPut(ApiTestMixin, unittest.TestCase):
             data_stream=data_stream
         )
         DBSession.add_all([
+            feed_template,
             feed,
+            data_stream_template,
             data_stream,
             alarm_definition_1,
             alarm_definition_2,
@@ -182,3 +186,128 @@ class TestFeedDataStreamPut(ApiTestMixin, unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         active_alarms = Alarms().get_active_alarms(1, 1)
         self.assertDictEqual(active_alarms, {})
+
+class TestFeedGet(ApiTestMixin, unittest.TestCase):
+
+    def setUp(self):
+        super(TestFeedGet, self).setUp()
+        feed_template = FeedTemplate(id=1)
+        feed = Feed(
+            id=1,
+            template=feed_template,
+            name=u"Feed 1",
+            description=u"Description",
+            latitude=20.5,
+            longitude=15.3,
+            created=pytz.utc.localize(datetime.datetime.utcnow())
+        )
+        data_stream_template1 = DataStreamTemplate(
+            id=1,
+            name=u"DataStream 1",
+            description=u"Description",
+            measurement_unit=u"cm",
+            writable=False
+        )
+        data_stream_template2 = DataStreamTemplate(
+            id=2,
+            name=u"DataStream 2",
+            description=u"Description",
+            measurement_unit=u"mm",
+            writable=True
+        )
+        data_stream = DataStream(
+            id=1,
+            template=data_stream_template1,
+            feed=feed,
+        )
+        data_stream = DataStream(
+            id=2,
+            template=data_stream_template2,
+            feed=feed,
+        )
+        alarm_definition_1 = AlarmDefinition(
+            id=1,
+            alarm_type='MINIMAL_VALUE',
+            boundary=-5,
+            data_stream=data_stream
+        )
+        alarm_definition_2 = AlarmDefinition(
+            id=2,
+            alarm_type='MAXIMAL_VALUE',
+            boundary=1000,
+            data_stream=data_stream
+        )
+        DBSession.add_all([
+            feed_template,
+            feed,
+            data_stream_template1,
+            data_stream_template2,
+            data_stream,
+            alarm_definition_1,
+            alarm_definition_2,
+        ])
+        transaction.commit()
+
+    def get_request(self, feed_id):
+        request = testing.DummyRequest()
+        request.matchdict.update({
+            'feed_id': feed_id,
+        })
+        return request
+
+    def test_invalid_ids(self):
+        request = self.get_request(123)
+        self.assertRaises(
+            httpexceptions.HTTPNotFound,
+            views.feed_data_stream,
+            request
+        )
+
+    def test_normal_operation(self):
+        request = self.get_request(1)
+        response = views.feed(request)
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(
+            json.loads(response.body),
+            {'datastreams': [],}
+        )
+        DBSession.query(DataStream).filter(DataStream.id == 2).update({
+            'requested_value': decimal.Decimal('2345.5'),
+            'value_requested_at': _utc_datetime(2012, 10, 9, 12, 34, 11),
+        })
+        transaction.commit()
+        request = self.get_request(1)
+        response = views.feed(request)
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(
+            json.loads(response.body),
+            {
+                u'datastreams': [
+                    {
+                        u'id': u'2',
+                        u'current_value': u'2345.5000000000',
+                        u'at': u'2012-10-09T12:34:11+00:00',
+                    },
+                ],
+            }
+        )
+        DBSession.query(DataStream).filter(DataStream.id == 2).update({
+            'requested_value': decimal.Decimal('-144.25'),
+            'value_requested_at': _utc_datetime(2012, 10, 9, 12, 35, 11),
+        })
+        transaction.commit()
+        request = self.get_request(1)
+        response = views.feed(request)
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(
+            json.loads(response.body),
+            {
+                u'datastreams': [
+                    {
+                        u'id': u'2',
+                        u'current_value': u'-144.2500000000',
+                        u'at': u'2012-10-09T12:35:11+00:00',
+                    },
+                ],
+            }
+        )
