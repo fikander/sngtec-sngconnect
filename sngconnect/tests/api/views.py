@@ -10,7 +10,7 @@ from pyramid import httpexceptions
 
 from sngconnect.api import views
 from sngconnect.database import (DBSession, FeedTemplate, Feed,
-    DataStreamTemplate, DataStream, AlarmDefinition)
+    DataStreamTemplate, DataStream, AlarmDefinition, LogRequest)
 from sngconnect.cassandra.data_streams import Measurements
 from sngconnect.cassandra.alarms import Alarms
 
@@ -215,36 +215,23 @@ class TestFeedGet(ApiTestMixin, unittest.TestCase):
             measurement_unit=u"mm",
             writable=True
         )
-        data_stream = DataStream(
+        data_stream1 = DataStream(
             id=1,
             template=data_stream_template1,
             feed=feed,
         )
-        data_stream = DataStream(
+        data_stream2 = DataStream(
             id=2,
             template=data_stream_template2,
             feed=feed,
-        )
-        alarm_definition_1 = AlarmDefinition(
-            id=1,
-            alarm_type='MINIMAL_VALUE',
-            boundary=-5,
-            data_stream=data_stream
-        )
-        alarm_definition_2 = AlarmDefinition(
-            id=2,
-            alarm_type='MAXIMAL_VALUE',
-            boundary=1000,
-            data_stream=data_stream
         )
         DBSession.add_all([
             feed_template,
             feed,
             data_stream_template1,
             data_stream_template2,
-            data_stream,
-            alarm_definition_1,
-            alarm_definition_2,
+            data_stream1,
+            data_stream2,
         ])
         transaction.commit()
 
@@ -259,7 +246,7 @@ class TestFeedGet(ApiTestMixin, unittest.TestCase):
         request = self.get_request(123)
         self.assertRaises(
             httpexceptions.HTTPNotFound,
-            views.feed_data_stream,
+            views.feed,
             request
         )
 
@@ -311,3 +298,84 @@ class TestFeedGet(ApiTestMixin, unittest.TestCase):
                 ],
             }
         )
+
+class TestUploadLog(ApiTestMixin, unittest.TestCase):
+
+    def setUp(self):
+        super(TestUploadLog, self).setUp()
+        feed_template = FeedTemplate(id=1)
+        feed = Feed(
+            id=1,
+            template=feed_template,
+            name=u"Feed 1",
+            description=u"Description",
+            latitude=20.5,
+            longitude=15.3,
+            created=pytz.utc.localize(datetime.datetime.utcnow())
+        )
+        log_request = LogRequest(
+            id=1,
+            feed=feed,
+            period_start=_utc_datetime(2012, 1, 16),
+            period_end=_utc_datetime(2012, 8, 1)
+        )
+        log_request.regenerate_hash()
+        self.hash = log_request.hash
+        DBSession.add_all([
+            feed_template,
+            feed,
+            log_request,
+        ])
+        transaction.commit()
+
+    def get_request(self, log_request_id, log_request_hash, body=''):
+        request = testing.DummyRequest()
+        request.matchdict.update({
+            'log_request_id': log_request_id,
+            'log_request_hash': log_request_hash,
+        })
+        request.body = body
+        return request
+
+    def test_invalid_ids(self):
+        request = self.get_request(234234, '234234')
+        with transaction.manager:
+            self.assertRaises(
+                httpexceptions.HTTPNotFound,
+                views.upload_log,
+                request
+            )
+        request = self.get_request(1, self.hash + '34')
+        with transaction.manager:
+            self.assertRaises(
+                httpexceptions.HTTPNotFound,
+                views.upload_log,
+                request
+            )
+
+    def test_empty_log(self):
+        request = self.get_request(1, self.hash)
+        with transaction.manager:
+            response = views.upload_log(request)
+        self.assertEqual(response.status_code, 200)
+        request = self.get_request(1, self.hash)
+        with transaction.manager:
+            self.assertRaises(
+                httpexceptions.HTTPNotFound,
+                views.upload_log,
+                request
+            )
+        log_request = (
+            DBSession.query(LogRequest).filter(LogRequest.id == 1).one()
+        )
+        self.assertEqual(log_request.log, '')
+
+    def test_normal_operation(self):
+        request = self.get_request(1, self.hash, "SOME LOG")
+        with transaction.manager:
+            response = views.upload_log(request)
+        self.assertEqual(response.status_code, 200)
+        log_request = (
+            DBSession.query(LogRequest).filter(LogRequest.id == 1).one()
+        )
+        self.assertEqual(log_request.log, "SOME LOG")

@@ -1,12 +1,13 @@
 import json
 
 import colander
+from sqlalchemy.orm import exc as database_exceptions
 from pyramid.view import view_config
 from pyramid import httpexceptions
 from pyramid.response import Response
 
 from sngconnect.database import (DBSession, Feed, DataStreamTemplate,
-    DataStream, AlarmDefinition)
+    DataStream, AlarmDefinition, LogRequest)
 from sngconnect.cassandra.data_streams import (Measurements, HourlyAggregates,
     DailyAggregates, MonthlyAggregates, LastDataPoints)
 from sngconnect.cassandra.alarms import Alarms
@@ -115,3 +116,25 @@ def feed(request):
         json.dumps(cstruct),
         content_type='application/json'
     )
+
+@view_config(
+    route_name='sngconnect.api.upload_log',
+    request_method='POST'
+)
+def upload_log(request):
+    try:
+        log_request_id = int(request.matchdict['log_request_id'])
+        log_request_hash = str(request.matchdict['log_request_hash'])
+    except (KeyError, ValueError):
+        raise httpexceptions.HTTPNotFound("Invalid request arguments.")
+    try:
+        log_request = DBSession.query(LogRequest).filter(
+            LogRequest.id == log_request_id,
+            LogRequest.hash == log_request_hash,
+            LogRequest.log == None
+        ).one()
+    except database_exceptions.NoResultFound:
+        raise httpexceptions.HTTPNotFound("Log request not found.")
+    log_request.log = request.body
+    DBSession.add(log_request)
+    return Response()

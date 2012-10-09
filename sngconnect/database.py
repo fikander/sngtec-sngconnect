@@ -1,4 +1,6 @@
 import decimal
+import random
+import string
 
 import bcrypt
 import sqlalchemy as sql
@@ -163,12 +165,10 @@ class DataStream(ModelBase):
     )
     requested_value = sql.Column(
         sql.Numeric(precision=50),
-        nullable=True,
         doc="Value requested by user."
     )
     value_requested_at = sql.Column(
         sql.DateTime(timezone=True),
-        nullable=True,
         doc="Time the `requested_value` was set at."
     )
 
@@ -274,3 +274,52 @@ class AlarmDefinition(ModelBase):
         else:
             raise RuntimeError("Unknown alarm type.")
         return None
+
+class LogRequest(ModelBase):
+
+    __tablename__ = 'sngconnect_log_requests'
+
+    id = sql.Column(
+        sql.Integer,
+        primary_key=True
+    )
+    feed_id = sql.Column(
+        sql.Integer,
+        sql.ForeignKey(Feed.id),
+        nullable=False,
+        doc="Related feed's identifier."
+    )
+    hash = sql.Column(
+        sql.String(length=100),
+        nullable=False
+    )
+    period_start = sql.Column(
+        sql.DateTime(timezone=True),
+        nullable=False
+    )
+    period_end = sql.Column(
+        sql.DateTime(timezone=True),
+        nullable=False
+    )
+    log = sql.Column(
+        sql.UnicodeText
+    )
+
+    feed = orm.relationship(
+        Feed,
+        backref=orm.backref('log_requests')
+    )
+
+    def __repr__(self):
+        return ('<LogRequest(id=%s, feed_id=\'%s\')>' %
+            (
+                self.id,
+                self.feed_id,
+            )
+        )
+
+    def regenerate_hash(self):
+        self.hash = ''.join([
+            random.choice(string.ascii_letters + string.digits)
+            for n in xrange(50)
+        ])
