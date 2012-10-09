@@ -240,12 +240,13 @@ class AlarmDefinition(ModelBase):
     )
 
     def __repr__(self):
-        return ('<AlarmDefinition(id=%s, data_stream_id=%s, alarm_type=\'%s\')>' %
-            (
-                self.id,
-                self.data_stream_id,
-                self.alarm_type
-            )
+        return (
+            '<AlarmDefinition(id=%s, data_stream_id=%s, alarm_type=\'%s\')>' %
+                (
+                    self.id,
+                    self.data_stream_id,
+                    self.alarm_type
+                )
         )
 
     def check_value(self, value):
@@ -274,6 +275,53 @@ class AlarmDefinition(ModelBase):
         else:
             raise RuntimeError("Unknown alarm type.")
         return None
+
+class Message(ModelBase):
+
+    __tablename__ = 'sngconnect_messages'
+
+    id = sql.Column(
+        sql.Integer,
+        primary_key=True
+    )
+    feed_id = sql.Column(
+        sql.Integer,
+        sql.ForeignKey(Feed.id),
+        doc="Related feed's identifier."
+    )
+    data_stream_id = sql.Column(
+        sql.Integer,
+        sql.ForeignKey(DataStream.id),
+        doc="Related data stream's identifier."
+    )
+    message_type = sql.Column(
+        sql.Enum(
+            'INFORMATION',
+            'WARNING',
+            'ERROR',
+        ),
+        nullable=False
+    )
+    date = sql.Column(
+        sql.DateTime(timezone=True),
+        nullable=False
+    )
+    content = sql.Column(
+        sql.UnicodeText,
+        nullable=False
+    )
+
+    feed = orm.relationship(
+        Feed,
+        backref=orm.backref('messages')
+    )
+    data_stream = orm.relationship(
+        DataStream,
+        backref=orm.backref('messages')
+    )
+
+    def __repr__(self):
+        return '<Message(id=%s)>' % self.id
 
 class LogRequest(ModelBase):
 
@@ -311,7 +359,7 @@ class LogRequest(ModelBase):
     )
 
     def __repr__(self):
-        return ('<LogRequest(id=%s, feed_id=\'%s\')>' %
+        return ('<LogRequest(id=%s, feed_id=%s)>' %
             (
                 self.id,
                 self.feed_id,

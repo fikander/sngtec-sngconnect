@@ -35,3 +35,24 @@ class DataStreams(colander.SequenceSchema):
 
 class GetChangedDataStreamsResponse(colander.MappingSchema):
     data_streams = DataStreams(name='datastreams')
+
+class PostEventRequest(colander.MappingSchema):
+    id = colander.SchemaNode(
+        colander.Integer()
+    )
+    event_type = colander.SchemaNode(
+        colander.String(),
+        name='type',
+        validator=colander.OneOf((
+            'information',
+            'system_warning',
+            'system_error',
+        ))
+    )
+    date = colander.SchemaNode(
+        colander.DateTime(),
+        name='timestamp'
+    )
+    message = colander.SchemaNode(
+        colander.String()
+    )

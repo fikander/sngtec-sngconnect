@@ -2,7 +2,7 @@ import logging
 
 from pycassa.system_manager import SIMPLE_STRATEGY
 
-from sngconnect.cassandra import configuration, data_streams, log, alarms
+from sngconnect.cassandra import configuration, data_streams, alarms
 
 logger = logging.getLogger(__name__)
 

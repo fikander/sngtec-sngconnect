@@ -10,7 +10,7 @@ from pyramid import httpexceptions
 
 from sngconnect.api import views
 from sngconnect.database import (DBSession, FeedTemplate, Feed,
-    DataStreamTemplate, DataStream, AlarmDefinition, LogRequest)
+    DataStreamTemplate, DataStream, AlarmDefinition, LogRequest, Message)
 from sngconnect.cassandra.data_streams import Measurements
 from sngconnect.cassandra.alarms import Alarms
 
@@ -379,3 +379,70 @@ class TestUploadLog(ApiTestMixin, unittest.TestCase):
             DBSession.query(LogRequest).filter(LogRequest.id == 1).one()
         )
         self.assertEqual(log_request.log, "SOME LOG")
+
+class TestEvents(ApiTestMixin, unittest.TestCase):
+
+    def setUp(self):
+        super(TestEvents, self).setUp()
+        feed_template = FeedTemplate(id=1)
+        feed = Feed(
+            id=1,
+            template=feed_template,
+            name=u"Feed 1",
+            description=u"Description",
+            latitude=20.5,
+            longitude=15.3,
+            created=pytz.utc.localize(datetime.datetime.utcnow())
+        )
+        DBSession.add_all([
+            feed_template,
+            feed,
+        ])
+        transaction.commit()
+
+    def get_request(self, feed_id, json_body='',
+            content_type='application/json'):
+        request = testing.DummyRequest()
+        request.content_type = content_type
+        request.matchdict.update({
+            'feed_id': feed_id,
+        })
+        request.json_body = json_body
+        return request
+
+    def test_invalid_ids(self):
+        request = self.get_request(234234)
+        with transaction.manager:
+            self.assertRaises(
+                httpexceptions.HTTPNotFound,
+                views.events,
+                request
+            )
+
+    def test_invalid_data_structure(self):
+        request = self.get_request(1, json_body={'foobar':[]})
+        self.assertRaises(
+            httpexceptions.HTTPBadRequest,
+            views.events,
+            request
+        )
+
+    def test_normal_operation(self):
+        request = self.get_request(1, json_body={
+            'id': '123',
+            'type': 'information',
+            'timestamp': '2012-05-26T12:23:23',
+            'message': 'some message',
+        })
+        with transaction.manager:
+            response = views.events(request)
+        self.assertEqual(response.status_code, 200)
+        message = DBSession.query(Message).one()
+        self.assertEqual(message.message_type, 'INFORMATION')
+        date = message.date
+        if date.tzinfo is None:
+            date = pytz.utc.localize(date)
+        self.assertEqual(date, _utc_datetime(2012, 5, 26, 12, 23, 23))
+        self.assertEqual(message.content, 'some message')
+        self.assertEqual(message.feed_id, 1)
+        self.assertEqual(message.data_stream_id, None)

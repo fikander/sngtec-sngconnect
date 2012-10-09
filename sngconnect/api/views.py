@@ -7,7 +7,7 @@ from pyramid import httpexceptions
 from pyramid.response import Response
 
 from sngconnect.database import (DBSession, Feed, DataStreamTemplate,
-    DataStream, AlarmDefinition, LogRequest)
+    DataStream, AlarmDefinition, LogRequest, Message)
 from sngconnect.cassandra.data_streams import (Measurements, HourlyAggregates,
     DailyAggregates, MonthlyAggregates, LastDataPoints)
 from sngconnect.cassandra.alarms import Alarms
@@ -137,4 +137,52 @@ def upload_log(request):
         raise httpexceptions.HTTPNotFound("Log request not found.")
     log_request.log = request.body
     DBSession.add(log_request)
+    return Response()
+
+@view_config(
+    route_name='sngconnect.api.events',
+    request_method='POST'
+)
+def events(request):
+    try:
+        feed_id = int(request.matchdict['feed_id'])
+    except (KeyError, ValueError):
+        raise httpexceptions.HTTPNotFound("Invalid request arguments.")
+    try:
+        feed = DBSession.query(Feed).filter(
+            Feed.id == feed_id
+        ).one()
+    except database_exceptions.NoResultFound:
+        raise httpexceptions.HTTPNotFound("Feed not found.")
+    if request.content_type != 'application/json':
+        raise httpexceptions.HTTPBadRequest("Unsupported content type.")
+    try:
+        request_cstruct = request.json_body
+    except ValueError as error:
+        raise httpexceptions.HTTPBadRequest(
+            "Error while decoding the request: %s" % str(error)
+        )
+    schema = schemas.PostEventRequest()
+    try:
+        request_appstruct = schema.deserialize(request_cstruct)
+    except colander.Invalid as error:
+        raise httpexceptions.HTTPBadRequest('\r\n'.join((
+            "Invalid data structure:",
+            '\r\n'.join((
+                '%s: %s' % (node_name, message)
+                for node_name, message in error.asdict().iteritems()
+            ))
+        )))
+    message_type_mapping = {
+        'information': 'INFORMATION',
+        'system_warning': 'WARNING',
+        'system_error': 'ERROR',
+    }
+    message = Message(
+        feed=feed,
+        message_type=message_type_mapping[request_appstruct['type']],
+        date=request_appstruct['timestamp'],
+        content=request_appstruct['message']
+    )
+    DBSession.add(message)
     return Response()
