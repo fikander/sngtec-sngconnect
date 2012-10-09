@@ -371,3 +371,45 @@ class LogRequest(ModelBase):
             random.choice(string.ascii_letters + string.digits)
             for n in xrange(50)
         ])
+
+class Command(ModelBase):
+
+    __tablename__ = 'sngconnect_commands'
+
+    id = sql.Column(
+        sql.Integer,
+        primary_key=True
+    )
+    feed_id = sql.Column(
+        sql.Integer,
+        sql.ForeignKey(Feed.id),
+        nullable=False,
+        doc="Related feed's identifier."
+    )
+    command = sql.Column(
+        sql.Enum(
+            'reboot',
+            'upload_log',
+        ),
+        nullable=False
+    )
+    date = sql.Column(
+        sql.DateTime(timezone=True),
+        nullable=False
+    )
+    arguments = sql.Column(
+        sql.PickleType(),
+        nullable=False,
+        default={}
+    )
+
+    feed = orm.relationship(
+        Feed,
+        backref=orm.backref('commands')
+    )
+
+    def __repr__(self):
+        return '<Command(id=%s, command=\'%s\')>' % (
+            self.id,
+            self.command,
+        )

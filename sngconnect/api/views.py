@@ -7,7 +7,7 @@ from pyramid import httpexceptions
 from pyramid.response import Response
 
 from sngconnect.database import (DBSession, Feed, DataStreamTemplate,
-    DataStream, AlarmDefinition, LogRequest, Message)
+    DataStream, AlarmDefinition, LogRequest, Message, Command)
 from sngconnect.cassandra.data_streams import (Measurements, HourlyAggregates,
     DailyAggregates, MonthlyAggregates, LastDataPoints)
 from sngconnect.cassandra.alarms import Alarms
@@ -186,3 +186,37 @@ def events(request):
     )
     DBSession.add(message)
     return Response()
+
+@view_config(
+    route_name='sngconnect.api.commands',
+    request_method='GET'
+)
+def commands(request):
+    try:
+        feed_id = int(request.matchdict['feed_id'])
+    except (KeyError, ValueError):
+        raise httpexceptions.HTTPNotFound("Invalid request arguments.")
+    feed_count = DBSession.query(Feed).filter(
+        Feed.id == feed_id
+    ).count()
+    if feed_count == 0:
+        raise httpexceptions.HTTPNotFound("Feed not found.")
+    commands = DBSession.query(
+        Command.command,
+        Command.arguments,
+    ).filter(
+        Command.feed_id == feed_id,
+    )
+    cstruct = schemas.GetCommandsResponse().serialize({
+        'commands': [
+            {
+                'command': command.command,
+                'arguments': command.arguments,
+            }
+            for command in commands
+        ]
+    })
+    return Response(
+        json.dumps(cstruct),
+        content_type='application/json'
+    )

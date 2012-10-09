@@ -10,7 +10,8 @@ from pyramid import httpexceptions
 
 from sngconnect.api import views
 from sngconnect.database import (DBSession, FeedTemplate, Feed,
-    DataStreamTemplate, DataStream, AlarmDefinition, LogRequest, Message)
+    DataStreamTemplate, DataStream, AlarmDefinition, LogRequest, Message,
+    Command)
 from sngconnect.cassandra.data_streams import Measurements
 from sngconnect.cassandra.alarms import Alarms
 
@@ -446,3 +447,70 @@ class TestEvents(ApiTestMixin, unittest.TestCase):
         self.assertEqual(message.content, 'some message')
         self.assertEqual(message.feed_id, 1)
         self.assertEqual(message.data_stream_id, None)
+
+class TestCommands(ApiTestMixin, unittest.TestCase):
+
+    def setUp(self):
+        super(TestCommands, self).setUp()
+        feed_template = FeedTemplate(id=1)
+        feed = Feed(
+            id=1,
+            template=feed_template,
+            name=u"Feed 1",
+            description=u"Description",
+            latitude=20.5,
+            longitude=15.3,
+            created=pytz.utc.localize(datetime.datetime.utcnow())
+        )
+        DBSession.add_all([
+            feed_template,
+            feed,
+        ])
+        transaction.commit()
+
+    def get_request(self, feed_id):
+        request = testing.DummyRequest()
+        request.matchdict.update({
+            'feed_id': feed_id,
+        })
+        return request
+
+    def test_invalid_ids(self):
+        request = self.get_request(234234)
+        with transaction.manager:
+            self.assertRaises(
+                httpexceptions.HTTPNotFound,
+                views.commands,
+                request
+            )
+
+    def test_normal_operation(self):
+        request = self.get_request(1)
+        response = views.commands(request)
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(response.json_body, {
+            'commands': [],
+        })
+        command = Command(
+            feed_id=1,
+            date=_utc_datetime(2012, 5, 17, 23, 4, 11),
+            command='upload_log',
+            arguments={
+                'url': 'http://example.org',
+            }
+        )
+        with transaction.manager:
+            DBSession.add(command)
+        request = self.get_request(1)
+        response = views.commands(request)
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(response.json_body, {
+            u'commands': [
+                {
+                    u'command': u'upload_log',
+                    u'arguments': {
+                        u'url': u'http://example.org',
+                    },
+                },
+            ],
+        })

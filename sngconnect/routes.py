@@ -47,6 +47,10 @@ ROUTES = (
         'api/v1/feeds/{feed_id:\d+}/events.json'
     ),
     (
+        'sngconnect.api.commands',
+        'api/v1/feeds/{feed_id:\d+}/commands.json'
+    ),
+    (
         'sngconnect.api.upload_log',
         'api/v1/upload-log/{log_request_id:\d+}/{log_request_hash:\w+}.json'
     ),

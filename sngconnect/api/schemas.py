@@ -56,3 +56,18 @@ class PostEventRequest(colander.MappingSchema):
     message = colander.SchemaNode(
         colander.String()
     )
+
+class Command(colander.MappingSchema):
+
+    command = colander.SchemaNode(
+        colander.String()
+    )
+    arguments = colander.SchemaNode(
+        colander.Mapping(unknown='preserve')
+    )
+
+class Commands(colander.SequenceSchema):
+    command = Command()
+
+class GetCommandsResponse(colander.MappingSchema):
+    commands = Commands()
