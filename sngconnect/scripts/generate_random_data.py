@@ -61,6 +61,8 @@ def generate_data(feed_count):
         DBSession.add_all([feed_template, feed])
         for j in range(1, 3):
             data_stream_template = DataStreamTemplate(
+                feed_template=feed_template,
+                label=('data_stream_%d' % j),
                 name=u"DataStream %d" % j,
                 description=u"Tutaj można wyświetlić aktualną temperaturę wody"
                             u" na wyjściu z pompy ciepła zasilającej feed"

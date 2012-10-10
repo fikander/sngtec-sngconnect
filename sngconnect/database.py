@@ -118,10 +118,24 @@ class Feed(ModelBase):
 class DataStreamTemplate(ModelBase):
 
     __tablename__ = 'sngconnect_data_stream_templates'
+    __table_args__ = (
+        sql.UniqueConstraint('feed_template_id', 'label'),
+    )
 
     id = sql.Column(
         sql.Integer,
         primary_key=True
+    )
+    feed_template_id = sql.Column(
+        sql.Integer,
+        sql.ForeignKey(FeedTemplate.id),
+        nullable=False,
+        doc="Related feed template's identifier."
+    )
+    label = sql.Column(
+        sql.String(length=100),
+        nullable=False,
+        doc="Unique per feed label, used in URLs."
     )
     name = sql.Column(
         sql.Unicode(length=200),
@@ -141,6 +155,11 @@ class DataStreamTemplate(ModelBase):
         sql.Boolean,
         nullable=False,
         doc="Whether to allow setting the data_stream from the application."
+    )
+
+    feed_template = orm.relationship(
+        FeedTemplate,
+        backref=orm.backref('data_stream_templates')
     )
 
 class DataStream(ModelBase):

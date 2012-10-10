@@ -36,6 +36,8 @@ class TestFeedDataStreamPut(ApiTestMixin, unittest.TestCase):
         )
         data_stream_template = DataStreamTemplate(
             id=1,
+            feed_template=feed_template,
+            label='data_stream',
             name=u"DataStream 1",
             description=u"Description",
             measurement_unit=u"cm",
@@ -204,6 +206,8 @@ class TestFeedGet(ApiTestMixin, unittest.TestCase):
         )
         data_stream_template1 = DataStreamTemplate(
             id=1,
+            feed_template=feed_template,
+            label='data_stream_1',
             name=u"DataStream 1",
             description=u"Description",
             measurement_unit=u"cm",
@@ -211,6 +215,8 @@ class TestFeedGet(ApiTestMixin, unittest.TestCase):
         )
         data_stream_template2 = DataStreamTemplate(
             id=2,
+            feed_template=feed_template,
+            label='data_stream_2',
             name=u"DataStream 2",
             description=u"Description",
             measurement_unit=u"mm",
