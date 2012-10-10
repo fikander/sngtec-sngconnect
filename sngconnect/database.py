@@ -248,7 +248,8 @@ class AlarmDefinition(ModelBase):
     alarm_type = sql.Column(
         sql.Enum(
             'MAXIMAL_VALUE',
-            'MINIMAL_VALUE'
+            'MINIMAL_VALUE',
+            name='ALARM_DEFINITION_TYPE'
         ),
         nullable=False
     )
@@ -322,6 +323,7 @@ class Message(ModelBase):
             'INFORMATION',
             'WARNING',
             'ERROR',
+            name='MESSAGE_TYPE_TYPE'
         ),
         nullable=False
     )
@@ -413,6 +415,7 @@ class Command(ModelBase):
         sql.Enum(
             'reboot',
             'upload_log',
+            name='COMMAND_TYPE'
         ),
         nullable=False
     )
