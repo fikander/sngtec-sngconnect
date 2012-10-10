@@ -16,7 +16,7 @@ ROUTES = (
     ),
     (
         'sngconnect.telemetry.feed_data_stream',
-        'feeds/{feed_id:\d+}/data_streams/{data_stream_id:\d+}'
+        'feeds/{feed_id:\d+}/data_streams/{data_stream_label:\w+}'
     ),
     (
         'sngconnect.telemetry.feed_settings',
@@ -24,7 +24,7 @@ ROUTES = (
     ),
     (
         'sngconnect.telemetry.feed_setting',
-        'feeds/{feed_id:\d+}/settings/{data_stream_id:\d+}'
+        'feeds/{feed_id:\d+}/settings/{data_stream_label:\w+}'
     ),
     (
         'sngconnect.telemetry.feed_history',
@@ -36,7 +36,7 @@ ROUTES = (
     # sngconnect.api
     (
         'sngconnect.api.feed_data_stream',
-        'api/v1/feeds/{feed_id:\d+}/datastreams/{data_stream_id:\d+}.json'
+        'api/v1/feeds/{feed_id:\d+}/datastreams/{data_stream_label:\w+}.json'
     ),
     (
         'sngconnect.api.feed',

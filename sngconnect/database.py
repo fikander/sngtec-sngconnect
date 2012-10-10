@@ -209,6 +209,10 @@ class DataStream(ModelBase):
         )
 
     @property
+    def label(self):
+        return self.template.label
+
+    @property
     def name(self):
         return self.template.name
 

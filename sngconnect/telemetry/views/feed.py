@@ -144,7 +144,7 @@ class FeedDataStreams(FeedViewBase):
                 'url': self.request.route_url(
                     'sngconnect.telemetry.feed_data_stream',
                     feed_id=self.feed.id,
-                    data_stream_id=data_stream.id
+                    data_stream_label=data_stream.label
                 ),
                 'last_value': last_value,
                 'today': today,
@@ -162,9 +162,12 @@ class FeedDataStreams(FeedViewBase):
 class FeedDataStream(FeedViewBase):
     def __call__(self):
         try:
-            data_stream = DBSession.query(DataStream).filter(
+            data_stream = DBSession.query(DataStream).join(
+                DataStreamTemplate
+            ).filter(
                 Feed.id == self.feed.id,
-                DataStream.id == self.request.matchdict['data_stream_id']
+                (DataStreamTemplate.label ==
+                    self.request.matchdict['data_stream_label'])
             ).one()
         except database_exceptions.NoResultFound:
             raise httpexceptions.HTTPNotFound()
@@ -271,6 +274,11 @@ class FeedDataStream(FeedViewBase):
                 'last_day_values': last_day_values,
                 'last_week_values': last_week_values,
                 'last_year_values': last_year_values,
+                'url': self.request.route_url(
+                    'sngconnect.telemetry.feed_data_stream',
+                    feed_id=self.feed.id,
+                    data_stream_label=data_stream.label
+                ),
             },
         })
         return self.context

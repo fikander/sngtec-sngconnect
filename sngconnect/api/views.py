@@ -20,14 +20,17 @@ from sngconnect.api import schemas
 def feed_data_stream(request):
     try:
         feed_id = int(request.matchdict['feed_id'])
-        data_stream_id = int(request.matchdict['data_stream_id'])
+        data_stream_label = str(request.matchdict['data_stream_label'])
     except (KeyError, ValueError):
         raise httpexceptions.HTTPNotFound("Invalid request arguments.")
-    data_stream_count = DBSession.query(DataStream).filter(
-        Feed.id == feed_id,
-        DataStream.id == data_stream_id
-    ).count()
-    if data_stream_count == 0:
+    try:
+        data_stream = DBSession.query(DataStream).join(
+            DataStreamTemplate
+        ).filter(
+            Feed.id == feed_id,
+            DataStreamTemplate.label == data_stream_label
+        ).one()
+    except database_exceptions.NoResultFound:
         raise httpexceptions.HTTPNotFound("DataStream not found.")
     if request.content_type != 'application/json':
         raise httpexceptions.HTTPBadRequest("Unsupported content type.")
@@ -52,19 +55,19 @@ def feed_data_stream(request):
         (point['at'], point['value'])
         for point in request_appstruct['datapoints']
     ]
-    Measurements().insert_data_points(data_stream_id, data_points)
+    Measurements().insert_data_points(data_stream.id, data_points)
     # FIXME This is not wise for production use due to race condition concerns.
     dates = map(lambda x: x[0], data_points)
-    HourlyAggregates().recalculate_aggregates(data_stream_id, dates)
-    DailyAggregates().recalculate_aggregates(data_stream_id, dates)
-    MonthlyAggregates().recalculate_aggregates(data_stream_id, dates)
-    LastDataPoints().update(feed_id, data_stream_id)
+    HourlyAggregates().recalculate_aggregates(data_stream.id, dates)
+    DailyAggregates().recalculate_aggregates(data_stream.id, dates)
+    MonthlyAggregates().recalculate_aggregates(data_stream.id, dates)
+    LastDataPoints().update(feed_id, data_stream.id)
     alarm_definitions = DBSession.query(AlarmDefinition).filter(
-        AlarmDefinition.data_stream_id == data_stream_id
+        AlarmDefinition.data_stream_id == data_stream.id
     )
     last_date, last_value = LastDataPoints().get_last_data_stream_data_point(
         feed_id,
-        data_stream_id
+        data_stream.id
     )
     alarms_on = []
     alarms_off = []
@@ -73,8 +76,8 @@ def feed_data_stream(request):
             alarms_off.append(alarm_definition.id)
         else:
             alarms_on.append(alarm_definition.id)
-    Alarms().set_alarms_on(feed_id, data_stream_id, alarms_on, last_date)
-    Alarms().set_alarms_off(feed_id, data_stream_id, alarms_off)
+    Alarms().set_alarms_on(feed_id, data_stream.id, alarms_on, last_date)
+    Alarms().set_alarms_off(feed_id, data_stream.id, alarms_off)
     # end of FIXME
     return Response()
 

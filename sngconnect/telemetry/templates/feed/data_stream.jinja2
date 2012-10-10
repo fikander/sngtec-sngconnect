@@ -2,7 +2,7 @@
 
 {% block main_breadcrumb %}
     {{ super() }}
-    <li><a href="{{ data_stream_url }}" title="{{ data_stream.name }}">{{ data_stream.name }}</a></li>
+    <li><a href="{{ data_stream.url }}" title="{{ data_stream.name }}">{{ data_stream.name }}</a></li>
 {% endblock %}
 
 {% block page_content %}

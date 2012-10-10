@@ -70,19 +70,19 @@ class TestFeedDataStreamPut(ApiTestMixin, unittest.TestCase):
         ])
         transaction.commit()
 
-    def get_request(self, feed_id, data_stream_id, json_body='',
+    def get_request(self, feed_id, data_stream_label, json_body='',
             content_type='application/json'):
         request = testing.DummyRequest()
         request.content_type = content_type
         request.matchdict.update({
             'feed_id': feed_id,
-            'data_stream_id': data_stream_id,
+            'data_stream_label': data_stream_label,
         })
         request.json_body = json_body
         return request
 
     def test_invalid_ids(self):
-        request = self.get_request(123, 435)
+        request = self.get_request(123, 'data_stream_fake')
         self.assertRaises(
             httpexceptions.HTTPNotFound,
             views.feed_data_stream,
@@ -90,7 +90,7 @@ class TestFeedDataStreamPut(ApiTestMixin, unittest.TestCase):
         )
 
     def test_invalid_data_structure(self):
-        request = self.get_request(1, 1, json_body={'foobar':[]})
+        request = self.get_request(1, 'data_stream', json_body={'foobar':[]})
         self.assertRaises(
             httpexceptions.HTTPBadRequest,
             views.feed_data_stream,
@@ -98,7 +98,7 @@ class TestFeedDataStreamPut(ApiTestMixin, unittest.TestCase):
         )
 
     def test_normal_operation(self):
-        request = self.get_request(1, 1, json_body={
+        request = self.get_request(1, 'data_stream', json_body={
             'datapoints': [
                 {
                     'at': '2012-09-26T18:14:34.345123Z',
@@ -127,7 +127,7 @@ class TestFeedDataStreamPut(ApiTestMixin, unittest.TestCase):
         )
 
     def test_alarms(self):
-        request = self.get_request(1, 1, json_body={
+        request = self.get_request(1, 'data_stream', json_body={
             'datapoints': [
                 {
                     'at': '2012-09-26T18:14:34.345123Z',
@@ -145,7 +145,7 @@ class TestFeedDataStreamPut(ApiTestMixin, unittest.TestCase):
         self.assertDictEqual(active_alarms, {
             1: _utc_datetime(2012, 9, 26, 18, 14, 35, 425000)
         })
-        request = self.get_request(1, 1, json_body={
+        request = self.get_request(1, 'data_stream', json_body={
             'datapoints': [
                 {
                     'at': '2012-09-25T18:14:34.345123Z',
@@ -163,7 +163,7 @@ class TestFeedDataStreamPut(ApiTestMixin, unittest.TestCase):
         self.assertDictEqual(active_alarms, {
             1: _utc_datetime(2012, 9, 26, 18, 14, 35, 425000)
         })
-        request = self.get_request(1, 1, json_body={
+        request = self.get_request(1, 'data_stream', json_body={
             'datapoints': [
                 {
                     'at': '2012-09-27T18:14:35.425Z',
@@ -177,7 +177,7 @@ class TestFeedDataStreamPut(ApiTestMixin, unittest.TestCase):
         self.assertDictEqual(active_alarms, {
             2: _utc_datetime(2012, 9, 27, 18, 14, 35, 425000)
         })
-        request = self.get_request(1, 1, json_body={
+        request = self.get_request(1, 'data_stream', json_body={
             'datapoints': [
                 {
                     'at': '2012-09-27T18:15:35.425Z',
