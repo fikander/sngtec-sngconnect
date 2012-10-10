@@ -1,9 +1,3 @@
-import datetime
-import calendar
-import time
-
-import pytz
-import numpy
 import pycassa
 from pycassa import types as pycassa_types
 
@@ -50,9 +44,9 @@ class Alarms(ColumnFamilyProxy):
         self.column_family.insert(
             feed_id,
             {
-                data_stream_id: {
-                    alarm_id: date for alarm_id in alarm_ids
-                },
+                data_stream_id: dict((
+                    (alarm_id, date) for alarm_id in alarm_ids
+                )),
             }
         )
 
@@ -67,10 +61,10 @@ class Alarms(ColumnFamilyProxy):
         if data_stream_id is None:
             try:
                 return {
-                    data_stream_id: {
-                        alarm_id: date
+                    data_stream_id: dict((
+                        (alarm_id, date)
                         for alarm_id, date in alarms.iteritems()
-                    }
+                    ))
                     for data_stream_id, alarms
                     in self.column_family.get(feed_id).iteritems()
                 }
