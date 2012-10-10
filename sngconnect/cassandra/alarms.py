@@ -60,24 +60,27 @@ class Alarms(ColumnFamilyProxy):
     def get_active_alarms(self, feed_id, data_stream_id=None):
         if data_stream_id is None:
             try:
-                return {
-                    data_stream_id: dict((
-                        (alarm_id, date)
-                        for alarm_id, date in alarms.iteritems()
-                    ))
+                return dict((
+                    (
+                        data_stream_id,
+                        dict((
+                            (alarm_id, date)
+                            for alarm_id, date in alarms.iteritems()
+                        ))
+                    )
                     for data_stream_id, alarms
                     in self.column_family.get(feed_id).iteritems()
-                }
+                ))
             except pycassa.NotFoundException:
                 return {}
         else:
             try:
-                return {
-                    alarm_id: date
+                return dict((
+                    (alarm_id, date)
                     for alarm_id, date in self.column_family.get(
                         feed_id,
                         super_column=data_stream_id
                     ).iteritems()
-                }
+                ))
             except pycassa.NotFoundException:
                 return {}
