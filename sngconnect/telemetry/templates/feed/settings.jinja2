@@ -1,0 +1,11 @@
+{% extends "sngconnect.telemetry:templates/feed/base.jinja2" %}
+{% set active_secondary_navigation = "settings" %}
+
+{% block main_breadcrumb %}
+    {{ super() }}
+    <li><a href="{{ feed.settings_url }}" title="{% trans %}Settings{% endtrans %}">{% trans %}Settings{% endtrans %}</a></li>
+{% endblock %}
+
+{% block page_content %}
+    Ustawienia
+{% endblock %}

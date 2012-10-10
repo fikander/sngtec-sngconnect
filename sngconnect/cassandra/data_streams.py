@@ -20,19 +20,19 @@ class Measurements(TimeSeries):
     _column_family_name = 'Measurements'
     _date_index_class = MeasurementDays
 
-    def insert_data_points(self, parameter_id, data_points):
+    def insert_data_points(self, data_stream_id, data_points):
         rows = {}
         for measurement_datetime, value in data_points:
-            key = self.get_row_key(parameter_id, measurement_datetime)
+            key = self.get_row_key(data_stream_id, measurement_datetime)
             rows.setdefault(key, {})
             rows[key][measurement_datetime] = value
         self.column_family.batch_insert(rows)
         self._date_index_class().add_days(
-            parameter_id,
+            data_stream_id,
             (date for date, value in data_points)
         )
 
-    def get_row_key(self, parameter_id, date):
+    def get_row_key(self, data_stream_id, date):
         if date.tzinfo is None:
             raise ValueError("Naive datetime is not supported.")
         date = pytz.utc.normalize(date.astimezone(pytz.utc)).replace(
@@ -41,7 +41,7 @@ class Measurements(TimeSeries):
             second=0,
             microsecond=0
         )
-        return super(Measurements, self).get_row_key(parameter_id, date)
+        return super(Measurements, self).get_row_key(data_stream_id, date)
 
 class AggregatesStore(TimeSeries):
 
@@ -68,18 +68,18 @@ class AggregatesStore(TimeSeries):
             **additional_kwargs
         )
 
-    def get_data_points(self, parameter_id, start_date=None, end_date=None):
+    def get_data_points(self, data_stream_id, start_date=None, end_date=None):
         if start_date is not None:
             start_date = self.force_precision(start_date)
         if end_date is not None:
             end_date = self.force_precision(end_date)
         return super(AggregatesStore, self).get_data_points(
-            parameter_id,
+            data_stream_id,
             start_date,
             end_date
         )
 
-    def aggregate(self, parameter_id, start_date=None, end_date=None):
+    def aggregate(self, data_stream_id, start_date=None, end_date=None):
         kwargs = {
             # Setting column count to Cassandra's maximum. We assume that
             # clients of this API know what they're doing.
@@ -91,11 +91,11 @@ class AggregatesStore(TimeSeries):
             kwargs['column_finish'] = end_date
         measurement_days = self._date_index_class()
         dates = measurement_days.get_days(
-            parameter_id,
+            data_stream_id,
             start_date=start_date,
             end_date=end_date
         )
-        keys = set((self.get_row_key(parameter_id, date) for date in dates))
+        keys = set((self.get_row_key(data_stream_id, date) for date in dates))
         values_sum = numpy.float64(0);
         values_count = numpy.float64(0)
         values_minimum = None
@@ -142,16 +142,16 @@ class AggregatesStore(TimeSeries):
             result['minimum'] = str(values_minimum)
         return result
 
-    def recalculate_aggregates(self, parameter_id, changed_dates):
+    def recalculate_aggregates(self, data_stream_id, changed_dates):
         data_source = self.get_data_source()
         dates = set((self.force_precision(date) for date in changed_dates))
         rows = {}
         for date in dates:
-            key = self.get_row_key(parameter_id, date)
+            key = self.get_row_key(data_stream_id, date)
             rows.setdefault(key, {})
             date_range = self.get_date_range(date)
             aggregate = data_source.aggregate(
-                parameter_id,
+                data_stream_id,
                 start_date=date_range[0],
                 end_date=date_range[1]
             )
@@ -172,7 +172,7 @@ class HourlyAggregates(AggregatesStore):
 
     _column_family_name = 'HourlyAggregates'
 
-    def get_row_key(self, parameter_id, date):
+    def get_row_key(self, data_stream_id, date):
         if date.tzinfo is None:
             raise ValueError("Naive datetime is not supported.")
         date = pytz.utc.normalize(date.astimezone(pytz.utc)).replace(
@@ -182,7 +182,7 @@ class HourlyAggregates(AggregatesStore):
             microsecond=0
         )
         return super(HourlyAggregates, self).get_row_key(
-            parameter_id,
+            data_stream_id,
             date
         )
 
@@ -202,7 +202,7 @@ class DailyAggregates(AggregatesStore):
 
     _column_family_name = 'DailyAggregates'
 
-    def get_row_key(self, parameter_id, date):
+    def get_row_key(self, data_stream_id, date):
         if date.tzinfo is None:
             raise ValueError("Naive datetime is not supported.")
         date = pytz.utc.normalize(date.astimezone(pytz.utc)).replace(
@@ -212,7 +212,7 @@ class DailyAggregates(AggregatesStore):
             second=0,
             microsecond=0
         )
-        return super(DailyAggregates, self).get_row_key(parameter_id, date)
+        return super(DailyAggregates, self).get_row_key(data_stream_id, date)
 
     def force_precision(self, date):
         return date.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -230,7 +230,7 @@ class MonthlyAggregates(AggregatesStore):
 
     _column_family_name = 'MonthlyAggregates'
 
-    def get_row_key(self, parameter_id, date):
+    def get_row_key(self, data_stream_id, date):
         if date.tzinfo is None:
             raise ValueError("Naive datetime is not supported.")
         date = pytz.utc.normalize(date.astimezone(pytz.utc)).replace(
@@ -241,7 +241,7 @@ class MonthlyAggregates(AggregatesStore):
             second=0,
             microsecond=0
         )
-        return super(MonthlyAggregates, self).get_row_key(parameter_id, date)
+        return super(MonthlyAggregates, self).get_row_key(data_stream_id, date)
 
     def force_precision(self, date):
         return date.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
@@ -287,8 +287,8 @@ class LastDataPoints(ColumnFamilyProxy):
         super(LastDataPoints, self).__init__()
         self.column_family.default_validation_class = RealType()
 
-    def update(self, system_id, parameter_id):
-        last_data_point = Measurements().get_last_data_point(parameter_id)
+    def update(self, feed_id, data_stream_id):
+        last_data_point = Measurements().get_last_data_point(data_stream_id)
         if last_data_point is None:
             return
 
@@ -301,15 +301,15 @@ class LastDataPoints(ColumnFamilyProxy):
             + date.microsecond
         )
         self.column_family.insert(
-            system_id,
-            {parameter_id: last_data_point[1]},
+            feed_id,
+            {data_stream_id: last_data_point[1]},
             timestamp=timestamp
         )
 
-    def get_last_parameter_data_points(self, system_id):
+    def get_last_data_stream_data_points(self, feed_id):
         try:
             result = self.column_family.get(
-                system_id,
+                feed_id,
                 include_timestamp=True
             )
         except pycassa.NotFoundException:
@@ -319,11 +319,11 @@ class LastDataPoints(ColumnFamilyProxy):
             result.items()
         ))
 
-    def get_last_parameter_data_point(self, system_id, parameter_id):
+    def get_last_data_stream_data_point(self, feed_id, data_stream_id):
         try:
             result = self.column_family.get(
-                system_id,
-                columns=(parameter_id,),
+                feed_id,
+                columns=(data_stream_id,),
                 include_timestamp=True
             ).items()[0][1]
         except pycassa.NotFoundException:

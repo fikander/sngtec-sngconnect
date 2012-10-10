@@ -2,7 +2,7 @@
 
 from pyramid.view import view_config
 
-from sngconnect.database import DBSession, System
+from sngconnect.database import DBSession, Feed
 
 @view_config(
     route_name='sngconnect.telemetry.dashboard',
@@ -10,24 +10,24 @@ from sngconnect.database import DBSession, System
     renderer='sngconnect.telemetry:templates/dashboard.jinja2'
 )
 def dashboard(request):
-    systems = DBSession.query(System).order_by(System.name)
+    feeds = DBSession.query(Feed).order_by(Feed.name)
     return {
-        'systems_with_alarm_active': 2, # FIXME
-        'systems': [
+        'feeds_with_alarm_active': 2, # FIXME
+        'feeds': [
             {
-                'id': system.id,
-                'name': system.name,
-                'latitude': system.latitude,
-                'longitude': system.longitude,
+                'id': feed.id,
+                'name': feed.name,
+                'latitude': feed.latitude,
+                'longitude': feed.longitude,
                 'dashboard_url': request.route_url(
-                    'sngconnect.telemetry.system_dashboard',
-                    system_id=system.id
+                    'sngconnect.telemetry.feed_dashboard',
+                    feed_id=feed.id
                 ),
                 # FIXME
                 'alarm_count': 5,
-                'system': u"water pump",
+                'feed': u"water pump",
                 'owner': u"Some owner",
             }
-            for system in systems
+            for feed in feeds
         ],
     }

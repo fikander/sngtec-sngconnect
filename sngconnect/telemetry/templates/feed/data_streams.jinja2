@@ -1,0 +1,37 @@
+{% extends "sngconnect.telemetry:templates/feed/base.jinja2" %}
+{% set active_secondary_navigation = "data_streams" %}
+
+{% block main_breadcrumb %}
+    {{ super() }}
+    <li><a href="{{ feed.data_streams_url }}" title="{% trans %}Parameters{% endtrans %}">{% trans %}Parameters{% endtrans %}</a></li>
+{% endblock %}
+
+{% block page_content %}
+    <h2><span class="awe-th-list"></span> {% trans %}Current parameter values{% endtrans %}</h2>
+    <table class="table">
+        <thead>
+            <th>{% trans %}Name{% endtrans %}</th>
+            <th>{% trans %}Unit of measurement{% endtrans %}</th>
+            <th>{% trans %}Last known value{% endtrans %}</th>
+            <th>{% trans %}Today minimum/maximum{% endtrans %}</th>
+        </thead>
+        <tbody>
+            {% for data_stream in data_streams %}
+                <tr>
+                    <td><a href="{{ data_stream.url }}">{{ data_stream.name }}</a></td>
+                    <td>{{ data_stream.measurement_unit }}</td>
+                    {% if data_stream.last_value %}
+                        <td><code>{{ data_stream.last_value.value|round(precision=6) }}</code></td>
+                    {% else %}
+                        <td class="no-data">{% trans %}no data{% endtrans %}</td>
+                    {% endif %}
+                    {% if data_stream.today %}
+                        <td><code>{{ data_stream.today.minimum }}</code> / <code>{{ data_stream.today.maximum }}</code></td>
+                    {% else %}
+                        <td class="no-data">{% trans %}no data{% endtrans %}</td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

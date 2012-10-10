@@ -1,0 +1,11 @@
+{% extends "sngconnect.telemetry:templates/feed/base.jinja2" %}
+{% set active_secondary_navigation = "charts" %}
+
+{% block main_breadcrumb %}
+    {{ super() }}
+    <li><a href="{{ feed.charts_url }}" title="{% trans %}Charts{% endtrans %}">{% trans %}Charts{% endtrans %}</a></li>
+{% endblock %}
+
+{% block page_content %}
+    Wykresy
+{% endblock %}
