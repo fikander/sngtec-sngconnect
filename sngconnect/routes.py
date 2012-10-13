@@ -40,8 +40,8 @@ ROUTES = (
     ),
     (
         'sngconnect.api.feed',
-        'api/v1/feeds/{feed_id:\d+}.json'
-    ),
+        'api/v1/feeds/{feed_id:\d+}/datastreams.json'
+     ),
     (
         'sngconnect.api.events',
         'api/v1/feeds/{feed_id:\d+}/events.json'

@@ -145,7 +145,14 @@ def feed(request):
     ).count()
     if feed_count == 0:
         raise httpexceptions.HTTPNotFound("Feed not found.")
- 
+
+    try:
+        filter_requested = (request.params['filter'] == 'requested')
+    except KeyError:
+        raise httpexceptions.HTTPBadRequest(
+            "Unsupported parameters"
+        )
+
     data_streams = DBSession.query(
         DataStream.id,
         DataStream.requested_value,
@@ -157,17 +164,18 @@ def feed(request):
         DataStream.value_requested_at != None
     )
 
+
     cstruct = schemas.GetChangedDataStreamsResponse().serialize({
         'datastreams': [
             {
                 'id': data_stream.id,
                 'label': "FIXME: put template.label here", # FIXME: should be  'template.label'
                 'requested_value': data_stream.requested_value,
-                'value_requested_at': data_stream.value_requested_at,
+                'value_requested_at': data_stream.value_requested_at
             }
-            for data_stream in data_streams
-        ]
-    })
+            for data_stream in data_streams ]
+        }
+    )
 
     return Response(
         json.dumps(cstruct),

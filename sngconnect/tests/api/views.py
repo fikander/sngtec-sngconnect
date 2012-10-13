@@ -313,6 +313,7 @@ class TestFeedGet(ApiTestMixin, unittest.TestCase):
         request.matchdict.update({
             'feed_id': feed_id,
         })
+        request.GET.update({'filter': 'requested'})
         return request
 
     def test_invalid_ids(self):
