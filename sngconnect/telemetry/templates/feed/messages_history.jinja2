@@ -1,0 +1,22 @@
+<!-- expects {{ messages }} -->
+
+{% for message in messages %}
+	<table class="table table-bordered">
+		<tr>
+			<th style="width:30%"><h4>{% trans %}device{% endtrans %}</h4></th>
+			<td rowspan="3">{{ message.content }}</td>
+		</tr>
+		<tr>
+			<td style="text-align:center;">
+				{% if message.message_type == 'INFORMATION' %}
+					<span class="label">{% trans %}information{% endtrans %}</span>
+				{% elif message.message_type == 'ERROR' %}
+					<span class="label label-important">{% trans %}error{% endtrans %}</span>
+				{% elif message.message_type == 'WARNING' %}
+					<span class="label label-warning">{% trans %}warning{% endtrans %}</span>
+				{% endif %}
+			</td>
+		</tr>
+		<tr><td style="text-align:center;">{{ message.date|datetimeformat }}</td></tr>
+	</table>
+{% endfor %}

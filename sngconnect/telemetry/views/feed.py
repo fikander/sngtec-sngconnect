@@ -9,7 +9,7 @@ from pyramid.view import view_config
 from pyramid import httpexceptions
 
 from sngconnect.database import (DBSession, Feed, DataStreamTemplate,
-    DataStream, AlarmDefinition)
+    DataStream, AlarmDefinition, Message)
 from sngconnect.cassandra import data_streams as data_streams_store
 from sngconnect.cassandra import alarms as alarms_store
 
@@ -87,7 +87,35 @@ class FeedViewBase(object):
     renderer='sngconnect.telemetry:templates/feed/dashboard.jinja2'
 )
 class FeedDashboard(FeedViewBase):
-    pass
+    def __call__(self):
+        
+        messages = DBSession.query(Message).filter(
+            Feed.id == self.feed.id
+        ).order_by(
+            Message.date
+        )
+        # TODO: filter only those without data_stream i.e. relating directly to feeds
+
+        error_messages = DBSession.query(Message).filter(
+            Feed.id == self.feed.id,
+            Message.message_type == u'ERROR'
+        ).order_by(
+            Message.date
+        )
+        # TODO: filter only those that were not SEEN or ACKNOWLEDGED by the user currently logged in
+        # (simple 'seen' flag in Message is not enough - it has to work per user basis)
+
+        last_updated = data_streams_store.LastDataPoints().get_last_data_stream_datetime(
+            self.feed.id
+        )
+
+        self.context.update({
+            'messages': messages,
+            'error_messages': error_messages,
+            'last_updated': last_updated
+        })
+
+        return self.context
 
 @view_config(
     route_name='sngconnect.telemetry.feed_charts',

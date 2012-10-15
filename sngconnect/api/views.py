@@ -267,7 +267,8 @@ def events(request):
         feed=feed,
         message_type=message_type_mapping[request_appstruct['type']],
         date=request_appstruct['timestamp'],
-        content=request_appstruct['message']
+        content=request_appstruct['message'],
+        data_stream=None
     )
     DBSession.add(message)
 

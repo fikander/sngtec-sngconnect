@@ -13,34 +13,68 @@
 
 {% block body_main %}
     {{ super() }}
-    {% if active_alarms %}
+
+    {% if active_alarms or error_messages.count() %}
         <div class="hero-unit blow">
-            <h2><span class="awe-exclamation-sign"></span> {% trans %}Active alarms{% endtrans %}</h2>
-            <div class="alert alert-error">
-                {% trans count=active_alarms|length -%}
-                    You have <code>{{ count }}</code> alarms active. If you don't know what it means - contact your device's administrator.
-                {%- endtrans %}
-            </div>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>{% trans %}Activation date{% endtrans %}</th>
-                        <th>{% trans %}Parameter{% endtrans %}</th>
-                        <th>{% trans %}Alarm type{% endtrans %}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for alarm in active_alarms %}
-                        <tr>
-                            <td>{{ alarm.activation_date }}</td>
-                            <td>{{ alarm.data_stream }}</td>
-                            <td>{{ alarm.type }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+
+			{% if active_alarms %}
+	            <h2><span class="awe-exclamation-sign"></span> {% trans %}Active alarms{% endtrans %}</h2>
+	            <div class="alert alert-error">
+	                {% trans count=active_alarms|length -%}
+	                    You have <code>{{ count }}</code> alarms active. If you don't know what it means - contact your device's administrator.
+	                {%- endtrans %}
+	            </div>
+	            <table class="table">
+	                <thead>
+	                    <tr>
+	                        <th>{% trans %}Activation date{% endtrans %}</th>
+	                        <th>{% trans %}Parameter{% endtrans %}</th>
+	                        <th>{% trans %}Alarm type{% endtrans %}</th>
+	                    </tr>
+	                </thead>
+	                <tbody>
+	                    {% for alarm in active_alarms %}
+	                        <tr>
+	                            <td>{{ alarm.activation_date|datetimeformat }}</td>
+	                            <td>{{ alarm.data_stream }}</td>
+	                            <td>{{ alarm.type }}</td>
+	                        </tr>
+	                    {% endfor %}
+	                </tbody>
+	            </table>
+            {% endif %}
+            
+            {% if error_messages.count() %}
+	            <h2><span class="awe-exclamation-sign"></span> {% trans %}Error messages{% endtrans %}</h2>
+	            <div class="alert alert-error">
+	                {% trans count=error_messages.count() -%}
+	                    You have <code>{{ count }}</code> new error and warning messages.
+	                {%- endtrans %}
+	            </div>
+	            <table class="table">
+	                <thead>
+	                    <tr>
+	                        <th>{% trans %}Date{% endtrans %}</th>
+	                        <th>{% trans %}Alarm type{% endtrans %}</th>
+	                        <th>{% trans %}Message{% endtrans %}</th>
+	                    </tr>
+	                </thead>
+	                <tbody>
+	                    {% for error_message in error_messages %}
+	                    	<tr>
+	                    		<td>{{ error_message.date|datetimeformat }}</td>
+	                    		<td><span class="label label-important">{% trans %}error{% endtrans %}</span></td>
+	                    		<td>{{ error_message.content }}</td>
+	                    	</tr>
+	                    {% endfor %}
+	                </tbody>
+	            </table>
+            {% endif %}
+
+        </div> <!-- hero-unit -->
     {% endif %}
+
+
     <div class="content">
         <div class="page-container">
             <div class="row">
@@ -73,7 +107,7 @@
                             </tr>
                             <tr>
                                 <th>{% trans %}Added to the application{% endtrans %}</th>
-                                <td>{{ feed.created }}</td>
+                                <td>{{ feed.created|datetimeformat }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -97,11 +131,25 @@
             </div>
         </div>
     </div>
+
     <div class="content">
         <div class="page-container">
-            <h2><span class="awe-calendar"></span> {% trans %}History{% endtrans %}</h2>
-        </div>
-    </div>
+            <div class="row">
+                <article class="span12">
+
+                    <h2><span class="awe-calendar"></span> {% trans %}History{% endtrans %}</h2>
+                    {% include "sngconnect.telemetry:templates/feed/messages_history.jinja2" %}
+
+                </article>
+            </div> <!-- row -->
+        </div> <!-- page-container -->
+    </div> <!-- content -->
+
+{% endblock %}
+
+{% block page_content %}
+	<!-- use http://timeago.yarp.com/ jQuery plugin for timeago?? -->
+    {% trans %}Last updated: {% endtrans %}{{ last_updated|datetimeformat }}
 {% endblock %}
 
 {% block body_scripts %}
@@ -116,7 +164,9 @@
                     center: position,
                     zoom: 10,
                     mapTypeId: google.maps.MapTypeId.ROADMAP,
-                    streetViewControl: false
+                    streetViewControl: false,
+                    panControl: false,
+                    scrollwheel: false
                 }
             );
             var marker = new google.maps.Marker({
