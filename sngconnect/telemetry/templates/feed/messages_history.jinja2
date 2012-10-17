@@ -1,5 +1,3 @@
-<!-- expects {{ messages }} -->
-
 {% for message in messages %}
 	<table class="table table-bordered">
 		<tr>
@@ -17,6 +15,6 @@
 				{% endif %}
 			</td>
 		</tr>
-		<tr><td style="text-align:center;">{{ message.date|datetimeformat }}</td></tr>
+		<tr><td style="text-align:center;">{{ message.date }}</td></tr>
 	</table>
 {% endfor %}

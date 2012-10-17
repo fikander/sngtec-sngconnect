@@ -23,7 +23,7 @@
                     {% if data_stream.last_value %}
                         <tr>
                             <th>{% trans %}Last update{% endtrans %}</th>
-                            <td>{{ data_stream.last_value.date|datetimeformat }}</td>
+                            <td>{{ data_stream.last_value.date }}</td>
                         </tr>
                     {% endif %}
                 </tbody>

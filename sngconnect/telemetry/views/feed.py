@@ -88,33 +88,33 @@ class FeedViewBase(object):
 )
 class FeedDashboard(FeedViewBase):
     def __call__(self):
-        
+        # FIXME this is very ineffective
         messages = DBSession.query(Message).filter(
             Feed.id == self.feed.id
         ).order_by(
             Message.date
         )
-        # TODO: filter only those without data_stream i.e. relating directly to feeds
-
+        # TODO: filter only those without data_stream i.e. relating directly to
+        # feeds
         error_messages = DBSession.query(Message).filter(
             Feed.id == self.feed.id,
             Message.message_type == u'ERROR'
         ).order_by(
             Message.date
         )
-        # TODO: filter only those that were not SEEN or ACKNOWLEDGED by the user currently logged in
-        # (simple 'seen' flag in Message is not enough - it has to work per user basis)
-
-        last_updated = data_streams_store.LastDataPoints().get_last_data_stream_datetime(
-            self.feed.id
+        # TODO: filter only those that were not SEEN or ACKNOWLEDGED by the
+        # user currently logged in (simple 'seen' flag in Message is not enough
+        # - it has to work per user basis)
+        last_updated = (
+            data_streams_store.LastDataPoints().get_last_data_stream_datetime(
+                self.feed.id
+            )
         )
-
         self.context.update({
             'messages': messages,
             'error_messages': error_messages,
             'last_updated': last_updated
         })
-
         return self.context
 
 @view_config(

@@ -42,11 +42,11 @@ def main(global_config, **settings):
         config.add_webasset(name, bundle)
     # Add Jinja2 extensions.
     config.add_jinja2_extension('jinja2.ext.with_')
+    config.get_jinja2_environment().filters['tojson'] = json.dumps
     # Add webassets extension to Jinja2
     config.add_jinja2_extension('webassets.ext.jinja2.AssetsExtension')
     webassets_environment = config.get_webassets_env()
     config.get_jinja2_environment().assets_environment = webassets_environment
-    config.get_jinja2_environment().filters['tojson'] = json.dumps
     # Configure routes.
     for name, pattern in ROUTES:
         config.add_route(name, pattern)
