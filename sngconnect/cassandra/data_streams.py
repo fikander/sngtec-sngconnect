@@ -291,7 +291,6 @@ class LastDataPoints(ColumnFamilyProxy):
         last_data_point = Measurements().get_last_data_point(data_stream_id)
         if last_data_point is None:
             return
-
         date = pytz.utc.normalize(last_data_point[0].astimezone(pytz.utc))
         timestamp = (
             int(
@@ -329,7 +328,7 @@ class LastDataPoints(ColumnFamilyProxy):
         except pycassa.NotFoundException:
             return None
         return (self._datetime_from_timestamp(result[1]), result[0])
-    
+
     def get_last_data_stream_datetime(self, feed_id):
         try:
             result = self.column_family.get(
