@@ -7,7 +7,8 @@ from sngconnect.database import DBSession, Feed
 @view_config(
     route_name='sngconnect.telemetry.dashboard',
     request_method='GET',
-    renderer='sngconnect.telemetry:templates/dashboard.jinja2'
+    renderer='sngconnect.telemetry:templates/dashboard.jinja2',
+    permission='sngconnect.telemetry.access'
 )
 def dashboard(request):
     feeds = DBSession.query(Feed).order_by(Feed.name)

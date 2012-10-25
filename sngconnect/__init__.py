@@ -3,10 +3,14 @@ import json
 
 import sqlalchemy
 from pyramid.config import Configurator
+from pyramid.session import UnencryptedCookieSessionFactoryConfig
+from pyramid.authentication import AuthTktAuthenticationPolicy
+from pyramid.authorization import ACLAuthorizationPolicy
 
-from sngconnect.database import DBSession
+from sngconnect.database import DBSession, User
 from sngconnect.routes import ROUTES
 from sngconnect.assets import ASSET_BUNDLES
+from sngconnect.acl import RootFactory
 from sngconnect.cassandra import connection_pool as cassandra_connection_pool
 
 def main(global_config, **settings):
@@ -28,6 +32,21 @@ def main(global_config, **settings):
     cassandra_connection_pool.initialize_connection_pool(settings)
     # Create application configurator.
     config = Configurator(settings=settings)
+    # Configure ACL.
+    config.set_root_factory(RootFactory)
+    # Configure security.
+    authentication_policy = AuthTktAuthenticationPolicy(
+        settings['session.secret'],
+        callback=User.authentication_callback
+    )
+    config.set_authentication_policy(authentication_policy)
+    authorization_policy = ACLAuthorizationPolicy()
+    config.set_authorization_policy(authorization_policy)
+    # Configure session.
+    session_factory = UnencryptedCookieSessionFactoryConfig(
+        settings['session.secret']
+    )
+    config.set_session_factory(session_factory)
     # Add translation directories.
     config.add_translation_dirs(os.path.join(
         os.path.dirname(__file__),

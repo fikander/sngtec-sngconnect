@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sngconnect 0.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2012-10-09 14:38+0200\n"
+"POT-Creation-Date: 2012-10-25 13:53+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,12 +17,35 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.6\n"
 
-#: sngconnect/database.py:246
+#: sngconnect/database.py:296
 msgid "Value (${actual_value}) is greater than maximal value (${maximal_value})."
 msgstr ""
 
-#: sngconnect/database.py:256
+#: sngconnect/database.py:306
 msgid "Value (${actual_value}) is less than minimal value (${minimal_value})."
+msgstr ""
+
+#: sngconnect/accounts/forms.py:14
+msgid "E-mail"
+msgstr ""
+
+#: sngconnect/accounts/forms.py:22
+msgid "Password"
+msgstr ""
+
+#: sngconnect/accounts/views.py:29
+msgid "Invalid credentials."
+msgstr ""
+
+#: sngconnect/accounts/templates/sign_in.jinja2:13
+#: sngconnect/accounts/templates/sign_in.jinja2:22
+msgid "Sign in"
+msgstr ""
+
+#: sngconnect/errors/views.py:25
+msgid ""
+"You don't have permission to see this page. Try logging in as a different "
+"user."
 msgstr ""
 
 #: sngconnect/errors/templates/bad_request.jinja2:9
@@ -74,7 +97,7 @@ msgid "Monitored devices"
 msgstr ""
 
 #: sngconnect/telemetry/templates/dashboard.jinja2:32
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:71
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:99
 #: sngconnect/telemetry/templates/feed/data_streams.jinja2:13
 msgid "Name"
 msgstr ""
@@ -92,7 +115,7 @@ msgid "Owner"
 msgstr ""
 
 #: sngconnect/telemetry/templates/feed/base.jinja2:15
-#: sngconnect/templates/base.jinja2:31 sngconnect/templates/base.jinja2:57
+#: sngconnect/templates/base.jinja2:31 sngconnect/templates/base.jinja2:64
 msgid "Dashboard"
 msgstr ""
 
@@ -112,66 +135,93 @@ msgid "Settings"
 msgstr ""
 
 #: sngconnect/telemetry/templates/feed/base.jinja2:42
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:102
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:132
 #: sngconnect/telemetry/templates/feed/data_stream.jinja2:93
 #: sngconnect/telemetry/templates/feed/history.jinja2:6
 msgid "History"
 msgstr ""
 
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:18
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:19
 msgid "Active alarms"
 msgstr ""
 
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:20
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:21
 #, python-format
 msgid ""
 "You have <code>%(count)s</code> alarms active. If you don't know what it "
 "means - contact your device's administrator."
 msgstr ""
 
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:27
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:28
 msgid "Activation date"
 msgstr ""
 
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:28
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:29
 msgid "Parameter"
 msgstr ""
 
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:29
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:30
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:55
 msgid "Alarm type"
 msgstr ""
 
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:48
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:45
+msgid "Error messages"
+msgstr ""
+
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:47
+#, python-format
+msgid "You have <code>%(count)s</code> new error and warning messages."
+msgstr ""
+
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:54
+msgid "Date"
+msgstr ""
+
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:56
+msgid "Message"
+msgstr ""
+
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:63
+#: sngconnect/telemetry/templates/feed/messages_history.jinja2:12
+msgid "error"
+msgstr ""
+
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:76
 msgid "Important parameters"
 msgstr ""
 
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:51
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:79
 #: sngconnect/telemetry/templates/feed/data_stream.jinja2:88
 msgid "Chart"
 msgstr ""
 
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:56
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:84
 msgid "Information"
 msgstr ""
 
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:67
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:95
 msgid "ID"
 msgstr ""
 
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:75
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:103
 msgid "Added to the application"
 msgstr ""
 
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:82
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:110
 msgid "Position"
 msgstr ""
 
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:87
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:115
 msgid "Address"
 msgstr ""
 
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:91
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:119
 msgid "GPS Coordinates"
+msgstr ""
+
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:142
+msgid "Last updated: "
 msgstr ""
 
 #: sngconnect/telemetry/templates/feed/data_stream.jinja2:12
@@ -282,31 +332,43 @@ msgstr ""
 msgid "Today minimum/maximum"
 msgstr ""
 
-#: sngconnect/templates/base.jinja2:42
-msgid "Account settings"
+#: sngconnect/telemetry/templates/feed/messages_history.jinja2:4
+msgid "device"
+msgstr ""
+
+#: sngconnect/telemetry/templates/feed/messages_history.jinja2:10
+msgid "information"
+msgstr ""
+
+#: sngconnect/telemetry/templates/feed/messages_history.jinja2:14
+msgid "warning"
 msgstr ""
 
 #: sngconnect/templates/base.jinja2:43
-msgid "Preferences"
+msgid "Account settings"
 msgstr ""
 
 #: sngconnect/templates/base.jinja2:44
+msgid "Preferences"
+msgstr ""
+
+#: sngconnect/templates/base.jinja2:45
 msgid "Email notifications"
 msgstr ""
 
-#: sngconnect/templates/base.jinja2:46
+#: sngconnect/templates/base.jinja2:50
 msgid "Sign out"
 msgstr ""
 
-#: sngconnect/templates/base.jinja2:71
+#: sngconnect/templates/base.jinja2:86
 msgid "Help"
 msgstr ""
 
-#: sngconnect/templates/base.jinja2:72
+#: sngconnect/templates/base.jinja2:87
 msgid "Contact"
 msgstr ""
 
-#: sngconnect/templates/base.jinja2:73
+#: sngconnect/templates/base.jinja2:88
 msgid "Terms of Service"
 msgstr ""
 

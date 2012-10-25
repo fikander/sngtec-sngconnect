@@ -20,6 +20,7 @@ requires = [
     'cssmin',
     'pycassa',
     'Babel',
+    'WTForms',
     'pyramid_tm',
     'pyramid_jinja2',
     'pyramid_debugtoolbar',

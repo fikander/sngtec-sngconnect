@@ -15,7 +15,8 @@ from sngconnect.cassandra import alarms as alarms_store
 
 @view_config(
     route_name='sngconnect.telemetry.feeds',
-    request_method='GET'
+    request_method='GET',
+    permission='sngconnect.telemetry.access'
 )
 def feeds(request):
     raise httpexceptions.HTTPSeeOther(
@@ -84,7 +85,8 @@ class FeedViewBase(object):
 @view_config(
     route_name='sngconnect.telemetry.feed_dashboard',
     request_method='GET',
-    renderer='sngconnect.telemetry:templates/feed/dashboard.jinja2'
+    renderer='sngconnect.telemetry:templates/feed/dashboard.jinja2',
+    permission='sngconnect.telemetry.access'
 )
 class FeedDashboard(FeedViewBase):
     def __call__(self):
@@ -120,7 +122,8 @@ class FeedDashboard(FeedViewBase):
 @view_config(
     route_name='sngconnect.telemetry.feed_charts',
     request_method='GET',
-    renderer='sngconnect.telemetry:templates/feed/charts.jinja2'
+    renderer='sngconnect.telemetry:templates/feed/charts.jinja2',
+    permission='sngconnect.telemetry.access'
 )
 class FeedCharts(FeedViewBase):
     pass
@@ -128,7 +131,8 @@ class FeedCharts(FeedViewBase):
 @view_config(
     route_name='sngconnect.telemetry.feed_data_streams',
     request_method='GET',
-    renderer='sngconnect.telemetry:templates/feed/data_streams.jinja2'
+    renderer='sngconnect.telemetry:templates/feed/data_streams.jinja2',
+    permission='sngconnect.telemetry.access'
 )
 class FeedDataStreams(FeedViewBase):
     def __call__(self):
@@ -185,7 +189,8 @@ class FeedDataStreams(FeedViewBase):
 @view_config(
     route_name='sngconnect.telemetry.feed_data_stream',
     request_method='GET',
-    renderer='sngconnect.telemetry:templates/feed/data_stream.jinja2'
+    renderer='sngconnect.telemetry:templates/feed/data_stream.jinja2',
+    permission='sngconnect.telemetry.access'
 )
 class FeedDataStream(FeedViewBase):
     def __call__(self):
@@ -314,7 +319,8 @@ class FeedDataStream(FeedViewBase):
 @view_config(
     route_name='sngconnect.telemetry.feed_settings',
     request_method='GET',
-    renderer='sngconnect.telemetry:templates/feed/settings.jinja2'
+    renderer='sngconnect.telemetry:templates/feed/settings.jinja2',
+    permission='sngconnect.telemetry.access'
 )
 class FeedSettings(FeedViewBase):
     pass
@@ -322,7 +328,8 @@ class FeedSettings(FeedViewBase):
 @view_config(
     route_name='sngconnect.telemetry.feed_setting',
     request_method='GET',
-    renderer='sngconnect.telemetry:templates/feed/setting.jinja2'
+    renderer='sngconnect.telemetry:templates/feed/setting.jinja2',
+    permission='sngconnect.telemetry.access'
 )
 class FeedSetting(FeedViewBase):
     pass
@@ -330,7 +337,8 @@ class FeedSetting(FeedViewBase):
 @view_config(
     route_name='sngconnect.telemetry.feed_history',
     request_method='GET',
-    renderer='sngconnect.telemetry:templates/feed/history.jinja2'
+    renderer='sngconnect.telemetry:templates/feed/history.jinja2',
+    permission='sngconnect.telemetry.access'
 )
 class FeedHistory(FeedViewBase):
     pass

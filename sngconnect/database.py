@@ -6,6 +6,7 @@ import bcrypt
 import sqlalchemy as sql
 from sqlalchemy import orm
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import exc as database_exceptions
 from zope.sqlalchemy import ZopeTransactionExtension
 
 from sngconnect.translation import _
@@ -42,6 +43,10 @@ class User(ModelBase):
             " format."
     )
 
+    @property
+    def principal_identifiers(self):
+        return []
+
     def set_password(self, new_password):
         self.password_hash = bcrypt.hashpw(new_password, bcrypt.gensalt())
 
@@ -56,6 +61,16 @@ class User(ModelBase):
 
     def __repr__(self):
         return '<User(id=%s, email=\'%s\')>' % (self.id, self.email)
+
+    @classmethod
+    def authentication_callback(cls, user_id, request):
+        try:
+            user = DBSession.query(cls).filter(
+                cls.id == user_id
+            ).one()
+        except database_exceptions.NoResultFound:
+            return None
+        return user.principal_identifiers
 
 class FeedTemplate(ModelBase):
 
