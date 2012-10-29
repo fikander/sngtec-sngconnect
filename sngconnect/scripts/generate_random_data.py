@@ -15,7 +15,7 @@ from pyramid.paster import get_appsettings, setup_logging
 from sngconnect import cassandra
 from sngconnect.database import DBSession
 from sngconnect.cassandra import connection_pool as cassandra_connection_pool
-from sngconnect.database import (FeedTemplate, Feed, DataStreamTemplate,
+from sngconnect.database import (User, FeedTemplate, Feed, DataStreamTemplate,
     DataStream)
 from sngconnect.cassandra.data_streams import (Measurements, HourlyAggregates,
     DailyAggregates, MonthlyAggregates, LastDataPoints)
@@ -44,6 +44,12 @@ def main(argv=sys.argv):
     generate_data(feed_count)
 
 def generate_data(feed_count):
+    user = User(
+        email='admin@example.com',
+        phone='+48123456789'
+    )
+    user.set_password('admin')
+    DBSession.add(user)
     for i in range(1, feed_count + 1):
         feed_template = FeedTemplate()
         feed = Feed(
@@ -58,6 +64,7 @@ def generate_data(feed_count):
                 datetime.datetime.now() - datetime.timedelta(days=80)
             )
         )
+        feed.regenerate_api_key()
         DBSession.add_all([feed_template, feed])
         for j in range(1, 3):
             data_stream_template = DataStreamTemplate(

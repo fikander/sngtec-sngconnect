@@ -1,4 +1,6 @@
 import json
+import hmac
+import hashlib
 
 import colander
 from sqlalchemy.orm import exc as database_exceptions
@@ -12,6 +14,23 @@ from sngconnect.cassandra.data_streams import (Measurements, HourlyAggregates,
     DailyAggregates, MonthlyAggregates, LastDataPoints)
 from sngconnect.cassandra.alarms import Alarms
 from sngconnect.api import schemas
+
+def authorize_request(request, feed_id):
+    api_key = DBSession.query(Feed).filter(
+        Feed.id == feed_id
+    ).value('api_key')
+    if api_key is None:
+        raise httpexceptions.HTTPNotFound("Feed not found.")
+    valid_signature = (
+        hmac.new(
+            api_key,
+            ':'.join((request.path_qs, request.body)),
+            hashlib.sha256
+        ).hexdigest()
+    )
+    actual_signature = request.headers.get('Signature', None)
+    if valid_signature != actual_signature:
+        raise httpexceptions.HTTPUnauthorized("Invalid signature.")
 
 @view_config(
     route_name='sngconnect.api.feed_data_stream',
@@ -29,6 +48,7 @@ def feed_data_stream(request):
         data_stream_label = str(request.matchdict['data_stream_label'])
     except (KeyError, ValueError):
         raise httpexceptions.HTTPNotFound("Invalid request arguments.")
+    authorize_request(request, feed_id)
     try:
         data_stream = DBSession.query(DataStream).join(
             DataStreamTemplate
@@ -124,11 +144,7 @@ def feed(request):
         feed_id = int(request.matchdict['feed_id'])
     except (KeyError, ValueError):
         raise httpexceptions.HTTPNotFound("Invalid request arguments.")
-    feed_count = DBSession.query(Feed).filter(
-        Feed.id == feed_id
-    ).count()
-    if feed_count == 0:
-        raise httpexceptions.HTTPNotFound("Feed not found.")
+    authorize_request(request, feed_id)
     if request.params.get('filter', None) != 'requested':
         raise httpexceptions.HTTPBadRequest("Unsupported filter parameter.")
     data_streams = DBSession.query(
@@ -200,12 +216,7 @@ def events(request):
         feed_id = int(request.matchdict['feed_id'])
     except (KeyError, ValueError):
         raise httpexceptions.HTTPNotFound("Invalid request arguments.")
-    try:
-        feed = DBSession.query(Feed).filter(
-            Feed.id == feed_id
-        ).one()
-    except database_exceptions.NoResultFound:
-        raise httpexceptions.HTTPNotFound("Feed not found.")
+    authorize_request(request, feed_id)
     if request.content_type != 'application/json':
         raise httpexceptions.HTTPBadRequest("Unsupported content type.")
     try:
@@ -231,7 +242,7 @@ def events(request):
         'system_error': 'ERROR',
     }
     message = Message(
-        feed=feed,
+        feed_id=feed_id,
         message_type=message_type_mapping[request_appstruct['type']],
         date=request_appstruct['timestamp'],
         content=request_appstruct['message']
@@ -252,11 +263,7 @@ def commands(request):
         feed_id = int(request.matchdict['feed_id'])
     except (KeyError, ValueError):
         raise httpexceptions.HTTPNotFound("Invalid request arguments.")
-    feed_count = DBSession.query(Feed).filter(
-        Feed.id == feed_id
-    ).count()
-    if feed_count == 0:
-        raise httpexceptions.HTTPNotFound("Feed not found.")
+    authorize_request(request, feed_id)
     commands = DBSession.query(
         Command.command,
         Command.arguments,

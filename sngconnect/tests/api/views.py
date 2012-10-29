@@ -1,5 +1,7 @@
 import unittest
 import datetime
+import hmac
+import hashlib
 import decimal
 import json
 
@@ -20,6 +22,15 @@ from sngconnect.tests.api import ApiTestMixin
 def _utc_datetime(*datetime_tuple):
     return pytz.utc.localize(datetime.datetime(*datetime_tuple))
 
+def _sign(request, api_key):
+    request.headers['Signature'] = (
+        hmac.new(
+            api_key,
+            ':'.join((request.path_qs, request.body)),
+            hashlib.sha256
+        ).hexdigest()
+    )
+
 class TestFeedDataStreamPut(ApiTestMixin, unittest.TestCase):
 
     def setUp(self):
@@ -34,6 +45,8 @@ class TestFeedDataStreamPut(ApiTestMixin, unittest.TestCase):
             longitude=15.3,
             created=pytz.utc.localize(datetime.datetime.utcnow())
         )
+        feed.regenerate_api_key()
+        self.api_key = feed.api_key
         data_stream_template_1 = DataStreamTemplate(
             id=1,
             feed_template=feed_template,
@@ -97,6 +110,7 @@ class TestFeedDataStreamPut(ApiTestMixin, unittest.TestCase):
             'data_stream_label': data_stream_label,
         })
         request.json_body = json_body
+        _sign(request, self.api_key)
         return request
 
     def test_invalid_ids(self):
@@ -262,6 +276,8 @@ class TestFeedGet(ApiTestMixin, unittest.TestCase):
             longitude=15.3,
             created=pytz.utc.localize(datetime.datetime.utcnow())
         )
+        feed.regenerate_api_key()
+        self.api_key = feed.api_key
         data_stream_template1 = DataStreamTemplate(
             id=1,
             feed_template=feed_template,
@@ -306,6 +322,7 @@ class TestFeedGet(ApiTestMixin, unittest.TestCase):
             'feed_id': feed_id,
         })
         request.GET.update({'filter': 'requested'})
+        _sign(request, self.api_key)
         return request
 
     def test_invalid_ids(self):
@@ -383,6 +400,8 @@ class TestUploadLog(ApiTestMixin, unittest.TestCase):
             longitude=15.3,
             created=pytz.utc.localize(datetime.datetime.utcnow())
         )
+        feed.regenerate_api_key()
+        self.api_key = feed.api_key
         log_request = LogRequest(
             id=1,
             feed=feed,
@@ -464,6 +483,8 @@ class TestEvents(ApiTestMixin, unittest.TestCase):
             longitude=15.3,
             created=pytz.utc.localize(datetime.datetime.utcnow())
         )
+        feed.regenerate_api_key()
+        self.api_key = feed.api_key
         DBSession.add_all([
             feed_template,
             feed,
@@ -478,6 +499,7 @@ class TestEvents(ApiTestMixin, unittest.TestCase):
             'feed_id': feed_id,
         })
         request.json_body = json_body
+        _sign(request, self.api_key)
         return request
 
     def test_invalid_ids(self):
@@ -531,6 +553,8 @@ class TestCommands(ApiTestMixin, unittest.TestCase):
             longitude=15.3,
             created=pytz.utc.localize(datetime.datetime.utcnow())
         )
+        feed.regenerate_api_key()
+        self.api_key = feed.api_key
         DBSession.add_all([
             feed_template,
             feed,
@@ -542,6 +566,7 @@ class TestCommands(ApiTestMixin, unittest.TestCase):
         request.matchdict.update({
             'feed_id': feed_id,
         })
+        _sign(request, self.api_key)
         return request
 
     def test_invalid_ids(self):

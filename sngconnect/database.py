@@ -116,6 +116,10 @@ class Feed(ModelBase):
         sql.Numeric(precision=10, scale=6),
         nullable=False
     )
+    api_key = sql.Column(
+        sql.String(length=100),
+        nullable=False
+    )
     created = sql.Column(
         sql.DateTime(timezone=True),
         nullable=False
@@ -129,6 +133,12 @@ class Feed(ModelBase):
 
     def __repr__(self):
         return '<Feed(id=%s, name=\'%s\')>' % (self.id, self.name)
+
+    def regenerate_api_key(self):
+        self.api_key = ''.join([
+            random.choice(string.ascii_letters + string.digits)
+            for n in xrange(100)
+        ])
 
 class DataStreamTemplate(ModelBase):
 
