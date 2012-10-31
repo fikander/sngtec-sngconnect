@@ -33,6 +33,7 @@ ROUTES = (
     # sngconnect.accounts
     ('sngconnect.accounts.sign_in', 'accounts/sign_in'),
     ('sngconnect.accounts.sign_out', 'accounts/sign_out'),
+    ('sngconnect.accounts.sign_up', 'accounts/sign_up'),
     # sngconnect.api
     (
         'sngconnect.api.feed_data_stream',

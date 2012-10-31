@@ -1,16 +1,12 @@
 {% extends "sngconnect:templates/base.jinja2" %}
 {% from "sngconnect:templates/macros/horizontal_form_field.jinja2" import horizontal_form_field %}
 
-{% block head_stylesheets %}
-    {{ super() }}
-{% endblock %}
-
 {% block main_breadcrumb %}
 {% endblock %}
 
 {% block main_content %}
     <div class="page-header">
-        <h1><span class="awe-lock"></span> {% trans %}Sign in{% endtrans %}</h1>
+        <h1><span class="awe-signin"></span> {% trans %}Sign in{% endtrans %}</h1>
     </div>
     <div class="page-container">
         <form action="" method="post" class="form-horizontal">
@@ -20,12 +16,9 @@
                 {{ horizontal_form_field(sign_in_form.password) }}
                 <div class="form-actions">
                     <button type="submit" class="btn btn-wuxia btn-primary">{% trans %}Sign in{% endtrans %}</button>
+                    <a href="{{ request.route_url("sngconnect.accounts.sign_up") }}" style="margin-left: 20px;">{% trans %}Sign up for a free account.{% endtrans %}</a>
                 </div>
             </fieldset>
         </form>
     </div>
-{% endblock %}
-
-{% block body_scripts %}
-    {{ super() }}
 {% endblock %}

@@ -5,5 +5,6 @@ class RootFactory(DefaultRootFactory):
     __acl__ = [
         (Allow, Everyone,      'sngconnect.accounts.sign_in'),
         (Allow, Authenticated, 'sngconnect.accounts.sign_out'),
+        (Allow, Everyone,      'sngconnect.accounts.sign_up'),
         (Allow, Authenticated, 'sngconnect.telemetry.access'),
     ]

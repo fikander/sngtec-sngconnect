@@ -56,3 +56,26 @@ def sing_out(request):
         request.route_url('sngconnect.accounts.sign_in'),
         headers=headers
     )
+
+@view_config(
+    route_name='sngconnect.accounts.sign_up',
+    renderer='sngconnect.accounts:templates/sign_up.jinja2',
+    permission='sngconnect.accounts.sign_up'
+)
+def sing_up(request):
+    sign_up_form = forms.SignUpForm(csrf_context=request)
+    successful_submission = False
+    if request.method == 'POST':
+        sign_up_form.process(request.POST)
+        if sign_up_form.validate():
+            user = User(
+                email=sign_up_form.email.data,
+                phone=sign_up_form.phone_number.data
+            )
+            user.set_password(sign_up_form.password.data)
+            DBSession.add(user)
+            successful_submission = True
+    return {
+        'sign_up_form': sign_up_form,
+        'successful_submission': successful_submission,
+    }
