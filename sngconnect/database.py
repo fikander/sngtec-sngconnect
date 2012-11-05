@@ -17,6 +17,12 @@ DBSession = orm.scoped_session(
 
 ModelBase = declarative_base()
 
+def generate_random_string(length):
+    return ''.join([
+        random.choice(string.ascii_letters + string.digits)
+        for n in xrange(length)
+    ])
+
 class User(ModelBase):
 
     __tablename__ = 'sngconnect_users'
@@ -43,12 +49,38 @@ class User(ModelBase):
             " format."
     )
 
+    activated = sql.Column(
+        sql.DateTime(timezone=True),
+        default=None
+    )
+    email_activation_code = sql.Column(
+        sql.String(length=100),
+        nullable=False
+    )
+    phone_activation_code = sql.Column(
+        sql.String(length=30),
+        nullable=False
+    )
+
     @property
     def principal_identifiers(self):
         return []
 
+    def __init__(self, *args, **kwargs):
+        super(User, self).__init__(*args, **kwargs)
+        if self.email_activation_code is None:
+            self.regenerate_email_activation_code()
+        if self.phone_activation_code is None:
+            self.regenerate_phone_activation_code()
+
     def set_password(self, new_password):
         self.password_hash = bcrypt.hashpw(new_password, bcrypt.gensalt())
+
+    def regenerate_email_activation_code(self):
+        self.email_activation_code = generate_random_string(40)
+
+    def regenerate_phone_activation_code(self):
+        self.phone_activation_code = generate_random_string(6).upper()
 
     def validate_password(self, password):
         """
@@ -131,14 +163,16 @@ class Feed(ModelBase):
         lazy='joined'
     )
 
+    def __init__(self, *args, **kwargs):
+        super(Feed, self).__init__(*args, **kwargs)
+        if self.api_key is None:
+            self.regenerate_api_key()
+
     def __repr__(self):
         return '<Feed(id=%s, name=\'%s\')>' % (self.id, self.name)
 
     def regenerate_api_key(self):
-        self.api_key = ''.join([
-            random.choice(string.ascii_letters + string.digits)
-            for n in xrange(100)
-        ])
+        self.api_key = generate_random_string(100)
 
 class DataStreamTemplate(ModelBase):
 
@@ -408,6 +442,11 @@ class LogRequest(ModelBase):
         backref=orm.backref('log_requests')
     )
 
+    def __init__(self, *args, **kwargs):
+        super(LogRequest, self).__init__(*args, **kwargs)
+        if self.hash is None:
+            self.regenerate_hash()
+
     def __repr__(self):
         return ('<LogRequest(id=%s, feed_id=%s)>' %
             (
@@ -417,10 +456,7 @@ class LogRequest(ModelBase):
         )
 
     def regenerate_hash(self):
-        self.hash = ''.join([
-            random.choice(string.ascii_letters + string.digits)
-            for n in xrange(50)
-        ])
+        self.hash = generate_random_string(50)
 
 class Command(ModelBase):
 

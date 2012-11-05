@@ -45,7 +45,6 @@ class TestFeedDataStreamPut(ApiTestMixin, unittest.TestCase):
             longitude=15.3,
             created=pytz.utc.localize(datetime.datetime.utcnow())
         )
-        feed.regenerate_api_key()
         self.api_key = feed.api_key
         data_stream_template_1 = DataStreamTemplate(
             id=1,
@@ -276,7 +275,6 @@ class TestFeedGet(ApiTestMixin, unittest.TestCase):
             longitude=15.3,
             created=pytz.utc.localize(datetime.datetime.utcnow())
         )
-        feed.regenerate_api_key()
         self.api_key = feed.api_key
         data_stream_template1 = DataStreamTemplate(
             id=1,
@@ -400,7 +398,6 @@ class TestUploadLog(ApiTestMixin, unittest.TestCase):
             longitude=15.3,
             created=pytz.utc.localize(datetime.datetime.utcnow())
         )
-        feed.regenerate_api_key()
         self.api_key = feed.api_key
         log_request = LogRequest(
             id=1,
@@ -408,7 +405,6 @@ class TestUploadLog(ApiTestMixin, unittest.TestCase):
             period_start=_utc_datetime(2012, 1, 16),
             period_end=_utc_datetime(2012, 8, 1)
         )
-        log_request.regenerate_hash()
         self.hash = log_request.hash
         DBSession.add_all([
             feed_template,
@@ -483,7 +479,6 @@ class TestEvents(ApiTestMixin, unittest.TestCase):
             longitude=15.3,
             created=pytz.utc.localize(datetime.datetime.utcnow())
         )
-        feed.regenerate_api_key()
         self.api_key = feed.api_key
         DBSession.add_all([
             feed_template,
@@ -553,7 +548,6 @@ class TestCommands(ApiTestMixin, unittest.TestCase):
             longitude=15.3,
             created=pytz.utc.localize(datetime.datetime.utcnow())
         )
-        feed.regenerate_api_key()
         self.api_key = feed.api_key
         DBSession.add_all([
             feed_template,

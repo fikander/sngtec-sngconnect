@@ -64,7 +64,6 @@ def generate_data(feed_count):
                 datetime.datetime.now() - datetime.timedelta(days=80)
             )
         )
-        feed.regenerate_api_key()
         DBSession.add_all([feed_template, feed])
         for j in range(1, 3):
             data_stream_template = DataStreamTemplate(

@@ -2,6 +2,8 @@ from sqlalchemy.orm import exc as database_exceptions
 from pyramid.view import view_config
 from pyramid import security
 from pyramid import httpexceptions
+from pyramid_mailer import get_mailer
+from pyramid_mailer.message import Message as EmailMessage
 
 from sngconnect.translation import _
 from sngconnect.database import DBSession, User
@@ -31,9 +33,21 @@ def sing_in(request):
                     queue='error'
                 )
             else:
-                if user.validate_password(sign_in_form.password.data):
+                if user.activated is None:
+                    request.session.flash(
+                        _("This account is currently inactive."
+                          " Please follow the instructions we sent you on"
+                          " your e-mail address."),
+                        queue='error'
+                    )
+                elif user.validate_password(sign_in_form.password.data):
                     headers = security.remember(request, user.id)
                     raise httpexceptions.HTTPFound(destination, headers=headers)
+                else:
+                    request.session.flash(
+                        _("Invalid credentials."),
+                        queue='error'
+                    )
     return {
         'sign_in_form': sign_in_form,
     }
@@ -74,6 +88,23 @@ def sing_up(request):
             )
             user.set_password(sign_up_form.password.data)
             DBSession.add(user)
+            template = request.registry['jinja2_environment'].get_template(
+                'sngconnect.accounts:templates/emails/account_activation.txt'
+            )
+            activation_email = EmailMessage(
+                subject=_("Activate your account at SNG Connect"),
+                sender=request.registry['settings']['mail.sender'],
+                recipients=[user.email],
+                body=template.render(
+                    activation_url=request.route_url(
+                        'sngconnect.accounts.activate',
+                        email=user.email,
+                        email_activation_code=user.email_activation_code
+                    ),
+                    phone_activation_code=user.phone_activation_code
+                )
+            )
+            get_mailer(request).send(activation_email)
             successful_submission = True
     return {
         'sign_up_form': sign_up_form,

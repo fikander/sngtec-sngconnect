@@ -25,7 +25,9 @@ requires = [
     'pyramid_jinja2',
     'pyramid_debugtoolbar',
     'pyramid_webassets',
+    'pyramid_mailer',
     'zope.sqlalchemy',
+    'repoze.sendmail',
     'waitress',
 ]
 

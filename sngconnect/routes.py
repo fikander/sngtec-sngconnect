@@ -34,6 +34,10 @@ ROUTES = (
     ('sngconnect.accounts.sign_in', 'accounts/sign_in'),
     ('sngconnect.accounts.sign_out', 'accounts/sign_out'),
     ('sngconnect.accounts.sign_up', 'accounts/sign_up'),
+    (
+        'sngconnect.accounts.activate',
+        'accounts/activate/{email:\w+}/{email_activation_code:\w+}'
+    ),
     # sngconnect.api
     (
         'sngconnect.api.feed_data_stream',

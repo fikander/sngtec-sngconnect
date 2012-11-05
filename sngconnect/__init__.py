@@ -32,6 +32,7 @@ def main(global_config, **settings):
     cassandra_connection_pool.initialize_connection_pool(settings)
     # Create application configurator.
     config = Configurator(settings=settings)
+    config.registry['settings'] = settings
     # Configure ACL.
     config.set_root_factory(RootFactory)
     # Configure security.
@@ -56,12 +57,14 @@ def main(global_config, **settings):
     config.include('pyramid_tm')
     config.include('pyramid_jinja2')
     config.include('pyramid_webassets')
+    config.include('pyramid_mailer')
     # Configure asset bundles
     for name, bundle in ASSET_BUNDLES.iteritems():
         config.add_webasset(name, bundle)
     # Add Jinja2 extensions.
     config.add_jinja2_extension('jinja2.ext.with_')
     config.get_jinja2_environment().filters['tojson'] = json.dumps
+    config.registry['jinja2_environment'] = config.get_jinja2_environment()
     # Add webassets extension to Jinja2
     config.add_jinja2_extension('webassets.ext.jinja2.AssetsExtension')
     webassets_environment = config.get_webassets_env()
