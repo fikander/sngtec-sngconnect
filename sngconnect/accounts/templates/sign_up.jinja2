@@ -10,7 +10,7 @@
     </div>
     {% if successful_submission %}
         <div class="hero-unit blow">
-            <h1>You have successfully signed up!</h1>
+            <h1>{% trans %}You have successfully signed up!{% endtrans %}</h1>
             <p>{% trans %}Follow the instructions in the e-mail we sent you to activate your account.{% endtrans %}</p>
             <p>{% trans sign_in_url=request.route_url("sngconnect.accounts.sign_in") %}Once you activate your account you can <a href="{{ sign_in_url }}">sign in here</a>{% endtrans %}.</p>
         </div>

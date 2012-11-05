@@ -78,3 +78,13 @@ class SignUpForm(SecureForm):
 
 class SignOutForm(SecureForm):
     pass
+
+class ActivationForm(SecureForm):
+
+    phone_activation_code = fields.TextField(
+        _("Phone activation code"),
+        validators=(
+            validators.DataRequired(),
+            validators.Length(max=1000)
+        )
+    )

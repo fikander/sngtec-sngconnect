@@ -1,3 +1,6 @@
+import datetime
+
+import pytz
 from sqlalchemy.orm import exc as database_exceptions
 from pyramid.view import view_config
 from pyramid import security
@@ -109,4 +112,42 @@ def sing_up(request):
     return {
         'sign_up_form': sign_up_form,
         'successful_submission': successful_submission,
+    }
+
+@view_config(
+    route_name='sngconnect.accounts.activate',
+    renderer='sngconnect.accounts:templates/activate.jinja2',
+    permission='sngconnect.accounts.activate'
+)
+def activate(request):
+    successful_activation = False
+    try:
+        user = DBSession.query(User).filter(
+            User.email == request.matchdict['email'],
+            User.email_activation_code ==
+                request.matchdict['email_activation_code'],
+            User.activated == None
+        ).one()
+    except database_exceptions.NoResultFound:
+        raise httpexceptions.HTTPNotFound()
+    activation_form = forms.ActivationForm(csrf_context=request)
+    if request.method == 'POST':
+        activation_form.process(request.POST)
+        if activation_form.validate():
+            if (user.phone_activation_code.upper() !=
+                    activation_form.phone_activation_code.data.upper()):
+                request.session.flash(
+                    _("The activation code you entered is invalid."),
+                    queue='error'
+                )
+            else:
+                # Regenerate activation code so user cannot reactivate his
+                # account after being banned.
+                user.regenerate_email_activation_code()
+                user.activated = pytz.utc.localize(datetime.datetime.utcnow())
+                DBSession.add(user)
+                successful_activation = True
+    return {
+        'activation_form': activation_form,
+        'successful_activation': successful_activation,
     }

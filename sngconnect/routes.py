@@ -36,7 +36,7 @@ ROUTES = (
     ('sngconnect.accounts.sign_up', 'accounts/sign_up'),
     (
         'sngconnect.accounts.activate',
-        'accounts/activate/{email:\w+}/{email_activation_code:\w+}'
+        'accounts/activate/{email:[^/]+}/{email_activation_code:\w+}'
     ),
     # sngconnect.api
     (
