@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sngconnect 0.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2012-10-25 13:53+0200\n"
+"POT-Creation-Date: 2012-11-06 10:53+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,29 +17,105 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.6\n"
 
-#: sngconnect/database.py:296
+#: sngconnect/database.py:340
 msgid "Value (${actual_value}) is greater than maximal value (${maximal_value})."
 msgstr ""
 
-#: sngconnect/database.py:306
+#: sngconnect/database.py:350
 msgid "Value (${actual_value}) is less than minimal value (${minimal_value})."
 msgstr ""
 
-#: sngconnect/accounts/forms.py:14
+#: sngconnect/accounts/forms.py:17 sngconnect/accounts/forms.py:35
 msgid "E-mail"
 msgstr ""
 
-#: sngconnect/accounts/forms.py:22
+#: sngconnect/accounts/forms.py:25 sngconnect/accounts/forms.py:43
 msgid "Password"
 msgstr ""
 
-#: sngconnect/accounts/views.py:29
+#: sngconnect/accounts/forms.py:50
+msgid "Repeat password"
+msgstr ""
+
+#: sngconnect/accounts/forms.py:58
+msgid "Phone number"
+msgstr ""
+
+#: sngconnect/accounts/forms.py:75
+msgid "There is already an account registered with this e-mail address."
+msgstr ""
+
+#: sngconnect/accounts/forms.py:85
+msgid "Phone activation code"
+msgstr ""
+
+#: sngconnect/accounts/views.py:35 sngconnect/accounts/views.py:51
 msgid "Invalid credentials."
 msgstr ""
 
-#: sngconnect/accounts/templates/sign_in.jinja2:13
-#: sngconnect/accounts/templates/sign_in.jinja2:22
+#: sngconnect/accounts/views.py:41
+msgid ""
+"This account is currently inactive. Please follow the instructions we sent "
+"you on your e-mail address."
+msgstr ""
+
+#: sngconnect/accounts/views.py:98
+msgid "Activate your account at SNG Connect"
+msgstr ""
+
+#: sngconnect/accounts/views.py:140
+msgid "The activation code you entered is invalid."
+msgstr ""
+
+#: sngconnect/accounts/templates/activate.jinja2:9
+#: sngconnect/accounts/templates/sign_up.jinja2:9
+#: sngconnect/accounts/templates/sign_up.jinja2:27
+msgid "Sign up"
+msgstr ""
+
+#: sngconnect/accounts/templates/activate.jinja2:13
+msgid "Your account has been successfuly activated!"
+msgstr ""
+
+#: sngconnect/accounts/templates/activate.jinja2:14
+#, python-format
+msgid "Now you can <a href=\"%(sign_in_url)s\">sign in here</a>"
+msgstr ""
+
+#: sngconnect/accounts/templates/activate.jinja2:23
+msgid "Activate"
+msgstr ""
+
+#: sngconnect/accounts/templates/sign_in.jinja2:9
+#: sngconnect/accounts/templates/sign_in.jinja2:18
 msgid "Sign in"
+msgstr ""
+
+#: sngconnect/accounts/templates/sign_in.jinja2:19
+msgid "Sign up for a free account."
+msgstr ""
+
+#: sngconnect/accounts/templates/sign_up.jinja2:13
+msgid "You have successfully signed up!"
+msgstr ""
+
+#: sngconnect/accounts/templates/sign_up.jinja2:14
+msgid "Follow the instructions in the e-mail we sent you to activate your account."
+msgstr ""
+
+#: sngconnect/accounts/templates/sign_up.jinja2:15
+#, python-format
+msgid ""
+"Once you activate your account you can <a href=\"%(sign_in_url)s\">sign in "
+"here</a>"
+msgstr ""
+
+#: sngconnect/accounts/templates/sign_up.jinja2:29
+msgid "Already have an account?"
+msgstr ""
+
+#: sngconnect/accounts/templates/sign_up.jinja2:30
+msgid "Sign in here"
 msgstr ""
 
 #: sngconnect/errors/views.py:25
