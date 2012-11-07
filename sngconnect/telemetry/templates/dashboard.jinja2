@@ -23,72 +23,76 @@
                 {%- endtrans %}
             </div>
         {% endif %}
-        <h2><span class="awe-globe"></span> {% trans %}Map{% endtrans %}</h2>
-        <div id="feed-location-map"></div>
-        <h2><span class="awe-cogs"></span> {% trans %}Monitored devices{% endtrans %}</h2>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>{% trans %}Name{% endtrans %}</th>
-                    <th>{% trans %}Alarms{% endtrans %}</th>
-                    <th>{% trans %}Device{% endtrans %}</th>
-                    <th>{% trans %}Owner{% endtrans %}</th>
-                </tr>
-            <tbody>
-                {% for feed in feeds %}
+        {% if feeds %}
+            <h2><span class="awe-globe"></span> {% trans %}Map{% endtrans %}</h2>
+            <div id="feed-location-map"></div>
+            <h2><span class="awe-cogs"></span> {% trans %}Monitored devices{% endtrans %}</h2>
+            <table class="table">
+                <thead>
                     <tr>
-                        <td><a href="{{ feed.dashboard_url }}">{{ feed.name }}</a></td>
-                        <td>
-                            <span class="badge
-                                {%- if feed.alarm_count > 1 %} badge-important{%- endif -%}
-                            ">
-                                {{ feed.alarm_count }}
-                            </span>
-                        </td>
-                        <td>{{ feed.feed }}</td>
-                        <td>{{ feed.owner }}</td>
+                        <th>{% trans %}Name{% endtrans %}</th>
+                        <th>{% trans %}Alarms{% endtrans %}</th>
+                        <th>{% trans %}Device{% endtrans %}</th>
+                        <th>{% trans %}Owner{% endtrans %}</th>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                <tbody>
+                    {% for feed in feeds %}
+                        <tr>
+                            <td><a href="{{ feed.dashboard_url }}">{{ feed.name }}</a></td>
+                            <td>
+                                <span class="badge
+                                    {%- if feed.alarm_count > 1 %} badge-important{%- endif -%}
+                                ">
+                                    {{ feed.alarm_count }}
+                                </span>
+                            </td>
+                            <td>{{ feed.feed }}</td>
+                            <td>{{ feed.owner }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
     </div>
 {% endblock %}
 
 {% block body_scripts %}
     {{ super() }}
-    <script src="//maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&amp;sensor=false"></script>
-    <script>
-        $(function(){
-            var map = new google.maps.Map(
-                document.getElementById("feed-location-map"),
-                {
-                    zoom: 10,
-                    mapTypeId: google.maps.MapTypeId.ROADMAP,
-                    streetViewControl: false,
-                    panControl: false,
-                    scrollwheel: false
-                }
-            );
-            var markers = new Array();
-            var bounds = new google.maps.LatLngBounds();
-            var data = [
-                {%- for feed in feeds -%}
-                    [{{ feed.name|tojson|safe }},{{ feed.latitude }},{{ feed.longitude }}]
-                    {%- if not loop.last %},{% endif %}
-                {%- endfor -%}
-            ];
-            $.each(data, function(index, feed){
-                var position = new google.maps.LatLng(feed[1], feed[2]);
-                bounds.extend(position);
-                markers.push(
-                    new google.maps.Marker({
-                        map: map,
-                        title: feed[0],
-                        position: position
-                    })
+    {% if feeds %}
+        <script src="//maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&amp;sensor=false"></script>
+        <script>
+            $(function(){
+                var map = new google.maps.Map(
+                    document.getElementById("feed-location-map"),
+                    {
+                        zoom: 10,
+                        mapTypeId: google.maps.MapTypeId.ROADMAP,
+                        streetViewControl: false,
+                        panControl: false,
+                        scrollwheel: false
+                    }
                 );
+                var markers = new Array();
+                var bounds = new google.maps.LatLngBounds();
+                var data = [
+                    {%- for feed in feeds -%}
+                        [{{ feed.name|tojson|safe }},{{ feed.latitude }},{{ feed.longitude }}]
+                        {%- if not loop.last %},{% endif %}
+                    {%- endfor -%}
+                ];
+                $.each(data, function(index, feed){
+                    var position = new google.maps.LatLng(feed[1], feed[2]);
+                    bounds.extend(position);
+                    markers.push(
+                        new google.maps.Marker({
+                            map: map,
+                            title: feed[0],
+                            position: position
+                        })
+                    );
+                });
+                map.fitBounds(bounds);
             });
-            map.fitBounds(bounds);
-        });
-    </script>
+        </script>
+    {% endif %}
 {% endblock %}

@@ -7,7 +7,7 @@ import pytz
 from sqlalchemy.orm import exc as database_exceptions
 from pyramid.view import view_config
 from pyramid import httpexceptions
-from pyramid.security import authenticated_userid
+from pyramid.security import authenticated_userid, has_permission
 
 from sngconnect.database import (DBSession, Feed, DataStreamTemplate,
     DataStream, AlarmDefinition, Message)
@@ -28,11 +28,20 @@ class FeedViewBase(object):
 
     def __init__(self, request):
         user_id = authenticated_userid(request)
-        try:
-            feed = DBSession.query(Feed).filter(
-                Feed.id == request.matchdict['feed_id'],
+        feed_query = DBSession.query(Feed).filter(
+            Feed.id == request.matchdict['feed_id'],
+        )
+        can_access_all = has_permission(
+            'sngconnect.telemetry.access_all',
+            request.context,
+            request
+        )
+        if not can_access_all:
+            feed_query = feed_query.filter(
                 Feed.users.any(id=user_id)
-            ).one()
+            )
+        try:
+            feed = feed_query.one()
         except database_exceptions.NoResultFound:
             raise httpexceptions.HTTPNotFound()
         self.request = request
