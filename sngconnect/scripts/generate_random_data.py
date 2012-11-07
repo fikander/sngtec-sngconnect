@@ -51,13 +51,13 @@ def generate_data(feed_count):
         role_user=True
     )
     user.set_password('user')
-    engineer = User(
-        email='engineer@example.com',
+    maintainer = User(
+        email='maintainer@example.com',
         phone='+48123456789',
         activated=pytz.utc.localize(datetime.datetime.utcnow()),
-        role_engineer=True
+        role_maintainer=True
     )
-    engineer.set_password('engineer')
+    maintainer.set_password('maintainer')
     supplier = User(
         email='supplier@example.com',
         phone='+48123456789',
@@ -72,7 +72,7 @@ def generate_data(feed_count):
         role_administrator=True
     )
     admin.set_password('admin')
-    DBSession.add_all([user, engineer, supplier, admin])
+    DBSession.add_all([user, maintainer, supplier, admin])
     for i in range(1, feed_count + 1):
         feed_template = FeedTemplate()
         feed = Feed(

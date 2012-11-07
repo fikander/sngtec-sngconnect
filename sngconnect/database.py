@@ -64,13 +64,13 @@ class User(ModelBase):
     )
 
     role_user = sql.Column(sql.Boolean, nullable=False, default=False)
-    role_engineer = sql.Column(sql.Boolean, nullable=False, default=False)
+    role_maintainer = sql.Column(sql.Boolean, nullable=False, default=False)
     role_supplier = sql.Column(sql.Boolean, nullable=False, default=False)
     role_administrator = sql.Column(sql.Boolean, nullable=False, default=False)
 
     _role_mapping = {
         'role_user': security.User,
-        'role_engineer': security.Engineer,
+        'role_maintainer': security.Maintainer,
         'role_supplier': security.Supplier,
         'role_administrator': security.Administrator,
     }
@@ -152,7 +152,7 @@ feed_users = sql.Table(
         default=False
     ),
     sql.Column(
-        'role_engineer',
+        'role_maintainer',
         sql.Boolean,
         nullable=False,
         default=False
