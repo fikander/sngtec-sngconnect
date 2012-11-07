@@ -7,6 +7,7 @@ import pytz
 from sqlalchemy.orm import exc as database_exceptions
 from pyramid.view import view_config
 from pyramid import httpexceptions
+from pyramid.security import authenticated_userid
 
 from sngconnect.database import (DBSession, Feed, DataStreamTemplate,
     DataStream, AlarmDefinition, Message)
@@ -26,9 +27,11 @@ def feeds(request):
 class FeedViewBase(object):
 
     def __init__(self, request):
+        user_id = authenticated_userid(request)
         try:
             feed = DBSession.query(Feed).filter(
-                Feed.id == request.matchdict['feed_id']
+                Feed.id == request.matchdict['feed_id'],
+                Feed.users.any(id=user_id)
             ).one()
         except database_exceptions.NoResultFound:
             raise httpexceptions.HTTPNotFound()

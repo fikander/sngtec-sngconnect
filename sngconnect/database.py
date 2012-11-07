@@ -10,6 +10,7 @@ from sqlalchemy.orm import exc as database_exceptions
 from zope.sqlalchemy import ZopeTransactionExtension
 
 from sngconnect.translation import _
+from sngconnect import security
 
 DBSession = orm.scoped_session(
     orm.sessionmaker(extension=ZopeTransactionExtension())
@@ -62,9 +63,25 @@ class User(ModelBase):
         nullable=False
     )
 
+    role_user = sql.Column(sql.Boolean, nullable=False, default=False)
+    role_engineer = sql.Column(sql.Boolean, nullable=False, default=False)
+    role_supplier = sql.Column(sql.Boolean, nullable=False, default=False)
+    role_administrator = sql.Column(sql.Boolean, nullable=False, default=False)
+
+    _role_mapping = {
+        'role_user': security.User,
+        'role_engineer': security.Engineer,
+        'role_supplier': security.Supplier,
+        'role_administrator': security.Administrator,
+    }
+
     @property
-    def principal_identifiers(self):
-        return []
+    def roles(self):
+        return [
+            principal
+            for attribute_name, principal in self._role_mapping.iteritems()
+            if getattr(self, attribute_name, False)
+        ]
 
     def __init__(self, *args, **kwargs):
         super(User, self).__init__(*args, **kwargs)
@@ -102,7 +119,7 @@ class User(ModelBase):
             ).one()
         except database_exceptions.NoResultFound:
             return None
-        return user.principal_identifiers
+        return user.roles
 
 class FeedTemplate(ModelBase):
 
@@ -112,6 +129,35 @@ class FeedTemplate(ModelBase):
         sql.Integer,
         primary_key=True
     )
+
+feed_users = sql.Table(
+    'sngconnect_feed_users',
+    ModelBase.metadata,
+    sql.Column(
+        'feed_id',
+        sql.Integer,
+        sql.ForeignKey('sngconnect_feeds.id'),
+        nullable=False
+    ),
+    sql.Column(
+        'user_id',
+        sql.Integer,
+        sql.ForeignKey(User.id),
+        nullable=False
+    ),
+    sql.Column(
+        'role_user',
+        sql.Boolean,
+        nullable=False,
+        default=False
+    ),
+    sql.Column(
+        'role_engineer',
+        sql.Boolean,
+        nullable=False,
+        default=False
+    )
+)
 
 class Feed(ModelBase):
 
@@ -161,6 +207,11 @@ class Feed(ModelBase):
         FeedTemplate,
         backref=orm.backref('feeds'),
         lazy='joined'
+    )
+    users = orm.relationship(
+        User,
+        backref=orm.backref('feeds'),
+        secondary=feed_users
     )
 
     def __init__(self, *args, **kwargs):

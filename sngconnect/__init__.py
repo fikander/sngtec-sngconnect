@@ -10,7 +10,7 @@ from pyramid.authorization import ACLAuthorizationPolicy
 from sngconnect.database import DBSession, User
 from sngconnect.routes import ROUTES
 from sngconnect.assets import ASSET_BUNDLES
-from sngconnect.acl import RootFactory
+from sngconnect.security import RootFactory
 from sngconnect.cassandra import connection_pool as cassandra_connection_pool
 
 def main(global_config, **settings):

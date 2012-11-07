@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from pyramid.view import view_config
+from pyramid.security import authenticated_userid
 
 from sngconnect.database import DBSession, Feed
 
@@ -11,7 +12,10 @@ from sngconnect.database import DBSession, Feed
     permission='sngconnect.telemetry.access'
 )
 def dashboard(request):
-    feeds = DBSession.query(Feed).order_by(Feed.name)
+    user_id = authenticated_userid(request)
+    feeds = DBSession.query(Feed).filter(
+        Feed.users.any(id=user_id)
+    ).order_by(Feed.name)
     return {
         'feeds_with_alarm_active': 2, # FIXME
         'feeds': [

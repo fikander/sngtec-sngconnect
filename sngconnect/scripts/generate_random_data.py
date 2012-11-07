@@ -45,11 +45,34 @@ def main(argv=sys.argv):
 
 def generate_data(feed_count):
     user = User(
-        email='admin@example.com',
-        phone='+48123456789'
+        email='user@example.com',
+        phone='+48123456789',
+        activated=pytz.utc.localize(datetime.datetime.utcnow()),
+        role_user=True
     )
-    user.set_password('admin')
-    DBSession.add(user)
+    user.set_password('user')
+    engineer = User(
+        email='engineer@example.com',
+        phone='+48123456789',
+        activated=pytz.utc.localize(datetime.datetime.utcnow()),
+        role_engineer=True
+    )
+    engineer.set_password('engineer')
+    supplier = User(
+        email='supplier@example.com',
+        phone='+48123456789',
+        activated=pytz.utc.localize(datetime.datetime.utcnow()),
+        role_supplier=True
+    )
+    supplier.set_password('supplier')
+    admin = User(
+        email='admin@example.com',
+        phone='+48123456789',
+        activated=pytz.utc.localize(datetime.datetime.utcnow()),
+        role_administrator=True
+    )
+    admin.set_password('admin')
+    DBSession.add_all([user, engineer, supplier, admin])
     for i in range(1, feed_count + 1):
         feed_template = FeedTemplate()
         feed = Feed(
@@ -64,6 +87,7 @@ def generate_data(feed_count):
                 datetime.datetime.now() - datetime.timedelta(days=80)
             )
         )
+        feed.users.append(user)
         DBSession.add_all([feed_template, feed])
         for j in range(1, 3):
             data_stream_template = DataStreamTemplate(
