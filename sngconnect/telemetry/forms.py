@@ -34,4 +34,17 @@ class AddFeedUserForm(SecureForm):
         return self.user
 
 class AddFeedMaintainerForm(AddFeedUserForm):
-    pass
+
+    def validate_email(self, field):
+        if field.errors:
+            return
+        try:
+            self.user = DBSession.query(User).filter(
+                User.email == field.data,
+                User.activated != None,
+                User.role_maintainer == True
+            ).one()
+        except database_exceptions.NoResultFound:
+            raise validators.ValidationError(
+                _("There is no active maintainer having this e-mail address.")
+            )

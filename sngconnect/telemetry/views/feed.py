@@ -382,7 +382,7 @@ class FeedPermissions(FeedViewBase):
             csrf_context=self.request
         )
         if self.request.method == 'POST':
-            if 'submit_save_permissions' in self.request.POST:
+            if 'submit_save_user_permissions' in self.request.POST:
                 permission_fields = {
                     'can_change_permissions': filter(
                         lambda x: x.startswith('can_change_permissions-'),
@@ -397,13 +397,15 @@ class FeedPermissions(FeedViewBase):
                         except (IndexError, ValueError):
                             continue
                     DBSession.query(FeedUser).filter(
-                        FeedUser.user_id != self.user_id
+                        FeedUser.user_id != self.user_id,
+                        FeedUser.role_user == True
                     ).update({
                         field_name: False
                     })
                     DBSession.query(FeedUser).filter(
                         FeedUser.id.in_(feed_user_ids),
-                        FeedUser.user_id != self.user_id
+                        FeedUser.user_id != self.user_id,
+                        FeedUser.role_user == True
                     ).update({
                         field_name: True
                     }, synchronize_session='fetch')
@@ -423,6 +425,7 @@ class FeedPermissions(FeedViewBase):
                     user = add_user_form.get_user()
                     feed_user_count = DBSession.query(FeedUser).filter(
                         FeedUser.feed_id == self.feed.id,
+                        FeedUser.user_id == user.id,
                         FeedUser.role_user == True
                     ).count()
                     if feed_user_count > 0:
@@ -438,6 +441,87 @@ class FeedPermissions(FeedViewBase):
                         DBSession.add(feed_user)
                         self.request.session.flash(
                             _("User has been successfuly added."),
+                            queue='success'
+                        )
+                        return httpexceptions.HTTPFound(
+                            self.request.route_url(
+                                'sngconnect.telemetry.feed_permissions',
+                                feed_id=self.feed.id
+                            )
+                        )
+                else:
+                    self.request.session.flash(
+                        _(
+                            "There were some problems with your request."
+                            " Please check the form for error messages."
+                        ),
+                        queue='error'
+                    )
+            elif 'submit_save_maintainer_permissions' in self.request.POST:
+                permission_fields = {
+                    'can_change_permissions': filter(
+                        lambda x: x.startswith('can_change_permissions-'),
+                        self.request.POST.iterkeys()
+                    )
+                }
+                for field_name, post_keys in permission_fields.iteritems():
+                    feed_user_ids = []
+                    for post_key in post_keys:
+                        try:
+                            feed_user_ids.append(int(post_key.split('-')[1]))
+                        except (IndexError, ValueError):
+                            continue
+                    DBSession.query(FeedUser).filter(
+                        FeedUser.user_id != self.user_id,
+                        FeedUser.role_maintainer == True
+                    ).update({
+                        field_name: False
+                    })
+                    DBSession.query(FeedUser).filter(
+                        FeedUser.id.in_(feed_user_ids),
+                        FeedUser.user_id != self.user_id,
+                        FeedUser.role_maintainer == True
+                    ).update({
+                        field_name: True
+                    }, synchronize_session='fetch')
+                    self.request.session.flash(
+                        _(
+                            "Maintainer permissions have been successfuly"
+                            " saved."
+                        ),
+                        queue='success'
+                    )
+                    return httpexceptions.HTTPFound(
+                        self.request.route_url(
+                            'sngconnect.telemetry.feed_permissions',
+                            feed_id=self.feed.id
+                        )
+                    )
+            elif 'submit_add_maintainer' in self.request.POST:
+                add_maintainer_form.process(self.request.POST)
+                if add_maintainer_form.validate():
+                    user = add_maintainer_form.get_user()
+                    feed_user_count = DBSession.query(FeedUser).filter(
+                        FeedUser.feed_id == self.feed.id,
+                        FeedUser.user_id == user.id,
+                        FeedUser.role_maintainer == True
+                    ).count()
+                    if feed_user_count > 0:
+                        add_maintainer_form.email.errors.append(
+                            _(
+                                "This maintainer already has access to"
+                                " this device."
+                            )
+                        )
+                    else:
+                        feed_user = FeedUser(
+                            user_id=user.id,
+                            feed_id=self.feed.id,
+                            role_maintainer=True
+                        )
+                        DBSession.add(feed_user)
+                        self.request.session.flash(
+                            _("Maintainer has been successfuly added."),
                             queue='success'
                         )
                         return httpexceptions.HTTPFound(
