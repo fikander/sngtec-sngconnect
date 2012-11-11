@@ -45,7 +45,10 @@ def sing_in(request):
                     )
                 elif user.validate_password(sign_in_form.password.data):
                     headers = security.remember(request, user.id)
-                    raise httpexceptions.HTTPFound(destination, headers=headers)
+                    return httpexceptions.HTTPFound(
+                        destination,
+                        headers=headers
+                    )
                 else:
                     request.session.flash(
                         _("Invalid credentials."),

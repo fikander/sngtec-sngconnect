@@ -1,15 +1,10 @@
 import re
 
 from wtforms import fields, validators
-from wtforms.ext.csrf.form import SecureForm as BaseSecureForm
 
+from sngconnect.forms import SecureForm
 from sngconnect.translation import _
 from sngconnect.database import DBSession, User
-
-class SecureForm(BaseSecureForm):
-
-    def generate_csrf_token(self, csrf_context):
-        return csrf_context.session.get_csrf_token()
 
 class AuthenticationForm(SecureForm):
 

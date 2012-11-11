@@ -194,6 +194,9 @@ class Feed(ModelBase):
 class FeedUser(ModelBase):
 
     __tablename__ = 'sngconnect_feed_users'
+    __table_args__ = (
+        sql.UniqueConstraint('feed_id', 'user_id'),
+    )
 
     id = sql.Column(
         sql.Integer,

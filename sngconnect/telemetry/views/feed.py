@@ -4,15 +4,17 @@ import datetime
 import decimal
 
 import pytz
-from sqlalchemy.orm import exc as database_exceptions
+from sqlalchemy.orm import exc as database_exceptions, joinedload
 from pyramid.view import view_config
 from pyramid import httpexceptions
 from pyramid.security import authenticated_userid, has_permission
 
+from sngconnect.translation import _
 from sngconnect.database import (DBSession, Feed, DataStreamTemplate,
-    DataStream, AlarmDefinition, Message, FeedUser)
+    DataStream, AlarmDefinition, Message, FeedUser, User)
 from sngconnect.cassandra import data_streams as data_streams_store
 from sngconnect.cassandra import alarms as alarms_store
+from sngconnect.telemetry import forms
 
 @view_config(
     route_name='sngconnect.telemetry.feeds',
@@ -20,14 +22,14 @@ from sngconnect.cassandra import alarms as alarms_store
     permission='sngconnect.telemetry.access'
 )
 def feeds(request):
-    raise httpexceptions.HTTPSeeOther(
+    return httpexceptions.HTTPSeeOther(
         request.route_url('sngconnect.telemetry.dashboard')
     )
 
 class FeedViewBase(object):
 
     def __init__(self, request):
-        user_id = authenticated_userid(request)
+        self.user_id = authenticated_userid(request)
         can_access_all = has_permission(
             'sngconnect.telemetry.access_all',
             request.context,
@@ -47,9 +49,10 @@ class FeedViewBase(object):
         try:
             feed_user = DBSession.query(FeedUser).filter(
                 FeedUser.feed_id == feed.id,
-                FeedUser.user_id == user_id
+                FeedUser.user_id == self.user_id
             ).one()
         except database_exceptions.NoResultFound:
+            feed_user = None
             if not can_access_all:
                 raise httpexceptions.HTTPForbidden()
             feed_permissions = {
@@ -61,6 +64,7 @@ class FeedViewBase(object):
             }
         self.request = request
         self.feed = feed
+        self.feed_user = feed_user
         self.feed_permissions = feed_permissions
         # FIXME getting alarms out is kind of dumb
         result = alarms_store.Alarms().get_active_alarms(feed.id)
@@ -360,7 +364,6 @@ class FeedSettings(FeedViewBase):
 
 @view_config(
     route_name='sngconnect.telemetry.feed_permissions',
-    request_method='GET',
     renderer='sngconnect.telemetry:templates/feed/permissions.jinja2',
     permission='sngconnect.telemetry.access'
 )
@@ -368,6 +371,107 @@ class FeedPermissions(FeedViewBase):
     def __call__(self):
         if not self.feed_permissions['can_change_permissions']:
             raise httpexceptions.HTTPForbidden()
+        if self.feed_user is None:
+            can_manage_users = True
+        else:
+            can_manage_users = self.feed_user.role_user
+        add_user_form = forms.AddFeedUserForm(
+            csrf_context=self.request
+        )
+        add_maintainer_form = forms.AddFeedMaintainerForm(
+            csrf_context=self.request
+        )
+        if self.request.method == 'POST':
+            if 'submit_save_permissions' in self.request.POST:
+                permission_fields = {
+                    'can_change_permissions': filter(
+                        lambda x: x.startswith('can_change_permissions-'),
+                        self.request.POST.iterkeys()
+                    )
+                }
+                for field_name, post_keys in permission_fields.iteritems():
+                    feed_user_ids = []
+                    for post_key in post_keys:
+                        try:
+                            feed_user_ids.append(int(post_key.split('-')[1]))
+                        except (IndexError, ValueError):
+                            continue
+                    DBSession.query(FeedUser).filter(
+                        FeedUser.user_id != self.user_id
+                    ).update({
+                        field_name: False
+                    })
+                    DBSession.query(FeedUser).filter(
+                        FeedUser.id.in_(feed_user_ids),
+                        FeedUser.user_id != self.user_id
+                    ).update({
+                        field_name: True
+                    }, synchronize_session='fetch')
+                    self.request.session.flash(
+                        _("User permissions have been successfuly saved."),
+                        queue='success'
+                    )
+                    return httpexceptions.HTTPFound(
+                        self.request.route_url(
+                            'sngconnect.telemetry.feed_permissions',
+                            feed_id=self.feed.id
+                        )
+                    )
+            elif 'submit_add_user' in self.request.POST:
+                add_user_form.process(self.request.POST)
+                if add_user_form.validate():
+                    user = add_user_form.get_user()
+                    feed_user_count = DBSession.query(FeedUser).filter(
+                        FeedUser.feed_id == self.feed.id,
+                        FeedUser.role_user == True
+                    ).count()
+                    if feed_user_count > 0:
+                        add_user_form.email.errors.append(
+                            _("This user already has access to this device.")
+                        )
+                    else:
+                        feed_user = FeedUser(
+                            user_id=user.id,
+                            feed_id=self.feed.id,
+                            role_user=True
+                        )
+                        DBSession.add(feed_user)
+                        self.request.session.flash(
+                            _("User has been successfuly added."),
+                            queue='success'
+                        )
+                        return httpexceptions.HTTPFound(
+                            self.request.route_url(
+                                'sngconnect.telemetry.feed_permissions',
+                                feed_id=self.feed.id
+                            )
+                        )
+                else:
+                    self.request.session.flash(
+                        _(
+                            "There were some problems with your request."
+                            " Please check the form for error messages."
+                        ),
+                        queue='error'
+                    )
+        base_query = DBSession.query(FeedUser).join(User).options(
+            joinedload(FeedUser.user)
+        ).filter(
+            FeedUser.feed_id == self.feed.id
+        ).order_by(User.email)
+        feed_users = base_query.filter(
+            FeedUser.role_user == True
+        ).all()
+        feed_maintainers = base_query.filter(
+            FeedUser.role_maintainer == True
+        ).all()
+        self.context.update({
+            'feed_users': feed_users,
+            'feed_maintainers': feed_maintainers,
+            'can_manage_users': can_manage_users,
+            'add_user_form': add_user_form,
+            'add_maintainer_form': add_maintainer_form,
+        })
         return self.context
 
 @view_config(
