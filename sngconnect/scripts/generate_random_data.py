@@ -130,7 +130,6 @@ def generate_data(feed_count):
             )
             DBSession.add_all([data_stream_template, data_stream])
     transaction.commit()
-    return # FIXME TODO TEMP
     data_streams = DBSession.query(DataStream).all()
     measurements = Measurements()
     i = 1
