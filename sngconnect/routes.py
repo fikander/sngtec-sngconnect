@@ -27,6 +27,10 @@ ROUTES = (
         'feeds/{feed_id:\d+}/settings/{data_stream_label:\w+}'
     ),
     (
+        'sngconnect.telemetry.feed_permissions',
+        'feeds/{feed_id:\d+}/permissions'
+    ),
+    (
         'sngconnect.telemetry.feed_history',
         'feeds/{feed_id:\d+}/history'
     ),

@@ -10,7 +10,7 @@ from pyramid import httpexceptions
 from pyramid.security import authenticated_userid, has_permission
 
 from sngconnect.database import (DBSession, Feed, DataStreamTemplate,
-    DataStream, AlarmDefinition, Message)
+    DataStream, AlarmDefinition, Message, FeedUser)
 from sngconnect.cassandra import data_streams as data_streams_store
 from sngconnect.cassandra import alarms as alarms_store
 
@@ -28,24 +28,40 @@ class FeedViewBase(object):
 
     def __init__(self, request):
         user_id = authenticated_userid(request)
-        feed_query = DBSession.query(Feed).filter(
-            Feed.id == request.matchdict['feed_id'],
-        )
         can_access_all = has_permission(
             'sngconnect.telemetry.access_all',
             request.context,
             request
         )
-        if not can_access_all:
-            feed_query = feed_query.filter(
-                Feed.users.any(id=user_id)
-            )
+        can_change_all = has_permission(
+            'sngconnect.telemetry.change_all',
+            request.context,
+            request
+        )
         try:
-            feed = feed_query.one()
+            feed = DBSession.query(Feed).filter(
+                Feed.id == request.matchdict['feed_id']
+            ).one()
         except database_exceptions.NoResultFound:
             raise httpexceptions.HTTPNotFound()
+        try:
+            feed_user = DBSession.query(FeedUser).filter(
+                FeedUser.feed_id == feed.id,
+                FeedUser.user_id == user_id
+            ).one()
+        except database_exceptions.NoResultFound:
+            if not can_access_all:
+                raise httpexceptions.HTTPForbidden()
+            feed_permissions = {
+                'can_change_permissions': can_change_all,
+            }
+        else:
+            feed_permissions = {
+                'can_change_permissions': feed_user.can_change_permissions,
+            }
         self.request = request
         self.feed = feed
+        self.feed_permissions = feed_permissions
         # FIXME getting alarms out is kind of dumb
         result = alarms_store.Alarms().get_active_alarms(feed.id)
         active_alarms = []
@@ -84,11 +100,16 @@ class FeedViewBase(object):
                     'sngconnect.telemetry.feed_settings',
                     feed_id=feed.id
                 ),
+                'permissions_url': request.route_url(
+                    'sngconnect.telemetry.feed_permissions',
+                    feed_id=feed.id
+                ),
                 'history_url': request.route_url(
                     'sngconnect.telemetry.feed_history',
                     feed_id=feed.id
                 ),
-            }
+            },
+            'feed_permissions': feed_permissions,
         }
 
     def __call__(self):
@@ -336,6 +357,18 @@ class FeedDataStream(FeedViewBase):
 )
 class FeedSettings(FeedViewBase):
     pass
+
+@view_config(
+    route_name='sngconnect.telemetry.feed_permissions',
+    request_method='GET',
+    renderer='sngconnect.telemetry:templates/feed/permissions.jinja2',
+    permission='sngconnect.telemetry.access'
+)
+class FeedPermissions(FeedViewBase):
+    def __call__(self):
+        if not self.feed_permissions['can_change_permissions']:
+            raise httpexceptions.HTTPForbidden()
+        return self.context
 
 @view_config(
     route_name='sngconnect.telemetry.feed_setting',

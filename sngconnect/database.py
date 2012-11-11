@@ -130,35 +130,6 @@ class FeedTemplate(ModelBase):
         primary_key=True
     )
 
-feed_users = sql.Table(
-    'sngconnect_feed_users',
-    ModelBase.metadata,
-    sql.Column(
-        'feed_id',
-        sql.Integer,
-        sql.ForeignKey('sngconnect_feeds.id'),
-        nullable=False
-    ),
-    sql.Column(
-        'user_id',
-        sql.Integer,
-        sql.ForeignKey(User.id),
-        nullable=False
-    ),
-    sql.Column(
-        'role_user',
-        sql.Boolean,
-        nullable=False,
-        default=False
-    ),
-    sql.Column(
-        'role_maintainer',
-        sql.Boolean,
-        nullable=False,
-        default=False
-    )
-)
-
 class Feed(ModelBase):
 
     __tablename__ = 'sngconnect_feeds'
@@ -208,11 +179,6 @@ class Feed(ModelBase):
         backref=orm.backref('feeds'),
         lazy='joined'
     )
-    users = orm.relationship(
-        User,
-        backref=orm.backref('feeds'),
-        secondary=feed_users
-    )
 
     def __init__(self, *args, **kwargs):
         super(Feed, self).__init__(*args, **kwargs)
@@ -224,6 +190,51 @@ class Feed(ModelBase):
 
     def regenerate_api_key(self):
         self.api_key = generate_random_string(100)
+
+class FeedUser(ModelBase):
+
+    __tablename__ = 'sngconnect_feed_users'
+
+    id = sql.Column(
+        sql.Integer,
+        primary_key=True
+    )
+    feed_id = sql.Column(
+        sql.Integer,
+        sql.ForeignKey(Feed.id),
+        nullable=False
+    )
+    user_id = sql.Column(
+        sql.Integer,
+        sql.ForeignKey(User.id),
+        nullable=False
+    )
+
+    role_user = sql.Column(
+        sql.Boolean,
+        nullable=False,
+        default=False
+    )
+    role_maintainer = sql.Column(
+        sql.Boolean,
+        nullable=False,
+        default=False
+    )
+
+    can_change_permissions = sql.Column(
+        sql.Boolean,
+        nullable=False,
+        default=False
+    )
+
+    user = orm.relationship(
+        User,
+        backref=orm.backref('feed_users')
+    )
+    feed = orm.relationship(
+        Feed,
+        backref=orm.backref('feed_users')
+    )
 
 class DataStreamTemplate(ModelBase):
 

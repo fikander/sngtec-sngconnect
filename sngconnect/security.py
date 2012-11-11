@@ -14,4 +14,5 @@ class RootFactory(DefaultRootFactory):
         (Allow, Everyone,      'sngconnect.accounts.activate'),
         (Allow, Authenticated, 'sngconnect.telemetry.access'),
         (Allow, Administrator, 'sngconnect.telemetry.access_all'),
+        (Allow, Administrator, 'sngconnect.telemetry.change_all'),
     ]

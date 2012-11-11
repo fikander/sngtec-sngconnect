@@ -1,0 +1,11 @@
+{% extends "sngconnect.telemetry:templates/feed/base.jinja2" %}
+{% set active_secondary_navigation = "permissions" %}
+
+{% block main_breadcrumb %}
+    {{ super() }}
+    <li><a href="{{ feed.permissions_url }}" title="{% trans %}Permissions{% endtrans %}">{% trans %}Permissions{% endtrans %}</a></li>
+{% endblock %}
+
+{% block page_content %}
+    Uprawnienia
+{% endblock %}

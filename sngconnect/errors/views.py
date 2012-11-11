@@ -1,6 +1,7 @@
 import urllib
 
 from pyramid import httpexceptions
+from pyramid.security import authenticated_userid
 from pyramid.view import (view_config, notfound_view_config,
     forbidden_view_config)
 from pyramid.response import Response
@@ -21,13 +22,19 @@ def error_bad_request(exception, request):
 def error_forbidden(exception, request):
     if request.content_type == 'application/json':
         return Response(status=403)
-    request.session.flash(
-        _(
-            "You don't have permission to see this page."
-            " Try logging in as a different user."
-        ),
-        queue='error'
-    )
+    if authenticated_userid(request) is None:
+        request.session.flash(
+            _("You must sign in to see the requested page."),
+            queue='error'
+        )
+    else:
+        request.session.flash(
+            _(
+                "You don't have permission to see this page."
+                " Try logging in as a different user."
+            ),
+            queue='error'
+        )
     return httpexceptions.HTTPSeeOther(
         '?'.join((
             request.route_url('sngconnect.accounts.sign_in'),

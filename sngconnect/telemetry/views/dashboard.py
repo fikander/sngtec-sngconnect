@@ -14,7 +14,7 @@ from sngconnect.database import DBSession, Feed
 def dashboard(request):
     user_id = authenticated_userid(request)
     feeds = DBSession.query(Feed).filter(
-        Feed.users.any(id=user_id)
+        Feed.feed_users.any(user_id=user_id)
     ).order_by(Feed.name)
     return {
         'feeds_with_alarm_active': 2, # FIXME
