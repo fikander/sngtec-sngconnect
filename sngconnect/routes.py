@@ -27,12 +27,21 @@ ROUTES = (
         'feeds/{feed_id:\d+}/settings/{data_stream_label:\w+}'
     ),
     (
+        'sngconnect.telemetry.feed_permissions',
+        'feeds/{feed_id:\d+}/permissions'
+    ),
+    (
         'sngconnect.telemetry.feed_history',
         'feeds/{feed_id:\d+}/history'
     ),
     # sngconnect.accounts
     ('sngconnect.accounts.sign_in', 'accounts/sign_in'),
     ('sngconnect.accounts.sign_out', 'accounts/sign_out'),
+    ('sngconnect.accounts.sign_up', 'accounts/sign_up'),
+    (
+        'sngconnect.accounts.activate',
+        'accounts/activate/{email:[^/]+}/{email_activation_code:\w+}'
+    ),
     # sngconnect.api
     (
         'sngconnect.api.feed_data_stream',
@@ -40,8 +49,8 @@ ROUTES = (
     ),
     (
         'sngconnect.api.feed',
-        'api/v1/feeds/{feed_id:\d+}.json'
-    ),
+        'api/v1/feeds/{feed_id:\d+}/datastreams.json'
+     ),
     (
         'sngconnect.api.events',
         'api/v1/feeds/{feed_id:\d+}/events.json'

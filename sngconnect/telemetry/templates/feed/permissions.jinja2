@@ -1,0 +1,101 @@
+{% extends "sngconnect.telemetry:templates/feed/base.jinja2" %}
+{% from "sngconnect:templates/macros/horizontal_form_field.jinja2" import horizontal_form_field %}
+{% set active_secondary_navigation = "permissions" %}
+
+{% block main_breadcrumb %}
+    {{ super() }}
+    <li><a href="{{ feed.permissions_url }}" title="{% trans %}Permissions{% endtrans %}">{% trans %}Permissions{% endtrans %}</a></li>
+{% endblock %}
+
+{% block page_content %}
+    {% if can_manage_users %}
+        <h2 id="users">{% trans %}Users{% endtrans %}</h2>
+        <form action="" method="post" style="background: none;">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>{% trans %}User{% endtrans %}</th>
+                        <th>{% trans %}Can see the device{% endtrans %}</th>
+                        <th>{% trans %}Can manage users{% endtrans %}</th>
+                </thead>
+                <tbody>
+                    {% for feed_user in feed_users %}
+                        <tr>
+                            <td>{{ feed_user.user.email }}</td>
+                            <td><input type="checkbox" checked="true" disabled="true"></td>
+                            <td><input type="checkbox"
+                                {%- if feed_user.can_change_permissions %} checked="true"{% endif -%}
+                                {%- if feed_user.user.id == user.id %} disabled="true"
+                                {%- else %} name="can_change_permissions-{{ feed_user.id }}"
+                                {%- endif -%}
+                            ></td>
+                        </tr>
+                    {% else %}
+                        <tr><td colspan="3" class="no-data">{% trans %}no users yet{% endtrans %}</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div style="text-align: right;">
+                <button type="submit" name="submit_save_user_permissions" class="btn btn-primary">
+                    <span class="awe-check"></span> {% trans %}Save permissions{% endtrans %}
+                </button>
+            </div>
+        </form>
+        <h3 id="add-user">{% trans %}Add user{% endtrans %}</h3>
+        <form action="" method="post" class="form-horizontal">
+            <fieldset>
+                {{ add_user_form.csrf_token }}
+                {{ horizontal_form_field(add_user_form.email) }}
+                <div class="form-actions">
+                    <button type="submit" name="submit_add_user" class="btn btn-primary">
+                        <span class="awe-plus"></span> {% trans %}Add user{% endtrans %}
+                    </button>
+                </div>
+            </fieldset>
+        </form>
+    {% endif %}
+    <h2 id="maintainers">{% trans %}Maintainers{% endtrans %}</h2>
+    <form action="" method="post" style="background: none;">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>{% trans %}Maintainer{% endtrans %}</th>
+                    <th>{% trans %}Can see the device{% endtrans %}</th>
+                    <th>{% trans %}Can manage maintainers{% endtrans %}</th>
+            </thead>
+            <tbody>
+                {% for feed_user in feed_maintainers %}
+                    <tr>
+                        <td>{{ feed_user.user.email }}</td>
+                        <td><input type="checkbox" checked="true" disabled="true"></td>
+                        <td><input type="checkbox"
+                            {%- if feed_user.can_change_permissions %} checked="true"{% endif -%}
+                            {%- if feed_user.user.id == user.id %} disabled="true"
+                            {%- else %} name="can_change_permissions-{{ feed_user.id }}"
+                            {%- endif -%}
+                        ></td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="3" class="no-data">{% trans %}no maintainers yet{% endtrans %}</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div style="text-align: right;">
+            <button type="submit" name="submit_save_maintainer_permissions" class="btn btn-primary">
+                <span class="awe-check"></span> {% trans %}Save permissions{% endtrans %}
+            </button>
+        </div>
+    </form>
+    <h3 id="add-maintainer">{% trans %}Add maintainer{% endtrans %}</h3>
+    <form action="" method="post" class="form-horizontal">
+        <fieldset>
+            {{ add_maintainer_form.csrf_token }}
+            {{ horizontal_form_field(add_maintainer_form.email) }}
+            <div class="form-actions">
+                <button type="submit" name="submit_add_maintainer" class="btn btn-primary">
+                    <span class="awe-plus"></span> {% trans %}Add maintainer{% endtrans %}
+                </button>
+            </div>
+        </fieldset>
+    </form>
+{% endblock %}

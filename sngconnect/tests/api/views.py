@@ -1,5 +1,7 @@
 import unittest
 import datetime
+import hmac
+import hashlib
 import decimal
 import json
 
@@ -20,6 +22,15 @@ from sngconnect.tests.api import ApiTestMixin
 def _utc_datetime(*datetime_tuple):
     return pytz.utc.localize(datetime.datetime(*datetime_tuple))
 
+def _sign(request, api_key):
+    request.headers['Signature'] = (
+        hmac.new(
+            api_key,
+            ':'.join((request.path_qs, request.body)),
+            hashlib.sha256
+        ).hexdigest()
+    )
+
 class TestFeedDataStreamPut(ApiTestMixin, unittest.TestCase):
 
     def setUp(self):
@@ -34,7 +45,8 @@ class TestFeedDataStreamPut(ApiTestMixin, unittest.TestCase):
             longitude=15.3,
             created=pytz.utc.localize(datetime.datetime.utcnow())
         )
-        data_stream_template = DataStreamTemplate(
+        self.api_key = feed.api_key
+        data_stream_template_1 = DataStreamTemplate(
             id=1,
             feed_template=feed_template,
             label='data_stream',
@@ -43,28 +55,46 @@ class TestFeedDataStreamPut(ApiTestMixin, unittest.TestCase):
             measurement_unit=u"cm",
             writable=False
         )
-        data_stream = DataStream(
+        data_stream_template_2 = DataStreamTemplate(
+            id=2,
+            feed_template=feed_template,
+            label='data_stream_2',
+            name=u"DataStream 2",
+            description=u"Description",
+            measurement_unit=u"cm",
+            writable=False
+        )
+        data_stream_1 = DataStream(
             id=1,
-            template=data_stream_template,
+            template=data_stream_template_1,
             feed=feed,
+        )
+        data_stream_2 = DataStream(
+            id=2,
+            template=data_stream_template_2,
+            feed=feed,
+            requested_value=decimal.Decimal('1234'),
+            value_requested_at=pytz.utc.localize(datetime.datetime.now())
         )
         alarm_definition_1 = AlarmDefinition(
             id=1,
             alarm_type='MINIMAL_VALUE',
             boundary=-5,
-            data_stream=data_stream
+            data_stream=data_stream_1
         )
         alarm_definition_2 = AlarmDefinition(
             id=2,
             alarm_type='MAXIMAL_VALUE',
             boundary=1000,
-            data_stream=data_stream
+            data_stream=data_stream_1
         )
         DBSession.add_all([
             feed_template,
             feed,
-            data_stream_template,
-            data_stream,
+            data_stream_template_1,
+            data_stream_template_2,
+            data_stream_1,
+            data_stream_2,
             alarm_definition_1,
             alarm_definition_2,
         ])
@@ -79,6 +109,7 @@ class TestFeedDataStreamPut(ApiTestMixin, unittest.TestCase):
             'data_stream_label': data_stream_label,
         })
         request.json_body = json_body
+        _sign(request, self.api_key)
         return request
 
     def test_invalid_ids(self):
@@ -190,6 +221,46 @@ class TestFeedDataStreamPut(ApiTestMixin, unittest.TestCase):
         active_alarms = Alarms().get_active_alarms(1, 1)
         self.assertDictEqual(active_alarms, {})
 
+    # FIXME Code being tested here is currently broken.
+#    def test_reset_requested_value(self):
+#        # request value in data stream
+#        self.assertEqual(
+#                         DBSession.query(DataStream).filter(DataStream.id == 2).one().requested_value,
+#                         1234)
+#        # pretend value has not yet been set by tinyputer - requested_value still exists
+#        request = self.get_request(1, 'data_stream_2', json_body={
+#            'datapoints': [
+#                {
+#                    'at': '2012-10-13T17:01:00.345123Z',
+#                    'value': '134.2344',
+#                },
+#                {
+#                    'at': '2012-10-13T17:02:00.425Z',
+#                    'value': '-23.24525',
+#                },
+#            ]
+#        })
+#        response = views.feed_data_stream(request)
+#        self.assertEqual(response.status_code, 200)
+#        self.assertEqual(
+#                         DBSession.query(DataStream).filter(DataStream.id == 2).one().requested_value,
+#                         1234)
+#
+#        # pretend value has been set by tinyputer - requested_value reset
+#        request = self.get_request(1, 'data_stream_2', json_body={
+#            'datapoints': [
+#                {
+#                    'at': '2012-10-13T17:02:30.345123Z',
+#                    'value': '1234',
+#                }]
+#        })
+#        with transaction.manager:
+#            response = views.feed_data_stream(request)
+#        self.assertEqual(response.status_code, 200)
+#        self.assertEqual(
+#                         DBSession.query(DataStream).filter(DataStream.id == 2).one().requested_value,
+#                         None)
+
 class TestFeedGet(ApiTestMixin, unittest.TestCase):
 
     def setUp(self):
@@ -204,6 +275,7 @@ class TestFeedGet(ApiTestMixin, unittest.TestCase):
             longitude=15.3,
             created=pytz.utc.localize(datetime.datetime.utcnow())
         )
+        self.api_key = feed.api_key
         data_stream_template1 = DataStreamTemplate(
             id=1,
             feed_template=feed_template,
@@ -247,6 +319,8 @@ class TestFeedGet(ApiTestMixin, unittest.TestCase):
         request.matchdict.update({
             'feed_id': feed_id,
         })
+        request.GET.update({'filter': 'requested'})
+        _sign(request, self.api_key)
         return request
 
     def test_invalid_ids(self):
@@ -265,6 +339,7 @@ class TestFeedGet(ApiTestMixin, unittest.TestCase):
             json.loads(response.body),
             {'datastreams': [],}
         )
+
         DBSession.query(DataStream).filter(DataStream.id == 2).update({
             'requested_value': decimal.Decimal('2345.5'),
             'value_requested_at': _utc_datetime(2012, 10, 9, 12, 34, 11),
@@ -279,12 +354,14 @@ class TestFeedGet(ApiTestMixin, unittest.TestCase):
                 u'datastreams': [
                     {
                         u'id': u'2',
-                        u'current_value': u'2345.5000000000',
-                        u'at': u'2012-10-09T12:34:11+00:00',
+                        u'label': u'data_stream_2',
+                        u'requested_value': u'2345.5000000000',
+                        u'value_requested_at': u'2012-10-09T12:34:11+00:00',
                     },
                 ],
             }
         )
+
         DBSession.query(DataStream).filter(DataStream.id == 2).update({
             'requested_value': decimal.Decimal('-144.25'),
             'value_requested_at': _utc_datetime(2012, 10, 9, 12, 35, 11),
@@ -299,8 +376,9 @@ class TestFeedGet(ApiTestMixin, unittest.TestCase):
                 u'datastreams': [
                     {
                         u'id': u'2',
-                        u'current_value': u'-144.2500000000',
-                        u'at': u'2012-10-09T12:35:11+00:00',
+                        u'label': u'data_stream_2',
+                        u'requested_value': u'-144.2500000000',
+                        u'value_requested_at': u'2012-10-09T12:35:11+00:00',
                     },
                 ],
             }
@@ -320,13 +398,13 @@ class TestUploadLog(ApiTestMixin, unittest.TestCase):
             longitude=15.3,
             created=pytz.utc.localize(datetime.datetime.utcnow())
         )
+        self.api_key = feed.api_key
         log_request = LogRequest(
             id=1,
             feed=feed,
             period_start=_utc_datetime(2012, 1, 16),
             period_end=_utc_datetime(2012, 8, 1)
         )
-        log_request.regenerate_hash()
         self.hash = log_request.hash
         DBSession.add_all([
             feed_template,
@@ -401,6 +479,7 @@ class TestEvents(ApiTestMixin, unittest.TestCase):
             longitude=15.3,
             created=pytz.utc.localize(datetime.datetime.utcnow())
         )
+        self.api_key = feed.api_key
         DBSession.add_all([
             feed_template,
             feed,
@@ -415,6 +494,7 @@ class TestEvents(ApiTestMixin, unittest.TestCase):
             'feed_id': feed_id,
         })
         request.json_body = json_body
+        _sign(request, self.api_key)
         return request
 
     def test_invalid_ids(self):
@@ -468,6 +548,7 @@ class TestCommands(ApiTestMixin, unittest.TestCase):
             longitude=15.3,
             created=pytz.utc.localize(datetime.datetime.utcnow())
         )
+        self.api_key = feed.api_key
         DBSession.add_all([
             feed_template,
             feed,
@@ -479,6 +560,7 @@ class TestCommands(ApiTestMixin, unittest.TestCase):
         request.matchdict.update({
             'feed_id': feed_id,
         })
+        _sign(request, self.api_key)
         return request
 
     def test_invalid_ids(self):

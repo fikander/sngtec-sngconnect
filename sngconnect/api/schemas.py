@@ -21,13 +21,17 @@ class DataStream(colander.MappingSchema):
     id = colander.SchemaNode(
         colander.Integer()
     )
+    label = colander.SchemaNode(
+        colander.String(),
+        name='label'
+    )
     value_requested_at = colander.SchemaNode(
         colander.DateTime(),
-        name='at'
+        name='value_requested_at'
     )
     requested_value = colander.SchemaNode(
         colander.Decimal(),
-        name='current_value'
+        name='requested_value'
     )
 
 class DataStreams(colander.SequenceSchema):

@@ -1,0 +1,9 @@
+{% trans %}You have successfuly signed up for SNG Connect account.{% endtrans %}
+
+{% trans %}To activate your account use the link below:{% endtrans %}
+
+    {{ activation_url }}
+
+{% trans %}When asked for a phone confirmation code please input the following:{% endtrans %}
+
+    {{ phone_activation_code }}

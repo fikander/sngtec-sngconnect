@@ -1,4 +1,6 @@
 import json
+import hmac
+import hashlib
 
 import colander
 from sqlalchemy.orm import exc as database_exceptions
@@ -13,16 +15,40 @@ from sngconnect.cassandra.data_streams import (Measurements, HourlyAggregates,
 from sngconnect.cassandra.alarms import Alarms
 from sngconnect.api import schemas
 
+def authorize_request(request, feed_id):
+    api_key = DBSession.query(Feed).filter(
+        Feed.id == feed_id
+    ).value('api_key')
+    if api_key is None:
+        raise httpexceptions.HTTPNotFound("Feed not found.")
+    valid_signature = (
+        hmac.new(
+            api_key,
+            ':'.join((request.path_qs, request.body)),
+            hashlib.sha256
+        ).hexdigest()
+    )
+    actual_signature = request.headers.get('Signature', None)
+    if valid_signature != actual_signature:
+        raise httpexceptions.HTTPUnauthorized("Invalid signature.")
+
 @view_config(
     route_name='sngconnect.api.feed_data_stream',
     request_method='PUT'
 )
 def feed_data_stream(request):
+    """
+    Upload datapoints
+    Parameters:
+        feed_id
+        data_stream_label
+    """
     try:
         feed_id = int(request.matchdict['feed_id'])
         data_stream_label = str(request.matchdict['data_stream_label'])
     except (KeyError, ValueError):
         raise httpexceptions.HTTPNotFound("Invalid request arguments.")
+    authorize_request(request, feed_id)
     try:
         data_stream = DBSession.query(DataStream).join(
             DataStreamTemplate
@@ -62,6 +88,7 @@ def feed_data_stream(request):
     DailyAggregates().recalculate_aggregates(data_stream.id, dates)
     MonthlyAggregates().recalculate_aggregates(data_stream.id, dates)
     LastDataPoints().update(feed_id, data_stream.id)
+    # Turn alarms associated with datastreams on/off
     alarm_definitions = DBSession.query(AlarmDefinition).filter(
         AlarmDefinition.data_stream_id == data_stream.id
     )
@@ -78,6 +105,28 @@ def feed_data_stream(request):
             alarms_on.append(alarm_definition.id)
     Alarms().set_alarms_on(feed_id, data_stream.id, alarms_on, last_date)
     Alarms().set_alarms_off(feed_id, data_stream.id, alarms_off)
+
+    # FIXME Code below is plain broken as it does not handle data point dates
+    # correctly.
+#    # Reset datastream's `requested_value` if any of the provided values
+#    # confirm request (assume small delta to cater for floating point precision
+#    # errors?) or for some reason requested value was never set (timeout)
+#    if data_stream.requested_value is not None:
+#        for data_point in data_points:
+#            if data_point[1] == data_stream.requested_value:
+#                # tinyputer responded correctly with chnge that we requested
+#                data_stream.requested_value = None
+#                break
+#        if data_stream.requested_value is not None:
+#            # timeout after 5 minutes - reset data_stream.requested_value
+#            td = datetime.datetime.now() - data_stream.value_requested_at
+#
+#            if (td.total_seconds() > 300):
+#                # TODO: create warning HistoryItem - we failed to set value on tinyputer
+#                data_stream.requested_value = None
+#        if data_stream.requested_value is None:
+#            DBSession.add(data_stream)
+#
     # end of FIXME
     return Response()
 
@@ -86,19 +135,23 @@ def feed_data_stream(request):
     request_method='GET'
 )
 def feed(request):
+    """
+    Get information about all data streams that have pending requested values
+    Parameters:
+        feed_id
+    """
     try:
         feed_id = int(request.matchdict['feed_id'])
     except (KeyError, ValueError):
         raise httpexceptions.HTTPNotFound("Invalid request arguments.")
-    feed_count = DBSession.query(Feed).filter(
-        Feed.id == feed_id
-    ).count()
-    if feed_count == 0:
-        raise httpexceptions.HTTPNotFound("Feed not found.")
+    authorize_request(request, feed_id)
+    if request.params.get('filter', None) != 'requested':
+        raise httpexceptions.HTTPBadRequest("Unsupported filter parameter.")
     data_streams = DBSession.query(
         DataStream.id,
         DataStream.requested_value,
-        DataStream.value_requested_at
+        DataStream.value_requested_at,
+        DataStreamTemplate.label
     ).join(DataStreamTemplate).filter(
         Feed.id == feed_id,
         DataStreamTemplate.writable == True,
@@ -109,12 +162,13 @@ def feed(request):
         'datastreams': [
             {
                 'id': data_stream.id,
-                'current_value': data_stream.requested_value,
-                'at': data_stream.value_requested_at,
+                'label': data_stream.label,
+                'requested_value': data_stream.requested_value,
+                'value_requested_at': data_stream.value_requested_at
             }
-            for data_stream in data_streams
-        ]
-    })
+            for data_stream in data_streams ]
+        }
+    )
     return Response(
         json.dumps(cstruct),
         content_type='application/json'
@@ -125,6 +179,14 @@ def feed(request):
     request_method='POST'
 )
 def upload_log(request):
+    """
+    Store new piece of log sent by tinyputer. Logs can be sent as a response to 'upload_log' command
+    which created placeholder LogRequest objects.
+
+    Parameters:
+        log_request_id
+        log_request_hash
+    """
     try:
         log_request_id = int(request.matchdict['log_request_id'])
         log_request_hash = str(request.matchdict['log_request_hash'])
@@ -147,16 +209,14 @@ def upload_log(request):
     request_method='POST'
 )
 def events(request):
+    """
+    Act on events coming FROM the device
+    """
     try:
         feed_id = int(request.matchdict['feed_id'])
     except (KeyError, ValueError):
         raise httpexceptions.HTTPNotFound("Invalid request arguments.")
-    try:
-        feed = DBSession.query(Feed).filter(
-            Feed.id == feed_id
-        ).one()
-    except database_exceptions.NoResultFound:
-        raise httpexceptions.HTTPNotFound("Feed not found.")
+    authorize_request(request, feed_id)
     if request.content_type != 'application/json':
         raise httpexceptions.HTTPBadRequest("Unsupported content type.")
     try:
@@ -182,12 +242,13 @@ def events(request):
         'system_error': 'ERROR',
     }
     message = Message(
-        feed=feed,
+        feed_id=feed_id,
         message_type=message_type_mapping[request_appstruct['type']],
         date=request_appstruct['timestamp'],
         content=request_appstruct['message']
     )
     DBSession.add(message)
+    # TODO: switch alarms associated with alarm_on, alarm_off events
     return Response()
 
 @view_config(
@@ -195,15 +256,14 @@ def events(request):
     request_method='GET'
 )
 def commands(request):
+    """
+    Issue commands FOR the device
+    """
     try:
         feed_id = int(request.matchdict['feed_id'])
     except (KeyError, ValueError):
         raise httpexceptions.HTTPNotFound("Invalid request arguments.")
-    feed_count = DBSession.query(Feed).filter(
-        Feed.id == feed_id
-    ).count()
-    if feed_count == 0:
-        raise httpexceptions.HTTPNotFound("Feed not found.")
+    authorize_request(request, feed_id)
     commands = DBSession.query(
         Command.command,
         Command.arguments,

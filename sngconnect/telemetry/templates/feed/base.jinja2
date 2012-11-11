@@ -36,6 +36,14 @@
                         {% trans %}Settings{% endtrans %}
                     </a>
                 </li>
+                {% if feed_permissions.can_change_permissions %}
+                    <li{% if active_secondary_navigation == "permissions" %} class="active"{% endif %}>
+                        <a href="{{ feed.permissions_url }}">
+                            <span class="awe-user"></span>
+                            {% trans %}Permissions{% endtrans %}
+                        </a>
+                    </li>
+                {% endif %}
                 <li{% if active_secondary_navigation == "history" %} class="active"{% endif %}>
                     <a href="{{ feed.history_url }}">
                         <span class="awe-calendar"></span>

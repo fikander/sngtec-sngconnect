@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sngconnect 0.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2012-10-09 14:38+0200\n"
+"POT-Creation-Date: 2012-11-06 10:53+0100\n"
 "PO-Revision-Date: 2012-09-29 13:57+0200\n"
 "Last-Translator: Mikołaj Siedlarek <m.siedlarek@fatico.com>\n"
 "Language-Team: pl <LL@li.org>\n"
@@ -18,17 +18,130 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.6\n"
 
-#: sngconnect/database.py:246
+#: sngconnect/database.py:340
 msgid "Value (${actual_value}) is greater than maximal value (${maximal_value})."
 msgstr ""
 "Wartość (${actual_value}) jest większa niż maksymalna wartość "
 "(${maximal_value})."
 
-#: sngconnect/database.py:256
+#: sngconnect/database.py:350
 msgid "Value (${actual_value}) is less than minimal value (${minimal_value})."
 msgstr ""
 "Wartość (${actual_value}) jest mniejsza niż minimalna wartość "
 "(${minimal_value})."
+
+#: sngconnect/accounts/forms.py:17 sngconnect/accounts/forms.py:35
+msgid "E-mail"
+msgstr "E-mail"
+
+#: sngconnect/accounts/forms.py:25 sngconnect/accounts/forms.py:43
+msgid "Password"
+msgstr "Hasło"
+
+#: sngconnect/accounts/forms.py:50
+#, fuzzy
+#| msgid "Password"
+msgid "Repeat password"
+msgstr "Hasło"
+
+#: sngconnect/accounts/forms.py:58
+msgid "Phone number"
+msgstr ""
+
+#: sngconnect/accounts/forms.py:75
+msgid "There is already an account registered with this e-mail address."
+msgstr ""
+
+#: sngconnect/accounts/forms.py:85
+#, fuzzy
+#| msgid "Activation date"
+msgid "Phone activation code"
+msgstr "Data aktywacji"
+
+#: sngconnect/accounts/views.py:35 sngconnect/accounts/views.py:51
+msgid "Invalid credentials."
+msgstr "Nieprawidłowa nazwa użytkownika lub hasło."
+
+#: sngconnect/accounts/views.py:41
+msgid ""
+"This account is currently inactive. Please follow the instructions we "
+"sent you on your e-mail address."
+msgstr ""
+
+#: sngconnect/accounts/views.py:98
+msgid "Activate your account at SNG Connect"
+msgstr ""
+
+#: sngconnect/accounts/views.py:140
+msgid "The activation code you entered is invalid."
+msgstr ""
+
+#: sngconnect/accounts/templates/activate.jinja2:9
+#: sngconnect/accounts/templates/sign_up.jinja2:9
+#: sngconnect/accounts/templates/sign_up.jinja2:27
+#, fuzzy
+#| msgid "Sign out"
+msgid "Sign up"
+msgstr "Wyloguj się"
+
+#: sngconnect/accounts/templates/activate.jinja2:13
+msgid "Your account has been successfuly activated!"
+msgstr ""
+
+#: sngconnect/accounts/templates/activate.jinja2:14
+#, python-format
+msgid "Now you can <a href=\"%(sign_in_url)s\">sign in here</a>"
+msgstr ""
+
+#: sngconnect/accounts/templates/activate.jinja2:23
+#, fuzzy
+#| msgid "Activation date"
+msgid "Activate"
+msgstr "Data aktywacji"
+
+#: sngconnect/accounts/templates/sign_in.jinja2:9
+#: sngconnect/accounts/templates/sign_in.jinja2:18
+msgid "Sign in"
+msgstr "Zaloguj się"
+
+#: sngconnect/accounts/templates/sign_in.jinja2:19
+msgid "Sign up for a free account."
+msgstr ""
+
+#: sngconnect/accounts/templates/sign_up.jinja2:13
+msgid "You have successfully signed up!"
+msgstr ""
+
+#: sngconnect/accounts/templates/sign_up.jinja2:14
+msgid ""
+"Follow the instructions in the e-mail we sent you to activate your "
+"account."
+msgstr ""
+
+#: sngconnect/accounts/templates/sign_up.jinja2:15
+#, python-format
+msgid ""
+"Once you activate your account you can <a href=\"%(sign_in_url)s\">sign "
+"in here</a>"
+msgstr ""
+
+#: sngconnect/accounts/templates/sign_up.jinja2:29
+msgid "Already have an account?"
+msgstr ""
+
+#: sngconnect/accounts/templates/sign_up.jinja2:30
+#, fuzzy
+#| msgid "Sign in"
+msgid "Sign in here"
+msgstr "Zaloguj się"
+
+#: sngconnect/errors/views.py:25
+msgid ""
+"You don't have permission to see this page. Try logging in as a different"
+" user."
+msgstr ""
+"Nie masz uprawnień aby zobaczyć tę stronę. Spróbuj zalogować się jako "
+"inny użytkownik."
 
 #: sngconnect/errors/templates/bad_request.jinja2:9
 msgid "Bad Request..."
@@ -89,7 +202,7 @@ msgid "Monitored devices"
 msgstr "Monitorowane urządzenia"
 
 #: sngconnect/telemetry/templates/dashboard.jinja2:32
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:71
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:99
 #: sngconnect/telemetry/templates/feed/data_streams.jinja2:13
 msgid "Name"
 msgstr "Nazwa"
@@ -107,7 +220,7 @@ msgid "Owner"
 msgstr "Właściciel"
 
 #: sngconnect/telemetry/templates/feed/base.jinja2:15
-#: sngconnect/templates/base.jinja2:31 sngconnect/templates/base.jinja2:57
+#: sngconnect/templates/base.jinja2:31 sngconnect/templates/base.jinja2:64
 msgid "Dashboard"
 msgstr "Pulpit"
 
@@ -127,17 +240,17 @@ msgid "Settings"
 msgstr "Ustawienia"
 
 #: sngconnect/telemetry/templates/feed/base.jinja2:42
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:102
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:132
 #: sngconnect/telemetry/templates/feed/data_stream.jinja2:93
 #: sngconnect/telemetry/templates/feed/history.jinja2:6
 msgid "History"
 msgstr "Historia"
 
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:18
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:19
 msgid "Active alarms"
 msgstr "Aktywne alarmy"
 
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:20
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:21
 #, python-format
 msgid ""
 "You have <code>%(count)s</code> alarms active. If you don't know what it "
@@ -146,50 +259,77 @@ msgstr ""
 "Masz <code>%(count)s</code> aktywne alarmy. Jeśli nie wiesz o co chodzi, "
 "skontaktuj się z administratorem urządzeń."
 
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:27
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:28
 msgid "Activation date"
 msgstr "Data aktywacji"
 
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:28
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:29
 msgid "Parameter"
 msgstr "Parametr"
 
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:29
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:30
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:55
 msgid "Alarm type"
 msgstr "Typ alarmu"
 
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:48
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:45
+msgid "Error messages"
+msgstr ""
+
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:47
+#, python-format
+msgid "You have <code>%(count)s</code> new error and warning messages."
+msgstr "Masz <code>%(count)s</code> nowych wiadomości o błędach i ostrzeżeniach."
+
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:54
+msgid "Date"
+msgstr "Data"
+
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:56
+msgid "Message"
+msgstr "Wiadomość"
+
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:63
+#: sngconnect/telemetry/templates/feed/messages_history.jinja2:12
+msgid "error"
+msgstr "błąd"
+
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:76
 msgid "Important parameters"
 msgstr "Najważniejsze parametry"
 
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:51
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:79
 #: sngconnect/telemetry/templates/feed/data_stream.jinja2:88
 msgid "Chart"
 msgstr "Wykres"
 
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:56
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:84
 msgid "Information"
 msgstr "Informacje"
 
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:67
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:95
 msgid "ID"
 msgstr "ID"
 
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:75
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:103
 msgid "Added to the application"
 msgstr "Dodany do aplikacji"
 
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:82
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:110
 msgid "Position"
 msgstr "Lokalizacja"
 
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:87
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:115
 msgid "Address"
 msgstr "Adres"
 
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:91
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:119
 msgid "GPS Coordinates"
 msgstr "Współrzędne GPS"
+
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:142
+msgid "Last updated: "
+msgstr "Ostatnia aktualizacja"
 
 #: sngconnect/telemetry/templates/feed/data_stream.jinja2:12
 msgid "Values"
@@ -299,30 +439,43 @@ msgstr "Ostatnia znana wartość"
 msgid "Today minimum/maximum"
 msgstr "Dzisiejsze minimum/maksimum"
 
-#: sngconnect/templates/base.jinja2:42
+#: sngconnect/telemetry/templates/feed/messages_history.jinja2:4
+msgid "device"
+msgstr "urządzenie"
+
+#: sngconnect/telemetry/templates/feed/messages_history.jinja2:10
+msgid "information"
+msgstr "informacja"
+
+#: sngconnect/telemetry/templates/feed/messages_history.jinja2:14
+msgid "warning"
+msgstr "ostrzeżenie"
+
+#: sngconnect/templates/base.jinja2:43
 msgid "Account settings"
 msgstr "Zarządzanie kontem"
 
-#: sngconnect/templates/base.jinja2:43
+#: sngconnect/templates/base.jinja2:44
 msgid "Preferences"
 msgstr "Ustawienia"
 
-#: sngconnect/templates/base.jinja2:44
+#: sngconnect/templates/base.jinja2:45
 msgid "Email notifications"
 msgstr "Powiadomienia e-mail"
 
-#: sngconnect/templates/base.jinja2:46
+#: sngconnect/templates/base.jinja2:50
 msgid "Sign out"
 msgstr "Wyloguj się"
 
-#: sngconnect/templates/base.jinja2:71
+#: sngconnect/templates/base.jinja2:86
 msgid "Help"
 msgstr "Pomoc"
 
-#: sngconnect/templates/base.jinja2:72
+#: sngconnect/templates/base.jinja2:87
 msgid "Contact"
 msgstr "Kontakt"
 
-#: sngconnect/templates/base.jinja2:73
+#: sngconnect/templates/base.jinja2:88
 msgid "Terms of Service"
 msgstr "Regulamin usługi"
+

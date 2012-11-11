@@ -6,15 +6,23 @@ import bcrypt
 import sqlalchemy as sql
 from sqlalchemy import orm
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import exc as database_exceptions
 from zope.sqlalchemy import ZopeTransactionExtension
 
 from sngconnect.translation import _
+from sngconnect import security
 
 DBSession = orm.scoped_session(
     orm.sessionmaker(extension=ZopeTransactionExtension())
 )
 
 ModelBase = declarative_base()
+
+def generate_random_string(length):
+    return ''.join([
+        random.choice(string.ascii_letters + string.digits)
+        for n in xrange(length)
+    ])
 
 class User(ModelBase):
 
@@ -42,8 +50,54 @@ class User(ModelBase):
             " format."
     )
 
+    activated = sql.Column(
+        sql.DateTime(timezone=True),
+        default=None
+    )
+    email_activation_code = sql.Column(
+        sql.String(length=100),
+        nullable=False
+    )
+    phone_activation_code = sql.Column(
+        sql.String(length=30),
+        nullable=False
+    )
+
+    role_user = sql.Column(sql.Boolean, nullable=False, default=False)
+    role_maintainer = sql.Column(sql.Boolean, nullable=False, default=False)
+    role_supplier = sql.Column(sql.Boolean, nullable=False, default=False)
+    role_administrator = sql.Column(sql.Boolean, nullable=False, default=False)
+
+    _role_mapping = {
+        'role_user': security.User,
+        'role_maintainer': security.Maintainer,
+        'role_supplier': security.Supplier,
+        'role_administrator': security.Administrator,
+    }
+
+    @property
+    def roles(self):
+        return [
+            principal
+            for attribute_name, principal in self._role_mapping.iteritems()
+            if getattr(self, attribute_name, False)
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super(User, self).__init__(*args, **kwargs)
+        if self.email_activation_code is None:
+            self.regenerate_email_activation_code()
+        if self.phone_activation_code is None:
+            self.regenerate_phone_activation_code()
+
     def set_password(self, new_password):
         self.password_hash = bcrypt.hashpw(new_password, bcrypt.gensalt())
+
+    def regenerate_email_activation_code(self):
+        self.email_activation_code = generate_random_string(40)
+
+    def regenerate_phone_activation_code(self):
+        self.phone_activation_code = generate_random_string(6).upper()
 
     def validate_password(self, password):
         """
@@ -56,6 +110,16 @@ class User(ModelBase):
 
     def __repr__(self):
         return '<User(id=%s, email=\'%s\')>' % (self.id, self.email)
+
+    @classmethod
+    def authentication_callback(cls, user_id, request):
+        try:
+            user = DBSession.query(cls).filter(
+                cls.id == user_id
+            ).one()
+        except database_exceptions.NoResultFound:
+            return None
+        return user.roles
 
 class FeedTemplate(ModelBase):
 
@@ -101,6 +165,10 @@ class Feed(ModelBase):
         sql.Numeric(precision=10, scale=6),
         nullable=False
     )
+    api_key = sql.Column(
+        sql.String(length=100),
+        nullable=False
+    )
     created = sql.Column(
         sql.DateTime(timezone=True),
         nullable=False
@@ -112,8 +180,64 @@ class Feed(ModelBase):
         lazy='joined'
     )
 
+    def __init__(self, *args, **kwargs):
+        super(Feed, self).__init__(*args, **kwargs)
+        if self.api_key is None:
+            self.regenerate_api_key()
+
     def __repr__(self):
         return '<Feed(id=%s, name=\'%s\')>' % (self.id, self.name)
+
+    def regenerate_api_key(self):
+        self.api_key = generate_random_string(100)
+
+class FeedUser(ModelBase):
+
+    __tablename__ = 'sngconnect_feed_users'
+    __table_args__ = (
+        sql.UniqueConstraint('feed_id', 'user_id'),
+    )
+
+    id = sql.Column(
+        sql.Integer,
+        primary_key=True
+    )
+    feed_id = sql.Column(
+        sql.Integer,
+        sql.ForeignKey(Feed.id),
+        nullable=False
+    )
+    user_id = sql.Column(
+        sql.Integer,
+        sql.ForeignKey(User.id),
+        nullable=False
+    )
+
+    role_user = sql.Column(
+        sql.Boolean,
+        nullable=False,
+        default=False
+    )
+    role_maintainer = sql.Column(
+        sql.Boolean,
+        nullable=False,
+        default=False
+    )
+
+    can_change_permissions = sql.Column(
+        sql.Boolean,
+        nullable=False,
+        default=False
+    )
+
+    user = orm.relationship(
+        User,
+        backref=orm.backref('feed_users')
+    )
+    feed = orm.relationship(
+        Feed,
+        backref=orm.backref('feed_users')
+    )
 
 class DataStreamTemplate(ModelBase):
 
@@ -383,6 +507,11 @@ class LogRequest(ModelBase):
         backref=orm.backref('log_requests')
     )
 
+    def __init__(self, *args, **kwargs):
+        super(LogRequest, self).__init__(*args, **kwargs)
+        if self.hash is None:
+            self.regenerate_hash()
+
     def __repr__(self):
         return ('<LogRequest(id=%s, feed_id=%s)>' %
             (
@@ -392,10 +521,7 @@ class LogRequest(ModelBase):
         )
 
     def regenerate_hash(self):
-        self.hash = ''.join([
-            random.choice(string.ascii_letters + string.digits)
-            for n in xrange(50)
-        ])
+        self.hash = generate_random_string(50)
 
 class Command(ModelBase):
 

@@ -1,16 +1,21 @@
 # -*- coding: utf-8 -*-
 
 from pyramid.view import view_config
+from pyramid.security import authenticated_userid
 
 from sngconnect.database import DBSession, Feed
 
 @view_config(
     route_name='sngconnect.telemetry.dashboard',
     request_method='GET',
-    renderer='sngconnect.telemetry:templates/dashboard.jinja2'
+    renderer='sngconnect.telemetry:templates/dashboard.jinja2',
+    permission='sngconnect.telemetry.access'
 )
 def dashboard(request):
-    feeds = DBSession.query(Feed).order_by(Feed.name)
+    user_id = authenticated_userid(request)
+    feeds = DBSession.query(Feed).filter(
+        Feed.feed_users.any(user_id=user_id)
+    ).order_by(Feed.name)
     return {
         'feeds_with_alarm_active': 2, # FIXME
         'feeds': [

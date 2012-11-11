@@ -15,8 +15,8 @@ from pyramid.paster import get_appsettings, setup_logging
 from sngconnect import cassandra
 from sngconnect.database import DBSession
 from sngconnect.cassandra import connection_pool as cassandra_connection_pool
-from sngconnect.database import (FeedTemplate, Feed, DataStreamTemplate,
-    DataStream)
+from sngconnect.database import (User, FeedTemplate, Feed, DataStreamTemplate,
+    DataStream, FeedUser)
 from sngconnect.cassandra.data_streams import (Measurements, HourlyAggregates,
     DailyAggregates, MonthlyAggregates, LastDataPoints)
 
@@ -44,6 +44,42 @@ def main(argv=sys.argv):
     generate_data(feed_count)
 
 def generate_data(feed_count):
+    user = User(
+        email='user@example.com',
+        phone='+48123456789',
+        activated=pytz.utc.localize(datetime.datetime.utcnow()),
+        role_user=True
+    )
+    user.set_password('user')
+    kid = User(
+        email='kid@example.com',
+        phone='+48123456789',
+        activated=pytz.utc.localize(datetime.datetime.utcnow()),
+        role_user=True
+    )
+    kid.set_password('kid')
+    maintainer = User(
+        email='maintainer@example.com',
+        phone='+48123456789',
+        activated=pytz.utc.localize(datetime.datetime.utcnow()),
+        role_maintainer=True
+    )
+    maintainer.set_password('maintainer')
+    supplier = User(
+        email='supplier@example.com',
+        phone='+48123456789',
+        activated=pytz.utc.localize(datetime.datetime.utcnow()),
+        role_supplier=True
+    )
+    supplier.set_password('supplier')
+    admin = User(
+        email='admin@example.com',
+        phone='+48123456789',
+        activated=pytz.utc.localize(datetime.datetime.utcnow()),
+        role_administrator=True
+    )
+    admin.set_password('admin')
+    DBSession.add_all([user, maintainer, supplier, admin])
     for i in range(1, feed_count + 1):
         feed_template = FeedTemplate()
         feed = Feed(
@@ -58,7 +94,18 @@ def generate_data(feed_count):
                 datetime.datetime.now() - datetime.timedelta(days=80)
             )
         )
-        DBSession.add_all([feed_template, feed])
+        feed_user_user = FeedUser(role_user=True, can_change_permissions=True)
+        feed.feed_users.append(feed_user_user)
+        user.feed_users.append(feed_user_user)
+        feed_user_kid = FeedUser(role_user=True)
+        feed.feed_users.append(feed_user_kid)
+        kid.feed_users.append(feed_user_kid)
+        DBSession.add_all([
+            feed_template,
+            feed,
+            feed_user_user,
+            feed_user_kid,
+        ])
         for j in range(1, 3):
             data_stream_template = DataStreamTemplate(
                 feed_template=feed_template,
@@ -83,6 +130,7 @@ def generate_data(feed_count):
             )
             DBSession.add_all([data_stream_template, data_stream])
     transaction.commit()
+    return # FIXME TODO TEMP
     data_streams = DBSession.query(DataStream).all()
     measurements = Measurements()
     i = 1
