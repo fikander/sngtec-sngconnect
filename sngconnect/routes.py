@@ -12,11 +12,11 @@ ROUTES = (
     ),
     (
         'sngconnect.telemetry.feed_data_streams',
-        'feeds/{feed_id:\d+}/data_streams'
+        'feeds/{feed_id:\d+}/data-streams'
     ),
     (
         'sngconnect.telemetry.feed_data_stream',
-        'feeds/{feed_id:\d+}/data_streams/{data_stream_label:\w+}'
+        'feeds/{feed_id:\d+}/data-streams/{data_stream_label:\w+}'
     ),
     (
         'sngconnect.telemetry.feed_settings',
