@@ -1,7 +1,13 @@
 ROUTES = (
     # sngconnect.telemetry
-    ('sngconnect.telemetry.dashboard', ''),
-    ('sngconnect.telemetry.feeds', 'feeds'),
+    (
+        'sngconnect.telemetry.dashboard',
+        ''
+    ),
+    (
+        'sngconnect.telemetry.feeds',
+        'feeds'
+    ),
     (
         'sngconnect.telemetry.feed_dashboard',
         'feeds/{feed_id:\d+}'
@@ -35,9 +41,18 @@ ROUTES = (
         'feeds/{feed_id:\d+}/history'
     ),
     # sngconnect.accounts
-    ('sngconnect.accounts.sign_in', 'accounts/sign_in'),
-    ('sngconnect.accounts.sign_out', 'accounts/sign_out'),
-    ('sngconnect.accounts.sign_up', 'accounts/sign_up'),
+    (
+        'sngconnect.accounts.sign_in',
+        'accounts/sign_in'
+    ),
+    (
+        'sngconnect.accounts.sign_out',
+        'accounts/sign_out'
+    ),
+    (
+        'sngconnect.accounts.sign_up',
+        'accounts/sign_up'
+    ),
     (
         'sngconnect.accounts.activate',
         'accounts/activate/{email:[^/]+}/{email_activation_code:\w+}'
