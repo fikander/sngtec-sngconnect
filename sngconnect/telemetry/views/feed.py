@@ -225,7 +225,6 @@ class FeedDataStreams(FeedViewBase):
 
 @view_config(
     route_name='sngconnect.telemetry.feed_data_stream',
-    request_method='GET',
     renderer='sngconnect.telemetry:templates/feed/data_stream.jinja2',
     permission='sngconnect.telemetry.access'
 )
@@ -241,6 +240,72 @@ class FeedDataStream(FeedViewBase):
             ).one()
         except database_exceptions.NoResultFound:
             raise httpexceptions.HTTPNotFound()
+        minimal_value = DBSession.query(AlarmDefinition).filter(
+            AlarmDefinition.data_stream == data_stream,
+            AlarmDefinition.alarm_type == 'MINIMAL_VALUE'
+        ).value('boundary')
+        maximal_value = DBSession.query(AlarmDefinition).filter(
+            AlarmDefinition.data_stream == data_stream,
+            AlarmDefinition.alarm_type == 'MAXIMAL_VALUE'
+        ).value('boundary')
+        value_bounds_form = forms.ValueBoundsForm(
+            minimum=minimal_value,
+            maximum=maximal_value,
+            csrf_context=self.request
+        )
+        if self.request.method == 'POST':
+            value_bounds_form.process(self.request.POST)
+            if value_bounds_form.validate():
+                if minimal_value is None:
+                    if value_bounds_form.minimum.data is not None:
+                        minimum_alarm = AlarmDefinition(
+                            data_stream=data_stream,
+                            alarm_type='MINIMAL_VALUE',
+                            boundary=value_bounds_form.minimum.data
+                        )
+                        DBSession.add(minimum_alarm)
+                else:
+                    query = DBSession.query(AlarmDefinition).filter(
+                        AlarmDefinition.data_stream == data_stream,
+                        AlarmDefinition.alarm_type == 'MINIMAL_VALUE',
+                    )
+                    if value_bounds_form.minimum.data is not None:
+                        query.update({
+                            'boundary': value_bounds_form.minimum.data
+                        })
+                    else:
+                        query.delete()
+                if maximal_value is None:
+                    if value_bounds_form.maximum.data is not None:
+                        maximum_alarm = AlarmDefinition(
+                            data_stream=data_stream,
+                            alarm_type='MAXIMAL_VALUE',
+                            boundary=value_bounds_form.maximum.data
+                        )
+                        DBSession.add(maximum_alarm)
+                else:
+                    query = DBSession.query(AlarmDefinition).filter(
+                        AlarmDefinition.data_stream == data_stream,
+                        AlarmDefinition.alarm_type == 'MAXIMAL_VALUE',
+                    )
+                    if value_bounds_form.maximum.data is not None:
+                        query.update({
+                            'boundary': value_bounds_form.maximum.data
+                        })
+                    else:
+                        query.delete()
+                self.request.session.flash(
+                    _("Parameter allowed values have been successfuly saved."),
+                    queue='success'
+                )
+            else:
+                self.request.session.flash(
+                    _(
+                        "There were some problems with your request."
+                        " Please check the form for error messages."
+                    ),
+                    queue='error'
+                )
         hourly_aggregates = data_streams_store.HourlyAggregates().get_data_points(
             data_stream.id,
             start_date=pytz.utc.localize(datetime.datetime.utcnow()),
@@ -320,6 +385,7 @@ class FeedDataStream(FeedViewBase):
                 / decimal.Decimal(last_year_values[i][1]['count'])
             )
         self.context.update({
+            'value_bounds_form': value_bounds_form,
             'data_stream': {
                 'id': data_stream.id,
                 'name': data_stream.name,
@@ -360,6 +426,15 @@ class FeedDataStream(FeedViewBase):
     permission='sngconnect.telemetry.access'
 )
 class FeedSettings(FeedViewBase):
+    pass
+
+@view_config(
+    route_name='sngconnect.telemetry.feed_setting',
+    request_method='GET',
+    renderer='sngconnect.telemetry:templates/feed/setting.jinja2',
+    permission='sngconnect.telemetry.access'
+)
+class FeedSetting(FeedViewBase):
     pass
 
 @view_config(
@@ -595,15 +670,6 @@ class FeedPermissions(FeedViewBase):
                     feed_id=self.feed.id
                 )
             )
-
-@view_config(
-    route_name='sngconnect.telemetry.feed_setting',
-    request_method='GET',
-    renderer='sngconnect.telemetry:templates/feed/setting.jinja2',
-    permission='sngconnect.telemetry.access'
-)
-class FeedSetting(FeedViewBase):
-    pass
 
 @view_config(
     route_name='sngconnect.telemetry.feed_history',

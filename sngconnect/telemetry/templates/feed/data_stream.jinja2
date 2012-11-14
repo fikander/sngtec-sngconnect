@@ -1,4 +1,5 @@
 {% extends "sngconnect.telemetry:templates/feed/data_streams.jinja2" %}
+{% from "sngconnect:templates/macros/horizontal_form_field.jinja2" import horizontal_form_field %}
 
 {% block main_breadcrumb %}
     {{ super() }}
@@ -33,8 +34,8 @@
                     <tr>
                         <th>{% trans %}Period{% endtrans %}</th>
                         <th>{% trans %}Mean value{% endtrans %}</th>
-                        <th>{% trans %}Minimum value{% endtrans %}</th>
-                        <th>{% trans %}Maximum value{% endtrans %}</th>
+                        <th>{% trans %}Minimal value{% endtrans %}</th>
+                        <th>{% trans %}Maximal value{% endtrans %}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -79,6 +80,14 @@
     <div class="row">
         <article class="span6">
             <h2><span class="awe-th-list"></span> {% trans %}Allowed values{% endtrans %}</h2>
+            <form action="" method="post" class="form">
+                {{ value_bounds_form.csrf_token }}
+                {{ horizontal_form_field(value_bounds_form.minimum) }}
+                {{ horizontal_form_field(value_bounds_form.maximum) }}
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">{% trans %}Set{% endtrans %}</button>
+                </div>
+            </form>
         </article>
         <article class="span6">
             <h2><span class="awe-info-sign"></span> {% trans %}Notifications{% endtrans %}</h2>

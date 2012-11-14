@@ -5,6 +5,31 @@ from sngconnect.forms import SecureForm
 from sngconnect.translation import _
 from sngconnect.database import DBSession, User
 
+class ValueBoundsForm(SecureForm):
+
+    minimum = fields.DecimalField(
+        _("Minimum"),
+        places=None,
+        validators=(
+            validators.Optional(),
+        )
+    )
+    maximum = fields.DecimalField(
+        _("Maximum"),
+        places=None,
+        validators=(
+            validators.Optional(),
+        )
+    )
+
+    def validate_maximum(self, field):
+        if field.errors:
+            return
+        if self.minimum.data > field.data:
+            raise validators.ValidationError(
+                _("Maximum must be greater than or equal to the minimum.")
+            )
+
 class AddFeedUserForm(SecureForm):
 
     email = fields.TextField(
