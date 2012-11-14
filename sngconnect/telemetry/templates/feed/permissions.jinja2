@@ -10,7 +10,7 @@
 {% block page_content %}
     {% if can_manage_users %}
         <h2 id="users">{% trans %}Users{% endtrans %}</h2>
-        <form action="" method="post" style="background: none;">
+        <form action="{{ request.route_url("sngconnect.telemetry.feed_permissions.set_user_permissions", feed_id=feed.id) }}" method="post" style="background: none;">
             <table class="table">
                 <thead>
                     <tr>
@@ -36,7 +36,7 @@
                 </tbody>
             </table>
             <div style="text-align: right;">
-                <button type="submit" name="submit_save_user_permissions" class="btn btn-primary">
+                <button type="submit" class="btn btn-primary">
                     <span class="awe-check"></span> {% trans %}Save permissions{% endtrans %}
                 </button>
             </div>
@@ -55,7 +55,7 @@
         </form>
     {% endif %}
     <h2 id="maintainers">{% trans %}Maintainers{% endtrans %}</h2>
-    <form action="" method="post" style="background: none;">
+    <form action="{{ request.route_url("sngconnect.telemetry.feed_permissions.set_maintainer_permissions", feed_id=feed.id) }}" method="post" style="background: none;">
         <table class="table">
             <thead>
                 <tr>
@@ -81,7 +81,7 @@
             </tbody>
         </table>
         <div style="text-align: right;">
-            <button type="submit" name="submit_save_maintainer_permissions" class="btn btn-primary">
+            <button type="submit" class="btn btn-primary">
                 <span class="awe-check"></span> {% trans %}Save permissions{% endtrans %}
             </button>
         </div>

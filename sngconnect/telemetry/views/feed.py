@@ -368,13 +368,20 @@ class FeedSettings(FeedViewBase):
     permission='sngconnect.telemetry.access'
 )
 class FeedPermissions(FeedViewBase):
-    def __call__(self):
+
+    def __init__(self, request):
+        super(FeedPermissions, self).__init__(request)
         if not self.feed_permissions['can_change_permissions']:
             raise httpexceptions.HTTPForbidden()
         if self.feed_user is None:
-            can_manage_users = True
+            self.can_manage_users = True
         else:
-            can_manage_users = self.feed_user.role_user
+            self.can_manage_users = self.feed_user.role_user
+        self.context.update({
+            'can_manage_users': self.can_manage_users,
+        })
+
+    def __call__(self):
         add_user_form = forms.AddFeedUserForm(
             csrf_context=self.request
         )
@@ -382,49 +389,14 @@ class FeedPermissions(FeedViewBase):
             csrf_context=self.request
         )
         if self.request.method == 'POST':
-            if 'submit_save_user_permissions' in self.request.POST:
-                permission_fields = {
-                    'can_change_permissions': filter(
-                        lambda x: x.startswith('can_change_permissions-'),
-                        self.request.POST.iterkeys()
-                    )
-                }
-                for field_name, post_keys in permission_fields.iteritems():
-                    feed_user_ids = []
-                    for post_key in post_keys:
-                        try:
-                            feed_user_ids.append(int(post_key.split('-')[1]))
-                        except (IndexError, ValueError):
-                            continue
-                    DBSession.query(FeedUser).filter(
-                        FeedUser.user_id != self.user_id,
-                        FeedUser.role_user == True
-                    ).update({
-                        field_name: False
-                    })
-                    DBSession.query(FeedUser).filter(
-                        FeedUser.id.in_(feed_user_ids),
-                        FeedUser.user_id != self.user_id,
-                        FeedUser.role_user == True
-                    ).update({
-                        field_name: True
-                    }, synchronize_session='fetch')
-                    self.request.session.flash(
-                        _("User permissions have been successfuly saved."),
-                        queue='success'
-                    )
-                    return httpexceptions.HTTPFound(
-                        self.request.route_url(
-                            'sngconnect.telemetry.feed_permissions',
-                            feed_id=self.feed.id
-                        )
-                    )
-            elif 'submit_add_user' in self.request.POST:
+            if 'submit_add_user' in self.request.POST:
+                if not self.can_manage_users:
+                    raise httpexceptions.HTTPForbidden()
                 add_user_form.process(self.request.POST)
                 if add_user_form.validate():
                     user = add_user_form.get_user()
                     feed_user_count = DBSession.query(FeedUser).filter(
-                        FeedUser.feed_id == self.feed.id,
+                        FeedUser.feed == self.feed,
                         FeedUser.user_id == user.id,
                         FeedUser.role_user == True
                     ).count()
@@ -433,9 +405,14 @@ class FeedPermissions(FeedViewBase):
                             _("This user already has access to this device.")
                         )
                     else:
+                        DBSession.query(User).filter(
+                            User.id == user.id,
+                        ).update({
+                            'role_user': True,
+                        })
                         feed_user = FeedUser(
+                            feed=self.feed,
                             user_id=user.id,
-                            feed_id=self.feed.id,
                             role_user=True
                         )
                         DBSession.add(feed_user)
@@ -457,46 +434,6 @@ class FeedPermissions(FeedViewBase):
                         ),
                         queue='error'
                     )
-            elif 'submit_save_maintainer_permissions' in self.request.POST:
-                permission_fields = {
-                    'can_change_permissions': filter(
-                        lambda x: x.startswith('can_change_permissions-'),
-                        self.request.POST.iterkeys()
-                    )
-                }
-                for field_name, post_keys in permission_fields.iteritems():
-                    feed_user_ids = []
-                    for post_key in post_keys:
-                        try:
-                            feed_user_ids.append(int(post_key.split('-')[1]))
-                        except (IndexError, ValueError):
-                            continue
-                    DBSession.query(FeedUser).filter(
-                        FeedUser.user_id != self.user_id,
-                        FeedUser.role_maintainer == True
-                    ).update({
-                        field_name: False
-                    })
-                    DBSession.query(FeedUser).filter(
-                        FeedUser.id.in_(feed_user_ids),
-                        FeedUser.user_id != self.user_id,
-                        FeedUser.role_maintainer == True
-                    ).update({
-                        field_name: True
-                    }, synchronize_session='fetch')
-                    self.request.session.flash(
-                        _(
-                            "Maintainer permissions have been successfuly"
-                            " saved."
-                        ),
-                        queue='success'
-                    )
-                    return httpexceptions.HTTPFound(
-                        self.request.route_url(
-                            'sngconnect.telemetry.feed_permissions',
-                            feed_id=self.feed.id
-                        )
-                    )
             elif 'submit_add_maintainer' in self.request.POST:
                 add_maintainer_form.process(self.request.POST)
                 if add_maintainer_form.validate():
@@ -514,6 +451,11 @@ class FeedPermissions(FeedViewBase):
                             )
                         )
                     else:
+                        DBSession.query(User).filter(
+                            User.id == user.id,
+                        ).update({
+                            'role_maintainer': True,
+                        })
                         feed_user = FeedUser(
                             user_id=user.id,
                             feed_id=self.feed.id,
@@ -552,11 +494,107 @@ class FeedPermissions(FeedViewBase):
         self.context.update({
             'feed_users': feed_users,
             'feed_maintainers': feed_maintainers,
-            'can_manage_users': can_manage_users,
             'add_user_form': add_user_form,
             'add_maintainer_form': add_maintainer_form,
         })
         return self.context
+
+    @view_config(
+        route_name='sngconnect.telemetry.feed_permissions.set_user_permissions',
+        request_method='POST',
+        permission='sngconnect.telemetry.access'
+    )
+    def set_user_permissions(self):
+        if not self.can_manage_users:
+            raise httpexceptions.HTTPForbidden()
+        permission_fields = {
+            'can_change_permissions': filter(
+                lambda x: x.startswith('can_change_permissions-'),
+                self.request.POST.iterkeys()
+            )
+        }
+        for field_name, post_keys in permission_fields.iteritems():
+            feed_user_ids = []
+            for post_key in post_keys:
+                try:
+                    feed_user_ids.append(int(post_key.split('-')[1]))
+                except (IndexError, ValueError):
+                    continue
+            DBSession.query(FeedUser).filter(
+                FeedUser.feed == self.feed,
+                FeedUser.user_id != self.user_id,
+                FeedUser.role_user == True
+            ).update({
+                field_name: False
+            })
+            DBSession.query(FeedUser).filter(
+                FeedUser.feed == self.feed,
+                FeedUser.id.in_(feed_user_ids),
+                FeedUser.user_id != self.user_id,
+                FeedUser.role_user == True
+            ).update({
+                field_name: True
+            }, synchronize_session=False)
+            self.request.session.flash(
+                _("User permissions have been successfuly saved."),
+                queue='success'
+            )
+            return httpexceptions.HTTPFound(
+                self.request.route_url(
+                    'sngconnect.telemetry.feed_permissions',
+                    feed_id=self.feed.id
+                )
+            )
+
+    @view_config(
+        route_name=(
+            'sngconnect.telemetry.feed_permissions.set_maintainer_permissions'
+        ),
+        request_method='POST',
+        permission='sngconnect.telemetry.access'
+    )
+    def set_maintainer_permissions(self):
+        permission_fields = {
+            'can_change_permissions': filter(
+                lambda x: x.startswith('can_change_permissions-'),
+                self.request.POST.iterkeys()
+            )
+        }
+        for field_name, post_keys in permission_fields.iteritems():
+            feed_user_ids = []
+            for post_key in post_keys:
+                try:
+                    feed_user_ids.append(int(post_key.split('-')[1]))
+                except (IndexError, ValueError):
+                    continue
+            DBSession.query(FeedUser).filter(
+                FeedUser.feed == self.feed,
+                FeedUser.user_id != self.user_id,
+                FeedUser.role_maintainer == True
+            ).update({
+                field_name: False
+            })
+            DBSession.query(FeedUser).filter(
+                FeedUser.feed == self.feed,
+                FeedUser.id.in_(feed_user_ids),
+                FeedUser.user_id != self.user_id,
+                FeedUser.role_maintainer == True
+            ).update({
+                field_name: True
+            }, synchronize_session=False)
+            self.request.session.flash(
+                _(
+                    "Maintainer permissions have been successfuly"
+                    " saved."
+                ),
+                queue='success'
+            )
+            return httpexceptions.HTTPFound(
+                self.request.route_url(
+                    'sngconnect.telemetry.feed_permissions',
+                    feed_id=self.feed.id
+                )
+            )
 
 @view_config(
     route_name='sngconnect.telemetry.feed_setting',

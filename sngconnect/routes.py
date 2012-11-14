@@ -37,6 +37,14 @@ ROUTES = (
         'feeds/{feed_id:\d+}/permissions'
     ),
     (
+        'sngconnect.telemetry.feed_permissions.set_user_permissions',
+        'feeds/{feed_id:\d+}/permissions/set-user-permissions'
+    ),
+    (
+        'sngconnect.telemetry.feed_permissions.set_maintainer_permissions',
+        'feeds/{feed_id:\d+}/permissions/set-maintainer-permissions'
+    ),
+    (
         'sngconnect.telemetry.feed_history',
         'feeds/{feed_id:\d+}/history'
     ),
