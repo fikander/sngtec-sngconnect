@@ -7,5 +7,27 @@
 {% endblock %}
 
 {% block page_content %}
-    Ustawienia
+    <h2><span class="awe-th-list"></span> {% trans %}Current setting values{% endtrans %}</h2>
+    <table class="table">
+        <thead>
+            <th>{% trans %}Name{% endtrans %}</th>
+            <th>{% trans %}Unit of measurement{% endtrans %}</th>
+            <th>{% trans %}Value{% endtrans %}</th>
+            <th>{% trans %}Last change{% endtrans %}</th>
+        </thead>
+        <tbody>
+            {% for data_stream in data_streams %}
+                <tr>
+                    <td><a href="{{ data_stream.url }}">{{ data_stream.name }}</a></td>
+                    <td>{{ data_stream.measurement_unit }}</td>
+                    {% if data_stream.requested_value %}
+                        <td><code>{{ data_stream.requested_value }}</code></td>
+                        <td>{{ data_stream.value_requested_at }}</td>
+                    {% else %}
+                        <td class="no-data" colspan="2">{% trans %}no data{% endtrans %}</td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 {% endblock %}

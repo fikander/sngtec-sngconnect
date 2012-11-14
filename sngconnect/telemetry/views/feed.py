@@ -176,7 +176,8 @@ class FeedDataStreams(FeedViewBase):
         data_streams = DBSession.query(DataStream).join(
             DataStreamTemplate
         ).filter(
-            Feed.id == self.feed.id
+            Feed.id == self.feed.id,
+            DataStreamTemplate.writable == False
         ).order_by(
             DataStreamTemplate.name
         )
@@ -235,6 +236,7 @@ class FeedDataStream(FeedViewBase):
                 DataStreamTemplate
             ).filter(
                 Feed.id == self.feed.id,
+                DataStreamTemplate.writable == False,
                 (DataStreamTemplate.label ==
                     self.request.matchdict['data_stream_label'])
             ).one()
@@ -425,17 +427,131 @@ class FeedDataStream(FeedViewBase):
     renderer='sngconnect.telemetry:templates/feed/settings.jinja2',
     permission='sngconnect.telemetry.access'
 )
-class FeedSettings(FeedViewBase):
-    pass
+class FeedSettings(FeedDataStreams):
+    def __call__(self):
+        data_streams = DBSession.query(DataStream).join(
+            DataStreamTemplate
+        ).filter(
+            Feed.id == self.feed.id,
+            DataStreamTemplate.writable == True
+        ).order_by(
+            DataStreamTemplate.name
+        )
+        self.context.update({
+            'data_streams': [
+                {
+                    'id': data_stream.id,
+                    'name': data_stream.name,
+                    'measurement_unit': data_stream.measurement_unit,
+                    'url': self.request.route_url(
+                        'sngconnect.telemetry.feed_setting',
+                        feed_id=self.feed.id,
+                        data_stream_label=data_stream.label
+                    ),
+                    'requested_value': data_stream.requested_value,
+                    'value_requested_at': data_stream.value_requested_at,
+                }
+                for data_stream in data_streams
+            ],
+        })
+        return self.context
 
 @view_config(
     route_name='sngconnect.telemetry.feed_setting',
-    request_method='GET',
     renderer='sngconnect.telemetry:templates/feed/setting.jinja2',
     permission='sngconnect.telemetry.access'
 )
 class FeedSetting(FeedViewBase):
-    pass
+    def __call__(self):
+        try:
+            data_stream = DBSession.query(DataStream).join(
+                DataStreamTemplate
+            ).filter(
+                Feed.id == self.feed.id,
+                DataStreamTemplate.writable == True,
+                (DataStreamTemplate.label ==
+                    self.request.matchdict['data_stream_label'])
+            ).one()
+        except database_exceptions.NoResultFound:
+            raise httpexceptions.HTTPNotFound()
+        value_form = forms.ValueForm(
+            value=data_stream.requested_value,
+            csrf_context=self.request
+        )
+        if self.request.method == 'POST':
+            value_form.process(self.request.POST)
+            if value_form.validate():
+                DBSession.query(DataStream).filter(
+                    DataStream.id == data_stream.id
+                ).update({
+                    'requested_value': value_form.value.data,
+                    'value_requested_at': pytz.utc.localize(
+                        datetime.datetime.utcnow()
+                    ),
+                })
+                self.request.session.flash(
+                    _("Setting value has been successfuly saved."),
+                    queue='success'
+                )
+            else:
+                self.request.session.flash(
+                    _(
+                        "There were some problems with your request."
+                        " Please check the form for error messages."
+                    ),
+                    queue='error'
+                )
+        last_day_values = data_streams_store.Measurements().get_data_points(
+            data_stream.id,
+            start_date=pytz.utc.localize(
+                datetime.datetime.utcnow() - datetime.timedelta(days=1)
+            ),
+            end_date=pytz.utc.localize(datetime.datetime.utcnow())
+        )
+        last_week_values = data_streams_store.HourlyAggregates().get_data_points(
+            data_stream.id,
+            start_date=pytz.utc.localize(
+                datetime.datetime.utcnow() - datetime.timedelta(days=7)
+            ),
+            end_date=pytz.utc.localize(datetime.datetime.utcnow())
+        )
+        for i in range(len(last_week_values)):
+            last_week_values[i][1]['mean'] = (
+                decimal.Decimal(last_week_values[i][1]['sum'])
+                / decimal.Decimal(last_week_values[i][1]['count'])
+            )
+        last_year_values = data_streams_store.DailyAggregates().get_data_points(
+            data_stream.id,
+            start_date=pytz.utc.localize(
+                datetime.datetime.utcnow() - datetime.timedelta(days=365)
+            ),
+            end_date=pytz.utc.localize(datetime.datetime.utcnow())
+        )
+        for i in range(len(last_year_values)):
+            last_year_values[i][1]['mean'] = (
+                decimal.Decimal(last_year_values[i][1]['sum'])
+                / decimal.Decimal(last_year_values[i][1]['count'])
+            )
+        self.context.update({
+            'value_form': value_form,
+            'data_stream': {
+                'id': data_stream.id,
+                'name': data_stream.name,
+                'measurement_unit': data_stream.measurement_unit,
+                'description': data_stream.description,
+                'requested_value': data_stream.requested_value,
+                'value_requested_at': data_stream.value_requested_at,
+                'last_day_values': last_day_values,
+                'last_week_values': last_week_values,
+                'last_year_values': last_year_values,
+                'url': self.request.route_url(
+                    'sngconnect.telemetry.feed_setting',
+                    feed_id=self.feed.id,
+                    data_stream_label=data_stream.label
+                ),
+            },
+        })
+        return self.context
 
 @view_config(
     route_name='sngconnect.telemetry.feed_permissions',

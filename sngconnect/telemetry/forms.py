@@ -5,6 +5,16 @@ from sngconnect.forms import SecureForm
 from sngconnect.translation import _
 from sngconnect.database import DBSession, User
 
+class ValueForm(SecureForm):
+
+    value = fields.DecimalField(
+        _("Value"),
+        places=None,
+        validators=(
+            validators.DataRequired(),
+        )
+    )
+
 class ValueBoundsForm(SecureForm):
 
     minimum = fields.DecimalField(
