@@ -1,0 +1,14 @@
+{% extends "sngconnect.devices:templates/base.jinja2" %}
+
+{% block main_breadcrumb %}
+    {{ super() }}
+    <li><a href="{{ feed_template.url }}" title="{{ feed_template.name }}">{{ feed_template.name }}</a></li>
+{% endblock %}
+
+{% block main_content %}
+    <div class="page-header">
+        <h1>{{ feed_template.name }}</h1>
+    </div>
+    <div class="page-container">
+    </div>
+{% endblock %}

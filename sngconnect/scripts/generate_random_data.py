@@ -81,7 +81,9 @@ def generate_data(feed_count):
     admin.set_password('admin')
     DBSession.add_all([user, maintainer, supplier, admin])
     for i in range(1, feed_count + 1):
-        feed_template = FeedTemplate()
+        feed_template = FeedTemplate(
+            name=u"Feed template %d" % i
+        )
         feed = Feed(
             template=feed_template,
             name=u"Feed %d" % i,

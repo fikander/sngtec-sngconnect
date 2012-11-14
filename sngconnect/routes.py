@@ -48,6 +48,15 @@ ROUTES = (
         'sngconnect.telemetry.feed_history',
         'feeds/{feed_id:\d+}/history'
     ),
+    # sngconnect.devices
+    (
+        'sngconnect.devices.feed_templates',
+        'devices/'
+    ),
+    (
+        'sngconnect.devices.feed_template',
+        'devices/{feed_template_id:\d+}'
+    ),
     # sngconnect.accounts
     (
         'sngconnect.accounts.sign_in',

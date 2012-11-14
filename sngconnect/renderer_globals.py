@@ -24,3 +24,11 @@ def add_user(event):
         event['user'] = DBSession.query(User).filter(
             User.id == user_id
         ).one()
+
+@events.subscriber(events.BeforeRender)
+def add_can_access_devices(event):
+    event['can_access_devices'] = security.has_permission(
+        'sngconnect.devices.access',
+        event['request'].context,
+        event['request']
+    )

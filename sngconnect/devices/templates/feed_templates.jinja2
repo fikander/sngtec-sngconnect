@@ -1,0 +1,25 @@
+{% extends "sngconnect.devices:templates/base.jinja2" %}
+
+{% block main_content %}
+    <div class="page-header">
+        <h1>{% trans %}Device templates{% endtrans %}</h1>
+    </div>
+    <div class="page-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>{% trans %}ID{% endtrans %}</th>
+                    <th>{% trans %}Name{% endtrans %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for feed_template in feed_templates %}
+                    <tr>
+                        <td><code>{{ feed_template.id }}</code></td>
+                        <td><a href="{{ feed_template.url }}">{{ feed_template.name }}</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

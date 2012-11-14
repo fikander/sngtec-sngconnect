@@ -129,6 +129,11 @@ class FeedTemplate(ModelBase):
         sql.Integer,
         primary_key=True
     )
+    name = sql.Column(
+        sql.Unicode(length=200),
+        nullable=False,
+        doc="Name identifying concrete instance of a feed."
+    )
 
 class Feed(ModelBase):
 

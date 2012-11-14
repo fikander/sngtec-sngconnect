@@ -30,6 +30,11 @@
                             <ul class="nav active-arrows" role="navigation">
                                 <li><a href="{{ request.route_url("sngconnect.telemetry.dashboard") }}" title="{% trans %}Dashboard{% endtrans %}"><span class="awe-home"></span> {% trans %}Dashboard{% endtrans %}</a></li>
                             </ul>
+                            {% if can_access_devices %}
+                                <ul class="nav active-arrows" role="navigation">
+                                    <li><a href="{{ request.route_url("sngconnect.devices.feed_templates") }}" title="{% trans %}Device templates{% endtrans %}"><span class="awe-cog"></span> {% trans %}Device templates{% endtrans %}</a></li>
+                                </ul>
+                            {% endif %}
                         </nav>
                         {% if user %}
                             <nav class="nav-collapse user">
