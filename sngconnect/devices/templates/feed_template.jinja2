@@ -1,4 +1,5 @@
 {% extends "sngconnect.devices:templates/base.jinja2" %}
+{% from "sngconnect:templates/macros/horizontal_form_field.jinja2" import horizontal_form_field %}
 
 {% block main_breadcrumb %}
     {{ super() }}
@@ -10,6 +11,13 @@
         <h1>{{ feed_template.name }}</h1>
     </div>
     <div class="page-container">
+        <form action="" method="post">
+            {{ feed_template_form.csrf_token }}
+            {{ horizontal_form_field(feed_template_form.name) }}
+            <div class="form-actions">
+                <button type="submit" name="submit_save_feed_template" class="btn btn-primary"><span class="awe-check"></span> {% trans %}Save{% endtrans %}</button>
+            </div>
+        </form>
         <h2>{% trans %}Parameter templates{% endtrans %}</h2>
         <table class="table">
             <thead>

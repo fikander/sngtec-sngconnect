@@ -132,7 +132,7 @@ class FeedTemplate(ModelBase):
     name = sql.Column(
         sql.Unicode(length=200),
         nullable=False,
-        doc="Name identifying concrete instance of a feed."
+        doc="Name identifying template feed."
     )
 
 class Feed(ModelBase):
