@@ -10,5 +10,22 @@
         <h1>{{ feed_template.name }}</h1>
     </div>
     <div class="page-container">
+        <h2>{% trans %}Parameter templates{% endtrans %}</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>{% trans %}ID{% endtrans %}</th>
+                    <th>{% trans %}Name{% endtrans %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for data_stream_template in feed_template.data_stream_templates %}
+                    <tr>
+                        <td><code>{{ data_stream_template.id }}</code></td>
+                        <td><a href="{{ data_stream_template.url }}">{{ data_stream_template.name }}</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 {% endblock %}

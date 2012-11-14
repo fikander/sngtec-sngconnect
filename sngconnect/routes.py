@@ -57,6 +57,11 @@ ROUTES = (
         'sngconnect.devices.feed_template',
         'devices/{feed_template_id:\d+}'
     ),
+    (
+        'sngconnect.devices.data_stream_template',
+        'devices/{feed_template_id:\d+}/parameters'
+            '/{data_stream_template_id:\d+}'
+    ),
     # sngconnect.accounts
     (
         'sngconnect.accounts.sign_in',
