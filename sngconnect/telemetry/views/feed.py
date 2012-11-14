@@ -176,7 +176,8 @@ class FeedDataStreams(FeedViewBase):
         data_streams = DBSession.query(DataStream).join(
             DataStreamTemplate
         ).filter(
-            Feed.id == self.feed.id
+            Feed.id == self.feed.id,
+            DataStreamTemplate.writable == False
         ).order_by(
             DataStreamTemplate.name
         )
@@ -225,7 +226,6 @@ class FeedDataStreams(FeedViewBase):
 
 @view_config(
     route_name='sngconnect.telemetry.feed_data_stream',
-    request_method='GET',
     renderer='sngconnect.telemetry:templates/feed/data_stream.jinja2',
     permission='sngconnect.telemetry.access'
 )
@@ -236,11 +236,78 @@ class FeedDataStream(FeedViewBase):
                 DataStreamTemplate
             ).filter(
                 Feed.id == self.feed.id,
+                DataStreamTemplate.writable == False,
                 (DataStreamTemplate.label ==
                     self.request.matchdict['data_stream_label'])
             ).one()
         except database_exceptions.NoResultFound:
             raise httpexceptions.HTTPNotFound()
+        minimal_value = DBSession.query(AlarmDefinition).filter(
+            AlarmDefinition.data_stream == data_stream,
+            AlarmDefinition.alarm_type == 'MINIMAL_VALUE'
+        ).value('boundary')
+        maximal_value = DBSession.query(AlarmDefinition).filter(
+            AlarmDefinition.data_stream == data_stream,
+            AlarmDefinition.alarm_type == 'MAXIMAL_VALUE'
+        ).value('boundary')
+        value_bounds_form = forms.ValueBoundsForm(
+            minimum=minimal_value,
+            maximum=maximal_value,
+            csrf_context=self.request
+        )
+        if self.request.method == 'POST':
+            value_bounds_form.process(self.request.POST)
+            if value_bounds_form.validate():
+                if minimal_value is None:
+                    if value_bounds_form.minimum.data is not None:
+                        minimum_alarm = AlarmDefinition(
+                            data_stream=data_stream,
+                            alarm_type='MINIMAL_VALUE',
+                            boundary=value_bounds_form.minimum.data
+                        )
+                        DBSession.add(minimum_alarm)
+                else:
+                    query = DBSession.query(AlarmDefinition).filter(
+                        AlarmDefinition.data_stream == data_stream,
+                        AlarmDefinition.alarm_type == 'MINIMAL_VALUE',
+                    )
+                    if value_bounds_form.minimum.data is not None:
+                        query.update({
+                            'boundary': value_bounds_form.minimum.data
+                        })
+                    else:
+                        query.delete()
+                if maximal_value is None:
+                    if value_bounds_form.maximum.data is not None:
+                        maximum_alarm = AlarmDefinition(
+                            data_stream=data_stream,
+                            alarm_type='MAXIMAL_VALUE',
+                            boundary=value_bounds_form.maximum.data
+                        )
+                        DBSession.add(maximum_alarm)
+                else:
+                    query = DBSession.query(AlarmDefinition).filter(
+                        AlarmDefinition.data_stream == data_stream,
+                        AlarmDefinition.alarm_type == 'MAXIMAL_VALUE',
+                    )
+                    if value_bounds_form.maximum.data is not None:
+                        query.update({
+                            'boundary': value_bounds_form.maximum.data
+                        })
+                    else:
+                        query.delete()
+                self.request.session.flash(
+                    _("Parameter allowed values have been successfuly saved."),
+                    queue='success'
+                )
+            else:
+                self.request.session.flash(
+                    _(
+                        "There were some problems with your request."
+                        " Please check the form for error messages."
+                    ),
+                    queue='error'
+                )
         hourly_aggregates = data_streams_store.HourlyAggregates().get_data_points(
             data_stream.id,
             start_date=pytz.utc.localize(datetime.datetime.utcnow()),
@@ -320,6 +387,7 @@ class FeedDataStream(FeedViewBase):
                 / decimal.Decimal(last_year_values[i][1]['count'])
             )
         self.context.update({
+            'value_bounds_form': value_bounds_form,
             'data_stream': {
                 'id': data_stream.id,
                 'name': data_stream.name,
@@ -359,8 +427,131 @@ class FeedDataStream(FeedViewBase):
     renderer='sngconnect.telemetry:templates/feed/settings.jinja2',
     permission='sngconnect.telemetry.access'
 )
-class FeedSettings(FeedViewBase):
-    pass
+class FeedSettings(FeedDataStreams):
+    def __call__(self):
+        data_streams = DBSession.query(DataStream).join(
+            DataStreamTemplate
+        ).filter(
+            Feed.id == self.feed.id,
+            DataStreamTemplate.writable == True
+        ).order_by(
+            DataStreamTemplate.name
+        )
+        self.context.update({
+            'data_streams': [
+                {
+                    'id': data_stream.id,
+                    'name': data_stream.name,
+                    'measurement_unit': data_stream.measurement_unit,
+                    'url': self.request.route_url(
+                        'sngconnect.telemetry.feed_setting',
+                        feed_id=self.feed.id,
+                        data_stream_label=data_stream.label
+                    ),
+                    'requested_value': data_stream.requested_value,
+                    'value_requested_at': data_stream.value_requested_at,
+                }
+                for data_stream in data_streams
+            ],
+        })
+        return self.context
+
+@view_config(
+    route_name='sngconnect.telemetry.feed_setting',
+    renderer='sngconnect.telemetry:templates/feed/setting.jinja2',
+    permission='sngconnect.telemetry.access'
+)
+class FeedSetting(FeedViewBase):
+    def __call__(self):
+        try:
+            data_stream = DBSession.query(DataStream).join(
+                DataStreamTemplate
+            ).filter(
+                Feed.id == self.feed.id,
+                DataStreamTemplate.writable == True,
+                (DataStreamTemplate.label ==
+                    self.request.matchdict['data_stream_label'])
+            ).one()
+        except database_exceptions.NoResultFound:
+            raise httpexceptions.HTTPNotFound()
+        value_form = forms.ValueForm(
+            value=data_stream.requested_value,
+            csrf_context=self.request
+        )
+        if self.request.method == 'POST':
+            value_form.process(self.request.POST)
+            if value_form.validate():
+                DBSession.query(DataStream).filter(
+                    DataStream.id == data_stream.id
+                ).update({
+                    'requested_value': value_form.value.data,
+                    'value_requested_at': pytz.utc.localize(
+                        datetime.datetime.utcnow()
+                    ),
+                })
+                self.request.session.flash(
+                    _("Setting value has been successfuly saved."),
+                    queue='success'
+                )
+            else:
+                self.request.session.flash(
+                    _(
+                        "There were some problems with your request."
+                        " Please check the form for error messages."
+                    ),
+                    queue='error'
+                )
+        last_day_values = data_streams_store.Measurements().get_data_points(
+            data_stream.id,
+            start_date=pytz.utc.localize(
+                datetime.datetime.utcnow() - datetime.timedelta(days=1)
+            ),
+            end_date=pytz.utc.localize(datetime.datetime.utcnow())
+        )
+        last_week_values = data_streams_store.HourlyAggregates().get_data_points(
+            data_stream.id,
+            start_date=pytz.utc.localize(
+                datetime.datetime.utcnow() - datetime.timedelta(days=7)
+            ),
+            end_date=pytz.utc.localize(datetime.datetime.utcnow())
+        )
+        for i in range(len(last_week_values)):
+            last_week_values[i][1]['mean'] = (
+                decimal.Decimal(last_week_values[i][1]['sum'])
+                / decimal.Decimal(last_week_values[i][1]['count'])
+            )
+        last_year_values = data_streams_store.DailyAggregates().get_data_points(
+            data_stream.id,
+            start_date=pytz.utc.localize(
+                datetime.datetime.utcnow() - datetime.timedelta(days=365)
+            ),
+            end_date=pytz.utc.localize(datetime.datetime.utcnow())
+        )
+        for i in range(len(last_year_values)):
+            last_year_values[i][1]['mean'] = (
+                decimal.Decimal(last_year_values[i][1]['sum'])
+                / decimal.Decimal(last_year_values[i][1]['count'])
+            )
+        self.context.update({
+            'value_form': value_form,
+            'data_stream': {
+                'id': data_stream.id,
+                'name': data_stream.name,
+                'measurement_unit': data_stream.measurement_unit,
+                'description': data_stream.description,
+                'requested_value': data_stream.requested_value,
+                'value_requested_at': data_stream.value_requested_at,
+                'last_day_values': last_day_values,
+                'last_week_values': last_week_values,
+                'last_year_values': last_year_values,
+                'url': self.request.route_url(
+                    'sngconnect.telemetry.feed_setting',
+                    feed_id=self.feed.id,
+                    data_stream_label=data_stream.label
+                ),
+            },
+        })
+        return self.context
 
 @view_config(
     route_name='sngconnect.telemetry.feed_permissions',
@@ -368,13 +559,20 @@ class FeedSettings(FeedViewBase):
     permission='sngconnect.telemetry.access'
 )
 class FeedPermissions(FeedViewBase):
-    def __call__(self):
+
+    def __init__(self, request):
+        super(FeedPermissions, self).__init__(request)
         if not self.feed_permissions['can_change_permissions']:
             raise httpexceptions.HTTPForbidden()
         if self.feed_user is None:
-            can_manage_users = True
+            self.can_manage_users = True
         else:
-            can_manage_users = self.feed_user.role_user
+            self.can_manage_users = self.feed_user.role_user
+        self.context.update({
+            'can_manage_users': self.can_manage_users,
+        })
+
+    def __call__(self):
         add_user_form = forms.AddFeedUserForm(
             csrf_context=self.request
         )
@@ -382,49 +580,14 @@ class FeedPermissions(FeedViewBase):
             csrf_context=self.request
         )
         if self.request.method == 'POST':
-            if 'submit_save_user_permissions' in self.request.POST:
-                permission_fields = {
-                    'can_change_permissions': filter(
-                        lambda x: x.startswith('can_change_permissions-'),
-                        self.request.POST.iterkeys()
-                    )
-                }
-                for field_name, post_keys in permission_fields.iteritems():
-                    feed_user_ids = []
-                    for post_key in post_keys:
-                        try:
-                            feed_user_ids.append(int(post_key.split('-')[1]))
-                        except (IndexError, ValueError):
-                            continue
-                    DBSession.query(FeedUser).filter(
-                        FeedUser.user_id != self.user_id,
-                        FeedUser.role_user == True
-                    ).update({
-                        field_name: False
-                    })
-                    DBSession.query(FeedUser).filter(
-                        FeedUser.id.in_(feed_user_ids),
-                        FeedUser.user_id != self.user_id,
-                        FeedUser.role_user == True
-                    ).update({
-                        field_name: True
-                    }, synchronize_session='fetch')
-                    self.request.session.flash(
-                        _("User permissions have been successfuly saved."),
-                        queue='success'
-                    )
-                    return httpexceptions.HTTPFound(
-                        self.request.route_url(
-                            'sngconnect.telemetry.feed_permissions',
-                            feed_id=self.feed.id
-                        )
-                    )
-            elif 'submit_add_user' in self.request.POST:
+            if 'submit_add_user' in self.request.POST:
+                if not self.can_manage_users:
+                    raise httpexceptions.HTTPForbidden()
                 add_user_form.process(self.request.POST)
                 if add_user_form.validate():
                     user = add_user_form.get_user()
                     feed_user_count = DBSession.query(FeedUser).filter(
-                        FeedUser.feed_id == self.feed.id,
+                        FeedUser.feed == self.feed,
                         FeedUser.user_id == user.id,
                         FeedUser.role_user == True
                     ).count()
@@ -433,9 +596,14 @@ class FeedPermissions(FeedViewBase):
                             _("This user already has access to this device.")
                         )
                     else:
+                        DBSession.query(User).filter(
+                            User.id == user.id,
+                        ).update({
+                            'role_user': True,
+                        })
                         feed_user = FeedUser(
+                            feed=self.feed,
                             user_id=user.id,
-                            feed_id=self.feed.id,
                             role_user=True
                         )
                         DBSession.add(feed_user)
@@ -457,46 +625,6 @@ class FeedPermissions(FeedViewBase):
                         ),
                         queue='error'
                     )
-            elif 'submit_save_maintainer_permissions' in self.request.POST:
-                permission_fields = {
-                    'can_change_permissions': filter(
-                        lambda x: x.startswith('can_change_permissions-'),
-                        self.request.POST.iterkeys()
-                    )
-                }
-                for field_name, post_keys in permission_fields.iteritems():
-                    feed_user_ids = []
-                    for post_key in post_keys:
-                        try:
-                            feed_user_ids.append(int(post_key.split('-')[1]))
-                        except (IndexError, ValueError):
-                            continue
-                    DBSession.query(FeedUser).filter(
-                        FeedUser.user_id != self.user_id,
-                        FeedUser.role_maintainer == True
-                    ).update({
-                        field_name: False
-                    })
-                    DBSession.query(FeedUser).filter(
-                        FeedUser.id.in_(feed_user_ids),
-                        FeedUser.user_id != self.user_id,
-                        FeedUser.role_maintainer == True
-                    ).update({
-                        field_name: True
-                    }, synchronize_session='fetch')
-                    self.request.session.flash(
-                        _(
-                            "Maintainer permissions have been successfuly"
-                            " saved."
-                        ),
-                        queue='success'
-                    )
-                    return httpexceptions.HTTPFound(
-                        self.request.route_url(
-                            'sngconnect.telemetry.feed_permissions',
-                            feed_id=self.feed.id
-                        )
-                    )
             elif 'submit_add_maintainer' in self.request.POST:
                 add_maintainer_form.process(self.request.POST)
                 if add_maintainer_form.validate():
@@ -514,6 +642,11 @@ class FeedPermissions(FeedViewBase):
                             )
                         )
                     else:
+                        DBSession.query(User).filter(
+                            User.id == user.id,
+                        ).update({
+                            'role_maintainer': True,
+                        })
                         feed_user = FeedUser(
                             user_id=user.id,
                             feed_id=self.feed.id,
@@ -552,20 +685,107 @@ class FeedPermissions(FeedViewBase):
         self.context.update({
             'feed_users': feed_users,
             'feed_maintainers': feed_maintainers,
-            'can_manage_users': can_manage_users,
             'add_user_form': add_user_form,
             'add_maintainer_form': add_maintainer_form,
         })
         return self.context
 
-@view_config(
-    route_name='sngconnect.telemetry.feed_setting',
-    request_method='GET',
-    renderer='sngconnect.telemetry:templates/feed/setting.jinja2',
-    permission='sngconnect.telemetry.access'
-)
-class FeedSetting(FeedViewBase):
-    pass
+    @view_config(
+        route_name='sngconnect.telemetry.feed_permissions.set_user_permissions',
+        request_method='POST',
+        permission='sngconnect.telemetry.access'
+    )
+    def set_user_permissions(self):
+        if not self.can_manage_users:
+            raise httpexceptions.HTTPForbidden()
+        permission_fields = {
+            'can_change_permissions': filter(
+                lambda x: x.startswith('can_change_permissions-'),
+                self.request.POST.iterkeys()
+            )
+        }
+        for field_name, post_keys in permission_fields.iteritems():
+            feed_user_ids = []
+            for post_key in post_keys:
+                try:
+                    feed_user_ids.append(int(post_key.split('-')[1]))
+                except (IndexError, ValueError):
+                    continue
+            DBSession.query(FeedUser).filter(
+                FeedUser.feed == self.feed,
+                FeedUser.user_id != self.user_id,
+                FeedUser.role_user == True
+            ).update({
+                field_name: False
+            })
+            DBSession.query(FeedUser).filter(
+                FeedUser.feed == self.feed,
+                FeedUser.id.in_(feed_user_ids),
+                FeedUser.user_id != self.user_id,
+                FeedUser.role_user == True
+            ).update({
+                field_name: True
+            }, synchronize_session=False)
+            self.request.session.flash(
+                _("User permissions have been successfuly saved."),
+                queue='success'
+            )
+            return httpexceptions.HTTPFound(
+                self.request.route_url(
+                    'sngconnect.telemetry.feed_permissions',
+                    feed_id=self.feed.id
+                )
+            )
+
+    @view_config(
+        route_name=(
+            'sngconnect.telemetry.feed_permissions.set_maintainer_permissions'
+        ),
+        request_method='POST',
+        permission='sngconnect.telemetry.access'
+    )
+    def set_maintainer_permissions(self):
+        permission_fields = {
+            'can_change_permissions': filter(
+                lambda x: x.startswith('can_change_permissions-'),
+                self.request.POST.iterkeys()
+            )
+        }
+        for field_name, post_keys in permission_fields.iteritems():
+            feed_user_ids = []
+            for post_key in post_keys:
+                try:
+                    feed_user_ids.append(int(post_key.split('-')[1]))
+                except (IndexError, ValueError):
+                    continue
+            DBSession.query(FeedUser).filter(
+                FeedUser.feed == self.feed,
+                FeedUser.user_id != self.user_id,
+                FeedUser.role_maintainer == True
+            ).update({
+                field_name: False
+            })
+            DBSession.query(FeedUser).filter(
+                FeedUser.feed == self.feed,
+                FeedUser.id.in_(feed_user_ids),
+                FeedUser.user_id != self.user_id,
+                FeedUser.role_maintainer == True
+            ).update({
+                field_name: True
+            }, synchronize_session=False)
+            self.request.session.flash(
+                _(
+                    "Maintainer permissions have been successfuly"
+                    " saved."
+                ),
+                queue='success'
+            )
+            return httpexceptions.HTTPFound(
+                self.request.route_url(
+                    'sngconnect.telemetry.feed_permissions',
+                    feed_id=self.feed.id
+                )
+            )
 
 @view_config(
     route_name='sngconnect.telemetry.feed_history',

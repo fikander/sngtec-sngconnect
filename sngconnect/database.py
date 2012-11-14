@@ -129,6 +129,12 @@ class FeedTemplate(ModelBase):
         sql.Integer,
         primary_key=True
     )
+    name = sql.Column(
+        sql.Unicode(length=200),
+        nullable=False,
+        unique=True,
+        doc="Name identifying template feed."
+    )
 
 class Feed(ModelBase):
 
@@ -195,7 +201,13 @@ class FeedUser(ModelBase):
 
     __tablename__ = 'sngconnect_feed_users'
     __table_args__ = (
-        sql.UniqueConstraint('feed_id', 'user_id'),
+        sql.UniqueConstraint(
+            'feed_id',
+            'user_id',
+            'role_user',
+            'role_maintainer'
+        ),
+        sql.CheckConstraint('role_user <> role_maintainer'),
     )
 
     id = sql.Column(
@@ -244,6 +256,7 @@ class DataStreamTemplate(ModelBase):
     __tablename__ = 'sngconnect_data_stream_templates'
     __table_args__ = (
         sql.UniqueConstraint('feed_template_id', 'label'),
+        sql.UniqueConstraint('feed_template_id', 'name'),
     )
 
     id = sql.Column(

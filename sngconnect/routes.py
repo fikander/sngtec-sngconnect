@@ -1,7 +1,13 @@
 ROUTES = (
     # sngconnect.telemetry
-    ('sngconnect.telemetry.dashboard', ''),
-    ('sngconnect.telemetry.feeds', 'feeds'),
+    (
+        'sngconnect.telemetry.dashboard',
+        ''
+    ),
+    (
+        'sngconnect.telemetry.feeds',
+        'feeds'
+    ),
     (
         'sngconnect.telemetry.feed_dashboard',
         'feeds/{feed_id:\d+}'
@@ -12,11 +18,11 @@ ROUTES = (
     ),
     (
         'sngconnect.telemetry.feed_data_streams',
-        'feeds/{feed_id:\d+}/data_streams'
+        'feeds/{feed_id:\d+}/data-streams'
     ),
     (
         'sngconnect.telemetry.feed_data_stream',
-        'feeds/{feed_id:\d+}/data_streams/{data_stream_label:\w+}'
+        'feeds/{feed_id:\d+}/data-streams/{data_stream_label:\w+}'
     ),
     (
         'sngconnect.telemetry.feed_settings',
@@ -31,13 +37,44 @@ ROUTES = (
         'feeds/{feed_id:\d+}/permissions'
     ),
     (
+        'sngconnect.telemetry.feed_permissions.set_user_permissions',
+        'feeds/{feed_id:\d+}/permissions/set-user-permissions'
+    ),
+    (
+        'sngconnect.telemetry.feed_permissions.set_maintainer_permissions',
+        'feeds/{feed_id:\d+}/permissions/set-maintainer-permissions'
+    ),
+    (
         'sngconnect.telemetry.feed_history',
         'feeds/{feed_id:\d+}/history'
     ),
+    # sngconnect.devices
+    (
+        'sngconnect.devices.feed_templates',
+        'devices/'
+    ),
+    (
+        'sngconnect.devices.feed_template',
+        'devices/{feed_template_id:\d+}'
+    ),
+    (
+        'sngconnect.devices.data_stream_template',
+        'devices/{feed_template_id:\d+}/parameters'
+            '/{data_stream_template_id:\d+}'
+    ),
     # sngconnect.accounts
-    ('sngconnect.accounts.sign_in', 'accounts/sign_in'),
-    ('sngconnect.accounts.sign_out', 'accounts/sign_out'),
-    ('sngconnect.accounts.sign_up', 'accounts/sign_up'),
+    (
+        'sngconnect.accounts.sign_in',
+        'accounts/sign_in'
+    ),
+    (
+        'sngconnect.accounts.sign_out',
+        'accounts/sign_out'
+    ),
+    (
+        'sngconnect.accounts.sign_up',
+        'accounts/sign_up'
+    ),
     (
         'sngconnect.accounts.activate',
         'accounts/activate/{email:[^/]+}/{email_activation_code:\w+}'

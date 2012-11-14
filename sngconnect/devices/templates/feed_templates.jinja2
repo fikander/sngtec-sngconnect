@@ -1,0 +1,34 @@
+{% extends "sngconnect.devices:templates/base.jinja2" %}
+{% from "sngconnect:templates/macros/horizontal_form_field.jinja2" import horizontal_form_field %}
+
+{% block main_content %}
+    <div class="page-header">
+        <h1>{% trans %}Device templates{% endtrans %}</h1>
+    </div>
+    <div class="page-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>{% trans %}ID{% endtrans %}</th>
+                    <th>{% trans %}Name{% endtrans %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for feed_template in feed_templates %}
+                    <tr>
+                        <td><code>{{ feed_template.id }}</code></td>
+                        <td><a href="{{ feed_template.url }}">{{ feed_template.name }}</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <h2>{% trans %}Add new device template{% endtrans %}</h2>
+        <form action="" method="post">
+            {{ feed_template_form.csrf_token }}
+            {{ horizontal_form_field(feed_template_form.name) }}
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary"><span class="awe-plus"></span> {% trans %}Add device template{% endtrans %}</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}

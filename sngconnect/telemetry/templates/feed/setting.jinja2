@@ -1,4 +1,4 @@
-{% extends "sngconnect.telemetry:templates/feed/data_streams.jinja2" %}
+{% extends "sngconnect.telemetry:templates/feed/settings.jinja2" %}
 {% from "sngconnect:templates/macros/horizontal_form_field.jinja2" import horizontal_form_field %}
 
 {% block main_breadcrumb %}
@@ -13,62 +13,24 @@
             <h2><span class="awe-th-list"></span> {% trans %}Values{% endtrans %}</h2>
             <table class="table">
                 <tbody>
-                    <tr>
-                        <th>{% trans %}Current value{% endtrans %}</th>
-                        {% if data_stream.last_value %}
-                            <td><code>{{ data_stream.last_value.value|round(precision=6) }}</code></td>
-                        {% else %}
-                            <td class="no-data">{% trans %}no data{% endtrans %}</td>
-                        {% endif %}
-                    </tr>
-                    {% if data_stream.last_value %}
+                    {% if data_stream.requested_value %}
                         <tr>
-                            <th>{% trans %}Last update{% endtrans %}</th>
-                            <td>{{ data_stream.last_value.date }}</td>
+                            <th>{% trans %}Current value{% endtrans %}</th>
+                            <td><code>{{ data_stream.requested_value }}</code></td>
+                        </tr>
+                        <tr>
+                            <th>{% trans %}Last change{% endtrans %}</th>
+                            <td>{{ data_stream.value_requested_at }}</td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <th>{% trans %}Current value{% endtrans %}</th>
+                            <td class="no-data" rowspan="2">{% trans %}no data{% endtrans %}</td>
+                        </tr>
+                        <tr>
+                            <th>{% trans %}Last change{% endtrans %}</th>
                         </tr>
                     {% endif %}
-                </tbody>
-            </table>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>{% trans %}Period{% endtrans %}</th>
-                        <th>{% trans %}Mean value{% endtrans %}</th>
-                        <th>{% trans %}Minimal value{% endtrans %}</th>
-                        <th>{% trans %}Maximal value{% endtrans %}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <th>{% trans %}This hour{% endtrans %}</td>
-                        {% if data_stream.this_hour %}
-                            <td><code>{{ data_stream.this_hour.mean|round(precision=6) }}</code></td>
-                            <td><code>{{ data_stream.this_hour.minimum|round(precision=6) }}</code></td>
-                            <td><code>{{ data_stream.this_hour.maximum|round(precision=6) }}</code></td>
-                        {% else %}
-                            <td class="no-data" colspan="3">{% trans %}no data{% endtrans %}</td>
-                        {% endif %}
-                    </tr>
-                    <tr>
-                        <th>{% trans %}Today{% endtrans %}</td>
-                        {% if data_stream.today %}
-                            <td><code>{{ data_stream.today.mean|round(precision=6) }}</code></td>
-                            <td><code>{{ data_stream.today.minimum|round(precision=6) }}</code></td>
-                            <td><code>{{ data_stream.today.maximum|round(precision=6) }}</code></td>
-                        {% else %}
-                            <td class="no-data" colspan="3">{% trans %}no data{% endtrans %}</td>
-                        {% endif %}
-                    </tr>
-                    <tr>
-                        <th>{% trans %}This month{% endtrans %}</td>
-                        {% if data_stream.this_month %}
-                            <td><code>{{ data_stream.this_month.mean|round(precision=6) }}</code></td>
-                            <td><code>{{ data_stream.this_month.minimum|round(precision=6) }}</code></td>
-                            <td><code>{{ data_stream.this_month.maximum|round(precision=6) }}</code></td>
-                        {% else %}
-                            <td class="no-data" colspan="3">{% trans %}no data{% endtrans %}</td>
-                        {% endif %}
-                    </tr>
                 </tbody>
             </table>
         </article>
@@ -79,11 +41,10 @@
     </div>
     <div class="row">
         <article class="span6">
-            <h2><span class="awe-th-list"></span> {% trans %}Allowed values{% endtrans %}</h2>
+            <h2><span class="awe-th-list"></span> {% trans %}Set value{% endtrans %}</h2>
             <form action="" method="post" class="form">
-                {{ value_bounds_form.csrf_token }}
-                {{ horizontal_form_field(value_bounds_form.minimum) }}
-                {{ horizontal_form_field(value_bounds_form.maximum) }}
+                {{ value_form.csrf_token }}
+                {{ horizontal_form_field(value_form.value) }}
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary">{% trans %}Set{% endtrans %}</button>
                 </div>

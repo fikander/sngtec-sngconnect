@@ -8,6 +8,7 @@
 }
 
 table td.no-data {
+    vertical-align: middle;
     text-align: center;
     color: #bbb;
 }

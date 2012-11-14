@@ -1,0 +1,5 @@
+{% extends "sngconnect:templates/base.jinja2" %}
+
+{% block main_breadcrumb %}
+    <li><a href="{{ request.route_url("sngconnect.devices.feed_templates") }}" title="{% trans %}Device templates{% endtrans %}"><span class="awe-cog"></span> {% trans %}Device templates{% endtrans %}</a></li>
+{% endblock %}

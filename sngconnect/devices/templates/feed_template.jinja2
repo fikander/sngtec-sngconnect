@@ -1,0 +1,62 @@
+{% extends "sngconnect.devices:templates/base.jinja2" %}
+{% from "sngconnect:templates/macros/horizontal_form_field.jinja2" import horizontal_form_field %}
+
+{% block main_breadcrumb %}
+    {{ super() }}
+    <li><a href="{{ feed_template.url }}" title="{{ feed_template.name }}">{{ feed_template.name }}</a></li>
+{% endblock %}
+
+{% block main_content %}
+    <div class="page-header">
+        <h1>{{ feed_template.name }}</h1>
+    </div>
+    <div class="page-container">
+        <form action="" method="post">
+            {{ feed_template_form.csrf_token }}
+            {{ horizontal_form_field(feed_template_form.name) }}
+            <div class="form-actions">
+                <button type="submit" name="submit_save_feed_template" class="btn btn-primary"><span class="awe-check"></span> {% trans %}Save{% endtrans %}</button>
+            </div>
+        </form>
+        <h2>{% trans %}Parameter templates{% endtrans %}</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>{% trans %}ID{% endtrans %}</th>
+                    <th>{% trans %}Name{% endtrans %}</th>
+                    <th>{% trans %}Label{% endtrans %}</th>
+                    <th>{% trans %}Writable{% endtrans %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for data_stream_template in feed_template.data_stream_templates %}
+                    <tr>
+                        <td><code>{{ data_stream_template.id }}</code></td>
+                        <td><a href="{{ data_stream_template.url }}">{{ data_stream_template.name }}</a></td>
+                        <td><code>{{ data_stream_template.label }}</code></td>
+                        <td>
+                            {% if data_stream_template.writable %}
+                                <span class="awe-check"></span>
+                            {% else %}
+                                <span class="awe-check-empty"></span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <h2>{% trans %}Add parameter template{% endtrans %}</h2>
+        <form action="" method="post">
+            {{ data_stream_template_form.csrf_token }}
+            {{ data_stream_template_form.feed_template_id }}
+            {{ horizontal_form_field(data_stream_template_form.name) }}
+            {{ horizontal_form_field(data_stream_template_form.label) }}
+            {{ horizontal_form_field(data_stream_template_form.description) }}
+            {{ horizontal_form_field(data_stream_template_form.measurement_unit) }}
+            {{ horizontal_form_field(data_stream_template_form.writable) }}
+            <div class="form-actions">
+                <button type="submit" name="submit_add_data_stream_template" class="btn btn-primary"><span class="awe-plus"></span> {% trans %}Add parameter template{% endtrans %}</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}
