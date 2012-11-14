@@ -132,6 +132,7 @@ class FeedTemplate(ModelBase):
     name = sql.Column(
         sql.Unicode(length=200),
         nullable=False,
+        unique=True,
         doc="Name identifying template feed."
     )
 
@@ -255,6 +256,7 @@ class DataStreamTemplate(ModelBase):
     __tablename__ = 'sngconnect_data_stream_templates'
     __table_args__ = (
         sql.UniqueConstraint('feed_template_id', 'label'),
+        sql.UniqueConstraint('feed_template_id', 'name'),
     )
 
     id = sql.Column(
