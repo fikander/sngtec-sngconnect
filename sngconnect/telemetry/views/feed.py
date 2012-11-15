@@ -176,7 +176,7 @@ class FeedDataStreams(FeedViewBase):
         data_streams = DBSession.query(DataStream).join(
             DataStreamTemplate
         ).filter(
-            Feed.id == self.feed.id,
+            DataStream.feed == self.feed,
             DataStreamTemplate.writable == False
         ).order_by(
             DataStreamTemplate.name
@@ -235,7 +235,7 @@ class FeedDataStream(FeedViewBase):
             data_stream = DBSession.query(DataStream).join(
                 DataStreamTemplate
             ).filter(
-                Feed.id == self.feed.id,
+                DataStream.feed == self.feed,
                 DataStreamTemplate.writable == False,
                 (DataStreamTemplate.label ==
                     self.request.matchdict['data_stream_label'])
@@ -432,7 +432,7 @@ class FeedSettings(FeedDataStreams):
         data_streams = DBSession.query(DataStream).join(
             DataStreamTemplate
         ).filter(
-            Feed.id == self.feed.id,
+            DataStream.feed == self.feed,
             DataStreamTemplate.writable == True
         ).order_by(
             DataStreamTemplate.name
@@ -467,7 +467,7 @@ class FeedSetting(FeedViewBase):
             data_stream = DBSession.query(DataStream).join(
                 DataStreamTemplate
             ).filter(
-                Feed.id == self.feed.id,
+                DataStream.feed == self.feed,
                 DataStreamTemplate.writable == True,
                 (DataStreamTemplate.label ==
                     self.request.matchdict['data_stream_label'])
