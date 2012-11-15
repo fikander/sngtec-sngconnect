@@ -27,6 +27,12 @@
                         <td class="no-data" colspan="2">{% trans %}no data{% endtrans %}</td>
                     {% endif %}
                 </tr>
+            {% else %}
+                <tr>
+                    <td class="no-data" colspan="4">
+                        {% trans %}This device has no settings.{% endtrans %}
+                    </td>
+                </tr>
             {% endfor %}
         </tbody>
     </table>
