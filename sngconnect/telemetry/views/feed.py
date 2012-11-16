@@ -66,6 +66,13 @@ class FeedViewBase(object):
         self.feed = feed
         self.feed_user = feed_user
         self.feed_permissions = feed_permissions
+        settings_count = DBSession.query(DataStream).join(
+            DataStreamTemplate
+        ).filter(
+            DataStream.feed == self.feed,
+            DataStreamTemplate.writable == True
+        ).count()
+        self.has_settings = (settings_count > 0)
         # FIXME getting alarms out is kind of dumb
         result = alarms_store.Alarms().get_active_alarms(feed.id)
         active_alarms = []
@@ -88,6 +95,7 @@ class FeedViewBase(object):
                 'latitude': feed.latitude,
                 'longitude': feed.longitude,
                 'created': feed.created,
+                'has_settings': self.has_settings,
                 'dashboard_url': request.route_url(
                     'sngconnect.telemetry.feed_dashboard',
                     feed_id=feed.id
@@ -429,6 +437,8 @@ class FeedDataStream(FeedViewBase):
 )
 class FeedSettings(FeedDataStreams):
     def __call__(self):
+        if not self.has_settings:
+            raise httpexceptions.HTTPNotFound()
         data_streams = DBSession.query(DataStream).join(
             DataStreamTemplate
         ).filter(
