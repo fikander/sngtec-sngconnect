@@ -76,13 +76,13 @@ class FeedViewBase(object):
         # FIXME getting alarms out is kind of dumb
         result = alarms_store.Alarms().get_active_alarms(feed.id)
         active_alarms = []
-        for data_stream_id, alarms in result:
+        for data_stream_id, alarms in result.items():
             data_stream = DataStream(id=data_stream_id)
-            for definition_id, activation_date in alarms:
+            for definition_id, activation_date in alarms.items():
                 definition = AlarmDefinition(id=definition_id)
                 active_alarms.append({
                     'activation_date': activation_date,
-                    'data_stream': data_stream.name,
+                    'data_stream': 'FIXME', #data_stream.name,
                     'type': definition.alarm_type,
                 })
         self.context = {
