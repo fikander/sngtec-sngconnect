@@ -30,12 +30,14 @@
                         {% trans %}Parameters{% endtrans %}
                     </a>
                 </li>
-                <li{% if active_secondary_navigation == "settings" %} class="active"{% endif %}>
-                    <a href="{{ feed.settings_url }}">
-                        <span class="awe-cog"></span>
-                        {% trans %}Settings{% endtrans %}
-                    </a>
-                </li>
+                {% if feed.has_settings %}
+                    <li{% if active_secondary_navigation == "settings" %} class="active"{% endif %}>
+                        <a href="{{ feed.settings_url }}">
+                            <span class="awe-cog"></span>
+                            {% trans %}Settings{% endtrans %}
+                        </a>
+                    </li>
+                {% endif %}
                 {% if feed_permissions.can_change_permissions %}
                     <li{% if active_secondary_navigation == "permissions" %} class="active"{% endif %}>
                         <a href="{{ feed.permissions_url }}">
