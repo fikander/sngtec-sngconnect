@@ -33,7 +33,6 @@
                         <th>{% trans %}Name{% endtrans %}</th>
                         <th>{% trans %}Alarms{% endtrans %}</th>
                         <th>{% trans %}Device{% endtrans %}</th>
-                        <th>{% trans %}Owner{% endtrans %}</th>
                     </tr>
                 <tbody>
                     {% for feed in feeds %}
@@ -41,13 +40,12 @@
                             <td><a href="{{ feed.dashboard_url }}">{{ feed.name }}</a></td>
                             <td>
                                 <span class="badge
-                                    {%- if feed.alarm_count > 1 %} badge-important{%- endif -%}
+                                    {%- if feed.active_alarm_count > 1 %} badge-important{%- endif -%}
                                 ">
-                                    {{ feed.alarm_count }}
+                                    {{ feed.active_alarm_count }}
                                 </span>
                             </td>
-                            <td>{{ feed.feed }}</td>
-                            <td>{{ feed.owner }}</td>
+                            <td>{{ feed.template_name }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
