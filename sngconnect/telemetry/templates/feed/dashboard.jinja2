@@ -1,4 +1,5 @@
 {% extends "sngconnect.telemetry:templates/feed/base.jinja2" %}
+{% from "sngconnect.telemetry:templates/feed/macros/message_table.jinja2" import message_table %}
 {% set active_secondary_navigation = "dashboard" %}
 
 {% block head_stylesheets %}
@@ -13,7 +14,7 @@
 
 {% block body_main %}
     {{ super() }}
-    {% if active_alarms or error_messages.count() %}
+    {% if active_alarms or important_messages %}
         <div class="hero-unit blow">
 			{% if active_alarms %}
 	            <h2><span class="awe-exclamation-sign"></span> {% trans %}Active alarms{% endtrans %}</h2>
@@ -41,31 +42,14 @@
 	                </tbody>
 	            </table>
             {% endif %}
-            {% if error_messages.count() %}
-	            <h2><span class="awe-exclamation-sign"></span> {% trans %}Error messages{% endtrans %}</h2>
+            {% if important_messages %}
+	            <h2><span class="awe-exclamation-sign"></span> {% trans %}Important messages{% endtrans %}</h2>
 	            <div class="alert alert-error">
-	                {% trans count=error_messages.count() -%}
-	                    You have <code>{{ count }}</code> new error and warning messages.
+	                {% trans count=important_messages|length -%}
+	                    You have <code>{{ count }}</code> new important messages.
 	                {%- endtrans %}
 	            </div>
-	            <table class="table">
-	                <thead>
-	                    <tr>
-	                        <th>{% trans %}Date{% endtrans %}</th>
-	                        <th>{% trans %}Alarm type{% endtrans %}</th>
-	                        <th>{% trans %}Message{% endtrans %}</th>
-	                    </tr>
-	                </thead>
-	                <tbody>
-	                    {% for error_message in error_messages %}
-	                    	<tr>
-	                    		<td>{{ error_message.date }}</td>
-	                    		<td><span class="label label-important">{% trans %}error{% endtrans %}</span></td>
-	                    		<td>{{ error_message.content }}</td>
-	                    	</tr>
-	                    {% endfor %}
-	                </tbody>
-	            </table>
+                {{ message_table(important_messages) }}
             {% endif %}
         </div>
     {% endif %}
@@ -125,21 +109,13 @@
             </div>
         </div>
     </div>
-    <div class="content">
-        <div class="page-container">
-            <div class="row">
-                <article class="span12">
-                    <h2><span class="awe-calendar"></span> {% trans %}History{% endtrans %}</h2>
-                    {% include "sngconnect.telemetry:templates/feed/messages_history.jinja2" %}
-                </article>
-            </div>
-        </div>
-    </div>
 {% endblock %}
 
 {% block page_content %}
 	{# use http://timeago.yarp.com/ jQuery plugin for timeago?? #}
-    {% trans %}Last updated: {% endtrans %}{{ last_updated }}
+    <p style="margin-top: -20px; color: #aaa;">
+        <span class="awe-retweet"></span> <strong>{% trans %}Last update:{% endtrans %}</strong> {{ last_updated }}
+    </p>
 {% endblock %}
 
 {% block body_scripts %}

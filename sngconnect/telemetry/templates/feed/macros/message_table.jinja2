@@ -1,0 +1,29 @@
+{% macro message_table(messages) %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>{% trans %}Date{% endtrans %}</th>
+                <th>{% trans %}Message{% endtrans %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for message in messages %}
+                <tr
+                    {%- if message.message_type == 'INFORMATION' %}
+                    {%- elif message.message_type == 'ERROR' %} class="alert-error"
+                    {%- elif message.message_type == 'WARNING' %} class="alert"
+                    {%- endif -%}
+                >
+                    <td>{{ message.date }}</td>
+                    <td>{{ message.content }}</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td class="no-data" colspan="2">
+                        {% trans %}No messages yet.{% endtrans %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endmacro %}

@@ -186,6 +186,10 @@ class Feed(ModelBase):
         lazy='joined'
     )
 
+    @property
+    def template_name(self):
+        return self.template.name
+
     def __init__(self, *args, **kwargs):
         super(Feed, self).__init__(*args, **kwargs)
         if self.api_key is None:

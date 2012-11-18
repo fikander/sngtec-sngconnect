@@ -35,7 +35,7 @@ class TestFeedDataStreamPut(ApiTestMixin, unittest.TestCase):
 
     def setUp(self):
         super(TestFeedDataStreamPut, self).setUp()
-        feed_template = FeedTemplate(id=1)
+        feed_template = FeedTemplate(id=1, name='Feed template 1')
         feed = Feed(
             id=1,
             template=feed_template,
@@ -265,7 +265,7 @@ class TestFeedGet(ApiTestMixin, unittest.TestCase):
 
     def setUp(self):
         super(TestFeedGet, self).setUp()
-        feed_template = FeedTemplate(id=1)
+        feed_template = FeedTemplate(id=1, name='Feed template 1')
         feed = Feed(
             id=1,
             template=feed_template,
@@ -388,7 +388,7 @@ class TestUploadLog(ApiTestMixin, unittest.TestCase):
 
     def setUp(self):
         super(TestUploadLog, self).setUp()
-        feed_template = FeedTemplate(id=1)
+        feed_template = FeedTemplate(id=1, name='Feed template 1')
         feed = Feed(
             id=1,
             template=feed_template,
@@ -469,7 +469,7 @@ class TestEvents(ApiTestMixin, unittest.TestCase):
 
     def setUp(self):
         super(TestEvents, self).setUp()
-        feed_template = FeedTemplate(id=1)
+        feed_template = FeedTemplate(id=1, name='Feed template 1')
         feed = Feed(
             id=1,
             template=feed_template,
@@ -538,7 +538,7 @@ class TestCommands(ApiTestMixin, unittest.TestCase):
 
     def setUp(self):
         super(TestCommands, self).setUp()
-        feed_template = FeedTemplate(id=1)
+        feed_template = FeedTemplate(id=1, name='Feed template 1')
         feed = Feed(
             id=1,
             template=feed_template,

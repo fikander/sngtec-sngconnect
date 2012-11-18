@@ -105,28 +105,6 @@ def feed_data_stream(request):
             alarms_on.append(alarm_definition.id)
     Alarms().set_alarms_on(feed_id, data_stream.id, alarms_on, last_date)
     Alarms().set_alarms_off(feed_id, data_stream.id, alarms_off)
-
-    # FIXME Code below is plain broken as it does not handle data point dates
-    # correctly.
-#    # Reset datastream's `requested_value` if any of the provided values
-#    # confirm request (assume small delta to cater for floating point precision
-#    # errors?) or for some reason requested value was never set (timeout)
-#    if data_stream.requested_value is not None:
-#        for data_point in data_points:
-#            if data_point[1] == data_stream.requested_value:
-#                # tinyputer responded correctly with chnge that we requested
-#                data_stream.requested_value = None
-#                break
-#        if data_stream.requested_value is not None:
-#            # timeout after 5 minutes - reset data_stream.requested_value
-#            td = datetime.datetime.now() - data_stream.value_requested_at
-#
-#            if (td.total_seconds() > 300):
-#                # TODO: create warning HistoryItem - we failed to set value on tinyputer
-#                data_stream.requested_value = None
-#        if data_stream.requested_value is None:
-#            DBSession.add(data_stream)
-#
     # end of FIXME
     return Response()
 

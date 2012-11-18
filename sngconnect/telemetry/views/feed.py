@@ -4,6 +4,7 @@ import datetime
 import decimal
 
 import pytz
+import sqlalchemy as sql
 from sqlalchemy.orm import exc as database_exceptions, joinedload
 from pyramid.view import view_config
 from pyramid import httpexceptions
@@ -73,20 +74,12 @@ class FeedViewBase(object):
             DataStreamTemplate.writable == True
         ).count()
         self.has_settings = (settings_count > 0)
-        # FIXME getting alarms out is kind of dumb
-        result = alarms_store.Alarms().get_active_alarms(feed.id)
-        active_alarms = []
-        for data_stream_id, alarms in result:
-            data_stream = DataStream(id=data_stream_id)
-            for definition_id, activation_date in alarms:
-                definition = AlarmDefinition(id=definition_id)
-                active_alarms.append({
-                    'activation_date': activation_date,
-                    'data_stream': data_stream.name,
-                    'type': definition.alarm_type,
-                })
+        self.active_alarms = alarms_store.Alarms().get_active_alarms(feed.id)
+        self.active_alarms_count = sum(
+            map(len, self.active_alarms.itervalues())
+        )
         self.context = {
-            'active_alarms': active_alarms,
+            'active_alarms_count': self.active_alarms_count,
             'feed': {
                 'id': feed.id,
                 'name': feed.name,
@@ -135,32 +128,28 @@ class FeedViewBase(object):
 )
 class FeedDashboard(FeedViewBase):
     def __call__(self):
-        # FIXME this is very ineffective
-        messages = DBSession.query(Message).filter(
-            Feed.id == self.feed.id
-        ).order_by(
-            Message.date
-        )
-        # TODO: filter only those without data_stream i.e. relating directly to
-        # feeds
-        error_messages = DBSession.query(Message).filter(
-            Feed.id == self.feed.id,
-            Message.message_type == u'ERROR'
-        ).order_by(
-            Message.date
-        )
-        # TODO: filter only those that were not SEEN or ACKNOWLEDGED by the
-        # user currently logged in (simple 'seen' flag in Message is not enough
-        # - it has to work per user basis)
         last_updated = (
             data_streams_store.LastDataPoints().get_last_data_stream_datetime(
                 self.feed.id
             )
         )
+        important_messages = DBSession.query(Message).filter(
+            Feed.id == self.feed.id,
+            Message.message_type == u'ERROR'
+        ).order_by(
+            sql.desc(Message.date)
+        ).all()
         self.context.update({
-            'messages': messages,
-            'error_messages': error_messages,
-            'last_updated': last_updated
+            'last_updated': last_updated,
+            'important_messages': [
+                {
+                    'id': message.id,
+                    'message_type': message.message_type,
+                    'content': message.content,
+                    'date': message.date,
+                }
+                for message in important_messages
+            ],
         })
         return self.context
 
@@ -804,4 +793,22 @@ class FeedPermissions(FeedViewBase):
     permission='sngconnect.telemetry.access'
 )
 class FeedHistory(FeedViewBase):
-    pass
+
+    def __call__(self):
+        messages = DBSession.query(Message).filter(
+            Feed.id == self.feed.id
+        ).order_by(
+            sql.desc(Message.date)
+        )
+        self.context.update({
+            'messages': [
+                {
+                    'id': message.id,
+                    'message_type': message.message_type,
+                    'content': message.content,
+                    'date': message.date,
+                }
+                for message in messages
+            ],
+        })
+        return self.context
