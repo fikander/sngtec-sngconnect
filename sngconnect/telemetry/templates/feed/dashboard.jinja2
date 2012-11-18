@@ -1,4 +1,6 @@
 {% extends "sngconnect.telemetry:templates/feed/base.jinja2" %}
+{% from "sngconnect.telemetry:templates/feed/macros/message_table.jinja2"
+import message_table %}
 {% set active_secondary_navigation = "dashboard" %}
 
 {% block head_stylesheets %}
@@ -130,7 +132,7 @@
             <div class="row">
                 <article class="span12">
                     <h2><span class="awe-calendar"></span> {% trans %}History{% endtrans %}</h2>
-                    {% include "sngconnect.telemetry:templates/feed/messages_history.jinja2" %}
+                    {{ message_table(messages) }}
                 </article>
             </div>
         </div>

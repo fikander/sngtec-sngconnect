@@ -73,20 +73,12 @@ class FeedViewBase(object):
             DataStreamTemplate.writable == True
         ).count()
         self.has_settings = (settings_count > 0)
-        # FIXME getting alarms out is kind of dumb
-        result = alarms_store.Alarms().get_active_alarms(feed.id)
-        active_alarms = []
-        for data_stream_id, alarms in result.items():
-            data_stream = DataStream(id=data_stream_id)
-            for definition_id, activation_date in alarms.items():
-                definition = AlarmDefinition(id=definition_id)
-                active_alarms.append({
-                    'activation_date': activation_date,
-                    'data_stream': 'FIXME', #data_stream.name,
-                    'type': definition.alarm_type,
-                })
+        self.active_alarms = alarms_store.Alarms().get_active_alarms(feed.id)
+        self.active_alarms_count = sum(
+            map(len, self.active_alarms.itervalues())
+        )
         self.context = {
-            'active_alarms': active_alarms,
+            'active_alarms_count': self.active_alarms_count,
             'feed': {
                 'id': feed.id,
                 'name': feed.name,

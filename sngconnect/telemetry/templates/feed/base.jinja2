@@ -14,8 +14,8 @@
                         <span class="awe-info-sign"></span>
                         {% trans %}Dashboard{% endtrans %}
                     </a>
-                    {% if active_alarms %}
-                        <span class="badge badge-important">{{ active_alarms|length }}</span>
+                    {% if active_alarms_count > 0 %}
+                        <span class="badge badge-important">{{ active_alarms_count }}</span>
                     {% endif %}
                 </li>
                 <li{% if active_secondary_navigation == "charts" %} class="active"{% endif %}>

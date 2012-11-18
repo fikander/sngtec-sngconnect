@@ -339,7 +339,7 @@ class LastDataPoints(ColumnFamilyProxy):
             return None
         return self._datetime_from_timestamp(max(map(
             lambda x: x[1][1],
-            result.items()
+            result.iteritems()
         )))
 
     def _datetime_from_timestamp(self, timestamp):
