@@ -139,8 +139,39 @@ class FeedDashboard(FeedViewBase):
         ).order_by(
             sql.desc(Message.date)
         ).all()
+        active_alarms = {}
+        for data_stream_id, data in self.active_alarms.iteritems():
+            active_alarms.update(data)
+        alarm_definitions = DBSession.query(AlarmDefinition).options(
+            joinedload(AlarmDefinition.data_stream)
+        ).filter(
+            AlarmDefinition.id.in_(active_alarms.keys())
+        )
         self.context.update({
             'last_updated': last_updated,
+            'active_alarms': [
+                {
+                    'id': alarm_definition.id,
+                    'alarm_type': alarm_definition.alarm_type,
+                    'boundary': alarm_definition.boundary,
+                    'data_stream': (
+                        {
+                            'id': alarm_definition.data_stream.id,
+                            'name': alarm_definition.data_stream.name,
+                            'url': self.request.route_url(
+                                'sngconnect.telemetry.feed_data_stream',
+                                feed_id=self.feed.id,
+                                data_stream_label=(
+                                    alarm_definition.data_stream.label
+                                )
+                            ),
+                        }
+                        if alarm_definition.data_stream is not None else None
+                    ),
+                    'activation_date': active_alarms[alarm_definition.id],
+                }
+                for alarm_definition in alarm_definitions
+            ],
             'important_messages': [
                 {
                     'id': message.id,

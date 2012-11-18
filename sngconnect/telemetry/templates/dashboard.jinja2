@@ -40,7 +40,7 @@
                             <td><a href="{{ feed.dashboard_url }}">{{ feed.name }}</a></td>
                             <td>
                                 <span class="badge
-                                    {%- if feed.active_alarm_count > 1 %} badge-important{%- endif -%}
+                                    {%- if feed.active_alarm_count > 0 %} badge-important{%- endif -%}
                                 ">
                                     {{ feed.active_alarm_count }}
                                 </span>

@@ -28,15 +28,23 @@
 	                    <tr>
 	                        <th>{% trans %}Activation date{% endtrans %}</th>
 	                        <th>{% trans %}Parameter{% endtrans %}</th>
-	                        <th>{% trans %}Alarm type{% endtrans %}</th>
+	                        <th>{% trans %}Problem{% endtrans %}</th>
 	                    </tr>
 	                </thead>
 	                <tbody>
 	                    {% for alarm in active_alarms %}
 	                        <tr>
 	                            <td>{{ alarm.activation_date }}</td>
-	                            <td>{{ alarm.data_stream }}</td>
-	                            <td>{{ alarm.type }}</td>
+	                            <td><a href="{{ alarm.data_stream.url }}">{{ alarm.data_stream.name }}</a></td>
+	                            <td>
+                                    {% if alarm.alarm_type == 'MAXIMAL_VALUE' %}
+                                        {% trans maximal_value=alarm.boundary %}Maximal value (<code>{{ maximal_value }}</code>) exceeded.{% endtrans %}
+                                    {% elif alarm.alarm_type == 'MINIMAL_VALUE' %}
+                                        {% trans minimal_value=alarm.boundary %}Value below the minimum (<code>{{ minimal_value }}</code>).{% endtrans %}
+                                    {% else %}
+                                        {% trans %}Unknown problem. Contact system support.{% endtrans %}
+                                    {% endif %}
+                                </td>
 	                        </tr>
 	                    {% endfor %}
 	                </tbody>
