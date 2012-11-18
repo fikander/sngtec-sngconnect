@@ -57,7 +57,9 @@
     </div>
     <div class="content">
         <div class="page-header">
-            <h1>{{ feed.name }}</h1>
+            {% block page_header %}
+                <h1>{{ feed.name }}</h1>
+            {% endblock %}
         </div>
         <div class="page-container">
             {% block page_content %}
