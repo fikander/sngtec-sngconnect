@@ -82,7 +82,8 @@ def feed_data_stream(request):
         for point in request_appstruct['datapoints']
     ]
     Measurements().insert_data_points(data_stream.id, data_points)
-    # FIXME This is not wise for production use due to race condition concerns.
+    # FIXME This may be not wise for production use due to race condition
+    # concerns.
     dates = map(lambda x: x[0], data_points)
     HourlyAggregates().recalculate_aggregates(data_stream.id, dates)
     DailyAggregates().recalculate_aggregates(data_stream.id, dates)
