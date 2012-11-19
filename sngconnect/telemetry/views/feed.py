@@ -134,7 +134,7 @@ class FeedDashboard(FeedViewBase):
             )
         )
         important_messages = DBSession.query(Message).filter(
-            Feed.id == self.feed.id,
+            Message.feed == self.feed,
             Message.message_type == u'ERROR'
         ).order_by(
             sql.desc(Message.date)
@@ -827,7 +827,7 @@ class FeedHistory(FeedViewBase):
 
     def __call__(self):
         messages = DBSession.query(Message).filter(
-            Feed.id == self.feed.id
+            Message.feed == self.feed
         ).order_by(
             sql.desc(Message.date)
         )
