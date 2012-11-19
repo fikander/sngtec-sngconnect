@@ -3,7 +3,8 @@ from pyramid.view import view_config
 from pyramid import httpexceptions
 
 from sngconnect.translation import _
-from sngconnect.database import DBSession, FeedTemplate, DataStreamTemplate
+from sngconnect.database import (DBSession, FeedTemplate, DataStreamTemplate,
+    Feed, DataStream)
 from sngconnect.devices import forms
 
 @view_config(
@@ -44,10 +45,66 @@ def feed_templates(request):
                     'sngconnect.devices.feed_template',
                     feed_template_id=feed_template.id
                 ),
+                'delete_url': request.route_url(
+                    'sngconnect.devices.feed_template_delete',
+                    feed_template_id=feed_template.id
+                ),
+                'delete_form': forms.DeleteFeedTemplateForm(
+                    csrf_context=request,
+                    feed_template_id=feed_template.id
+                ),
             }
             for feed_template in feed_templates
         ]
     }
+
+@view_config(
+    route_name='sngconnect.devices.feed_template_delete',
+    request_method='POST',
+    permission='sngconnect.devices.access'
+)
+def feed_template_delete(request):
+    try:
+        feed_template = DBSession.query(FeedTemplate).filter(
+            FeedTemplate.id == request.matchdict['feed_template_id']
+        ).one()
+    except database_exceptions.NoResultFound:
+        raise httpexceptions.HTTPNotFound()
+    delete_form = forms.DeleteFeedTemplateForm(
+        feed_template_id=feed_template.id,
+        csrf_context=request
+    )
+    delete_form.process(request.POST)
+    if delete_form.validate():
+        dependent_count = DBSession.query(Feed).filter(
+            Feed.template == feed_template
+        ).count()
+        if dependent_count == 0:
+            DBSession.delete(feed_template)
+            request.session.flash(
+                _("Device template has been successfuly deleted."),
+                queue='success'
+            )
+        else:
+            request.session.flash(
+                _(
+                    "Device template cannot be deleted as there are"
+                    " already devices basing on it. Contact the system"
+                    " support for further information."
+                ),
+                queue='error'
+            )
+    else:
+        request.session.flash(
+            _(
+                "There were some problems with your request."
+                " Contact the system support."
+            ),
+            queue='error'
+        )
+    return httpexceptions.HTTPFound(
+        request.route_url('sngconnect.devices.feed_templates')
+    )
 
 @view_config(
     route_name='sngconnect.devices.feed_template',
@@ -129,11 +186,77 @@ def feed_template(request):
                         feed_template_id=feed_template.id,
                         data_stream_template_id=data_stream_template.id
                     ),
+                    'delete_url': request.route_url(
+                        'sngconnect.devices.data_stream_template_delete',
+                        feed_template_id=feed_template.id,
+                        data_stream_template_id=data_stream_template.id
+                    ),
+                    'delete_form': forms.DeleteDataStreamTemplateForm(
+                        csrf_context=request,
+                        data_stream_template_id=data_stream_template.id
+                    ),
                 }
                 for data_stream_template in data_stream_templates
             ],
         }
     }
+
+@view_config(
+    route_name='sngconnect.devices.data_stream_template_delete',
+    request_method='POST',
+    permission='sngconnect.devices.access'
+)
+def data_stream_template_delete(request):
+    try:
+        feed_template, data_stream_template = DBSession.query(
+            FeedTemplate,
+            DataStreamTemplate
+        ).filter(
+            FeedTemplate.id == request.matchdict['feed_template_id'],
+            (DataStreamTemplate.id ==
+                request.matchdict['data_stream_template_id']),
+            DataStreamTemplate.feed_template_id == FeedTemplate.id
+        ).one()
+    except database_exceptions.NoResultFound:
+        raise httpexceptions.HTTPNotFound()
+    delete_form = forms.DeleteDataStreamTemplateForm(
+        data_stream_template_id=data_stream_template.id,
+        csrf_context=request
+    )
+    delete_form.process(request.POST)
+    if delete_form.validate():
+        dependent_count = DBSession.query(DataStream).filter(
+            DataStream.template == data_stream_template
+        ).count()
+        if dependent_count == 0:
+            DBSession.delete(data_stream_template)
+            request.session.flash(
+                _("Parameter template has been successfuly deleted."),
+                queue='success'
+            )
+        else:
+            request.session.flash(
+                _(
+                    "Parameter template cannot be deleted as there are"
+                    " already parameters basing on it. Contact the system"
+                    " support for further information."
+                ),
+                queue='error'
+            )
+    else:
+        request.session.flash(
+            _(
+                "There were some problems with your request."
+                " Contact the system support."
+            ),
+            queue='error'
+        )
+    return httpexceptions.HTTPFound(
+        request.route_url(
+            'sngconnect.devices.feed_template',
+            feed_template_id=feed_template.id
+        )
+    )
 
 @view_config(
     route_name='sngconnect.devices.data_stream_template',

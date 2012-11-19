@@ -27,6 +27,24 @@ class AddFeedTemplateForm(UpdateFeedTemplateForm):
                 _("There is already device template having this name.")
             )
 
+class DeleteFeedTemplateForm(SecureForm):
+
+    feed_template_id = fields.IntegerField(
+        widget=widgets.HiddenInput(),
+        validators=(
+            validators.DataRequired(),
+        )
+    )
+
+    def __init__(self, feed_template_id=None, *args, **kwargs):
+        self._feed_template_id = feed_template_id
+        kwargs['feed_template_id'] = feed_template_id
+        super(DeleteFeedTemplateForm, self).__init__(*args, **kwargs)
+
+    def validate_feed_template_id(self, field):
+        if field.data != self._feed_template_id:
+            raise validators.ValidationError()
+
 class UpdateDataStreamTemplateForm(SecureForm):
 
     feed_template_id = fields.IntegerField(
@@ -101,3 +119,21 @@ class AddDataStreamTemplateForm(UpdateDataStreamTemplateForm):
             raise validators.ValidationError(
                 _("There is already parameter template having this name.")
             )
+
+class DeleteDataStreamTemplateForm(SecureForm):
+
+    data_stream_template_id = fields.IntegerField(
+        widget=widgets.HiddenInput(),
+        validators=(
+            validators.DataRequired(),
+        )
+    )
+
+    def __init__(self, data_stream_template_id=None, *args, **kwargs):
+        self._data_stream_template_id = data_stream_template_id
+        kwargs['data_stream_template_id'] = data_stream_template_id
+        super(DeleteDataStreamTemplateForm, self).__init__(*args, **kwargs)
+
+    def validate_data_stream_template_id(self, field):
+        if field.data != self._data_stream_template_id:
+            raise validators.ValidationError()

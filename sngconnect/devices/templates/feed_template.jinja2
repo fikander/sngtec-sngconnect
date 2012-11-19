@@ -26,6 +26,7 @@
                     <th>{% trans %}Name{% endtrans %}</th>
                     <th>{% trans %}Label{% endtrans %}</th>
                     <th>{% trans %}Writable{% endtrans %}</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -40,6 +41,15 @@
                             {% else %}
                                 <span class="awe-check-empty"></span>
                             {% endif %}
+                        </td>
+                        <td>
+                            <form action="{{ data_stream_template.delete_url }}" method="post" style="background: none; margin: 0;">
+                                {{ data_stream_template.delete_form.csrf_token }}
+                                {{ data_stream_template.delete_form.data_stream_template_id }}
+                                <button type="submit" class="btn btn-mini btn-danger">
+                                    {% trans %}Delete{% endtrans %}
+                                </button>
+                            </form>
                         </td>
                     </tr>
                 {% endfor %}
