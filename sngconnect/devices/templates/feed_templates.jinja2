@@ -11,6 +11,7 @@
                 <tr>
                     <th>{% trans %}ID{% endtrans %}</th>
                     <th>{% trans %}Name{% endtrans %}</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -18,6 +19,15 @@
                     <tr>
                         <td><code>{{ feed_template.id }}</code></td>
                         <td><a href="{{ feed_template.url }}">{{ feed_template.name }}</a></td>
+                        <td>
+                            <form action="{{ feed_template.delete_url }}" method="post" style="background: none; margin: 0;">
+                                {{ feed_template.delete_form.csrf_token }}
+                                {{ feed_template.delete_form.feed_template_id }}
+                                <button type="submit" class="btn btn-mini btn-danger">
+                                    {% trans %}Delete{% endtrans %}
+                                </button>
+                            </form>
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>

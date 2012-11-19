@@ -58,9 +58,18 @@ ROUTES = (
         'devices/{feed_template_id:\d+}'
     ),
     (
+        'sngconnect.devices.feed_template_delete',
+        'devices/{feed_template_id:\d+}/delete'
+    ),
+    (
         'sngconnect.devices.data_stream_template',
         'devices/{feed_template_id:\d+}/parameters'
             '/{data_stream_template_id:\d+}'
+    ),
+    (
+        'sngconnect.devices.data_stream_template_delete',
+        'devices/{feed_template_id:\d+}/parameters'
+            '/{data_stream_template_id:\d+}/delete'
     ),
     # sngconnect.accounts
     (
