@@ -76,16 +76,15 @@ def feed_template_delete(request):
     )
     delete_form.process(request.POST)
     if delete_form.validate():
-        dependent_count = DBSession.query(Feed).filter(
+        dependent_feed_count = DBSession.query(Feed).filter(
             Feed.template == feed_template
         ).count()
-        if dependent_count == 0:
-            DBSession.delete(feed_template)
-            request.session.flash(
-                _("Device template has been successfuly deleted."),
-                queue='success'
-            )
-        else:
+        dependent_data_stream_template_count = DBSession.query(
+            DataStreamTemplate
+        ).filter(
+            DataStreamTemplate.feed_template == feed_template
+        ).count()
+        if dependent_feed_count > 0:
             request.session.flash(
                 _(
                     "Device template cannot be deleted as there are"
@@ -93,6 +92,21 @@ def feed_template_delete(request):
                     " support for further information."
                 ),
                 queue='error'
+            )
+        elif dependent_data_stream_template_count > 0:
+            request.session.flash(
+                _(
+                    "Device template cannot be deleted as it has parameter"
+                    " templates assigned to it. Contact the system support for"
+                    " further information."
+                ),
+                queue='error'
+            )
+        else:
+            DBSession.delete(feed_template)
+            request.session.flash(
+                _("Device template has been successfuly deleted."),
+                queue='success'
             )
     else:
         request.session.flash(
