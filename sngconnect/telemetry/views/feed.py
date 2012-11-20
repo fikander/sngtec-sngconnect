@@ -328,6 +328,13 @@ class FeedDataStream(FeedViewBase):
                     _("Parameter allowed values have been successfuly saved."),
                     queue='success'
                 )
+                return httpexceptions.HTTPFound(
+                    self.request.route_url(
+                        'sngconnect.telemetry.feed_data_stream',
+                        feed_id=self.feed.id,
+                        data_stream_label=data_stream.label
+                    )
+                )
             else:
                 self.request.session.flash(
                     _(
@@ -522,6 +529,13 @@ class FeedSetting(FeedViewBase):
                 self.request.session.flash(
                     _("Setting value has been successfuly saved."),
                     queue='success'
+                )
+                return httpexceptions.HTTPFound(
+                    self.request.route_url(
+                        'sngconnect.telemetry.feed_setting',
+                        feed_id=self.feed.id,
+                        data_stream_label=data_stream.label
+                    )
                 )
             else:
                 self.request.session.flash(

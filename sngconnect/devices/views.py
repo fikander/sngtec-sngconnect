@@ -24,6 +24,9 @@ def feed_templates(request):
                 _("Device template has been successfuly added."),
                 queue='success'
             )
+            return httpexceptions.HTTPFound(
+                request.route_url('sngconnect.devices.feed_templates')
+            )
         else:
             request.session.flash(
                 _(
@@ -150,6 +153,10 @@ def feed_template(request):
                     _("Device template has been successfuly saved."),
                     queue='success'
                 )
+                return httpexceptions.HTTPFound(
+                    request.route_url('sngconnect.devices.feed_template'),
+                    feed_template_id=feed_template.id
+                )
             else:
                 request.session.flash(
                     _(
@@ -165,8 +172,12 @@ def feed_template(request):
                 data_stream_template_form.populate_obj(data_stream_template)
                 DBSession.add(data_stream_template)
                 request.session.flash(
-                    _("Parameter template has been successfuly saved."),
+                    _("Parameter template has been successfuly added."),
                     queue='success'
+                )
+                return httpexceptions.HTTPFound(
+                    request.route_url('sngconnect.devices.feed_template'),
+                    feed_template_id=feed_template.id
                 )
             else:
                 request.session.flash(
@@ -303,6 +314,10 @@ def data_stream_template(request):
             request.session.flash(
                 _("Parameter template has been successfuly saved."),
                 queue='success'
+            )
+            return httpexceptions.HTTPFound(
+                request.route_url('sngconnect.devices.data_stream_template'),
+                data_stream_template_id=data_stream_template.id
             )
         else:
             request.session.flash(
