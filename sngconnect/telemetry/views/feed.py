@@ -498,22 +498,32 @@ class FeedSettings(FeedDataStreams):
         ).order_by(
             DataStreamTemplate.name
         )
+        last_data_points = (
+            data_streams_store.LastDataPoints().get_last_data_stream_data_points(
+                self.feed.id
+            )
+        )
+        data_streams_serialized = []
+        for data_stream in data_streams:
+            last_data_point = last_data_points.get(data_stream.id, None)
+            data_streams_serialized.append({
+                'id': data_stream.id,
+                'name': data_stream.name,
+                'measurement_unit': data_stream.measurement_unit,
+                'url': self.request.route_url(
+                    'sngconnect.telemetry.feed_setting',
+                    feed_id=self.feed.id,
+                    data_stream_label=data_stream.label
+                ),
+                'requested_value': data_stream.requested_value,
+                'value_requested_at': data_stream.value_requested_at,
+                'last_value': {
+                    'date': last_data_point[0],
+                    'value': decimal.Decimal(last_data_point[1]),
+                } if last_data_point else None,
+            })
         self.context.update({
-            'data_streams': [
-                {
-                    'id': data_stream.id,
-                    'name': data_stream.name,
-                    'measurement_unit': data_stream.measurement_unit,
-                    'url': self.request.route_url(
-                        'sngconnect.telemetry.feed_setting',
-                        feed_id=self.feed.id,
-                        data_stream_label=data_stream.label
-                    ),
-                    'requested_value': data_stream.requested_value,
-                    'value_requested_at': data_stream.value_requested_at,
-                }
-                for data_stream in data_streams
-            ],
+            'data_streams': data_streams_serialized,
         })
         return self.context
 
@@ -535,6 +545,12 @@ class FeedSetting(FeedViewBase):
             ).one()
         except database_exceptions.NoResultFound:
             raise httpexceptions.HTTPNotFound()
+        last_data_point = (
+            data_streams_store.LastDataPoints().get_last_data_stream_data_point(
+                self.feed.id,
+                data_stream.id
+            )
+        )
         value_form = forms.ValueForm(
             value=data_stream.requested_value,
             csrf_context=self.request
@@ -609,6 +625,10 @@ class FeedSetting(FeedViewBase):
                 'description': data_stream.description,
                 'requested_value': data_stream.requested_value,
                 'value_requested_at': data_stream.value_requested_at,
+                'last_value': {
+                    'date': last_data_point[0],
+                    'value': decimal.Decimal(last_data_point[1]),
+                } if last_data_point else None,
                 'last_day_values': last_day_values,
                 'last_week_values': last_week_values,
                 'last_year_values': last_year_values,
