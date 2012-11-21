@@ -20,9 +20,9 @@
                 <tr>
                     <td><a href="{{ data_stream.url }}">{{ data_stream.name }}</a></td>
                     <td>{{ data_stream.measurement_unit }}</td>
-                    {% if data_stream.requested_value %}
-                        <td><code>{{ data_stream.requested_value }}</code></td>
-                        <td>{{ data_stream.value_requested_at }}</td>
+                    {% if data_stream.last_value %}
+                        <td><code>{{ data_stream.last_value.value }}</code></td>
+                        <td>{{ data_stream.last_value.date }}</td>
                     {% else %}
                         <td class="no-data" colspan="2">{% trans %}no data{% endtrans %}</td>
                     {% endif %}

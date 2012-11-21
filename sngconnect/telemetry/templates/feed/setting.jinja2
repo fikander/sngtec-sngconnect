@@ -13,14 +13,14 @@
             <h2><span class="awe-th-list"></span> {% trans %}Values{% endtrans %}</h2>
             <table class="table">
                 <tbody>
-                    {% if data_stream.requested_value %}
+                    {% if data_stream.last_value %}
                         <tr>
                             <th>{% trans %}Current value{% endtrans %}</th>
-                            <td><code>{{ data_stream.requested_value }}</code></td>
+                            <td><code>{{ data_stream.last_value.value }}</code></td>
                         </tr>
                         <tr>
                             <th>{% trans %}Last change{% endtrans %}</th>
-                            <td>{{ data_stream.value_requested_at }}</td>
+                            <td>{{ data_stream.last_value.date }}</td>
                         </tr>
                     {% else %}
                         <tr>
