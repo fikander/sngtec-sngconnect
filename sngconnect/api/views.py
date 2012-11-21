@@ -1,5 +1,6 @@
 import json
 import sys
+import decimal
 import hmac
 import hashlib
 
@@ -94,6 +95,7 @@ def feed_data_stream(request):
         feed_id,
         data_stream.id
     )
+    last_value = decimal.Decimal(last_value)
     # Turn alarms associated with datastreams on/off
     alarm_definitions = DBSession.query(AlarmDefinition).filter(
         AlarmDefinition.data_stream_id == data_stream.id
@@ -111,7 +113,7 @@ def feed_data_stream(request):
     if data_stream.writable:
         error = abs(data_stream.requested_value - last_value)
         maximal_error = (
-            sys.float_info.epsilon * max((
+            decimal.Decimal(sys.float_info.epsilon) * max((
                 2 ** -1022,
                 abs(data_stream.requested_value),
                 abs(last_value))
