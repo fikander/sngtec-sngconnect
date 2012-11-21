@@ -1,4 +1,5 @@
 import json
+import sys
 import hmac
 import hashlib
 
@@ -89,13 +90,13 @@ def feed_data_stream(request):
     DailyAggregates().recalculate_aggregates(data_stream.id, dates)
     MonthlyAggregates().recalculate_aggregates(data_stream.id, dates)
     LastDataPoints().update(feed_id, data_stream.id)
-    # Turn alarms associated with datastreams on/off
-    alarm_definitions = DBSession.query(AlarmDefinition).filter(
-        AlarmDefinition.data_stream_id == data_stream.id
-    )
     last_date, last_value = LastDataPoints().get_last_data_stream_data_point(
         feed_id,
         data_stream.id
+    )
+    # Turn alarms associated with datastreams on/off
+    alarm_definitions = DBSession.query(AlarmDefinition).filter(
+        AlarmDefinition.data_stream_id == data_stream.id
     )
     alarms_on = []
     alarms_off = []
@@ -106,6 +107,23 @@ def feed_data_stream(request):
             alarms_on.append(alarm_definition.id)
     Alarms().set_alarms_on(feed_id, data_stream.id, alarms_on, last_date)
     Alarms().set_alarms_off(feed_id, data_stream.id, alarms_off)
+    # Set requested value to None if applied.
+    if data_stream.writable:
+        error = abs(data_stream.requested_value - last_value)
+        maximal_error = (
+            sys.float_info.epsilon * max((
+                2 ** -1022,
+                abs(data_stream.requested_value),
+                abs(last_value))
+            )
+        )
+        if error <= maximal_error:
+            DBSession.query(DataStream).filter(
+                DataStream.id == data_stream.id
+            ).update({
+                'requested_value': None,
+                'value_requested_at': None,
+            })
     # end of FIXME
     return Response()
 
