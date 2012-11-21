@@ -110,7 +110,7 @@ def feed_data_stream(request):
     Alarms().set_alarms_on(feed_id, data_stream.id, alarms_on, last_date)
     Alarms().set_alarms_off(feed_id, data_stream.id, alarms_off)
     # Set requested value to None if applied.
-    if data_stream.writable:
+    if data_stream.writable and data_stream.requested_value is not None:
         error = abs(data_stream.requested_value - last_value)
         maximal_error = (
             decimal.Decimal(sys.float_info.epsilon) * max((
