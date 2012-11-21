@@ -283,6 +283,12 @@ class FeedDataStream(FeedViewBase):
             maximum=maximal_value,
             csrf_context=self.request
         )
+        last_data_point = (
+            data_streams_store.LastDataPoints().get_last_data_stream_data_point(
+                self.feed.id,
+                data_stream.id
+            )
+        )
         if self.request.method == 'POST':
             value_bounds_form.process(self.request.POST)
             if value_bounds_form.validate():
@@ -303,8 +309,10 @@ class FeedDataStream(FeedViewBase):
                         query.update({
                             'boundary': value_bounds_form.minimum.data
                         })
+                        minimum_alarm = query.one()
                     else:
                         query.delete()
+                        minimum_alarm = None
                 if maximal_value is None:
                     if value_bounds_form.maximum.data is not None:
                         maximum_alarm = AlarmDefinition(
@@ -322,8 +330,30 @@ class FeedDataStream(FeedViewBase):
                         query.update({
                             'boundary': value_bounds_form.maximum.data
                         })
+                        maximum_alarm = query.one()
                     else:
                         query.delete()
+                        maximum_alarm = None
+                alarms_on = []
+                alarms_off = []
+                for alarm_definition in [minimum_alarm, maximum_alarm]:
+                    if alarm_definition is None:
+                        continue
+                    if alarm_definition.check_value(last_data_point[1]) is None:
+                        alarms_off.append(alarm_definition.id)
+                    else:
+                        alarms_on.append(alarm_definition.id)
+                alarms_store.Alarms().set_alarms_on(
+                    self.feed.id,
+                    data_stream.id,
+                    alarms_on,
+                    last_data_point[0]
+                )
+                alarms_store.Alarms().set_alarms_off(
+                    self.feed.id,
+                    data_stream.id,
+                    alarms_off
+                )
                 self.request.session.flash(
                     _("Parameter allowed values have been successfuly saved."),
                     queue='success'
@@ -384,12 +414,6 @@ class FeedDataStream(FeedViewBase):
             )
         except IndexError:
             this_month = None
-        last_data_point = (
-            data_streams_store.LastDataPoints().get_last_data_stream_data_point(
-                self.feed.id,
-                data_stream.id
-            )
-        )
         last_day_values = data_streams_store.Measurements().get_data_points(
             data_stream.id,
             start_date=pytz.utc.localize(
