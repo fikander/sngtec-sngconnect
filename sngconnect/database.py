@@ -366,8 +366,8 @@ class DataStream(ModelBase):
         return self.template.measurement_unit
 
     @property
-    def writeable(self):
-        return self.template.writeable
+    def writable(self):
+        return self.template.writable
 
 class AlarmDefinition(ModelBase):
 
