@@ -786,11 +786,27 @@ class FeedPermissions(FeedViewBase):
     def set_user_permissions(self):
         if not self.can_manage_users:
             raise httpexceptions.HTTPForbidden()
+        post_keys = filter(
+            lambda x: x.startswith('can_access-'),
+            self.request.POST.iterkeys()
+        )
+        feed_user_ids = []
+        for post_key in post_keys:
+            try:
+                feed_user_ids.append(int(post_key.split('-')[1]))
+            except (IndexError, ValueError):
+                continue
+        DBSession.query(FeedUser).filter(
+            FeedUser.feed == self.feed,
+            ~FeedUser.id.in_(feed_user_ids),
+            FeedUser.user_id != self.user_id,
+            FeedUser.role_user == True
+        ).delete(synchronize_session=False)
         permission_fields = {
             'can_change_permissions': filter(
                 lambda x: x.startswith('can_change_permissions-'),
                 self.request.POST.iterkeys()
-            )
+            ),
         }
         for field_name, post_keys in permission_fields.iteritems():
             feed_user_ids = []
@@ -814,16 +830,16 @@ class FeedPermissions(FeedViewBase):
             ).update({
                 field_name: True
             }, synchronize_session=False)
-            self.request.session.flash(
-                _("User permissions have been successfuly saved."),
-                queue='success'
+        self.request.session.flash(
+            _("User permissions have been successfuly saved."),
+            queue='success'
+        )
+        return httpexceptions.HTTPFound(
+            self.request.route_url(
+                'sngconnect.telemetry.feed_permissions',
+                feed_id=self.feed.id
             )
-            return httpexceptions.HTTPFound(
-                self.request.route_url(
-                    'sngconnect.telemetry.feed_permissions',
-                    feed_id=self.feed.id
-                )
-            )
+        )
 
     @view_config(
         route_name=(
@@ -833,11 +849,27 @@ class FeedPermissions(FeedViewBase):
         permission='sngconnect.telemetry.access'
     )
     def set_maintainer_permissions(self):
+        post_keys = filter(
+            lambda x: x.startswith('can_access-'),
+            self.request.POST.iterkeys()
+        )
+        feed_user_ids = []
+        for post_key in post_keys:
+            try:
+                feed_user_ids.append(int(post_key.split('-')[1]))
+            except (IndexError, ValueError):
+                continue
+        DBSession.query(FeedUser).filter(
+            FeedUser.feed == self.feed,
+            ~FeedUser.id.in_(feed_user_ids),
+            FeedUser.user_id != self.user_id,
+            FeedUser.role_maintainer == True
+        ).delete(synchronize_session=False)
         permission_fields = {
             'can_change_permissions': filter(
                 lambda x: x.startswith('can_change_permissions-'),
                 self.request.POST.iterkeys()
-            )
+            ),
         }
         for field_name, post_keys in permission_fields.iteritems():
             feed_user_ids = []
@@ -861,19 +893,16 @@ class FeedPermissions(FeedViewBase):
             ).update({
                 field_name: True
             }, synchronize_session=False)
-            self.request.session.flash(
-                _(
-                    "Maintainer permissions have been successfuly"
-                    " saved."
-                ),
-                queue='success'
+        self.request.session.flash(
+            _("User permissions have been successfuly saved."),
+            queue='success'
+        )
+        return httpexceptions.HTTPFound(
+            self.request.route_url(
+                'sngconnect.telemetry.feed_permissions',
+                feed_id=self.feed.id
             )
-            return httpexceptions.HTTPFound(
-                self.request.route_url(
-                    'sngconnect.telemetry.feed_permissions',
-                    feed_id=self.feed.id
-                )
-            )
+        )
 
 @view_config(
     route_name='sngconnect.telemetry.feed_history',
