@@ -15,14 +15,18 @@
                 <thead>
                     <tr>
                         <th>{% trans %}User{% endtrans %}</th>
-                        <th>{% trans %}Can see the device{% endtrans %}</th>
+                        <th>{% trans %}Can access the device{% endtrans %}</th>
                         <th>{% trans %}Can manage users{% endtrans %}</th>
                 </thead>
                 <tbody>
                     {% for feed_user in feed_users %}
                         <tr>
                             <td>{{ feed_user.user.email }}</td>
-                            <td><input type="checkbox" checked="true" disabled="true"></td>
+                            <td><input type="checkbox" name="can_access-{{ feed_user.id }}" checked="true"
+                                {%- if feed_user.user.id == user.id %} disabled="true"
+                                {%- else %} name="can_change_permissions-{{ feed_user.id }}"
+                                {%- endif -%}
+                            ></td>
                             <td><input type="checkbox"
                                 {%- if feed_user.can_change_permissions %} checked="true"{% endif -%}
                                 {%- if feed_user.user.id == user.id %} disabled="true"
@@ -60,14 +64,18 @@
             <thead>
                 <tr>
                     <th>{% trans %}Maintainer{% endtrans %}</th>
-                    <th>{% trans %}Can see the device{% endtrans %}</th>
+                    <th>{% trans %}Can access the device{% endtrans %}</th>
                     <th>{% trans %}Can manage maintainers{% endtrans %}</th>
             </thead>
             <tbody>
                 {% for feed_user in feed_maintainers %}
                     <tr>
                         <td>{{ feed_user.user.email }}</td>
-                        <td><input type="checkbox" checked="true" disabled="true"></td>
+                        <td><input type="checkbox" checked="true"
+                            {%- if feed_user.user.id == user.id %} disabled="true"
+                            {%- else %} name="can_access-{{ feed_user.id }}"
+                            {%- endif -%}
+                        ></td>
                         <td><input type="checkbox"
                             {%- if feed_user.can_change_permissions %} checked="true"{% endif -%}
                             {%- if feed_user.user.id == user.id %} disabled="true"
