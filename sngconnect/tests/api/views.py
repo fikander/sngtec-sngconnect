@@ -269,7 +269,6 @@ class TestFeedDataStreamPut(ApiTestMixin, unittest.TestCase):
             ).value('requested_value'),
             None
         )
-        # Just one more request to check requested_value == None works
         request = self.get_request(1, 'data_stream_2', json_body={
             'datapoints': [
                 {
@@ -280,7 +279,6 @@ class TestFeedDataStreamPut(ApiTestMixin, unittest.TestCase):
         })
         response = views.feed_data_stream(request)
         self.assertEqual(response.status_code, 200)
-
 
 class TestFeedGet(ApiTestMixin, unittest.TestCase):
 
