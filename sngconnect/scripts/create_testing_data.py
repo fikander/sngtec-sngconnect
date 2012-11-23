@@ -15,8 +15,8 @@ from sngconnect.database import (User, FeedTemplate, Feed, DataStreamTemplate,
 
 def usage(argv):
     cmd = os.path.basename(argv[0])
-    print('usage: %s <config_uri> <feed_count>\n'
-          '(example: "%s development.ini 3")' % (cmd, cmd))
+    print('usage: %s <config_uri>\n'
+          '(example: "%s development.ini")' % (cmd, cmd))
     sys.exit(1)
 
 def main(argv=sys.argv):
@@ -61,7 +61,7 @@ def create_test_data():
             feed_template=feed_template,
             label='t1_total',
             name='t1_total',
-            measurement_unit='?',
+            measurement_unit='0.01 kWh',
             writable=False
         ),
         DataStreamTemplate(
@@ -69,7 +69,7 @@ def create_test_data():
             feed_template=feed_template,
             label='t2_total',
             name='t2_total',
-            measurement_unit='?',
+            measurement_unit='0.01 kWh',
             writable=False
         ),
         DataStreamTemplate(
@@ -77,7 +77,7 @@ def create_test_data():
             feed_template=feed_template,
             label='baud',
             name='baud',
-            measurement_unit='?',
+            measurement_unit='baud',
             writable=False
         ),
         DataStreamTemplate(
@@ -85,7 +85,7 @@ def create_test_data():
             feed_template=feed_template,
             label='version',
             name='version',
-            measurement_unit='?',
+            measurement_unit='.',
             writable=False
         ),
         DataStreamTemplate(
@@ -93,7 +93,7 @@ def create_test_data():
             feed_template=feed_template,
             label='phase1_URMS',
             name='phase1_URMS',
-            measurement_unit='?',
+            measurement_unit='V',
             writable=False
         ),
         DataStreamTemplate(
@@ -101,7 +101,7 @@ def create_test_data():
             feed_template=feed_template,
             label='phase1_IRMS',
             name='phase1_IRMS',
-            measurement_unit='?',
+            measurement_unit='0.1 A',
             writable=False
         ),
         DataStreamTemplate(
@@ -109,7 +109,7 @@ def create_test_data():
             feed_template=feed_template,
             label='phase1_PRMS',
             name='phase1_PRMS',
-            measurement_unit='?',
+            measurement_unit='0.01 kW',
             writable=False
         ),
         DataStreamTemplate(
@@ -117,7 +117,7 @@ def create_test_data():
             feed_template=feed_template,
             label='phase1_QRMS',
             name='phase1_QRMS',
-            measurement_unit='?',
+            measurement_unit='0.01 kVA',
             writable=False
         ),
         DataStreamTemplate(
@@ -125,7 +125,7 @@ def create_test_data():
             feed_template=feed_template,
             label='phase1_cos_phi',
             name='phase1_cos_phi',
-            measurement_unit='?',
+            measurement_unit='.',
             writable=False
         ),
         DataStreamTemplate(
@@ -133,7 +133,7 @@ def create_test_data():
             feed_template=feed_template,
             label='modbus_timeout',
             name='modbus_timeout',
-            measurement_unit='?',
+            measurement_unit='s',
             writable=False
         ),
         DataStreamTemplate(
@@ -141,7 +141,7 @@ def create_test_data():
             feed_template=feed_template,
             label='total_PRMS',
             name='total_PRMS',
-            measurement_unit='?',
+            measurement_unit='0.01 kW',
             writable=False
         ),
         DataStreamTemplate(
@@ -149,8 +149,104 @@ def create_test_data():
             feed_template=feed_template,
             label='total_QRMS',
             name='total_QRMS',
-            measurement_unit='?',
+            measurement_unit='0.01 kVA',
             writable=False
+        ),
+        DataStreamTemplate(
+            id=starting_id + 12,
+            feed_template=feed_template,
+            label='phase2_URMS',
+            name='phase2_URMS',
+            measurement_unit='V',
+            writable=False
+        ),
+        DataStreamTemplate(
+            id=starting_id + 13,
+            feed_template=feed_template,
+            label='phase2_IRMS',
+            name='phase2_IRMS',
+            measurement_unit='0.1 A',
+            writable=False
+        ),
+        DataStreamTemplate(
+            id=starting_id + 14,
+            feed_template=feed_template,
+            label='phase2_PRMS',
+            name='phase2_PRMS',
+            measurement_unit='0.01 kW',
+            writable=False
+        ),
+        DataStreamTemplate(
+            id=starting_id + 15,
+            feed_template=feed_template,
+            label='phase2_QRMS',
+            name='phase2_QRMS',
+            measurement_unit='0.01 kVA',
+            writable=False
+        ),
+        DataStreamTemplate(
+            id=starting_id + 16,
+            feed_template=feed_template,
+            label='phase2_cos_phi',
+            name='phase2_cos_phi',
+            measurement_unit='.',
+            writable=False
+        ),
+        DataStreamTemplate(
+            id=starting_id + 17,
+            feed_template=feed_template,
+            label='phase3_URMS',
+            name='phase3_URMS',
+            measurement_unit='V',
+            writable=False
+        ),
+        DataStreamTemplate(
+            id=starting_id + 18,
+            feed_template=feed_template,
+            label='phase3_IRMS',
+            name='phase3_IRMS',
+            measurement_unit='0.1 A',
+            writable=False
+        ),
+        DataStreamTemplate(
+            id=starting_id + 19,
+            feed_template=feed_template,
+            label='phase3_PRMS',
+            name='phase3_PRMS',
+            measurement_unit='0.01 kW',
+            writable=False
+        ),
+        DataStreamTemplate(
+            id=starting_id + 20,
+            feed_template=feed_template,
+            label='phase3_QRMS',
+            name='phase3_QRMS',
+            measurement_unit='0.01 kVA',
+            writable=False
+        ),
+        DataStreamTemplate(
+            id=starting_id + 21,
+            feed_template=feed_template,
+            label='phase3_cos_phi',
+            name='phase3_cos_phi',
+            measurement_unit='.',
+            writable=False
+        ),
+        DataStreamTemplate(
+            id=starting_id + 22,
+            feed_template=feed_template,
+            label='t1_partial',
+            name='t1_partial',
+            measurement_unit='0.01 kWh',
+            writable=True
+        ),
+        DataStreamTemplate(
+            id=starting_id + 23,
+            feed_template=feed_template,
+            label='t2_partial',
+            name='t2_partial',
+            measurement_unit='0.01 kWh',
+            writable=True
         ),
     ]
     DBSession.add_all(data_stream_templates)
