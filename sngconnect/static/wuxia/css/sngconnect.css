@@ -12213,3 +12213,28 @@ div.jGrowl div.inverse a:hover {
 .demo-btns .btn {
   margin-top: 5px;
 }
+.table-values td {
+  text-align: center;
+  vertical-align: middle;
+}
+.table-values td.no-data {
+  color: #999999;
+}
+.current-value {
+  color: #525252;
+  font-size: 18px;
+  line-height: 1;
+  margin: 0;
+  font-family: inherit;
+  font-weight: bold;
+  text-rendering: optimizelegibility;
+}
+.current-value .unit {
+  color: #999999;
+}
+.dashboard-diagram {
+  max-width: 100%;
+}
+#dashboard-important-parameters {
+  margin-left: 0;
+}

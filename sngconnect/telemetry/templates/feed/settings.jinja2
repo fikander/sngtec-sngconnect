@@ -8,10 +8,9 @@
 
 {% block page_content %}
     <h2><span class="awe-th-list"></span> {% trans %}Current setting values{% endtrans %}</h2>
-    <table class="table">
+    <table class="table table-values">
         <thead>
             <th>{% trans %}Name{% endtrans %}</th>
-            <th>{% trans %}Unit of measurement{% endtrans %}</th>
             <th>{% trans %}Value{% endtrans %}</th>
             <th>{% trans %}Last change{% endtrans %}</th>
         </thead>
@@ -19,9 +18,8 @@
             {% for data_stream in data_streams %}
                 <tr>
                     <td><a href="{{ data_stream.url }}">{{ data_stream.name }}</a></td>
-                    <td>{{ data_stream.measurement_unit }}</td>
                     {% if data_stream.last_value %}
-                        <td><code>{{ data_stream.last_value.value }}</code></td>
+				        <td><span class="current-value">{{ data_stream.last_value.value|round(precision=6) }} <span class="unit">{{ data_stream.measurement_unit }}</span></span></td>
                         <td>{{ data_stream.last_value.date }}</td>
                     {% else %}
                         <td class="no-data" colspan="2">{% trans %}no data{% endtrans %}</td>
