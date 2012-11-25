@@ -11,6 +11,8 @@ ASSET_BUNDLES = {
         'wuxia/js/libs/jquery.js',
         'wuxia/js/libs/modernizr.js',
         'wuxia/js/libs/selectivizr.js',
+        'wuxia/js/bootstrap/bootstrap-affix.js',
+        'wuxia/js/navigation.js',
         'wuxia/js/bootstrap/bootstrap-dropdown.js',
         'wuxia/js/bootstrap/bootstrap-alert.js',
         'wuxia/js/bootstrap/bootstrap-modal.js',
