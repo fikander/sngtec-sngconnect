@@ -3,7 +3,6 @@ from webassets import Bundle
 ASSET_BUNDLES = {
     'base_css': Bundle(
         'wuxia/css/sngconnect.css',
-        'sngconnect/css/base.css',
         filters=('cssrewrite', 'cssmin',),
         output='compressed/base.css'
     ),
