@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="utf-8">
-        <title>SNG</title>
+        <title>SNG:connect</title>
         {% block head_stylesheets %}
             {% assets "base_css" %}
                 <link rel="stylesheet" href="{{ ASSET_URL }}">
@@ -25,7 +25,7 @@
                         <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".navigation">
                             <span class="awe-chevron-down"></span>
                         </button>
-                        <a class="brand" href="{{ request.route_url("sngconnect.telemetry.dashboard") }}">SNG</a>
+                        <a class="brand" href="{{ request.route_url("sngconnect.telemetry.dashboard") }}">SNG:connect</a>
                         <nav class="nav-collapse navigation">
                             <ul class="nav active-arrows" role="navigation">
                                 <li><a href="{{ request.route_url("sngconnect.telemetry.dashboard") }}" title="{% trans %}Dashboard{% endtrans %}"><span class="awe-home"></span> {% trans %}Dashboard{% endtrans %}</a></li>
