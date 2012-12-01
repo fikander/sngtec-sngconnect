@@ -14,7 +14,7 @@
                     {%- elif message.message_type == 'WARNING' %} class="alert"
                     {%- endif -%}
                 >
-                    <td>{{ message.date }}</td>
+                    <td>{{ message.date|format_datetime }}</td>
                     <td>{{ message.content }}</td>
                 </tr>
             {% else %}

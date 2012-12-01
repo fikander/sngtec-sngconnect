@@ -12217,9 +12217,6 @@ div.jGrowl div.inverse a:hover {
   text-align: center;
   vertical-align: middle;
 }
-.table-values td.no-data {
-  color: #999999;
-}
 .current-value {
   color: #525252;
   font-size: 18px;
@@ -12237,4 +12234,8 @@ div.jGrowl div.inverse a:hover {
 }
 #dashboard-important-parameters {
   margin-left: 0;
+}
+td.no-data {
+  text-align: center;
+  color: #999999;
 }

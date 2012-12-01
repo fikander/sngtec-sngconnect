@@ -1,5 +1,5 @@
 {% extends "sngconnect.telemetry:templates/feed/base.jinja2" %}
-{% from "sngconnect.telemetry:templates/feed/macros/message_table.jinja2" import message_table %}
+{% from "sngconnect.telemetry:templates/feed/macros/message_table.jinja2" import message_table with context %}
 {% set active_secondary_navigation = "dashboard" %}
 
 {% block head_stylesheets %}
@@ -19,7 +19,7 @@
 			{% if active_alarms %}
 	            <h2><span class="awe-exclamation-sign"></span> {% trans %}Active alarms{% endtrans %}</h2>
 	            <div class="alert alert-error">
-	                {% trans count=active_alarms|length -%}
+	                {% trans count=active_alarms|length|format_number -%}
 	                    You have <code>{{ count }}</code> alarms active. If you don't know what it means - contact your device's administrator.
 	                {%- endtrans %}
 	            </div>
@@ -34,13 +34,13 @@
 	                <tbody>
 	                    {% for alarm in active_alarms %}
 	                        <tr>
-	                            <td>{{ alarm.activation_date }}</td>
+	                            <td>{{ alarm.activation_date|format_datetime }}</td>
 	                            <td><a href="{{ alarm.data_stream.url }}">{{ alarm.data_stream.name }}</a></td>
 	                            <td>
                                     {% if alarm.alarm_type == 'MAXIMAL_VALUE' %}
-                                        {% trans maximal_value=alarm.boundary %}Maximal value (<code>{{ maximal_value }}</code>) exceeded.{% endtrans %}
+                                        {% trans maximal_value=alarm.boundary|format_decimal %}Maximal value (<code>{{ maximal_value }}</code>) exceeded.{% endtrans %}
                                     {% elif alarm.alarm_type == 'MINIMAL_VALUE' %}
-                                        {% trans minimal_value=alarm.boundary %}Value below the minimum (<code>{{ minimal_value }}</code>).{% endtrans %}
+                                        {% trans minimal_value=alarm.boundary|format_decimal %}Value below the minimum (<code>{{ minimal_value }}</code>).{% endtrans %}
                                     {% else %}
                                         {% trans %}Unknown problem. Contact system support.{% endtrans %}
                                     {% endif %}
@@ -53,7 +53,7 @@
             {% if important_messages %}
 	            <h2><span class="awe-exclamation-sign"></span> {% trans %}Important messages{% endtrans %}</h2>
 	            <div class="alert alert-error">
-	                {% trans count=important_messages|length -%}
+	                {% trans count=important_messages|length|format_number -%}
 	                    You have <code>{{ count }}</code> new important messages.
 	                {%- endtrans %}
 	            </div>
@@ -93,7 +93,7 @@
                             </tr>
                             <tr>
                                 <th>{% trans %}Added to the application{% endtrans %}</th>
-                                <td>{{ feed.created }}</td>
+                                <td>{{ feed.created|format_datetime }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -109,7 +109,7 @@
                             </tr>
                             <tr>
                                 <th>{% trans %}GPS Coordinates{% endtrans %}</th>
-                                <td>{{ feed.latitude }} {{ feed.longitude }}</td>
+                                <td><code>{{ feed.latitude|format_decimal(format="0.000000") }}</code> <code>{{ feed.longitude|format_decimal(format="0.000000") }}</code></td>
                             </tr>
                         </tbody>
                     </table>
@@ -120,9 +120,8 @@
 {% endblock %}
 
 {% block page_content %}
-	{# use http://timeago.yarp.com/ jQuery plugin for timeago?? #}
     <p style="margin-top: -20px; color: #aaa;">
-        <span class="awe-retweet"></span> <strong>{% trans %}Last update:{% endtrans %}</strong> {{ last_updated }}
+        <span class="awe-retweet"></span> <strong>{% trans %}Last update:{% endtrans %}</strong> {{ last_updated|format_datetime }}
     </p>
 {% endblock %}
 
