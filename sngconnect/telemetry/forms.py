@@ -1,13 +1,46 @@
+import decimal
+
 from wtforms import fields, validators
 from sqlalchemy.orm import exc as database_exceptions
+import babel.numbers
 
 from sngconnect.forms import SecureForm
 from sngconnect.translation import _
 from sngconnect.database import DBSession, User
 
+class LocalizedDecimalField(fields.DecimalField):
+
+    def _value(self):
+        if self.raw_data:
+            return self.raw_data[0]
+        elif self.data is not None:
+            return babel.numbers.format_decimal(
+                self.data,
+                format='0.##################################################',
+                locale=self.locale
+            )
+        else:
+            return ''
+
+    def process_formdata(self, valuelist):
+        if valuelist:
+            try:
+                self.data = decimal.Decimal(
+                    babel.numbers.parse_decimal(
+                        valuelist[0],
+                        locale=self.locale
+                    )
+                )
+            except babel.numbers.NumberFormatError:
+                self.data = None
+                raise ValueError(self.gettext('Not a valid decimal value'))
+
+    def set_locale(self, locale):
+        self.locale = locale
+
 class ValueForm(SecureForm):
 
-    value = fields.DecimalField(
+    value = LocalizedDecimalField(
         _("Value"),
         places=None,
         validators=(
@@ -15,22 +48,33 @@ class ValueForm(SecureForm):
         )
     )
 
+    def __init__(self, *args, **kwargs):
+        locale = kwargs.pop('locale')
+        super(ValueForm, self).__init__(*args, **kwargs)
+        self.value.set_locale(locale)
+
 class ValueBoundsForm(SecureForm):
 
-    minimum = fields.DecimalField(
+    minimum = LocalizedDecimalField(
         _("Minimum"),
         places=None,
         validators=(
             validators.Optional(),
         )
     )
-    maximum = fields.DecimalField(
+    maximum = LocalizedDecimalField(
         _("Maximum"),
         places=None,
         validators=(
             validators.Optional(),
         )
     )
+
+    def __init__(self, *args, **kwargs):
+        locale = kwargs.pop('locale')
+        super(ValueBoundsForm, self).__init__(*args, **kwargs)
+        self.minimum.set_locale(locale)
+        self.maximum.set_locale(locale)
 
     def validate_maximum(self, field):
         if field.errors:
