@@ -24,16 +24,8 @@ class AuthenticationForm(SecureForm):
         )
     )
 
-class SignUpForm(SecureForm):
+class ChangePasswordForm(SecureForm):
 
-    email = fields.TextField(
-        _("E-mail"),
-        validators=(
-            validators.DataRequired(),
-            validators.Length(max=200),
-            validators.Email(),
-        )
-    )
     password = fields.PasswordField(
         _("Password"),
         validators=(
@@ -49,7 +41,10 @@ class SignUpForm(SecureForm):
             validators.EqualTo('password'),
         )
     )
-    phone_number = fields.TextField(
+
+class ChangeAccountDataForm(SecureForm):
+
+    phone = fields.TextField(
         _("Phone number"),
         filters=(
             lambda x: None if x is None else re.sub(r'[^\+\d]', '', x),
@@ -58,6 +53,17 @@ class SignUpForm(SecureForm):
             validators.DataRequired(),
             validators.Length(max=50),
             validators.Regexp(r'\+?\d+'),
+        )
+    )
+
+class SignUpForm(ChangeAccountDataForm, ChangePasswordForm):
+
+    email = fields.TextField(
+        _("E-mail"),
+        validators=(
+            validators.DataRequired(),
+            validators.Length(max=200),
+            validators.Email(),
         )
     )
 

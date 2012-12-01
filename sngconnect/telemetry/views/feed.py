@@ -8,6 +8,7 @@ import sqlalchemy as sql
 from sqlalchemy.orm import exc as database_exceptions, joinedload
 from pyramid.view import view_config
 from pyramid import httpexceptions
+from pyramid.i18n import get_locale_name
 from pyramid.security import authenticated_userid, has_permission
 
 from sngconnect.translation import _
@@ -281,6 +282,7 @@ class FeedDataStream(FeedViewBase):
         value_bounds_form = forms.ValueBoundsForm(
             minimum=minimal_value,
             maximum=maximal_value,
+            locale=get_locale_name(self.request),
             csrf_context=self.request
         )
         last_data_point = (
@@ -553,6 +555,7 @@ class FeedSetting(FeedViewBase):
         )
         value_form = forms.ValueForm(
             value=data_stream.requested_value,
+            locale=get_locale_name(self.request),
             csrf_context=self.request
         )
         if self.request.method == 'POST':

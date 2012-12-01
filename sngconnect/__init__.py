@@ -1,6 +1,6 @@
 import os
-import json
 
+import pytz
 import sqlalchemy
 from pyramid.config import Configurator
 from pyramid.session import UnencryptedCookieSessionFactoryConfig
@@ -11,6 +11,7 @@ from sngconnect.database import DBSession, User
 from sngconnect.routes import ROUTES
 from sngconnect.assets import ASSET_BUNDLES
 from sngconnect.security import RootFactory
+from sngconnect import template_filters
 from sngconnect.cassandra import connection_pool as cassandra_connection_pool
 
 def main(global_config, **settings):
@@ -53,6 +54,10 @@ def main(global_config, **settings):
         os.path.dirname(__file__),
         'locale'
     ))
+    # Set default timezone.
+    config.registry['default_timezone'] = pytz.timezone(
+        settings['sngconnect.default_timezone']
+    )
     # Include add-ons.
     config.include('pyramid_tm')
     config.include('pyramid_jinja2')
@@ -63,12 +68,18 @@ def main(global_config, **settings):
         config.add_webasset(name, bundle)
     # Add Jinja2 extensions.
     config.add_jinja2_extension('jinja2.ext.with_')
-    config.get_jinja2_environment().filters['tojson'] = json.dumps
-    config.registry['jinja2_environment'] = config.get_jinja2_environment()
-    # Add webassets extension to Jinja2
     config.add_jinja2_extension('webassets.ext.jinja2.AssetsExtension')
-    webassets_environment = config.get_webassets_env()
-    config.get_jinja2_environment().assets_environment = webassets_environment
+    jinja2_environment = config.get_jinja2_environment()
+    config.registry['jinja2_environment'] = jinja2_environment
+    jinja2_environment.filters.update({
+        'tojson': template_filters.tojson,
+        'format_datetime': template_filters.format_datetime,
+        'format_date': template_filters.format_date,
+        'format_time': template_filters.format_time,
+        'format_number': template_filters.format_number,
+        'format_decimal': template_filters.format_decimal,
+    })
+    jinja2_environment.assets_environment = config.get_webassets_env()
     # Configure routes.
     for name, pattern in ROUTES:
         config.add_route(name, pattern)

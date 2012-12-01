@@ -19,8 +19,8 @@
                 <tr>
                     <td><a href="{{ data_stream.url }}">{{ data_stream.name }}</a></td>
                     {% if data_stream.last_value %}
-				        <td><span class="current-value">{{ data_stream.last_value.value|round(precision=6) }} <span class="unit">{{ data_stream.measurement_unit }}</span></span></td>
-                        <td>{{ data_stream.last_value.date }}</td>
+				        <td><span class="current-value">{{ data_stream.last_value.value|format_decimal }} <span class="unit">{{ data_stream.measurement_unit }}</span></span></td>
+                        <td>{{ data_stream.last_value.date|format_datetime }}</td>
                     {% else %}
                         <td class="no-data" colspan="2">{% trans %}no data{% endtrans %}</td>
                     {% endif %}

@@ -1,4 +1,7 @@
+from babel.core import Locale
+from babel.support import Format
 from pyramid import events, security
+from pyramid.i18n import get_locale_name
 
 from sngconnect.database import DBSession, User
 from sngconnect.accounts.forms import SignOutForm
@@ -13,6 +16,13 @@ def add_google_maps_api_key(event):
 def add_sign_out_form(event):
     event['sign_out_form'] = SignOutForm(
         csrf_context=event['request']
+    )
+
+@events.subscriber(events.BeforeRender)
+def add_format(event):
+    event['format'] = Format(
+        Locale(get_locale_name(event['request'])),
+        event['request'].registry['default_timezone']
     )
 
 @events.subscriber(events.BeforeRender)

@@ -42,7 +42,7 @@
                                 <span class="badge
                                     {%- if feed.active_alarm_count > 0 %} badge-important{%- endif -%}
                                 ">
-                                    {{ feed.active_alarm_count }}
+                                    {{ feed.active_alarm_count|format_number }}
                                 </span>
                             </td>
                             <td>{{ feed.template_name }}</td>

@@ -41,16 +41,14 @@
                                 <div class="user-info pull-right">
                                     <div class="btn-group">
                                         <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-                                            <div><strong>{{ user.email }}</strong>Administrator</div>
+                                            <div style="margin-top: -2px;"><strong>{{ user.email }}</strong></div>
                                             <span class="caret"></span>
                                         </a>
                                         <ul class="dropdown-menu">
-                                            <li><a href="#"><span class="awe-cogs"></span> {% trans %}Account settings{% endtrans %}</a></li>
-                                            <li><a href="#"><span class="awe-bell"></span> {% trans %}Preferences{% endtrans %}</a></li>
-                                            <li><a href="#"><span class="awe-envelope"></span> {% trans %}Email notifications{% endtrans %}</a></li>
+                                            <li><a href="{{ request.route_url("sngconnect.accounts.settings") }}"><span class="awe-cogs"></span> {% trans %}Account settings{% endtrans %}</a></li>
                                             <li class="divider"></li>
                                             <li>
-                                                <form action="{{ request.route_url("sngconnect.accounts.sign_out") }}" method="post">
+                                                <form action="{{ request.route_url("sngconnect.accounts.sign_out") }}" method="post" style="background: none; margin-bottom: 0;">
                                                     {{ sign_out_form.csrf_token }}
                                                     <button type="submit" class="btn"><span class="awe-signout"></span> {% trans %}Sign out{% endtrans %}</button>
                                                 </form>

@@ -16,11 +16,11 @@
                     {% if data_stream.last_value %}
                         <tr>
                             <th>{% trans %}Current value{% endtrans %}</th>
-                            <td><code>{{ data_stream.last_value.value }}</code></td>
+                            <td><code>{{ data_stream.last_value.value|format_decimal }}</code></td>
                         </tr>
                         <tr>
                             <th>{% trans %}Last change{% endtrans %}</th>
-                            <td>{{ data_stream.last_value.date }}</td>
+                            <td>{{ data_stream.last_value.date|format_datetime }}</td>
                         </tr>
                     {% else %}
                         <tr>

@@ -1,5 +1,5 @@
 {% extends "sngconnect.telemetry:templates/feed/base.jinja2" %}
-{% from "sngconnect.telemetry:templates/feed/macros/message_table.jinja2" import message_table %}
+{% from "sngconnect.telemetry:templates/feed/macros/message_table.jinja2" import message_table with context %}
 {% set active_secondary_navigation = "history" %}
 
 {% block main_breadcrumb %}
