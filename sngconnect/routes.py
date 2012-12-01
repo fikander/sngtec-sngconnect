@@ -85,6 +85,10 @@ ROUTES = (
         'accounts/sign_up'
     ),
     (
+        'sngconnect.accounts.settings',
+        'accounts/settings'
+    ),
+    (
         'sngconnect.accounts.activate',
         'accounts/activate/{email:[^/]+}/{email_activation_code:\w+}'
     ),

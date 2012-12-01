@@ -90,7 +90,7 @@ def sing_up(request):
         if sign_up_form.validate():
             user = User(
                 email=sign_up_form.email.data,
-                phone=sign_up_form.phone_number.data
+                phone=sign_up_form.phone.data
             )
             user.set_password(sign_up_form.password.data)
             DBSession.add(user)
@@ -153,4 +153,55 @@ def activate(request):
     return {
         'activation_form': activation_form,
         'successful_activation': successful_activation,
+    }
+
+@view_config(
+    route_name='sngconnect.accounts.settings',
+    renderer='sngconnect.accounts:templates/settings.jinja2',
+    permission='sngconnect.accounts.settings'
+)
+def settings(request):
+    user = DBSession.query(User).filter(
+        User.id == security.authenticated_userid(request)
+    ).one()
+    change_account_data_form = forms.ChangeAccountDataForm(
+        obj=user,
+        csrf_context=request
+    )
+    change_password_form = forms.ChangePasswordForm(csrf_context=request)
+    if request.method == 'POST':
+        if 'submit_change_account_data' in request.POST:
+            change_account_data_form.process(request.POST)
+            if change_account_data_form.validate():
+                change_account_data_form.populate_obj(user)
+                DBSession.add(user)
+                request.session.flash(
+                    _("Your account data has been successfuly changed."),
+                    queue='success'
+                )
+                return httpexceptions.HTTPFound(
+                    request.route_url('sngconnect.accounts.settings')
+                )
+        elif 'submit_change_password' in request.POST:
+            change_password_form.process(request.POST)
+            if change_password_form.validate():
+                user.set_password(change_password_form.password.data)
+                DBSession.add(user)
+                request.session.flash(
+                    _("Your password has been successfuly changed."),
+                    queue='success'
+                )
+                return httpexceptions.HTTPFound(
+                    request.route_url('sngconnect.accounts.settings')
+                )
+        request.session.flash(
+            _(
+                "There were some problems with your request."
+                " Please check the form for error messages."
+            ),
+            queue='error'
+        )
+    return {
+        'change_account_data_form': change_account_data_form,
+        'change_password_form': change_password_form,
     }
