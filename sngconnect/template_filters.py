@@ -1,4 +1,5 @@
 import json
+import decimal
 
 import jinja2
 
@@ -22,4 +23,4 @@ def format_number(context, value, **kwargs):
 
 @jinja2.contextfilter
 def format_decimal(context, value, **kwargs):
-    return context['format'].decimal(value, **kwargs)
+    return context['format'].decimal(decimal.Decimal(value), **kwargs)
