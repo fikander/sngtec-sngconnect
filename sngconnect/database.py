@@ -90,6 +90,11 @@ class User(ModelBase):
         if self.phone_activation_code is None:
             self.regenerate_phone_activation_code()
 
+    def __setattr__(self, name, value):
+        if name == 'email':
+            value = value.lower()
+        super(User, self).__setattr__(name, value)
+
     def set_password(self, new_password):
         self.password_hash = bcrypt.hashpw(new_password, bcrypt.gensalt())
 
