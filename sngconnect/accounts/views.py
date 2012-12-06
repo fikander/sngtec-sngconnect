@@ -28,7 +28,7 @@ def sing_in(request):
         if sign_in_form.validate():
             try:
                 user = DBSession.query(User).filter(
-                    User.email == sign_in_form.email.data
+                    User.email == sign_in_form.email.data.lower()
                 ).one()
             except database_exceptions.NoResultFound:
                 request.session.flash(
@@ -89,7 +89,7 @@ def sing_up(request):
         sign_up_form.process(request.POST)
         if sign_up_form.validate():
             user = User(
-                email=sign_up_form.email.data,
+                email=sign_up_form.email.data.lower(),
                 phone=sign_up_form.phone.data
             )
             user.set_password(sign_up_form.password.data)
