@@ -28,6 +28,7 @@ def main(argv=sys.argv):
     database_engine = sqlalchemy.engine_from_config(settings, 'database.')
     DBSession.configure(bind=database_engine)
     create_test_data()
+    create_test_data2()
 
 def create_test_data():
     starting_id = 100000
@@ -260,4 +261,117 @@ def create_test_data():
             )
         )
         id += 1
+    transaction.commit()
+
+def create_test_data2():
+    starting_id = 200000
+    feed_template = FeedTemplate(
+        id=starting_id,
+        name=u"NIBE Modbus 40",
+    )
+    feed = Feed(
+        id=starting_id,
+        template=feed_template,
+        name=u"Instalacja pompy NIBE",
+        description=u"Instalacja pompy NIBE",
+        address=u"ul. Bysławska 82 lok. 312\n04-993 Warszawa",
+        latitude=52.158427,
+        longitude=21.198292,
+        api_key='aaaa1tgDLBbzoghjCBDrpcD2NXUCP1WGFUDwm7baQTgmgueS5eU5c4W9EpLrnorJKC4DMfKe255YbwPvAJ7ppbD21NAs8XLk4XQb',
+        created=pytz.utc.localize(datetime.datetime.utcnow())
+    )
+    user = DBSession.query(User).filter(User.email == 'user@example.com').one()
+    feed_user = FeedUser(
+        id=starting_id,
+        feed=feed,
+        user=user,
+        role_user=True,
+        can_change_permissions=True
+    )
+    DBSession.add_all([feed_template, feed, feed_user])
+    data_stream_templates = [
+        DataStreamTemplate(
+            id=starting_id,
+            feed_template=feed_template,
+            name='Outdoor temperature (BT1)',
+            label='outdoor_temp',
+            measurement_unit='deg C',
+            writable=False
+        ),
+        DataStreamTemplate(
+            id=starting_id + 1,
+            feed_template=feed_template,
+            name='Flow temperature (BT2)',
+            label='flow_temp',
+            measurement_unit='deg C',
+            writable=False
+        ),
+        DataStreamTemplate(
+            id=starting_id + 2,
+            feed_template=feed_template,
+            name='Return temperature (BT3)',
+            label='return_temp',
+            measurement_unit='deg C',
+            writable=False
+        ),
+        DataStreamTemplate(
+            id=starting_id + 3,
+            feed_template=feed_template,
+            name='Hot water, top (BT7)',
+            label='hot_water_top',
+            measurement_unit='?',
+            writable=False
+        ),
+        DataStreamTemplate(
+            id=starting_id + 4,
+            feed_template=feed_template,
+            name='Hot water middle (BT6)',
+            label='hot_water_middle',
+            measurement_unit='?',
+            writable=False
+        ),
+        DataStreamTemplate(
+            id=starting_id + 5,
+            feed_template=feed_template,
+            name='Brine in (BT10)',
+            label='brine_in',
+            measurement_unit='?',
+            writable=False
+        ),
+        DataStreamTemplate(
+            id=starting_id + 6,
+            feed_template=feed_template,
+            name='Brine out (BT11)',
+            label='brine_out',
+            measurement_unit='?',
+            writable=False
+        ),
+        DataStreamTemplate(
+            id=starting_id + 7,
+            feed_template=feed_template,
+            name='Room temperature (BT50)',
+            label='room_temp',
+            measurement_unit='deg C',
+            writable=False
+        ),
+        DataStreamTemplate(
+            id=starting_id + 8,
+            feed_template=feed_template,
+            name='Degree minutes',
+            label='degree_minutes',
+            measurement_unit='?',
+            writable=False
+        ),
+    ]
+    DBSession.add_all(data_stream_templates)
+    i = starting_id
+    for data_stream_template in data_stream_templates:
+        DBSession.add(
+            DataStream(
+                id=i,
+                template=data_stream_template,
+                feed=feed
+            )
+        )
+        i += 1
     transaction.commit()
