@@ -257,6 +257,14 @@ def create_test_data():
             measurement_unit='.',
             writable=True
         ),
+        DataStreamTemplate(
+            id=starting_id + 25,
+            feed_template=feed_template,
+            label='status',
+            name='status',
+            measurement_unit='.',
+            writable=True
+        ),
     ]
     DBSession.add_all(data_stream_templates)
     id = starting_id
