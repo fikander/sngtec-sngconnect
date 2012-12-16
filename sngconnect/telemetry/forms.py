@@ -26,9 +26,11 @@ class LocalizedDecimalField(fields.DecimalField):
         if valuelist:
             try:
                 self.data = decimal.Decimal(
-                    babel.numbers.parse_decimal(
-                        valuelist[0],
-                        locale=self.locale
+                    str(
+                        babel.numbers.parse_decimal(
+                            valuelist[0],
+                            locale=self.locale
+                        )
                     )
                 )
             except babel.numbers.NumberFormatError:
