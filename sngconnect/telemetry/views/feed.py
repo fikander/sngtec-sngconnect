@@ -294,6 +294,8 @@ class FeedDataStream(FeedViewBase):
         if self.request.method == 'POST':
             value_bounds_form.process(self.request.POST)
             if value_bounds_form.validate():
+                maximum_alarm = None
+                minimum_alarm = None
                 if minimal_value is None:
                     if value_bounds_form.minimum.data is not None:
                         minimum_alarm = AlarmDefinition(
@@ -338,24 +340,26 @@ class FeedDataStream(FeedViewBase):
                         maximum_alarm = None
                 alarms_on = []
                 alarms_off = []
-                for alarm_definition in [minimum_alarm, maximum_alarm]:
-                    if alarm_definition is None:
-                        continue
-                    if alarm_definition.check_value(last_data_point[1]) is None:
-                        alarms_off.append(alarm_definition.id)
-                    else:
-                        alarms_on.append(alarm_definition.id)
-                alarms_store.Alarms().set_alarms_on(
-                    self.feed.id,
-                    data_stream.id,
-                    alarms_on,
-                    last_data_point[0]
-                )
-                alarms_store.Alarms().set_alarms_off(
-                    self.feed.id,
-                    data_stream.id,
-                    alarms_off
-                )
+                if last_data_point is not None:
+                    for alarm_definition in [minimum_alarm, maximum_alarm]:
+                        if alarm_definition is None:
+                            continue
+                        if (alarm_definition.check_value(last_data_point[1]) is
+                                None):
+                            alarms_off.append(alarm_definition.id)
+                        else:
+                            alarms_on.append(alarm_definition.id)
+                    alarms_store.Alarms().set_alarms_on(
+                        self.feed.id,
+                        data_stream.id,
+                        alarms_on,
+                        last_data_point[0]
+                    )
+                    alarms_store.Alarms().set_alarms_off(
+                        self.feed.id,
+                        data_stream.id,
+                        alarms_off
+                    )
                 self.request.session.flash(
                     _("Parameter allowed values have been successfuly saved."),
                     queue='success'
