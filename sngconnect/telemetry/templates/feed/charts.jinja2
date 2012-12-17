@@ -7,5 +7,76 @@
 {% endblock %}
 
 {% block page_content %}
-    Wykresy
+    <h2><span class="awe-th-list"></span> {% trans %}Chart definitions{% endtrans %}</h2>
+    <div class="row">
+        {% for chart_definition in chart_definitions %}
+            <article class="span3">
+                <div class="well analysis-tool {% if chart and chart_definition.id == chart.definition.id %}active{% endif %}">
+                    <a href="{{ chart_definition.url }}#chart">
+                        <p class="lead">{{ chart_definition.name }}</p>
+                        <p>{{ chart_definition.description }}</p><span/>
+                    </a>
+                    {% if chart_definition.editable %}
+                        <div class="btn-group">
+                            <a class="btn" data-toggle="modal" href="#edit-chart-{{ chart_definition.id }}">
+                                <span class="awe-edit"></span> {% trans %}Edit{% endtrans %}
+                            </a>
+                            <a class="btn">
+                                <span class="awe-trash"></span> {% trans %}Delete{% endtrans %}
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </article>
+            {% if loop.index % 4 == 0 %}
+                </div><div class="row">
+            {% endif %}
+        {% endfor %}
+        {% for chart_definition in chart_definitions %}
+            <div class="modal fade hide" id="edit-chart-{{ chart_definition.id }}">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h3>{% trans %}Edit chart{% endtrans %}</h3>
+                </div>
+                <form>
+                    <fieldset>
+                        <div class="modal-body">
+                            <div class="control-group">
+                                <label class="control-label" for="input">Chart title</label>
+                                <div class="controls">
+                                    <input id="input" class="input-xlarge" type="text">
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <label class="control-label" for="multiSelect">Select up to 3 parameters</label>
+                                <div class="controls">
+                                <select id="multiSelect" multiple="multiple">
+                                    <option>parameter 1</option>
+                                    <option>parameter 2</option>
+                                    <option>parameter 3</option>
+                                </select>
+                                <p class="help-block">Use Ctrl or cmd to select multiple parameters</p>
+                            </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <a href="#" class="btn btn-wuxia" data-dismiss="modal">{% trans %}Close{% endtrans %}</a>
+                            <button type="submit" class="btn btn-wuxia btn-primary">{% trans %}Save{% endtrans %}</button>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+        {% endfor %}
+        <article class="span3">
+            <div class="well analysis-tool">
+                <p class="lead">{% trans %}New linear chart{% endtrans %}</p>
+                <p>{% trans %}Visualise multiple parameters{% endtrans %}</p>
+                <div class="btn-group">
+                    <a class="btn btn-warning" data-toggle="modal" href="#edit-chart-1">
+                        <span class="awe-plus"></span> {% trans %}Create{% endtrans %}
+                    </a>
+                </div>
+            </div>
+        </article>
+    </div>
 {% endblock %}

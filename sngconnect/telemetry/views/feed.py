@@ -13,7 +13,8 @@ from pyramid.security import authenticated_userid, has_permission
 
 from sngconnect.translation import _
 from sngconnect.database import (DBSession, Feed, DataStreamTemplate,
-    DataStream, AlarmDefinition, Message, FeedUser, User)
+    DataStream, AlarmDefinition, Message, FeedUser, User, ChartDefinition,
+    FeedTemplate)
 from sngconnect.cassandra import data_streams as data_streams_store
 from sngconnect.cassandra import alarms as alarms_store
 from sngconnect.telemetry import forms
@@ -31,6 +32,7 @@ def feeds(request):
 class FeedViewBase(object):
 
     def __init__(self, request):
+        print "DUPA", request.__class__
         self.user_id = authenticated_userid(request)
         can_access_all = has_permission(
             'sngconnect.telemetry.access_all',
@@ -192,7 +194,58 @@ class FeedDashboard(FeedViewBase):
     permission='sngconnect.telemetry.access'
 )
 class FeedCharts(FeedViewBase):
-    pass
+    def __init__(self, request):
+        super(FeedCharts, self).__init__(request)
+        self.chart_definitions = DBSession.query(ChartDefinition).join(
+            FeedTemplate,
+            Feed
+        ).filter(
+            FeedTemplate.id == self.feed.template_id or Feed.id == self.feed.id
+        ).order_by(
+            ChartDefinition.feed_id,
+            ChartDefinition.name
+        ).all()
+        self.context.update({
+            'chart_definitions': [
+                {
+                    'id': chart_definition.id,
+                    'name': chart_definition.name,
+                    'description': chart_definition.description,
+                    'editable': chart_definition.feed is not None,
+                    'url': self.request.route_url(
+                        'sngconnect.telemetry.feed_chart',
+                        feed_id=self.feed.id,
+                        chart_definition_id=chart_definition.id
+                    ),
+                }
+                for chart_definition in self.chart_definitions
+            ],
+            'chart': None,
+        })
+
+@view_config(
+    route_name='sngconnect.telemetry.feed_chart',
+    request_method='GET',
+    renderer='sngconnect.telemetry:templates/feed/chart.jinja2',
+    permission='sngconnect.telemetry.access'
+)
+class FeedChart(FeedCharts):
+    def __call__(self):
+        try:
+            chart_definition = filter(
+                lambda cd: (
+                    cd.id == int(self.request.matchdict['chart_definition_id'])
+                ),
+                self.chart_definitions
+            )[0]
+        except (ValueError, IndexError):
+            raise httpexceptions.HTTPNotFound()
+        self.context['chart'] = {
+            'definition': {
+                'id': chart_definition.id,
+            },
+        }
+        return self.context
 
 @view_config(
     route_name='sngconnect.telemetry.feed_data_streams',

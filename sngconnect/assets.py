@@ -15,6 +15,8 @@ ASSET_BUNDLES = {
         'wuxia/js/bootstrap/bootstrap-dropdown.js',
         'wuxia/js/bootstrap/bootstrap-alert.js',
         'wuxia/js/bootstrap/bootstrap-modal.js',
+        'wuxia/js/bootstrap/bootstrap-tooltip.js',
+        'wuxia/js/plugins/datepicker/bootstrap-datepicker.js',
         'highcharts/js/highcharts.js',
         'sngconnect/js/base.js',
         filters='rjsmin',

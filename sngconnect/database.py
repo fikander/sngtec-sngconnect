@@ -410,7 +410,6 @@ class ChartDefinition(ModelBase):
     feed_id = sql.Column(
         sql.Integer,
         sql.ForeignKey(Feed.id),
-        nullable=False,
         doc="Related feed's identifier."
     )
     name = sql.Column(
@@ -439,6 +438,18 @@ class ChartDefinition(ModelBase):
         secondary=chart_definitions_data_stream_templates,
         backref=orm.backref('chart_definitions')
     )
+
+    @property
+    def description(self):
+        if self.chart_type == 'LINEAR':
+            base = u"%s: " % _("Linear")
+        elif self.chart_type == 'DIFFERENTIAL':
+            base = u"%s: " % _("Differential")
+        else:
+            base = u""
+        return base + u", ".join((
+            template.name for template in self.data_stream_templates
+        ))
 
     def __repr__(self):
         return '<ChartDefinition(id=%s)>' % str(self.id)

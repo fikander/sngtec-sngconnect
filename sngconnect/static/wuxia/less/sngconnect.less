@@ -30,3 +30,33 @@ td.no-data {
     text-align: center;
     color: @grayLight;
 }
+
+.analysis-tool {
+    min-height: 90px;
+    p, p.lead {
+        margin-bottom: 5px;
+    }
+    p {
+        color: @grayLight;
+    }
+    .btn-group {
+        margin-top: 10px;
+    }
+    p.lead {
+        color: @headingsColor;
+    }
+    &:hover {
+     background-color: #e9eaf0;
+    }
+    &.active {
+     background-color: @templateColor;
+        p, p.lead {
+            color: @white;
+        }
+    }
+    &.active, &:hover {
+        a:first-child {
+            text-decoration: none;
+        }
+    }
+}

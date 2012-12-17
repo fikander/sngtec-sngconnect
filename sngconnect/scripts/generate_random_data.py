@@ -16,7 +16,7 @@ from sngconnect import cassandra
 from sngconnect.database import DBSession
 from sngconnect.cassandra import connection_pool as cassandra_connection_pool
 from sngconnect.database import (User, FeedTemplate, Feed, DataStreamTemplate,
-    DataStream, FeedUser)
+    DataStream, FeedUser, ChartDefinition)
 from sngconnect.cassandra.data_streams import (Measurements, HourlyAggregates,
     DailyAggregates, MonthlyAggregates, LastDataPoints)
 
@@ -131,6 +131,20 @@ def generate_data(feed_count):
                 feed=feed
             )
             DBSession.add_all([data_stream_template, data_stream])
+    transaction.commit()
+    feed_templates = DBSession.query(FeedTemplate).all()
+    for feed_template in feed_templates:
+        for i in range(1, 3):
+            chart_definition = ChartDefinition(
+                feed_template=feed_template,
+                data_stream_templates=random.sample(
+                    feed_template.data_stream_templates,
+                    random.randint(1, len(feed_template.data_stream_templates))
+                ),
+                name=u"Chart definition %d" % i,
+                chart_type='LINEAR'
+            )
+            DBSession.add(chart_definition)
     transaction.commit()
     data_streams = DBSession.query(DataStream).all()
     measurements = Measurements()

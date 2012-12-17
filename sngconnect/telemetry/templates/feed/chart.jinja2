@@ -1,0 +1,42 @@
+{% extends "sngconnect.telemetry:templates/feed/charts.jinja2" %}
+
+{% block page_content %}
+    {{ super() }}
+    <h2 id="chart"><span class="awe-bar-chart"></span> {% trans %}Chart{% endtrans %}</h2>
+    <div class="row">
+        <article class="span12">
+            <div class="well">
+                <span class="pull-left">&nbsp;{% trans %}From{% endtrans %}&nbsp;</span>
+                <div class="input-append pull-left">
+                    <input id="dateRangeFrom" class="datepicker input-small" type="text" value="25/11/12">
+                    <span class="add-on"><i class="awe-calendar"></i></span>
+                </div>
+                <span class="pull-left">&nbsp;{% trans %}to{% endtrans %}&nbsp;</span>
+                <div class="input-append pull-left">
+                    <input id="dateRangeTo" class="datepicker input-small" type="text" value="25/11/12">
+                    <span class="add-on"><i class="awe-calendar"></i></span>
+                </div>
+                <div class="btn-group pull-right">
+                    <button class="btn">{% trans %}24 hours{% endtrans %}</button>
+                    <button class="btn active">{% trans %}7 days{% endtrans %}</button>
+                    <button class="btn">{% trans %}30 days{% endtrans %}</button>
+                    <button class="btn">{% trans %}1 year{% endtrans %}</button>
+                </div>
+            </div>
+        </article>
+        <article class="span12 center">
+            <h3>{{ chart.definition_id }}</h3>
+            <div id="sample-chart"></div>
+        </article>
+    </div>
+{% endblock %}
+
+{% block body_scripts %}
+    {{ super() }}
+    <script>
+        $(document).ready(function() {
+            $('.datepicker').datepicker();
+        });
+    </script>
+    {# sample_chart_spline('sample-chart') #}
+{% endblock %}
