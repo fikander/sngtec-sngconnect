@@ -100,6 +100,16 @@
                     }
                 }
             });
+            var chart_container = $('#' + {{ container_id|tojson }});
+            var loading_sign = $(
+                '<span class="loading blue" data-original-title="{% trans %}Loading, please wait...{% endtrans %}">{% trans %}Loading...{% endtrans %}</span>'
+            );
+            loading_sign.css({
+                position: 'absolute',
+                top: chart_container.offset().top + chart_container.height() / 2,
+                left: chart_container.offset().left + chart_container.width() / 2
+            });
+            loading_sign.appendTo($('body'));
         });
     </script>
 {% endmacro %}
