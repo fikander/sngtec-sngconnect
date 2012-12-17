@@ -2,10 +2,13 @@
 
 import datetime
 import decimal
+import json
 
+import isodate
 import pytz
 import sqlalchemy as sql
 from sqlalchemy.orm import exc as database_exceptions, joinedload
+from pyramid.response import Response
 from pyramid.view import view_config
 from pyramid import httpexceptions
 from pyramid.i18n import get_locale_name
@@ -17,7 +20,7 @@ from sngconnect.database import (DBSession, Feed, DataStreamTemplate,
     FeedTemplate)
 from sngconnect.cassandra import data_streams as data_streams_store
 from sngconnect.cassandra import alarms as alarms_store
-from sngconnect.telemetry import forms
+from sngconnect.telemetry import forms, schemas
 
 @view_config(
     route_name='sngconnect.telemetry.feeds',
@@ -32,7 +35,6 @@ def feeds(request):
 class FeedViewBase(object):
 
     def __init__(self, request):
-        print "DUPA", request.__class__
         self.user_id = authenticated_userid(request)
         can_access_all = has_permission(
             'sngconnect.telemetry.access_all',
@@ -248,6 +250,11 @@ class FeedChart(FeedCharts):
                 'id': chart_definition.id,
                 'name': chart_definition.name,
                 'type': chart_definition.chart_type,
+                'data_url': self.request.route_url(
+                    'sngconnect.telemetry.feed_chart.data',
+                    feed_id=self.feed.id,
+                    chart_definition_id=chart_definition.id
+                ),
                 'data_stream_templates': [
                     {
                         'id': template.id,
@@ -259,6 +266,58 @@ class FeedChart(FeedCharts):
             },
         }
         return self.context
+
+@view_config(
+    route_name='sngconnect.telemetry.feed_chart.data',
+    request_method='GET',
+    permission='sngconnect.telemetry.access'
+)
+class FeedChartData(FeedViewBase):
+    def __call__(self):
+        try:
+            chart_definition = DBSession.query(ChartDefinition).filter(
+                (ChartDefinition.id ==
+                    self.request.matchdict['chart_definition_id']),
+                ChartDefinition.feed_template_id == self.feed.template_id
+            ).one()
+        except database_exceptions.NoResultFound:
+            raise httpexceptions.HTTPNotFound()
+        try:
+            end = isodate.parse_datetime(self.request.GET['end'])
+        except (KeyError, isodate.ISO8601Error):
+            end = datetime.datetime.utcnow()
+        if end.tzinfo is None:
+            end = pytz.utc.localize(end)
+        try:
+            start = isodate.parse_datetime(self.request.GET['start'])
+        except (KeyError, isodate.ISO8601Error):
+            start = end - datetime.timedelta(days=1)
+        if start.tzinfo is None:
+            start = pytz.utc.localize(end)
+        data_stream_template_ids = map(
+            lambda dst: dst.id,
+            chart_definition.data_stream_templates
+        )
+        data_stream_ids = DBSession.query(DataStream.id).filter(
+            DataStream.feed == self.feed,
+            DataStream.template_id.in_(data_stream_template_ids)
+        ).order_by(
+            DataStream.template_id
+        )
+        series_appstruct = []
+        measurements_store = data_streams_store.Measurements()
+        for data_stream_id in map(lambda x: x.id, data_stream_ids):
+            series_appstruct.append(
+                measurements_store.get_data_points(
+                    data_stream_id,
+                    start_date=start,
+                    end_date=end
+                )
+            )
+        return Response(
+            json.dumps(schemas.ChartDataResponse().serialize(series_appstruct)),
+            content_type='application/json'
+        )
 
 @view_config(
     route_name='sngconnect.telemetry.feed_data_streams',
