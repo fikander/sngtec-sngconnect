@@ -244,6 +244,19 @@ class FeedChart(FeedCharts):
             'definition': {
                 'id': chart_definition.id,
             },
+            'rendering_data': {
+                'id': chart_definition.id,
+                'name': chart_definition.name,
+                'type': chart_definition.chart_type,
+                'data_stream_templates': [
+                    {
+                        'id': template.id,
+                        'name': template.name,
+                        'measurement_unit': template.measurement_unit,
+                    }
+                    for template in chart_definition.data_stream_templates
+                ],
+            },
         }
         return self.context
 

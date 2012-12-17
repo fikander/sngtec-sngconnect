@@ -1,0 +1,105 @@
+{#
+    container_id = <ID of DOM element to render the chart in>;
+    rendering_data = {
+        'id': <chart definition ID>,
+        'name': <chart definition title>,
+        'type': 'LINEAR',
+        'data_stream_templates': <ordered by ID, important!>[
+            {
+                'id': <template ID>,
+                'name': <parameter name>,
+                'measurement_unit': <measurement unit>,
+            }
+        ]
+    };
+#}
+{% macro render_chart(container_id, rendering_data) %}
+    <script>
+        $(function(){
+            var chart = new Highcharts.Chart({
+                chart: {
+                    renderTo: {{ container_id|tojson }},
+                    zoomType: 'x',
+                    type: 'spline',
+                    backgroundColor: null,
+                    plotBackgroundColor: '#ffffff',
+                    style: {
+                        fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+                        fontSize: '13px'
+                    }
+                },
+                title: {
+                    text: null,
+                },
+                credits: {
+                    enabled: false
+                },
+                legend: {
+                    layout: 'horizontal',
+                    align: 'center',
+                    verticalAlign: 'top',
+                    floating: false,
+                    backgroundColor: null,
+                    borderWidth: 0,
+                    useHTML: false,
+                    shadow: false,
+                    itemStyle: {
+                        fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+                        fontSize: '13px'
+                    }
+                },
+                colors: ['#EC6446', '#318BDE', '#89A54E', '#4572A7', '#AA4643'],
+                plotOptions: {
+                    spline: {
+                        dashStyle: 'Solid',
+                        shadow: false,
+                        lineWidth: 3,
+                        marker: {
+                            enabled: false
+                        }
+                    }
+                },
+                {#
+                xAxis: [{
+                    type: 'datetime',
+                    dateTimeLabelFormats: { // don't display the dummy year
+                    month: '%e. %b',
+                    year: '%b'
+                    }
+                }],
+                #}
+                yAxis: [
+                    {% for data_stream_template in rendering_data.data_stream_templates %}
+                        {
+                            labels: {
+                                formatter: function() {
+                                    return this.value + ' ' + {{ data_stream_template.measurement_unit|tojson }};
+                                },
+                                style: {
+                                    color: '#89A54E'
+                                }
+                            },
+                            title: {
+                                text: {{ data_stream_template.name|tojson }},
+                                style: {
+                                    color: '#89A54E'
+                                }
+                            }
+                            {%- if loop.cycle(True, False) -%}
+                                ,
+                                opposite: true
+                            {% endif %}
+                        }
+                        {%- if not loop.last %},{% endif %}
+                    {% endfor %}
+                ],
+                tooltip: {
+                    formatter: function() {
+                        return '<b>'+ this.series.name +'</b><br/>'+
+                        Highcharts.dateFormat('%e. %b', this.x) +': '+ this.y +' unit';
+                    }
+                }
+            });
+        });
+    </script>
+{% endmacro %}

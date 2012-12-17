@@ -74,7 +74,7 @@
                 var bounds = new google.maps.LatLngBounds();
                 var data = [
                     {%- for feed in feeds -%}
-                        [{{ feed.name|tojson|safe }},{{ feed.latitude }},{{ feed.longitude }}]
+                        [{{ feed.name|tojson }},{{ feed.latitude }},{{ feed.longitude }}]
                         {%- if not loop.last %},{% endif %}
                     {%- endfor -%}
                 ];

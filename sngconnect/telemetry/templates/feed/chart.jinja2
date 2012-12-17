@@ -1,4 +1,5 @@
 {% extends "sngconnect.telemetry:templates/feed/charts.jinja2" %}
+{% from "sngconnect.telemetry:templates/feed/macros/render_chart.jinja2" import render_chart with context %}
 
 {% block page_content %}
     {{ super() }}
@@ -26,7 +27,7 @@
         </article>
         <article class="span12 center">
             <h3>{{ chart.definition_id }}</h3>
-            <div id="sample-chart"></div>
+            <div id="rendered-chart"></div>
         </article>
     </div>
 {% endblock %}
@@ -38,5 +39,5 @@
             $('.datepicker').datepicker();
         });
     </script>
-    {# sample_chart_spline('sample-chart') #}
+    {{ render_chart('rendered-chart', chart.rendering_data) }}
 {% endblock %}

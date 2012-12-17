@@ -115,7 +115,7 @@
                             title: {text: {% filter tojson %}{% trans %}Last day{% endtrans %}{% endfilter %}},
                             xAxis: {type: "datetime"},
                             yAxis: {
-                                title: {text: {{ data_stream.name|tojson|safe }} + " [" + {{ data_stream.measurement_unit|tojson|safe }} + "]"}
+                                title: {text: {{ data_stream.name|tojson }} + " [" + {{ data_stream.measurement_unit|tojson }} + "]"}
                             },
                             tooltip: {shared: true},
                             legend: {enabled: true},
@@ -165,7 +165,7 @@
                             title: {text: {% filter tojson %}{% trans %}Last week{% endtrans %}{% endfilter %}},
                             xAxis: {type: "datetime"},
                             yAxis: {
-                                title: {text: {{ data_stream.name|tojson|safe }} + " [" + {{ data_stream.measurement_unit|tojson|safe }} + "]"}
+                                title: {text: {{ data_stream.name|tojson }} + " [" + {{ data_stream.measurement_unit|tojson }} + "]"}
                             },
                             tooltip: {shared: true},
                             legend: {enabled: true},
@@ -239,7 +239,7 @@
                             title: {text: {% filter tojson %}{% trans %}Last year{% endtrans %}{% endfilter %}},
                             xAxis: {type: "datetime"},
                             yAxis: {
-                                title: {text: {{ data_stream.name|tojson|safe }} + " [" + {{ data_stream.measurement_unit|tojson|safe }} + "]"}
+                                title: {text: {{ data_stream.name|tojson }} + " [" + {{ data_stream.measurement_unit|tojson }} + "]"}
                             },
                             tooltip: {shared: true},
                             legend: {enabled: true},
