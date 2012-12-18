@@ -210,3 +210,24 @@ class UpdateChartDefinitionForm(CreateChartDefinitionForm):
 
 class DeleteChartDefinitionForm(SecureForm):
     pass
+
+class SetChartRangeForm(SecureForm):
+
+    start = fields.DateField(
+        validators=(
+            validators.DataRequired(),
+        )
+    )
+    end = fields.DateField(
+        validators=(
+            validators.DataRequired(),
+        )
+    )
+
+    def validate_end(self, field):
+        if field.errors:
+            return
+        if field.data <= self.start.data:
+            raise validators.ValidationError(
+                _("End date must be greater than start date.")
+            )

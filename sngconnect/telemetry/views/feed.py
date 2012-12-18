@@ -338,6 +338,11 @@ class FeedChart(FeedCharts):
                 ],
             },
         }
+        self.context['set_range_form'] = forms.SetChartRangeForm(
+            start=datetime.date.today() - datetime.timedelta(days=1),
+            end=datetime.date.today(),
+            csrf_context=self.request
+        )
         return self.context
 
 class FeedChartApiViewBase(FeedViewBase):
@@ -360,17 +365,24 @@ class FeedChartApiViewBase(FeedViewBase):
 class FeedChartData(FeedChartApiViewBase):
     def __call__(self):
         try:
+            last = max(0, int(self.request.GET['last']))
+        except (KeyError, ValueError):
+            last = None
+        try:
             end = isodate.parse_datetime(self.request.GET['end'])
         except (KeyError, isodate.ISO8601Error):
-            end = datetime.datetime.utcnow()
-        if end.tzinfo is None:
-            end = pytz.utc.localize(end)
+            end = None
         try:
             start = isodate.parse_datetime(self.request.GET['start'])
         except (KeyError, isodate.ISO8601Error):
-            start = end - datetime.timedelta(hours=24)
-        if start.tzinfo is None:
-            start = pytz.utc.localize(end)
+            start = None
+        if end is None:
+            end = pytz.utc.localize(datetime.datetime.utcnow())
+        if start is None:
+            if last is None:
+                start = end - datetime.timedelta(hours=24)
+            else:
+                start = end - datetime.timedelta(hours=last)
         data_stream_template_ids = map(
             lambda dst: dst.id,
             self.chart_definition.data_stream_templates
