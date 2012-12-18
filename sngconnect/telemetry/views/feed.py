@@ -396,10 +396,10 @@ class FeedChartData(FeedChartApiViewBase):
         series_appstruct = []
         delta = end - start
         aggregate = True
-        if delta < datetime.timedelta(hours=12):
+        if delta <= datetime.timedelta(hours=24):
             data_store = data_streams_store.Measurements()
             aggregate = False
-        elif delta < datetime.timedelta(days=35):
+        elif delta <= datetime.timedelta(days=35):
             data_store = data_streams_store.HourlyAggregates()
         else:
             data_store = data_streams_store.DailyAggregates()

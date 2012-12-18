@@ -154,6 +154,7 @@
                 if (end <= start) {
                     alert({% filter tojson %}{% trans %}End date must be greater than start date.{% endtrans %}{% endfilter %});
                 } else {
+                    $({{ last_set_buttons|tojson }}).parent(".set-last-range-group").find("button").removeClass("active");
                     reload_chart_data(chart, {
                         start: start.toISOString(),
                         end: end.toISOString()

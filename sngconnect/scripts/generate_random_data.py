@@ -164,7 +164,7 @@ def generate_data(feed_count):
         print "Generating..."
         j = 0
         while start < end:
-            end -= datetime.timedelta(seconds=10)
+            end -= datetime.timedelta(seconds=30)
             dates.append(end)
             last_value = numpy.float128(
                 (
