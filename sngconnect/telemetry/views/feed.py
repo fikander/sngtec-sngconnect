@@ -291,7 +291,7 @@ class FeedChartData(FeedViewBase):
         try:
             start = isodate.parse_datetime(self.request.GET['start'])
         except (KeyError, isodate.ISO8601Error):
-            start = end - datetime.timedelta(days=1)
+            start = end - datetime.timedelta(hours=5)
         if start.tzinfo is None:
             start = pytz.utc.localize(end)
         data_stream_template_ids = map(

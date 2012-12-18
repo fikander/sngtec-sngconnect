@@ -23,7 +23,6 @@
                     zoomType: 'x',
                     type: 'spline',
                     backgroundColor: null,
-                    plotBackgroundColor: '#ffffff',
                     style: {
                         fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
                         fontSize: '13px'
@@ -39,7 +38,7 @@
                                     data = data.map(function(a){
                                         return a.map(function(b){
                                             return [
-                                                new Date(Date.parse(b[0])),
+                                                Date.parse(b[0]),
                                                 parseFloat(b[1])
                                             ];
                                         });
@@ -68,6 +67,7 @@
                     floating: false,
                     backgroundColor: null,
                     borderWidth: 0,
+                    useHTML: false,
                     shadow: false,
                     itemStyle: {
                         fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
@@ -77,7 +77,7 @@
                 colors: ['#EC6446', '#318BDE', '#89A54E', '#4572A7', '#AA4643'],
                 plotOptions: {
                     spline: {
-                        dashStyle: 'solid',
+                        dashStyle: 'Solid',
                         shadow: false,
                         lineWidth: 3,
                         marker: {
@@ -96,13 +96,13 @@
                                     return this.value + ' ' + {{ data_stream_template.measurement_unit|tojson }};
                                 },
                                 style: {
-                                    color: '#89A54E'
+                                    color: {{ loop.cycle('#EC6446', '#318BDE', '#89A54E', '#4572A7', '#AA4643')|tojson }}
                                 }
                             },
                             title: {
                                 text: {{ data_stream_template.name|tojson }},
                                 style: {
-                                    color: '#89A54E'
+                                    color: {{ loop.cycle('#EC6446', '#318BDE', '#89A54E', '#4572A7', '#AA4643')|tojson }}
                                 }
                             }
                             {%- if loop.cycle(True, False) -%}
@@ -117,6 +117,7 @@
                     {% for data_stream_template in rendering_data.data_stream_templates %}
                         {
                             name: {{ data_stream_template.name|tojson }},
+                            unit: {{ data_stream_template.measurement_unit|tojson }},
                             yAxis: {{ loop.index0|tojson }}
                         }
                         {%- if not loop.last %},{% endif %}
@@ -125,7 +126,8 @@
                 tooltip: {
                     formatter: function() {
                         return '<b>'+ this.series.name +'</b><br/>'+
-                        Highcharts.dateFormat('%e. %b', this.x) +': '+ this.y +' unit';
+                        Highcharts.dateFormat('%e. %b', this.x) +': '+ this.y +
+                        ' ' + this.series.options.unit;
                     }
                 }
             });
