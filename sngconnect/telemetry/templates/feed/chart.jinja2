@@ -6,20 +6,22 @@
     <h2 id="chart"><span class="awe-bar-chart"></span> {% trans %}Chart{% endtrans %}</h2>
     <div class="row">
         <article class="span12">
-            <div class="well">
-                <span class="pull-left">&nbsp;{% trans %}From{% endtrans %}&nbsp;</span>
-                <div class="input-append pull-left">
-                    <input id="dateRangeFrom" class="datepicker input-small" type="text" value="25/11/12">
-                    <span class="add-on"><i class="awe-calendar"></i></span>
-                </div>
-                <span class="pull-left">&nbsp;{% trans %}to{% endtrans %}&nbsp;</span>
-                <div class="input-append pull-left">
-                    <input id="dateRangeTo" class="datepicker input-small" type="text" value="25/11/12">
-                    <span class="add-on"><i class="awe-calendar"></i></span>
+            <div class="well" style="padding-top: 10px;">
+                <div class="form-inline pull-left">
+                    <label for="dateRangeFrom" style="padding: 0 5px 0 5px;">{% trans %}From{% endtrans %}</label>
+                    <div class="input-append">
+                        <input id="dateRangeFrom" class="datepicker input-small" type="text" value="">
+                        <span class="add-on"><i class="awe-calendar"></i></span>
+                    </div>
+                    <label for="dateRangeTo" style="padding: 0 5px 0 5px;">{% trans %}to{% endtrans %}</label>
+                    <div class="input-append">
+                        <input id="dateRangeTo" class="datepicker input-small" type="text" value="">
+                        <span class="add-on"><i class="awe-calendar"></i></span>
+                    </div>
                 </div>
                 <div class="btn-group pull-right">
-                    <button class="btn">{% trans %}24 hours{% endtrans %}</button>
-                    <button class="btn active">{% trans %}7 days{% endtrans %}</button>
+                    <button class="btn active">{% trans %}24 hours{% endtrans %}</button>
+                    <button class="btn">{% trans %}7 days{% endtrans %}</button>
                     <button class="btn">{% trans %}30 days{% endtrans %}</button>
                     <button class="btn">{% trans %}1 year{% endtrans %}</button>
                 </div>
@@ -36,7 +38,10 @@
     {{ super() }}
     <script>
         $(document).ready(function() {
-            $('.datepicker').datepicker();
+            $('.datepicker').datepicker({
+                format: "yyyy-mm-dd",
+                weekStart: 1
+            });
         });
     </script>
     {{ render_chart('rendered-chart', chart.rendering_data) }}
