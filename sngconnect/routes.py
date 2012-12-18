@@ -17,12 +17,24 @@ ROUTES = (
         'feeds/{feed_id:\d+}/charts'
     ),
     (
+        'sngconnect.telemetry.feed_charts.create',
+        'feeds/{feed_id:\d+}/charts/create'
+    ),
+    (
         'sngconnect.telemetry.feed_chart',
         'feeds/{feed_id:\d+}/charts/{chart_definition_id:\d+}'
     ),
     (
         'sngconnect.telemetry.feed_chart.data',
         'feeds/{feed_id:\d+}/charts/{chart_definition_id:\d+}/data'
+    ),
+    (
+        'sngconnect.telemetry.feed_chart.update',
+        'feeds/{feed_id:\d+}/charts/{chart_definition_id:\d+}/update'
+    ),
+    (
+        'sngconnect.telemetry.feed_chart.delete',
+        'feeds/{feed_id:\d+}/charts/{chart_definition_id:\d+}/delete'
     ),
     (
         'sngconnect.telemetry.feed_data_streams',

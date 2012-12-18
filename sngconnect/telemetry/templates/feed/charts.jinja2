@@ -15,17 +15,18 @@
                 <div class="well analysis-tool {% if chart and chart_definition.id == chart.definition.id %}active{% endif %}">
                     <a href="{{ chart_definition.url }}#chart">
                         <p class="lead">{{ chart_definition.name }}</p>
-                        <p>{{ chart_definition.description }}</p><span/>
+                        <p>{{ chart_definition.description }}</p>
                     </a>
                     {% if chart_definition.editable %}
-                        <div class="btn-group">
                             <a class="btn" data-toggle="modal" href="#edit-chart-{{ chart_definition.id }}">
                                 <span class="awe-edit"></span> {% trans %}Edit{% endtrans %}
                             </a>
-                            <a class="btn">
-                                <span class="awe-trash"></span> {% trans %}Delete{% endtrans %}
-                            </a>
-                        </div>
+                            <form action="{{ chart_definition.delete_url }}" method="post" class="delete-chart-form" style="display: inline-block; background: none;">
+                                {{ chart_definition.delete_form.csrf_token }}
+                                <button type="submit" class="btn">
+                                    <span class="awe-trash"></span> {% trans %}Delete{% endtrans %}
+                                </button>
+                            </form>
                     {% endif %}
                 </div>
             </article>
@@ -40,10 +41,11 @@
                         <button type="button" class="close" data-dismiss="modal">×</button>
                         <h3>{% trans %}Edit chart{% endtrans %}</h3>
                     </div>
-                    <form>
+                    <form action="{{ chart_definition.change_url }}" method="post" class="edit-chart-form">
                         <fieldset>
                             <div class="modal-body">
                                 {{ chart_definition.change_form.csrf_token }}
+                                {{ chart_definition.change_form.id }}
                                 {{ chart_definition.change_form.chart_type }}
                                 {{ horizontal_form_field(chart_definition.change_form.name) }}
                                 {{ horizontal_form_field(chart_definition.change_form.data_stream_template_ids) }}
@@ -62,7 +64,7 @@
                 <button type="button" class="close" data-dismiss="modal">×</button>
                 <h3>{% trans %}Create linear chart{% endtrans %}</h3>
             </div>
-            <form>
+            <form action="{{ create_chart_url }}" method="post" class="edit-chart-form">
                 <fieldset>
                     <div class="modal-body">
                         {{ create_chart_form.LINEAR.csrf_token }}
@@ -89,4 +91,59 @@
             </div>
         </article>
     </div>
+{% endblock %}
+
+{% block body_scripts %}
+    {{ super() }}
+    <script>
+        $(function(){
+            $(".edit-chart-form").submit(function(event){
+                var form = $(event.target);
+                event.preventDefault();
+                $.ajax({
+                    url: form.attr("action"),
+                    type: "POST",
+                    data: form.serialize(),
+                    success: function(data, textStatus, jqXHR){
+                        form.find(".control-group").removeClass("error");
+                        form.find(".help-block.error").remove();
+                        if (!data.errors) {
+                            if (data.redirect) {
+                                window.location.href = data.redirect;
+                            } else {
+                                location.reload();
+                            }
+                        } else {
+                            $.each(data.errors, function(field_name, field_errors){
+                                var field = form.find("[name='" + field_name + "']");
+                                var controlGroup = field.parents(".control-group");
+                                controlGroup.addClass("error");
+                                var message = $('<div class="help-block error" />');
+                                message.text(field_errors[0]);
+                                message.appendTo(controlGroup);
+                            });
+                        }
+                    }
+                });
+                return false;
+            });
+            $(".delete-chart-form").submit(function(event){
+                var form = $(event.target);
+                event.preventDefault();
+                $.ajax({
+                    url: form.attr("action"),
+                    type: "POST",
+                    data: form.serialize(),
+                    success: function(data, textStatus, jqXHR){
+                        if (data.redirect) {
+                            window.location.href = data.redirect;
+                        } else {
+                            location.reload();
+                        }
+                    }
+                });
+                return false;
+            });
+        });
+    </script>
 {% endblock %}

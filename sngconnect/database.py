@@ -396,6 +396,9 @@ chart_definitions_data_stream_templates = sql.Table(
 class ChartDefinition(ModelBase):
 
     __tablename__ = 'sngconnect_chart_definitions'
+    __table_args__ = (
+        sql.UniqueConstraint('feed_template_id', 'feed_id', 'name'),
+    )
 
     id = sql.Column(
         sql.Integer,
