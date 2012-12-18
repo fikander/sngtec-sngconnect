@@ -291,7 +291,7 @@ class FeedChartData(FeedViewBase):
         try:
             start = isodate.parse_datetime(self.request.GET['start'])
         except (KeyError, isodate.ISO8601Error):
-            start = end - datetime.timedelta(hours=5)
+            start = end - datetime.timedelta(hours=24)
         if start.tzinfo is None:
             start = pytz.utc.localize(end)
         data_stream_template_ids = map(
@@ -305,14 +305,32 @@ class FeedChartData(FeedViewBase):
             DataStream.template_id
         )
         series_appstruct = []
-        measurements_store = data_streams_store.Measurements()
+        delta = end - start
+        aggregate = True
+        if delta < datetime.timedelta(hours=12):
+            data_store = data_streams_store.Measurements()
+            aggregate = False
+        elif delta < datetime.timedelta(days=35):
+            data_store = data_streams_store.HourlyAggregates()
+        else:
+            data_store = data_streams_store.DailyAggregates()
         for data_stream_id in map(lambda x: x.id, data_stream_ids):
-            series_appstruct.append(
-                measurements_store.get_data_points(
-                    data_stream_id,
-                    start_date=start,
-                    end_date=end
+            data_points = data_store.get_data_points(
+                data_stream_id,
+                start_date=start,
+                end_date=end
+            )
+            if aggregate:
+                data_points = map(
+                    lambda dp: (
+                        dp[0],
+                        decimal.Decimal(dp[1]['sum']) /
+                            decimal.Decimal(dp[1]['count'])
+                    ),
+                    data_points
                 )
+            series_appstruct.append(
+                data_points
             )
         return Response(
             json.dumps(schemas.ChartDataResponse().serialize(series_appstruct)),
