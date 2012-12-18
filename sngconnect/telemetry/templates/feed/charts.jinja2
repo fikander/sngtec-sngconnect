@@ -40,10 +40,11 @@
                         <button type="button" class="close" data-dismiss="modal">×</button>
                         <h3>{% trans %}Edit chart{% endtrans %}</h3>
                     </div>
-                    <form>
+                    <form action="{{ chart_definition.change_url }}" method="post" class="edit-chart-form">
                         <fieldset>
                             <div class="modal-body">
                                 {{ chart_definition.change_form.csrf_token }}
+                                {{ chart_definition.change_form.id }}
                                 {{ chart_definition.change_form.chart_type }}
                                 {{ horizontal_form_field(chart_definition.change_form.name) }}
                                 {{ horizontal_form_field(chart_definition.change_form.data_stream_template_ids) }}
@@ -62,7 +63,7 @@
                 <button type="button" class="close" data-dismiss="modal">×</button>
                 <h3>{% trans %}Create linear chart{% endtrans %}</h3>
             </div>
-            <form action="{{ create_chart_url }}" method="post">
+            <form action="{{ create_chart_url }}" method="post" class="edit-chart-form">
                 <fieldset>
                     <div class="modal-body">
                         {{ create_chart_form.LINEAR.csrf_token }}
@@ -95,7 +96,7 @@
     {{ super() }}
     <script>
         $(function(){
-            $("#create-chart-LINEAR").submit(function(event){
+            $(".edit-chart-form").submit(function(event){
                 var form = $(event.target);
                 event.preventDefault();
                 $.ajax({
@@ -105,7 +106,7 @@
                     success: function(errors, textStatus, jqXHR){
                         form.find(".control-group").removeClass("error");
                         form.find(".help-block.error").remove();
-                        if (jqXHR.status === 201) {
+                        if (!errors) {
                             location.reload();
                         } else {
                             console.log(errors);

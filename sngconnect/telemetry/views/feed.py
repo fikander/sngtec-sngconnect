@@ -214,7 +214,13 @@ class FeedCharts(FeedViewBase):
                     'name': chart_definition.name,
                     'description': chart_definition.description,
                     'editable': chart_definition.feed is not None,
-                    'change_form': forms.ChangeChartDefinitionForm(
+                    'change_url': request.route_url(
+                        'sngconnect.telemetry.feed_chart.update',
+                        feed_id=self.feed.id,
+                        chart_definition_id=chart_definition.id
+                    ),
+                    'change_form': forms.UpdateChartDefinitionForm(
+                        chart_definition.id,
                         self.feed,
                         chart_definition.data_stream_templates,
                         obj=chart_definition,
@@ -271,9 +277,7 @@ class FeedChartsCreate(FeedViewBase):
                     data_stream_templates_dict[id]
                 )
             DBSession.add(chart_definition)
-            return Response(
-                status_code=201
-            )
+            return Response()
         return Response(
             json.dumps(create_chart_form.errors),
             content_type='application/json'
@@ -321,21 +325,25 @@ class FeedChart(FeedCharts):
         }
         return self.context
 
-@view_config(
-    route_name='sngconnect.telemetry.feed_chart.data',
-    request_method='GET',
-    permission='sngconnect.telemetry.access'
-)
-class FeedChartData(FeedViewBase):
-    def __call__(self):
+class FeedChartApiViewBase(FeedViewBase):
+    def __init__(self, request):
+        super(FeedChartApiViewBase, self).__init__(request)
         try:
-            chart_definition = DBSession.query(ChartDefinition).filter(
+            self.chart_definition = DBSession.query(ChartDefinition).filter(
                 (ChartDefinition.id ==
                     self.request.matchdict['chart_definition_id']),
                 ChartDefinition.feed_template_id == self.feed.template_id
             ).one()
         except database_exceptions.NoResultFound:
             raise httpexceptions.HTTPNotFound()
+
+@view_config(
+    route_name='sngconnect.telemetry.feed_chart.data',
+    request_method='GET',
+    permission='sngconnect.telemetry.access'
+)
+class FeedChartData(FeedChartApiViewBase):
+    def __call__(self):
         try:
             end = isodate.parse_datetime(self.request.GET['end'])
         except (KeyError, isodate.ISO8601Error):
@@ -350,7 +358,7 @@ class FeedChartData(FeedViewBase):
             start = pytz.utc.localize(end)
         data_stream_template_ids = map(
             lambda dst: dst.id,
-            chart_definition.data_stream_templates
+            self.chart_definition.data_stream_templates
         )
         data_stream_ids = DBSession.query(DataStream.id).filter(
             DataStream.feed == self.feed,
@@ -388,6 +396,38 @@ class FeedChartData(FeedViewBase):
             )
         return Response(
             json.dumps(schemas.ChartDataResponse().serialize(series_appstruct)),
+            content_type='application/json'
+        )
+
+@view_config(
+    route_name='sngconnect.telemetry.feed_chart.update',
+    request_method='POST',
+    permission='sngconnect.telemetry.access'
+)
+class FeedChartsUpdate(FeedChartApiViewBase):
+    def __call__(self):
+        update_chart_form = forms.UpdateChartDefinitionForm(
+            self.chart_definition.id,
+            self.feed,
+            self.feed.template.data_stream_templates,
+            csrf_context=self.request
+        )
+        update_chart_form.process(self.request.POST)
+        data_stream_templates_dict = dict((
+            (template.id, template)
+            for template in self.feed.template.data_stream_templates
+        ))
+        if update_chart_form.validate():
+            update_chart_form.populate_obj(self.chart_definition)
+            self.chart_definition.data_stream_templates = []
+            for id in update_chart_form.data_stream_template_ids.data:
+                self.chart_definition.data_stream_templates.append(
+                    data_stream_templates_dict[id]
+                )
+            DBSession.add(self.chart_definition)
+            return Response()
+        return Response(
+            json.dumps(update_chart_form.errors),
             content_type='application/json'
         )
 

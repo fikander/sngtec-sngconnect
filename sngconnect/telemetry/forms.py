@@ -1,7 +1,7 @@
 import decimal
 
 import sqlalchemy as sql
-from wtforms import fields, validators
+from wtforms import fields, validators, widgets
 from sqlalchemy.orm import exc as database_exceptions
 import babel.numbers
 
@@ -117,7 +117,7 @@ class AddFeedUserForm(SecureForm):
 class AddFeedMaintainerForm(AddFeedUserForm):
     pass
 
-class ChangeChartDefinitionForm(SecureForm):
+class CreateChartDefinitionForm(SecureForm):
 
     chart_type = fields.HiddenField(
         validators=(
@@ -142,7 +142,11 @@ class ChangeChartDefinitionForm(SecureForm):
     )
 
     def __init__(self, feed, data_stream_templates, *args, **kwargs):
-        super(ChangeChartDefinitionForm, self).__init__(*args, **kwargs)
+        if 'obj' in kwargs:
+            kwargs['data_stream_template_ids'] = [
+                template.id for template in kwargs['obj'].data_stream_templates
+            ]
+        super(CreateChartDefinitionForm, self).__init__(*args, **kwargs)
         self.feed = feed
         self.data_stream_template_ids.choices = [
             (template.id, template.name) for template in data_stream_templates
@@ -167,5 +171,39 @@ class ChangeChartDefinitionForm(SecureForm):
                 _("This chart name is already taken.")
             )
 
-class CreateChartDefinitionForm(ChangeChartDefinitionForm):
-    pass
+class UpdateChartDefinitionForm(CreateChartDefinitionForm):
+
+    id = fields.IntegerField(
+        widget=widgets.HiddenInput(),
+        validators=(
+            validators.DataRequired(),
+        )
+    )
+
+    def __init__(self, original_id, *args, **kwargs):
+        self.original_id = original_id
+        super(UpdateChartDefinitionForm, self).__init__(*args, **kwargs)
+
+    def validate_id(self, field):
+        if self.original_id != field.data:
+            raise validators.ValidationError()
+
+    def validate_name(self, field):
+        if field.errors:
+            return
+        try:
+            DBSession.query(ChartDefinition).filter(
+                ChartDefinition.feed_template == self.feed.template,
+                ChartDefinition.id != self.id.data,
+                sql.or_(
+                    ChartDefinition.feed == None,
+                    ChartDefinition.feed == self.feed
+                ),
+                ChartDefinition.name == field.data
+            ).one()
+        except database_exceptions.NoResultFound:
+            pass
+        else:
+            raise validators.ValidationError(
+                _("This chart name is already taken.")
+            )
