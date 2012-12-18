@@ -3,7 +3,7 @@ from webassets import Bundle
 ASSET_BUNDLES = {
     'base_css': Bundle(
         'wuxia/css/sngconnect.css',
-        filters=('cssrewrite', 'cssmin',),
+        filters=('cssrewrite', 'yui_css',),
         output='compressed/base.css'
     ),
     'base_js': Bundle(
@@ -16,11 +16,11 @@ ASSET_BUNDLES = {
         'wuxia/js/bootstrap/bootstrap-alert.js',
         'wuxia/js/bootstrap/bootstrap-modal.js',
         'wuxia/js/bootstrap/bootstrap-tooltip.js',
-        'wuxia/js/plugins/datepicker/bootstrap-datepicker.js',
-        'iso8601/iso8601.js',
         'highcharts/js/highcharts.js',
+        'iso8601/iso8601.js',
+        'wuxia/js/plugins/datepicker/bootstrap-datepicker.js',
         'sngconnect/js/base.js',
-        filters='rjsmin',
+        filters='yui_js',
         output='compressed/base.js'
     ),
 }
