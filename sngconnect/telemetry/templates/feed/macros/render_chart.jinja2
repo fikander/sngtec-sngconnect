@@ -126,8 +126,7 @@
                 tooltip: {
                     formatter: function() {
                         return '<b>'+ this.series.name +'</b><br/>'+
-                        Highcharts.dateFormat('%e. %b', this.x) +': '+ this.y +
-                        ' ' + this.series.options.unit;
+                        Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', this.x) +': '+ this.y + ' ' + this.series.options.unit;
                     }
                 }
             });
