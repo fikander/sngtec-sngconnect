@@ -62,7 +62,7 @@
                 <button type="button" class="close" data-dismiss="modal">×</button>
                 <h3>{% trans %}Create linear chart{% endtrans %}</h3>
             </div>
-            <form>
+            <form action="{{ create_chart_url }}" method="post">
                 <fieldset>
                     <div class="modal-body">
                         {{ create_chart_form.LINEAR.csrf_token }}
@@ -89,4 +89,38 @@
             </div>
         </article>
     </div>
+{% endblock %}
+
+{% block body_scripts %}
+    {{ super() }}
+    <script>
+        $(function(){
+            $("#create-chart-LINEAR").submit(function(event){
+                var form = $(event.target);
+                event.preventDefault();
+                $.ajax({
+                    url: form.attr("action"),
+                    type: "POST",
+                    data: form.serialize(),
+                    success: function(errors, textStatus, jqXHR){
+                        form.find(".control-group").removeClass("error");
+                        form.find(".help-block.error").remove();
+                        if (jqXHR.status === 201) {
+                            location.reload();
+                        } else {
+                            console.log(errors);
+                            $.each(errors, function(field_name, field_errors){
+                                var field = form.find("[name='" + field_name + "']");
+                                var controlGroup = field.parents(".control-group");
+                                controlGroup.addClass("error");
+                                var message = $('<div class="help-block error" />');
+                                message.text(field_errors[0]);
+                                message.appendTo(controlGroup);
+                            });
+                        }
+                    }
+                });
+            });
+        });
+    </script>
 {% endblock %}

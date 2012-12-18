@@ -215,6 +215,7 @@ class FeedCharts(FeedViewBase):
                     'description': chart_definition.description,
                     'editable': chart_definition.feed is not None,
                     'change_form': forms.ChangeChartDefinitionForm(
+                        self.feed,
                         chart_definition.data_stream_templates,
                         obj=chart_definition,
                         csrf_context=self.request
@@ -227,8 +228,13 @@ class FeedCharts(FeedViewBase):
                 }
                 for chart_definition in self.chart_definitions
             ],
+            'create_chart_url': self.request.route_url(
+                'sngconnect.telemetry.feed_charts.create',
+                feed_id=self.feed.id
+            ),
             'create_chart_form': {
                 'LINEAR': forms.CreateChartDefinitionForm(
+                    self.feed,
                     self.feed.template.data_stream_templates,
                     chart_type='LINEAR',
                     csrf_context=self.request
@@ -236,6 +242,42 @@ class FeedCharts(FeedViewBase):
             },
             'chart': None,
         })
+
+@view_config(
+    route_name='sngconnect.telemetry.feed_charts.create',
+    request_method='POST',
+    permission='sngconnect.telemetry.access'
+)
+class FeedChartsCreate(FeedViewBase):
+    def __call__(self):
+        create_chart_form = forms.CreateChartDefinitionForm(
+            self.feed,
+            self.feed.template.data_stream_templates,
+            csrf_context=self.request
+        )
+        create_chart_form.process(self.request.POST)
+        data_stream_templates_dict = dict((
+            (template.id, template)
+            for template in self.feed.template.data_stream_templates
+        ))
+        if create_chart_form.validate():
+            chart_definition = ChartDefinition(
+                feed_template=self.feed.template,
+                feed=self.feed
+            )
+            create_chart_form.populate_obj(chart_definition)
+            for id in create_chart_form.data_stream_template_ids.data:
+                chart_definition.data_stream_templates.append(
+                    data_stream_templates_dict[id]
+                )
+            DBSession.add(chart_definition)
+            return Response(
+                status_code=201
+            )
+        return Response(
+            json.dumps(create_chart_form.errors),
+            content_type='application/json'
+        )
 
 @view_config(
     route_name='sngconnect.telemetry.feed_chart',

@@ -1,12 +1,13 @@
 import decimal
 
+import sqlalchemy as sql
 from wtforms import fields, validators
 from sqlalchemy.orm import exc as database_exceptions
 import babel.numbers
 
 from sngconnect.forms import SecureForm
 from sngconnect.translation import _
-from sngconnect.database import DBSession, User
+from sngconnect.database import DBSession, User, ChartDefinition
 
 class LocalizedDecimalField(fields.DecimalField):
 
@@ -134,16 +135,37 @@ class ChangeChartDefinitionForm(SecureForm):
     data_stream_template_ids = fields.SelectMultipleField(
         _("Select up to three parameters"),
         choices=[],
+        coerce=int,
         validators=(
             validators.DataRequired(),
         )
     )
 
-    def __init__(self, data_stream_templates, *args, **kwargs):
+    def __init__(self, feed, data_stream_templates, *args, **kwargs):
+        super(ChangeChartDefinitionForm, self).__init__(*args, **kwargs)
+        self.feed = feed
         self.data_stream_template_ids.choices = [
             (template.id, template.name) for template in data_stream_templates
         ]
-        super(ChangeChartDefinitionForm, self).__init__(*args, **kwargs)
+
+    def validate_name(self, field):
+        if field.errors:
+            return
+        try:
+            DBSession.query(ChartDefinition).filter(
+                ChartDefinition.feed_template == self.feed.template,
+                sql.or_(
+                    ChartDefinition.feed == None,
+                    ChartDefinition.feed == self.feed
+                ),
+                ChartDefinition.name == field.data
+            ).one()
+        except database_exceptions.NoResultFound:
+            pass
+        else:
+            raise validators.ValidationError(
+                _("This chart name is already taken.")
+            )
 
 class CreateChartDefinitionForm(ChangeChartDefinitionForm):
     pass

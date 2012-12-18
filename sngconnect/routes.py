@@ -17,6 +17,10 @@ ROUTES = (
         'feeds/{feed_id:\d+}/charts'
     ),
     (
+        'sngconnect.telemetry.feed_charts.create',
+        'feeds/{feed_id:\d+}/charts/create'
+    ),
+    (
         'sngconnect.telemetry.feed_chart',
         'feeds/{feed_id:\d+}/charts/{chart_definition_id:\d+}'
     ),
