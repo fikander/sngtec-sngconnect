@@ -374,6 +374,86 @@ class DataStream(ModelBase):
     def writable(self):
         return self.template.writable
 
+chart_definitions_data_stream_templates = sql.Table(
+    'sngconnect_chart_definitions_data_stream_templates',
+    ModelBase.metadata,
+    sql.Column(
+        'chart_definition_id',
+        sql.Integer,
+        sql.ForeignKey('sngconnect_chart_definitions.id')
+    ),
+    sql.Column(
+        'data_stream_template_id',
+        sql.Integer,
+        sql.ForeignKey('sngconnect_data_stream_templates.id')
+    ),
+    sql.PrimaryKeyConstraint(
+        'chart_definition_id',
+        'data_stream_template_id'
+    )
+)
+
+class ChartDefinition(ModelBase):
+
+    __tablename__ = 'sngconnect_chart_definitions'
+
+    id = sql.Column(
+        sql.Integer,
+        primary_key=True
+    )
+    feed_template_id = sql.Column(
+        sql.Integer,
+        sql.ForeignKey(FeedTemplate.id),
+        nullable=False,
+        doc="Related feed template's identifier."
+    )
+    feed_id = sql.Column(
+        sql.Integer,
+        sql.ForeignKey(Feed.id),
+        doc="Related feed's identifier."
+    )
+    name = sql.Column(
+        sql.Unicode(length=200),
+        nullable=False
+    )
+    chart_type = sql.Column(
+        sql.Enum(
+            'LINEAR',
+            'DIFFERENTIAL',
+            name='CHART_DEFINITION_TYPE'
+        ),
+        nullable=False
+    )
+
+    feed_template = orm.relationship(
+        FeedTemplate,
+        backref=orm.backref('chart_definitions')
+    )
+    feed = orm.relationship(
+        Feed,
+        backref=orm.backref('chart_definitions')
+    )
+    data_stream_templates = orm.relationship(
+        DataStreamTemplate,
+        secondary=chart_definitions_data_stream_templates,
+        backref=orm.backref('chart_definitions')
+    )
+
+    @property
+    def description(self):
+        if self.chart_type == 'LINEAR':
+            base = u"%s: " % _("Linear")
+        elif self.chart_type == 'DIFFERENTIAL':
+            base = u"%s: " % _("Differential")
+        else:
+            base = u""
+        return base + u", ".join((
+            template.name for template in self.data_stream_templates
+        ))
+
+    def __repr__(self):
+        return '<ChartDefinition(id=%s)>' % str(self.id)
+
 class AlarmDefinition(ModelBase):
 
     __tablename__ = 'sngconnect_alarm_definitions'

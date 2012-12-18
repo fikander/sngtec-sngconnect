@@ -144,7 +144,7 @@
             );
             var marker = new google.maps.Marker({
                 map: map,
-                title: {{ feed.name|tojson|safe }},
+                title: {{ feed.name|tojson }},
                 position: position
             });
         });

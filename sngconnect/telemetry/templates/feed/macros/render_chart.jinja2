@@ -1,0 +1,136 @@
+{#
+    container_id = <ID of DOM element to render the chart in>;
+    rendering_data = {
+        'id': <chart definition ID>,
+        'name': <chart definition title>,
+        'type': 'LINEAR',
+        'data_url': <url to data API>,
+        'data_stream_templates': <ordered by ID, important!>[
+            {
+                'id': <template ID>,
+                'name': <parameter name>,
+                'measurement_unit': <measurement unit>,
+            }
+        ]
+    };
+#}
+{% macro render_chart(container_id, rendering_data) %}
+    <script>
+        $(function(){
+            var chart = new Highcharts.Chart({
+                chart: {
+                    renderTo: {{ container_id|tojson }},
+                    zoomType: 'x',
+                    type: 'spline',
+                    backgroundColor: null,
+                    style: {
+                        fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+                        fontSize: '13px'
+                    },
+                    events: {
+                        load: function() {
+                            var chart = this;
+                            chart.showLoading();
+                            $.getJSON(
+                                {{ rendering_data.data_url|tojson }},
+                                {},
+                                function(data, textStatus, jqXHR) {
+                                    data = data.map(function(a){
+                                        return a.map(function(b){
+                                            return [
+                                                Date.parse(b[0]),
+                                                parseFloat(b[1])
+                                            ];
+                                        });
+                                    });
+                                    {% for data_stream_template in rendering_data.data_stream_templates %}
+                                        chart.series[{{ loop.index0|tojson}}].setData(
+                                            data[{{ loop.index0|tojson }}]
+                                        );
+                                    {% endfor %}
+                                    chart.hideLoading();
+                                }
+                            );
+                        }
+                    }
+                },
+                title: {
+                    text: null
+                },
+                credits: {
+                    enabled: false
+                },
+                legend: {
+                    layout: 'horizontal',
+                    align: 'center',
+                    verticalAlign: 'top',
+                    floating: false,
+                    backgroundColor: null,
+                    borderWidth: 0,
+                    useHTML: false,
+                    shadow: false,
+                    itemStyle: {
+                        fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+                        fontSize: '13px'
+                    }
+                },
+                colors: ['#EC6446', '#318BDE', '#89A54E', '#4572A7', '#AA4643'],
+                plotOptions: {
+                    spline: {
+                        dashStyle: 'Solid',
+                        shadow: false,
+                        lineWidth: 3,
+                        marker: {
+                            enabled: false
+                        }
+                    }
+                },
+                xAxis: [{
+                    type: 'datetime'
+                }],
+                yAxis: [
+                    {% for data_stream_template in rendering_data.data_stream_templates %}
+                        {
+                            labels: {
+                                formatter: function() {
+                                    return this.value + ' ' + {{ data_stream_template.measurement_unit|tojson }};
+                                },
+                                style: {
+                                    color: {{ loop.cycle('#EC6446', '#318BDE', '#89A54E', '#4572A7', '#AA4643')|tojson }}
+                                }
+                            },
+                            title: {
+                                text: {{ data_stream_template.name|tojson }},
+                                style: {
+                                    color: {{ loop.cycle('#EC6446', '#318BDE', '#89A54E', '#4572A7', '#AA4643')|tojson }}
+                                }
+                            }
+                            {%- if loop.cycle(True, False) -%}
+                                ,
+                                opposite: true
+                            {% endif %}
+                        }
+                        {%- if not loop.last %},{% endif %}
+                    {% endfor %}
+                ],
+                series: [
+                    {% for data_stream_template in rendering_data.data_stream_templates %}
+                        {
+                            name: {{ data_stream_template.name|tojson }},
+                            unit: {{ data_stream_template.measurement_unit|tojson }},
+                            yAxis: {{ loop.index0|tojson }}
+                        }
+                        {%- if not loop.last %},{% endif %}
+                    {% endfor %}
+                ],
+                tooltip: {
+                    formatter: function() {
+                        return '<b>'+ this.series.name +'</b><br/>'+
+                        Highcharts.dateFormat('%e. %b', this.x) +': '+ this.y +
+                        ' ' + this.series.options.unit;
+                    }
+                }
+            });
+        });
+    </script>
+{% endmacro %}

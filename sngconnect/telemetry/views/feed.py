@@ -2,10 +2,13 @@
 
 import datetime
 import decimal
+import json
 
+import isodate
 import pytz
 import sqlalchemy as sql
 from sqlalchemy.orm import exc as database_exceptions, joinedload
+from pyramid.response import Response
 from pyramid.view import view_config
 from pyramid import httpexceptions
 from pyramid.i18n import get_locale_name
@@ -13,10 +16,11 @@ from pyramid.security import authenticated_userid, has_permission
 
 from sngconnect.translation import _
 from sngconnect.database import (DBSession, Feed, DataStreamTemplate,
-    DataStream, AlarmDefinition, Message, FeedUser, User)
+    DataStream, AlarmDefinition, Message, FeedUser, User, ChartDefinition,
+    FeedTemplate)
 from sngconnect.cassandra import data_streams as data_streams_store
 from sngconnect.cassandra import alarms as alarms_store
-from sngconnect.telemetry import forms
+from sngconnect.telemetry import forms, schemas
 
 @view_config(
     route_name='sngconnect.telemetry.feeds',
@@ -192,7 +196,158 @@ class FeedDashboard(FeedViewBase):
     permission='sngconnect.telemetry.access'
 )
 class FeedCharts(FeedViewBase):
-    pass
+    def __init__(self, request):
+        super(FeedCharts, self).__init__(request)
+        self.chart_definitions = DBSession.query(ChartDefinition).join(
+            FeedTemplate,
+            Feed
+        ).filter(
+            FeedTemplate.id == self.feed.template_id or Feed.id == self.feed.id
+        ).order_by(
+            ChartDefinition.feed_id,
+            ChartDefinition.name
+        ).all()
+        self.context.update({
+            'chart_definitions': [
+                {
+                    'id': chart_definition.id,
+                    'name': chart_definition.name,
+                    'description': chart_definition.description,
+                    'editable': chart_definition.feed is not None,
+                    'change_form': forms.ChangeChartDefinitionForm(
+                        chart_definition.data_stream_templates,
+                        obj=chart_definition,
+                        csrf_context=self.request
+                    ),
+                    'url': self.request.route_url(
+                        'sngconnect.telemetry.feed_chart',
+                        feed_id=self.feed.id,
+                        chart_definition_id=chart_definition.id
+                    ),
+                }
+                for chart_definition in self.chart_definitions
+            ],
+            'create_chart_form': {
+                'LINEAR': forms.CreateChartDefinitionForm(
+                    self.feed.template.data_stream_templates,
+                    chart_type='LINEAR',
+                    csrf_context=self.request
+                ),
+            },
+            'chart': None,
+        })
+
+@view_config(
+    route_name='sngconnect.telemetry.feed_chart',
+    request_method='GET',
+    renderer='sngconnect.telemetry:templates/feed/chart.jinja2',
+    permission='sngconnect.telemetry.access'
+)
+class FeedChart(FeedCharts):
+    def __call__(self):
+        try:
+            chart_definition = filter(
+                lambda cd: (
+                    cd.id == int(self.request.matchdict['chart_definition_id'])
+                ),
+                self.chart_definitions
+            )[0]
+        except (ValueError, IndexError):
+            raise httpexceptions.HTTPNotFound()
+        self.context['chart'] = {
+            'definition': {
+                'id': chart_definition.id,
+            },
+            'rendering_data': {
+                'id': chart_definition.id,
+                'name': chart_definition.name,
+                'type': chart_definition.chart_type,
+                'data_url': self.request.route_url(
+                    'sngconnect.telemetry.feed_chart.data',
+                    feed_id=self.feed.id,
+                    chart_definition_id=chart_definition.id
+                ),
+                'data_stream_templates': [
+                    {
+                        'id': template.id,
+                        'name': template.name,
+                        'measurement_unit': template.measurement_unit,
+                    }
+                    for template in chart_definition.data_stream_templates
+                ],
+            },
+        }
+        return self.context
+
+@view_config(
+    route_name='sngconnect.telemetry.feed_chart.data',
+    request_method='GET',
+    permission='sngconnect.telemetry.access'
+)
+class FeedChartData(FeedViewBase):
+    def __call__(self):
+        try:
+            chart_definition = DBSession.query(ChartDefinition).filter(
+                (ChartDefinition.id ==
+                    self.request.matchdict['chart_definition_id']),
+                ChartDefinition.feed_template_id == self.feed.template_id
+            ).one()
+        except database_exceptions.NoResultFound:
+            raise httpexceptions.HTTPNotFound()
+        try:
+            end = isodate.parse_datetime(self.request.GET['end'])
+        except (KeyError, isodate.ISO8601Error):
+            end = datetime.datetime.utcnow()
+        if end.tzinfo is None:
+            end = pytz.utc.localize(end)
+        try:
+            start = isodate.parse_datetime(self.request.GET['start'])
+        except (KeyError, isodate.ISO8601Error):
+            start = end - datetime.timedelta(hours=24)
+        if start.tzinfo is None:
+            start = pytz.utc.localize(end)
+        data_stream_template_ids = map(
+            lambda dst: dst.id,
+            chart_definition.data_stream_templates
+        )
+        data_stream_ids = DBSession.query(DataStream.id).filter(
+            DataStream.feed == self.feed,
+            DataStream.template_id.in_(data_stream_template_ids)
+        ).order_by(
+            DataStream.template_id
+        )
+        series_appstruct = []
+        delta = end - start
+        aggregate = True
+        if delta < datetime.timedelta(hours=12):
+            data_store = data_streams_store.Measurements()
+            aggregate = False
+        elif delta < datetime.timedelta(days=35):
+            data_store = data_streams_store.HourlyAggregates()
+        else:
+            data_store = data_streams_store.DailyAggregates()
+        for data_stream_id in map(lambda x: x.id, data_stream_ids):
+            data_points = data_store.get_data_points(
+                data_stream_id,
+                start_date=start,
+                end_date=end
+            )
+            if aggregate:
+                data_points = map(
+                    lambda dp: (
+                        dp[0],
+                        decimal.Decimal(dp[1]['sum']) /
+                            decimal.Decimal(dp[1]['count'])
+                    ),
+                    data_points
+                )
+            series_appstruct.append(
+                data_points
+            )
+        return Response(
+            json.dumps(schemas.ChartDataResponse().serialize(series_appstruct)),
+            content_type='application/json'
+        )
 
 @view_config(
     route_name='sngconnect.telemetry.feed_data_streams',

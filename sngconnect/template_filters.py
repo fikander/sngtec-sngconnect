@@ -3,7 +3,8 @@ import decimal
 
 import jinja2
 
-tojson = json.dumps
+def tojson(value):
+    return jinja2.Markup(json.dumps(value))
 
 @jinja2.contextfilter
 def format_datetime(context, value, **kwargs):

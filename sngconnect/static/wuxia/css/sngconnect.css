@@ -10624,9 +10624,11 @@ label.radio,
 label.checkbox {
   font-weight: normal;
 }
+/*
 .input-append input {
-  width: 165px;
+	width: 165px;
 }
+*/
 /* Alerts in form */
 form .alert {
   margin: 0;
@@ -12238,4 +12240,34 @@ div.jGrowl div.inverse a:hover {
 td.no-data {
   text-align: center;
   color: #999999;
+}
+.analysis-tool {
+  min-height: 90px;
+}
+.analysis-tool p,
+.analysis-tool p.lead {
+  margin-bottom: 5px;
+}
+.analysis-tool p {
+  color: #999999;
+}
+.analysis-tool .btn-group {
+  margin-top: 10px;
+}
+.analysis-tool p.lead {
+  color: #525252;
+}
+.analysis-tool:hover {
+  background-color: #e9eaf0;
+}
+.analysis-tool.active {
+  background-color: #318bde;
+}
+.analysis-tool.active p,
+.analysis-tool.active p.lead {
+  color: #ffffff;
+}
+.analysis-tool.active a:first-child,
+.analysis-tool:hover a:first-child {
+  text-decoration: none;
 }

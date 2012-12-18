@@ -115,3 +115,35 @@ class AddFeedUserForm(SecureForm):
 
 class AddFeedMaintainerForm(AddFeedUserForm):
     pass
+
+class ChangeChartDefinitionForm(SecureForm):
+
+    chart_type = fields.HiddenField(
+        validators=(
+            validators.DataRequired(),
+            validators.AnyOf(('LINEAR',)),
+        )
+    )
+    name = fields.TextField(
+        _("Name"),
+        validators=(
+            validators.DataRequired(),
+            validators.Length(max=200),
+        )
+    )
+    data_stream_template_ids = fields.SelectMultipleField(
+        _("Select up to three parameters"),
+        choices=[],
+        validators=(
+            validators.DataRequired(),
+        )
+    )
+
+    def __init__(self, data_stream_templates, *args, **kwargs):
+        self.data_stream_template_ids.choices = [
+            (template.id, template.name) for template in data_stream_templates
+        ]
+        super(ChangeChartDefinitionForm, self).__init__(*args, **kwargs)
+
+class CreateChartDefinitionForm(ChangeChartDefinitionForm):
+    pass

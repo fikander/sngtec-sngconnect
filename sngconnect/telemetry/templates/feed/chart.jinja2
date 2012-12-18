@@ -1,0 +1,51 @@
+{% extends "sngconnect.telemetry:templates/feed/charts.jinja2" %}
+{% from "sngconnect.telemetry:templates/feed/macros/render_chart.jinja2" import render_chart with context %}
+
+{% block page_content %}
+    {{ super() }}
+    <h2 id="chart"><span class="awe-bar-chart"></span> {% trans %}Chart{% endtrans %}</h2>
+    <div class="row">
+        <article class="span12">
+            <div class="well" style="padding-top: 10px;">
+                <div class="form-inline pull-left">
+                    <label for="dateRangeFrom" style="line-height: 25px; padding: 0 5px 0 5px;">{% trans %}From{% endtrans %}</label>
+                    <div class="input-append">
+                        <input id="dateRangeFrom" class="datepicker input-small" type="text" value="">
+                        <span class="add-on"><i class="awe-calendar"></i></span>
+                    </div>
+                    <label for="dateRangeTo" style="line-height: 25px; padding: 0 5px 0 5px;">{% trans %}to{% endtrans %}</label>
+                    <div class="input-append">
+                        <input id="dateRangeTo" class="datepicker input-small" type="text" value="">
+                        <span class="add-on"><i class="awe-calendar"></i></span>
+                    </div>
+                </div>
+                <div class="form-inline pull-right">
+                    <label style="line-height: 25px; padding: 0 5px 0 5px;">{% trans %}Last{% endtrans %}</label>
+                    <div class="btn-group">
+                        <button class="btn active">{% trans %}24 hours{% endtrans %}</button>
+                        <button class="btn">{% trans %}7 days{% endtrans %}</button>
+                        <button class="btn">{% trans %}30 days{% endtrans %}</button>
+                        <button class="btn">{% trans %}1 year{% endtrans %}</button>
+                    </div>
+                </div>
+            </div>
+        </article>
+        <article class="span12 center">
+            <h3>{{ chart.definition_id }}</h3>
+            <div id="rendered-chart"></div>
+        </article>
+    </div>
+{% endblock %}
+
+{% block body_scripts %}
+    {{ super() }}
+    <script>
+        $(document).ready(function() {
+            $('.datepicker').datepicker({
+                format: "yyyy-mm-dd",
+                weekStart: 1
+            });
+        });
+    </script>
+    {{ render_chart('rendered-chart', chart.rendering_data) }}
+{% endblock %}

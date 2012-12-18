@@ -32,7 +32,7 @@ def sing_in(request):
                 ).one()
             except database_exceptions.NoResultFound:
                 request.session.flash(
-                    _("Invalid credentials."),
+                    _("Invalid credentials1."),
                     queue='error'
                 )
             else:

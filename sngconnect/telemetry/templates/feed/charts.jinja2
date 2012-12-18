@@ -1,4 +1,5 @@
 {% extends "sngconnect.telemetry:templates/feed/base.jinja2" %}
+{% from "sngconnect:templates/macros/horizontal_form_field.jinja2" import horizontal_form_field %}
 {% set active_secondary_navigation = "charts" %}
 
 {% block main_breadcrumb %}
@@ -7,5 +8,85 @@
 {% endblock %}
 
 {% block page_content %}
-    Wykresy
+    <h2><span class="awe-th-list"></span> {% trans %}Chart definitions{% endtrans %}</h2>
+    <div class="row">
+        {% for chart_definition in chart_definitions %}
+            <article class="span3">
+                <div class="well analysis-tool {% if chart and chart_definition.id == chart.definition.id %}active{% endif %}">
+                    <a href="{{ chart_definition.url }}#chart">
+                        <p class="lead">{{ chart_definition.name }}</p>
+                        <p>{{ chart_definition.description }}</p><span/>
+                    </a>
+                    {% if chart_definition.editable %}
+                        <div class="btn-group">
+                            <a class="btn" data-toggle="modal" href="#edit-chart-{{ chart_definition.id }}">
+                                <span class="awe-edit"></span> {% trans %}Edit{% endtrans %}
+                            </a>
+                            <a class="btn">
+                                <span class="awe-trash"></span> {% trans %}Delete{% endtrans %}
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </article>
+            {% if loop.index % 4 == 0 %}
+                </div><div class="row">
+            {% endif %}
+        {% endfor %}
+        {% for chart_definition in chart_definitions %}
+            {% if chart_definition.editable %}
+                <div class="modal fade hide" id="edit-chart-{{ chart_definition.id }}">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">×</button>
+                        <h3>{% trans %}Edit chart{% endtrans %}</h3>
+                    </div>
+                    <form>
+                        <fieldset>
+                            <div class="modal-body">
+                                {{ chart_definition.change_form.csrf_token }}
+                                {{ chart_definition.change_form.chart_type }}
+                                {{ horizontal_form_field(chart_definition.change_form.name) }}
+                                {{ horizontal_form_field(chart_definition.change_form.data_stream_template_ids) }}
+                            </div>
+                            <div class="modal-footer">
+                                <a href="#" class="btn btn-wuxia" data-dismiss="modal">{% trans %}Close{% endtrans %}</a>
+                                <button type="submit" class="btn btn-wuxia btn-primary">{% trans %}Save{% endtrans %}</button>
+                            </div>
+                        </fieldset>
+                    </form>
+                </div>
+            {% endif %}
+        {% endfor %}
+        <div class="modal fade hide" id="create-chart-LINEAR">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h3>{% trans %}Create linear chart{% endtrans %}</h3>
+            </div>
+            <form>
+                <fieldset>
+                    <div class="modal-body">
+                        {{ create_chart_form.LINEAR.csrf_token }}
+                        {{ create_chart_form.LINEAR.chart_type }}
+                        {{ horizontal_form_field(create_chart_form.LINEAR.name) }}
+                        {{ horizontal_form_field(create_chart_form.LINEAR.data_stream_template_ids) }}
+                    </div>
+                    <div class="modal-footer">
+                        <a href="#" class="btn btn-wuxia" data-dismiss="modal">{% trans %}Close{% endtrans %}</a>
+                        <button type="submit" class="btn btn-wuxia btn-primary">{% trans %}Create{% endtrans %}</button>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+        <article class="span3">
+            <div class="well analysis-tool">
+                <p class="lead">{% trans %}New linear chart{% endtrans %}</p>
+                <p>{% trans %}Visualise multiple parameters{% endtrans %}</p>
+                <div class="btn-group">
+                    <a class="btn btn-warning" data-toggle="modal" href="#create-chart-LINEAR">
+                        <span class="awe-plus"></span> {% trans %}Create{% endtrans %}
+                    </a>
+                </div>
+            </div>
+        </article>
+    </div>
 {% endblock %}
