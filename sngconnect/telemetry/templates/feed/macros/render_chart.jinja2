@@ -27,10 +27,36 @@
                     style: {
                         fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
                         fontSize: '13px'
+                    },
+                    events: {
+                        load: function() {
+                            var chart = this;
+                            chart.showLoading();
+                            $.getJSON(
+                                {{ rendering_data.data_url|tojson }},
+                                {},
+                                function(data, textStatus, jqXHR) {
+                                    data = data.map(function(a){
+                                        return a.map(function(b){
+                                            return [
+                                                new Date(Date.parse(b[0])),
+                                                parseFloat(b[1])
+                                            ];
+                                        });
+                                    });
+                                    {% for data_stream_template in rendering_data.data_stream_templates %}
+                                        chart.series[{{ loop.index0|tojson}}].setData(
+                                            data[{{ loop.index0|tojson }}]
+                                        );
+                                    {% endfor %}
+                                    chart.hideLoading();
+                                }
+                            );
+                        }
                     }
                 },
                 title: {
-                    text: null,
+                    text: null
                 },
                 credits: {
                     enabled: false
@@ -42,7 +68,6 @@
                     floating: false,
                     backgroundColor: null,
                     borderWidth: 0,
-                    useHTML: false,
                     shadow: false,
                     itemStyle: {
                         fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
@@ -52,7 +77,7 @@
                 colors: ['#EC6446', '#318BDE', '#89A54E', '#4572A7', '#AA4643'],
                 plotOptions: {
                     spline: {
-                        dashStyle: 'Solid',
+                        dashStyle: 'solid',
                         shadow: false,
                         lineWidth: 3,
                         marker: {
@@ -60,15 +85,9 @@
                         }
                     }
                 },
-                {#
                 xAxis: [{
-                    type: 'datetime',
-                    dateTimeLabelFormats: { // don't display the dummy year
-                    month: '%e. %b',
-                    year: '%b'
-                    }
+                    type: 'datetime'
                 }],
-                #}
                 yAxis: [
                     {% for data_stream_template in rendering_data.data_stream_templates %}
                         {
@@ -94,6 +113,15 @@
                         {%- if not loop.last %},{% endif %}
                     {% endfor %}
                 ],
+                series: [
+                    {% for data_stream_template in rendering_data.data_stream_templates %}
+                        {
+                            name: {{ data_stream_template.name|tojson }},
+                            yAxis: {{ loop.index0|tojson }}
+                        }
+                        {%- if not loop.last %},{% endif %}
+                    {% endfor %}
+                ],
                 tooltip: {
                     formatter: function() {
                         return '<b>'+ this.series.name +'</b><br/>'+
@@ -101,16 +129,6 @@
                     }
                 }
             });
-            var chart_container = $('#' + {{ container_id|tojson }});
-            var loading_sign = $(
-                '<span class="loading blue" data-original-title="{% trans %}Loading, please wait...{% endtrans %}">{% trans %}Loading...{% endtrans %}</span>'
-            );
-            loading_sign.css({
-                position: 'absolute',
-                top: chart_container.offset().top + chart_container.height() / 2,
-                left: chart_container.offset().left + chart_container.width() / 2
-            });
-            loading_sign.appendTo($('body'));
         });
     </script>
 {% endmacro %}
