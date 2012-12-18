@@ -226,6 +226,14 @@ class FeedCharts(FeedViewBase):
                         obj=chart_definition,
                         csrf_context=self.request
                     ),
+                    'delete_url': request.route_url(
+                        'sngconnect.telemetry.feed_chart.delete',
+                        feed_id=self.feed.id,
+                        chart_definition_id=chart_definition.id
+                    ),
+                    'delete_form': forms.DeleteChartDefinitionForm(
+                        csrf_context=self.request
+                    ),
                     'url': self.request.route_url(
                         'sngconnect.telemetry.feed_chart',
                         feed_id=self.feed.id,
@@ -277,9 +285,16 @@ class FeedChartsCreate(FeedViewBase):
                     data_stream_templates_dict[id]
                 )
             DBSession.add(chart_definition)
-            return Response()
+            return Response(
+                json.dumps({
+                    'redirect': None,
+                }),
+                content_type='application/json'
+            )
         return Response(
-            json.dumps(create_chart_form.errors),
+            json.dumps({
+                'errors': create_chart_form.errors,
+            }),
             content_type='application/json'
         )
 
@@ -425,11 +440,42 @@ class FeedChartsUpdate(FeedChartApiViewBase):
                     data_stream_templates_dict[id]
                 )
             DBSession.add(self.chart_definition)
-            return Response()
+            return Response(
+                json.dumps({
+                    'redirect': None,
+                }),
+                content_type='application/json'
+            )
         return Response(
-            json.dumps(update_chart_form.errors),
+            json.dumps({
+                'errors': update_chart_form.errors,
+            }),
             content_type='application/json'
         )
+
+@view_config(
+    route_name='sngconnect.telemetry.feed_chart.delete',
+    request_method='POST',
+    permission='sngconnect.telemetry.access'
+)
+class FeedChartsDelete(FeedChartApiViewBase):
+    def __call__(self):
+        delete_chart_form = forms.DeleteChartDefinitionForm(
+            csrf_context=self.request
+        )
+        delete_chart_form.process(self.request.POST)
+        if delete_chart_form.validate():
+            DBSession.delete(self.chart_definition)
+            return Response(
+                json.dumps({
+                    'redirect': self.request.route_url(
+                        'sngconnect.telemetry.feed_charts',
+                        feed_id=self.feed.id
+                    ),
+                }),
+                content_type='application/json'
+            )
+        return Response(status_code=400)
 
 @view_config(
     route_name='sngconnect.telemetry.feed_data_streams',

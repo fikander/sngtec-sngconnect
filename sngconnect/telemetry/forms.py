@@ -207,3 +207,6 @@ class UpdateChartDefinitionForm(CreateChartDefinitionForm):
             raise validators.ValidationError(
                 _("This chart name is already taken.")
             )
+
+class DeleteChartDefinitionForm(SecureForm):
+    pass
