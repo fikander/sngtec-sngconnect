@@ -222,7 +222,7 @@ class FeedCharts(FeedViewBase):
                     'change_form': forms.UpdateChartDefinitionForm(
                         chart_definition.id,
                         self.feed,
-                        chart_definition.data_stream_templates,
+                        self.feed.template.data_stream_templates,
                         obj=chart_definition,
                         csrf_context=self.request
                     ),
