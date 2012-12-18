@@ -21,6 +21,7 @@ requires = [
     'pycassa',
     'Babel',
     'WTForms',
+    'yuicompressor',
     'pyramid_tm',
     'pyramid_jinja2',
     'pyramid_debugtoolbar',
