@@ -214,6 +214,11 @@ class FeedCharts(FeedViewBase):
                     'name': chart_definition.name,
                     'description': chart_definition.description,
                     'editable': chart_definition.feed is not None,
+                    'change_form': forms.ChangeChartDefinitionForm(
+                        chart_definition.data_stream_templates,
+                        obj=chart_definition,
+                        csrf_context=self.request
+                    ),
                     'url': self.request.route_url(
                         'sngconnect.telemetry.feed_chart',
                         feed_id=self.feed.id,
@@ -222,6 +227,13 @@ class FeedCharts(FeedViewBase):
                 }
                 for chart_definition in self.chart_definitions
             ],
+            'create_chart_form': {
+                'LINEAR': forms.CreateChartDefinitionForm(
+                    self.feed.template.data_stream_templates,
+                    chart_type='LINEAR',
+                    csrf_context=self.request
+                ),
+            },
             'chart': None,
         })
 
