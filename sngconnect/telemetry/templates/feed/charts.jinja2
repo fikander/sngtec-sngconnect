@@ -15,7 +15,7 @@
                 <div class="well analysis-tool {% if chart and chart_definition.id == chart.definition.id %}active{% endif %}">
                     <a href="{{ chart_definition.url }}#chart">
                         <p class="lead">{{ chart_definition.name }}</p>
-                        <p>{{ chart_definition.description }}</p>
+                        <p style="margin: 0  0 5px 0;">{{ chart_definition.description }}</p>
                     </a>
                     {% if chart_definition.editable %}
                             <a class="btn" data-toggle="modal" href="#edit-chart-{{ chart_definition.id }}">
