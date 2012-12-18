@@ -142,7 +142,7 @@
                 console.log(button.data("last"));
                 reload_chart_data(chart, {
                     last: button.data("last")
-                })
+                });
             });
             $({{ range_set_button|tojson }}).click(function(event){
                 event.preventDefault();
@@ -157,7 +157,7 @@
                     reload_chart_data(chart, {
                         start: start.toISOString(),
                         end: end.toISOString()
-                    })
+                    });
                 }
             });
         });
