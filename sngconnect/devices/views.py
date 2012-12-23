@@ -4,7 +4,7 @@ from pyramid import httpexceptions
 
 from sngconnect.translation import _
 from sngconnect.database import (DBSession, FeedTemplate, DataStreamTemplate,
-    Feed, DataStream)
+    Feed, DataStream, ChartDefinition)
 from sngconnect.devices import forms
 
 @view_config(
@@ -190,6 +190,10 @@ def feed_template(request):
     data_stream_templates = DBSession.query(DataStreamTemplate).filter(
         DataStreamTemplate.feed_template == feed_template
     ).order_by(DataStreamTemplate.name)
+    chart_definitions = DBSession.query(ChartDefinition).filter(
+        ChartDefinition.feed_template == feed_template,
+        ChartDefinition.feed == None
+    ).order_by(ChartDefinition.name)
     return {
         'feed_template_form': feed_template_form,
         'data_stream_template_form': data_stream_template_form,
@@ -222,6 +226,41 @@ def feed_template(request):
                     ),
                 }
                 for data_stream_template in data_stream_templates
+            ],
+            'chart_definitions': [
+                {
+                    'id': chart_definition.id,
+                    'name': chart_definition.name,
+                    'type_name': chart_definition.chart_type_name,
+                    'data_stream_templates': [
+                        {
+                            'id': data_stream_template.id,
+                            'name': data_stream_template.name,
+                            'url': request.route_url(
+                                'sngconnect.devices.data_stream_template',
+                                feed_template_id=feed_template.id,
+                                data_stream_template_id=data_stream_template.id
+                            ),
+                        }
+                        for data_stream_template
+                        in chart_definition.data_stream_templates
+                    ],
+                    'url': request.route_url(
+                        'sngconnect.devices.chart_definition',
+                        feed_template_id=feed_template.id,
+                        chart_definition_id=chart_definition.id
+                    ),
+                    'delete_url': request.route_url(
+                        'sngconnect.devices.chart_definition_delete',
+                        feed_template_id=feed_template.id,
+                        chart_definition_id=chart_definition.id
+                    ),
+                    'delete_form': forms.DeleteChartDefinitionForm(
+                        csrf_context=request,
+                        chart_definition_id=chart_definition.id
+                    ),
+                }
+                for chart_definition in chart_definitions
             ],
         }
     }
@@ -347,3 +386,48 @@ def data_stream_template(request):
             ),
         },
     }
+
+@view_config(
+    route_name='sngconnect.devices.chart_definition_delete',
+    request_method='POST',
+    permission='sngconnect.devices.access'
+)
+def chart_definition_delete(request):
+    try:
+        feed_template, chart_definition = DBSession.query(
+            FeedTemplate,
+            ChartDefinition
+        ).filter(
+            FeedTemplate.id == request.matchdict['feed_template_id'],
+            (ChartDefinition.id ==
+                request.matchdict['chart_definition_id']),
+            ChartDefinition.feed_template_id == FeedTemplate.id,
+            ChartDefinition.feed == None
+        ).one()
+    except database_exceptions.NoResultFound:
+        raise httpexceptions.HTTPNotFound()
+    delete_form = forms.DeleteChartDefinitionForm(
+        chart_definition_id=chart_definition.id,
+        csrf_context=request
+    )
+    delete_form.process(request.POST)
+    if delete_form.validate():
+        DBSession.delete(chart_definition)
+        request.session.flash(
+            _("Chart has been successfuly deleted."),
+            queue='success'
+        )
+    else:
+        request.session.flash(
+            _(
+                "There were some problems with your request."
+                " Contact the system support."
+            ),
+            queue='error'
+        )
+    return httpexceptions.HTTPFound(
+        request.route_url(
+            'sngconnect.devices.feed_template',
+            feed_template_id=feed_template.id
+        )
+    )

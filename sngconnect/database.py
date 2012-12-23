@@ -443,6 +443,15 @@ class ChartDefinition(ModelBase):
     )
 
     @property
+    def chart_type_name(self):
+        if self.chart_type == 'LINEAR':
+            return _("Linear")
+        elif self.chart_type == 'DIFFERENTIAL':
+            return _("Differential")
+        else:
+            return None
+
+    @property
     def description(self):
         if self.chart_type == 'LINEAR':
             base = u"%s: " % _("Linear")

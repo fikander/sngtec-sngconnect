@@ -137,3 +137,21 @@ class DeleteDataStreamTemplateForm(SecureForm):
     def validate_data_stream_template_id(self, field):
         if field.data != self._data_stream_template_id:
             raise validators.ValidationError()
+
+class DeleteChartDefinitionForm(SecureForm):
+
+    chart_definition_id = fields.IntegerField(
+        widget=widgets.HiddenInput(),
+        validators=(
+            validators.DataRequired(),
+        )
+    )
+
+    def __init__(self, chart_definition_id=None, *args, **kwargs):
+        self._chart_definition_id = chart_definition_id
+        kwargs['chart_definition_id'] = chart_definition_id
+        super(DeleteChartDefinitionForm, self).__init__(*args, **kwargs)
+
+    def validate_chart_definition_id(self, field):
+        if field.data != self._chart_definition_id:
+            raise validators.ValidationError()
