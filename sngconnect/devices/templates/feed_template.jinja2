@@ -132,5 +132,13 @@
                 <button type="submit" name="submit_add_chart_definition" class="btn btn-primary"><span class="awe-plus"></span> {% trans %}Add chart{% endtrans %}</button>
             </div>
         </form>
+        <h2>{% trans %}Change image{% endtrans %}</h2>
+        <form action="" method="post" enctype="multipart/form-data">
+            {{ change_image_form.csrf_token }}
+            {{ horizontal_form_field(change_image_form.new_image) }}
+            <div class="form-actions">
+                <button type="submit" name="submit_change_image" class="btn btn-primary">{% trans %}Change image{% endtrans %}</button>
+            </div>
+        </form>
     </div>
 {% endblock %}

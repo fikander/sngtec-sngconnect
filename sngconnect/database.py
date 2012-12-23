@@ -1,3 +1,4 @@
+import os
 import decimal
 import random
 import string
@@ -140,6 +141,20 @@ class FeedTemplate(ModelBase):
         unique=True,
         doc="Name identifying template feed."
     )
+    image = sql.Column(
+        sql.String(length=50),
+        nullable=True
+    )
+
+    def get_image_path(self, request):
+        return os.path.join(
+            request.registry['settings'][
+                'sngconnect.device_image_upload_path'
+            ],
+            self.image[0],
+            self.image[1],
+            self.image
+        )
 
 class Feed(ModelBase):
 

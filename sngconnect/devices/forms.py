@@ -1,5 +1,9 @@
+import os
+import mimetypes
+
 from wtforms import fields, validators, widgets
 from sqlalchemy.orm import exc as database_exceptions
+import magic
 
 from sngconnect.forms import SecureForm
 from sngconnect.translation import _
@@ -252,3 +256,35 @@ class DeleteChartDefinitionForm(SecureForm):
     def validate_chart_definition_id(self, field):
         if field.data != self._chart_definition_id:
             raise validators.ValidationError()
+
+class ChangeFeedTemplateImageForm(SecureForm):
+
+    ALLOWED_MIMETYPES = (
+        'image/png',
+        'image/jpeg',
+    )
+
+    new_image = fields.FileField(
+        _("Image file"),
+        description=_("Only PNG and JPG formats are allowed. Leave empty to delete current image."),
+    )
+
+    def validate_new_image(self, field):
+        if field.errors or field.data == u'':
+            return
+        if field.data.type not in self.ALLOWED_MIMETYPES:
+            raise validators.ValidationError(
+                _("Only PNG and JPG formats are allowed.")
+            )
+        file = field.data.file
+        file.seek(0, os.SEEK_END)
+        print ""
+        print file.tell()
+        if file.tell() > 1024 * 512:
+            raise validators.ValidationError(
+                _("Maximal file size is restricted to 512 KB.")
+            )
+        file.seek(0)
+
+    def get_file(self):
+        return self.new_image.data.file
