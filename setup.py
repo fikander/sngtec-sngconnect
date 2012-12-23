@@ -22,6 +22,7 @@ requires = [
     'Babel',
     'WTForms',
     'yuicompressor',
+    'python-magic',
     'pyramid_tm',
     'pyramid_jinja2',
     'pyramid_debugtoolbar',

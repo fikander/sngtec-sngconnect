@@ -1,3 +1,4 @@
+import os
 import decimal
 import random
 import string
@@ -140,6 +141,28 @@ class FeedTemplate(ModelBase):
         unique=True,
         doc="Name identifying template feed."
     )
+    image = sql.Column(
+        sql.String(length=50),
+        nullable=True
+    )
+
+    def get_image_path(self, request):
+        if self.image is None:
+            return None
+        return os.path.join(
+            request.registry['settings'][
+                'sngconnect.device_image_upload_path'
+            ],
+            self.image[0],
+            self.image[1],
+            self.image
+        )
+
+    def get_image_url(self, request):
+        path = self.get_image_path(request)
+        if path is None:
+            return None
+        return request.static_url(path)
 
 class Feed(ModelBase):
 
@@ -302,6 +325,11 @@ class DataStreamTemplate(ModelBase):
         nullable=False,
         doc="Whether to allow setting the data_stream from the application."
     )
+    show_on_dashboard = sql.Column(
+        sql.Boolean,
+        nullable=False,
+        default=False
+    )
 
     feed_template = orm.relationship(
         FeedTemplate,
@@ -426,6 +454,11 @@ class ChartDefinition(ModelBase):
             name='CHART_DEFINITION_TYPE'
         ),
         nullable=False
+    )
+    show_on_dashboard = sql.Column(
+        sql.Boolean,
+        nullable=False,
+        default=False
     )
 
     feed_template = orm.relationship(

@@ -94,6 +94,7 @@ class FeedViewBase(object):
                 'longitude': feed.longitude,
                 'created': feed.created,
                 'has_settings': self.has_settings,
+                'image_url': feed.template.get_image_url(request),
                 'dashboard_url': request.route_url(
                     'sngconnect.telemetry.feed_dashboard',
                     feed_id=feed.id
@@ -133,17 +134,20 @@ class FeedViewBase(object):
 )
 class FeedDashboard(FeedViewBase):
     def __call__(self):
+        # Last updated
         last_updated = (
             data_streams_store.LastDataPoints().get_last_data_stream_datetime(
                 self.feed.id
             )
         )
+        # Messages
         important_messages = DBSession.query(Message).filter(
             Message.feed == self.feed,
             Message.message_type == u'ERROR'
         ).order_by(
             sql.desc(Message.date)
         ).all()
+        # Alarms
         active_alarms = {}
         for data_stream_id, data in self.active_alarms.iteritems():
             active_alarms.update(data)
@@ -152,8 +156,120 @@ class FeedDashboard(FeedViewBase):
         ).filter(
             AlarmDefinition.id.in_(active_alarms.keys())
         )
+        # Data streams
+        data_streams = DBSession.query(DataStream).join(
+            DataStreamTemplate
+        ).filter(
+            DataStream.feed == self.feed
+        ).order_by(
+            DataStreamTemplate.name
+        )
+        last_data_points = (
+            data_streams_store.LastDataPoints().get_last_data_stream_data_points(
+                self.feed.id
+            )
+        )
+        data_streams_serialized = []
+        for data_stream in data_streams:
+            data_point = last_data_points.get(data_stream.id, None)
+            if data_point is None:
+                last_value = None
+            else:
+                last_value = {
+                    'value': decimal.Decimal(data_point[1]),
+                    'date': data_point[0],
+                }
+            data_stream_serialized = {
+                'id': data_stream.id,
+                'name': data_stream.name,
+                'measurement_unit': data_stream.measurement_unit,
+                'url': self.request.route_url(
+                    (
+                        'sngconnect.telemetry.feed_setting'
+                        if data_stream.writable
+                        else 'sngconnect.telemetry.feed_data_stream'
+                    ),
+                    feed_id=self.feed.id,
+                    data_stream_label=data_stream.label
+                ),
+                'last_value': last_value,
+                'writable': data_stream.writable,
+            }
+            if data_stream.writable:
+                data_stream_serialized.update({
+                    'value_url': self.request.route_url(
+                        'sngconnect.telemetry.feed_dashboard.set_value',
+                        feed_id=self.feed.id,
+                        data_stream_template_id=data_stream.template.id
+                    ),
+                    'value_form': forms.ValueForm(
+                        value=data_stream.requested_value,
+                        locale=get_locale_name(self.request),
+                        csrf_context=self.request
+                    ),
+                    'requested_value': data_stream.requested_value,
+                })
+            else:
+                daily_aggregates = (
+                    data_streams_store.DailyAggregates().get_data_points(
+                        data_stream.id,
+                        start_date=pytz.utc.localize(datetime.datetime.utcnow()),
+                        end_date=pytz.utc.localize(datetime.datetime.utcnow())
+                    )
+                )
+                try:
+                    data_stream_serialized['today'] = daily_aggregates[0][1]
+                except IndexError:
+                    data_streams_serialized['today'] = None
+            data_streams_serialized.append(data_stream_serialized)
+        parameters = filter(
+            lambda data_stream: not data_stream['writable'],
+            data_streams_serialized
+        )
+        settings = filter(
+            lambda data_stream: data_stream['writable'],
+            data_streams_serialized
+        )
+        # Charts
+        chart_definitions = DBSession.query(ChartDefinition).filter(
+            ChartDefinition.feed_template == self.feed.template,
+            ChartDefinition.feed == None,
+            ChartDefinition.show_on_dashboard == True
+        ).order_by(
+            ChartDefinition.name
+        ).all()
+        charts = [
+            {
+                'definition': {
+                    'id': chart_definition.id,
+                    'name': chart_definition.name,
+                },
+                'rendering_data': {
+                    'id': chart_definition.id,
+                    'name': chart_definition.name,
+                    'type': chart_definition.chart_type,
+                    'data_url': self.request.route_url(
+                        'sngconnect.telemetry.feed_chart.data',
+                        feed_id=self.feed.id,
+                        chart_definition_id=chart_definition.id
+                    ),
+                    'data_stream_templates': [
+                        {
+                            'id': template.id,
+                            'name': template.name,
+                            'measurement_unit': template.measurement_unit,
+                        }
+                        for template in chart_definition.data_stream_templates
+                    ],
+                },
+            }
+            for chart_definition in chart_definitions
+        ]
         self.context.update({
             'last_updated': last_updated,
+            'parameters': parameters,
+            'settings': settings,
+            'charts': charts,
             'active_alarms': [
                 {
                     'id': alarm_definition.id,
@@ -190,6 +306,52 @@ class FeedDashboard(FeedViewBase):
         return self.context
 
 @view_config(
+    route_name='sngconnect.telemetry.feed_dashboard.set_value',
+    request_method='POST',
+    renderer='sngconnect.telemetry:templates/feed/setting.jinja2',
+    permission='sngconnect.telemetry.access'
+)
+class FeedDashboardSetValue(FeedViewBase):
+    def __call__(self):
+        if not self.request.is_xhr:
+            raise httpexceptions.HTTPBadRequest()
+        try:
+            data_stream = DBSession.query(DataStream).join(
+                DataStreamTemplate
+            ).filter(
+                DataStream.feed == self.feed,
+                DataStreamTemplate.writable == True,
+                DataStreamTemplate.id ==
+                    self.request.matchdict['data_stream_template_id']
+            ).one()
+        except database_exceptions.NoResultFound:
+            raise httpexceptions.HTTPNotFound()
+        value_form = forms.ValueForm(
+            value=data_stream.requested_value,
+            locale=get_locale_name(self.request),
+            csrf_context=self.request
+        )
+        if self.request.method == 'POST':
+            value_form.process(self.request.POST)
+            if value_form.validate():
+                DBSession.query(DataStream).filter(
+                    DataStream.id == data_stream.id
+                ).update({
+                    'requested_value': value_form.value.data,
+                    'value_requested_at': pytz.utc.localize(
+                        datetime.datetime.utcnow()
+                    ),
+                })
+                return Response(
+                    json.dumps({'success': True}),
+                    content_type='application/json'
+                )
+        return Response(
+            json.dumps({'success': False}),
+            content_type='application/json'
+        )
+
+@view_config(
     route_name='sngconnect.telemetry.feed_charts',
     request_method='GET',
     renderer='sngconnect.telemetry:templates/feed/charts.jinja2',
@@ -202,7 +364,10 @@ class FeedCharts(FeedViewBase):
             FeedTemplate,
             Feed
         ).filter(
-            FeedTemplate.id == self.feed.template_id or Feed.id == self.feed.id
+            sql.or_(
+                FeedTemplate.id == self.feed.template_id,
+                Feed.id == self.feed.id
+            )
         ).order_by(
             ChartDefinition.feed_id,
             ChartDefinition.name

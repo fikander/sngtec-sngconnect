@@ -1,3 +1,9 @@
+import tempfile
+import hashlib
+import os
+import errno
+
+import magic
 from sqlalchemy.orm import exc as database_exceptions
 from pyramid.view import view_config
 from pyramid import httpexceptions
@@ -151,6 +157,9 @@ def feed_template(request):
         data_stream_templates,
         csrf_context=request
     )
+    change_image_form = forms.ChangeFeedTemplateImageForm(
+        csrf_context=request
+    )
     if request.method == 'POST':
         if 'submit_save_feed_template' in request.POST:
             feed_template_form.process(request.POST)
@@ -231,6 +240,69 @@ def feed_template(request):
                     ),
                     queue='error'
                 )
+        elif 'submit_change_image' in request.POST:
+            change_image_form.process(request.POST)
+            if change_image_form.validate():
+                if change_image_form.new_image.data == u'':
+                    feed_template.image = None
+                    DBSession.add(feed_template)
+                    request.session.flash(
+                        _("Image has been succesfuly removed."),
+                        queue='success'
+                    )
+                else:
+                    file_hash = hashlib.md5()
+                    input_file = change_image_form.get_file()
+                    input_file.seek(0)
+                    data = input_file.read(1024)
+                    file_hash.update(data)
+                    mimetype = magic.from_buffer(data, mime=True)
+                    if mimetype == 'image/jpeg':
+                        extension = 'jpg'
+                    elif mimetype == 'image/png':
+                        extension = 'png'
+                    else:
+                        raise httpexceptions.HTTPBadRequest()
+                    while True:
+                        data = input_file.read(2 << 16)
+                        if not data:
+                            break
+                        file_hash.update(data)
+                    feed_template.image = '.'.join((
+                        file_hash.hexdigest(),
+                        extension
+                    ))
+                    output_file_name = feed_template.get_image_path(request)
+                    output_file_dirname = os.path.dirname(output_file_name)
+                    try:
+                        os.makedirs(output_file_dirname)
+                    except OSError as exception:
+                        if (exception.errno == errno.EEXIST and
+                                os.path.isdir(output_file_dirname)):
+                            pass
+                        else:
+                            raise
+                    output_file = open(output_file_name, 'wb')
+                    input_file.seek(0)
+                    while True:
+                        data = input_file.read(2 << 16)
+                        if not data:
+                            break
+                        output_file.write(data)
+                    output_file.close()
+                    DBSession.add(feed_template)
+                    request.session.flash(
+                        _("New image has been succesfuly set."),
+                        queue='success'
+                    )
+            else:
+                request.session.flash(
+                    _(
+                        "There were some problems with your request."
+                        " Please check the form for error messages."
+                    ),
+                    queue='error'
+                )
     chart_definitions = DBSession.query(ChartDefinition).filter(
         ChartDefinition.feed_template == feed_template,
         ChartDefinition.feed == None
@@ -239,6 +311,7 @@ def feed_template(request):
         'feed_template_form': feed_template_form,
         'data_stream_template_form': data_stream_template_form,
         'chart_definition_form': chart_definition_form,
+        'change_image_form': change_image_form,
         'feed_template': {
             'id': feed_template.id,
             'name': feed_template.name,
@@ -246,12 +319,14 @@ def feed_template(request):
                 'sngconnect.devices.feed_template',
                 feed_template_id=feed_template.id
             ),
+            'image_url': feed_template.get_image_url(request),
             'data_stream_templates': [
                 {
                     'id': data_stream_template.id,
                     'name': data_stream_template.name,
                     'label': data_stream_template.label,
                     'writable': data_stream_template.writable,
+                    'show_on_dashboard': data_stream_template.show_on_dashboard,
                     'url': request.route_url(
                         'sngconnect.devices.data_stream_template',
                         feed_template_id=feed_template.id,
@@ -287,6 +362,7 @@ def feed_template(request):
                         for data_stream_template
                         in chart_definition.data_stream_templates
                     ],
+                    'show_on_dashboard': chart_definition.show_on_dashboard,
                     'url': request.route_url(
                         'sngconnect.devices.chart_definition',
                         feed_template_id=feed_template.id,

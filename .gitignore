@@ -4,5 +4,6 @@
 *.db
 *.sqlite
 *.sqlite3
-sngconnect/static/compressed
 .webassets-cache
+/sngconnect/static/compressed
+/upload
