@@ -403,7 +403,8 @@ class FeedChartData(FeedChartApiViewBase):
         series_appstruct = []
         delta = end - start
         aggregate = True
-        if delta <= datetime.timedelta(hours=24):
+        if (self.chart_definition.chart_type != 'DIFFERENTIAL' and
+                delta <= datetime.timedelta(hours=24)):
             data_store = data_streams_store.Measurements()
             aggregate = False
         elif delta <= datetime.timedelta(days=35):
