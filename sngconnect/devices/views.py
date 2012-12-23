@@ -252,6 +252,7 @@ def feed_template(request):
                     'name': data_stream_template.name,
                     'label': data_stream_template.label,
                     'writable': data_stream_template.writable,
+                    'show_on_dashboard': data_stream_template.show_on_dashboard,
                     'url': request.route_url(
                         'sngconnect.devices.data_stream_template',
                         feed_template_id=feed_template.id,
@@ -287,6 +288,7 @@ def feed_template(request):
                         for data_stream_template
                         in chart_definition.data_stream_templates
                     ],
+                    'show_on_dashboard': chart_definition.show_on_dashboard,
                     'url': request.route_url(
                         'sngconnect.devices.chart_definition',
                         feed_template_id=feed_template.id,

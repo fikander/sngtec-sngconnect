@@ -108,7 +108,7 @@ def generate_data(feed_count):
             feed_user_user,
             feed_user_kid,
         ])
-        for j in range(1, 3):
+        for j in range(1, 4):
             data_stream_template = DataStreamTemplate(
                 feed_template=feed_template,
                 label=('data_stream_%d' % j),
@@ -125,6 +125,7 @@ def generate_data(feed_count):
                     u'cm³',
                 ]),
                 writable=random.choice([True, False, False]),
+                show_on_dashboard=random.choice((True, False))
             )
             data_stream = DataStream(
                 template=data_stream_template,
@@ -134,7 +135,7 @@ def generate_data(feed_count):
     transaction.commit()
     feed_templates = DBSession.query(FeedTemplate).all()
     for feed_template in feed_templates:
-        for i in range(1, 3):
+        for i in range(1, 4):
             chart_definition = ChartDefinition(
                 feed_template=feed_template,
                 data_stream_templates=random.sample(
@@ -142,7 +143,8 @@ def generate_data(feed_count):
                     random.randint(1, len(feed_template.data_stream_templates))
                 ),
                 name=u"Chart definition %d" % i,
-                chart_type='LINEAR'
+                chart_type=random.choice(('LINEAR', 'DIFFERENTIAL')),
+                show_on_dashboard=random.choice((True, False))
             )
             DBSession.add(chart_definition)
     transaction.commit()

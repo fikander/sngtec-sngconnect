@@ -302,6 +302,11 @@ class DataStreamTemplate(ModelBase):
         nullable=False,
         doc="Whether to allow setting the data_stream from the application."
     )
+    show_on_dashboard = sql.Column(
+        sql.Boolean,
+        nullable=False,
+        default=False
+    )
 
     feed_template = orm.relationship(
         FeedTemplate,
@@ -426,6 +431,11 @@ class ChartDefinition(ModelBase):
             name='CHART_DEFINITION_TYPE'
         ),
         nullable=False
+    )
+    show_on_dashboard = sql.Column(
+        sql.Boolean,
+        nullable=False,
+        default=False
     )
 
     feed_template = orm.relationship(

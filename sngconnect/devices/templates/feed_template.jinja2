@@ -26,6 +26,7 @@
                     <th>{% trans %}Name{% endtrans %}</th>
                     <th>{% trans %}Label{% endtrans %}</th>
                     <th>{% trans %}Writable{% endtrans %}</th>
+                    <th>{% trans %}Show on dashboard{% endtrans %}</th>
                     <th></th>
                 </tr>
             </thead>
@@ -37,6 +38,13 @@
                         <td><code>{{ data_stream_template.label }}</code></td>
                         <td>
                             {% if data_stream_template.writable %}
+                                <span class="awe-check"></span>
+                            {% else %}
+                                <span class="awe-check-empty"></span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if data_stream_template.show_on_dashboard %}
                                 <span class="awe-check"></span>
                             {% else %}
                                 <span class="awe-check-empty"></span>
@@ -64,6 +72,7 @@
             {{ horizontal_form_field(data_stream_template_form.description) }}
             {{ horizontal_form_field(data_stream_template_form.measurement_unit) }}
             {{ horizontal_form_field(data_stream_template_form.writable) }}
+            {{ horizontal_form_field(data_stream_template_form.show_on_dashboard) }}
             <div class="form-actions">
                 <button type="submit" name="submit_add_data_stream_template" class="btn btn-primary"><span class="awe-plus"></span> {% trans %}Add parameter template{% endtrans %}</button>
             </div>
@@ -76,6 +85,7 @@
                     <th>{% trans %}Name{% endtrans %}</th>
                     <th>{% trans %}Type{% endtrans %}</th>
                     <th>{% trans %}Parameters{% endtrans %}</th>
+                    <th>{% trans %}Show on dashboard{% endtrans %}</th>
                     <th></th>
                 </tr>
             </thead>
@@ -90,6 +100,13 @@
                                 <a href="{{ data_stream_template.url }}">{{ data_stream_template.name }}</a>
                                 {%- if not loop.last %},{% endif %}
                             {% endfor %}
+                        </td>
+                        <td>
+                            {% if chart_definition.show_on_dashboard %}
+                                <span class="awe-check"></span>
+                            {% else %}
+                                <span class="awe-check-empty"></span>
+                            {% endif %}
                         </td>
                         <td>
                             <form action="{{ chart_definition.delete_url }}" method="post" style="background: none; margin: 0;">
@@ -110,6 +127,7 @@
             {{ horizontal_form_field(chart_definition_form.name) }}
             {{ horizontal_form_field(chart_definition_form.chart_type) }}
             {{ horizontal_form_field(chart_definition_form.data_stream_template_ids) }}
+            {{ horizontal_form_field(chart_definition_form.show_on_dashboard) }}
             <div class="form-actions">
                 <button type="submit" name="submit_add_chart_definition" class="btn btn-primary"><span class="awe-plus"></span> {% trans %}Add chart{% endtrans %}</button>
             </div>

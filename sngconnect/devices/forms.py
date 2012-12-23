@@ -86,6 +86,9 @@ class UpdateDataStreamTemplateForm(SecureForm):
     writable = fields.BooleanField(
         _("Writable")
     )
+    show_on_dashboard = fields.BooleanField(
+        _("Show on dashboard")
+    )
 
     def __init__(self, feed_template_id=None, *args, **kwargs):
         self._feed_template_id = feed_template_id
@@ -166,6 +169,9 @@ class AddChartDefinitionForm(SecureForm):
         validators=(
             validators.DataRequired(),
         )
+    )
+    show_on_dashboard = fields.BooleanField(
+        _("Show on dashboard")
     )
 
     def __init__(self, feed_template, data_stream_templates, *args, **kwargs):
