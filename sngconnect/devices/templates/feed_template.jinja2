@@ -104,5 +104,15 @@
                 {% endfor %}
             </tbody>
         </table>
+        <h2>{% trans %}Add chart{% endtrans %}</h2>
+        <form action="" method="post">
+            {{ chart_definition_form.csrf_token }}
+            {{ horizontal_form_field(chart_definition_form.name) }}
+            {{ horizontal_form_field(chart_definition_form.chart_type) }}
+            {{ horizontal_form_field(chart_definition_form.data_stream_template_ids) }}
+            <div class="form-actions">
+                <button type="submit" name="submit_add_chart_definition" class="btn btn-primary"><span class="awe-plus"></span> {% trans %}Add chart{% endtrans %}</button>
+            </div>
+        </form>
     </div>
 {% endblock %}
