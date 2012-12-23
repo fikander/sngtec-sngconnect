@@ -83,8 +83,18 @@ def main(global_config, **settings):
     # Configure routes.
     for name, pattern in ROUTES:
         config.add_route(name, pattern)
-    # Add static view.
-    config.add_static_view('static', 'static', cache_max_age=0)
+    # Add static views.
+    config.add_static_view(
+        name='static',
+        path='sngconnect:static',
+        cache_max_age=0
+    )
+    config.add_static_view(
+        name='device-images',
+        path=settings['sngconnect.device_image_upload_path'],
+        cache_max_age=0
+    )
+    print "serving from", settings['sngconnect.device_image_upload_path']
     # Scan for view configurations.
     config.scan()
     # Return ready WSGI application.

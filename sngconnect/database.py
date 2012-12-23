@@ -147,6 +147,8 @@ class FeedTemplate(ModelBase):
     )
 
     def get_image_path(self, request):
+        if self.image is None:
+            return None
         return os.path.join(
             request.registry['settings'][
                 'sngconnect.device_image_upload_path'
@@ -155,6 +157,12 @@ class FeedTemplate(ModelBase):
             self.image[1],
             self.image
         )
+
+    def get_image_url(self, request):
+        path = self.get_image_path(request)
+        if path is None:
+            return None
+        return request.static_url(path)
 
 class Feed(ModelBase):
 

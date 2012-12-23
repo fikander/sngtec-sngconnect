@@ -243,50 +243,58 @@ def feed_template(request):
         elif 'submit_change_image' in request.POST:
             change_image_form.process(request.POST)
             if change_image_form.validate():
-                file_hash = hashlib.md5()
-                input_file = change_image_form.get_file()
-                input_file.seek(0)
-                data = input_file.read(1024)
-                file_hash.update(data)
-                mimetype = magic.from_buffer(data, mime=True)
-                if mimetype == 'image/jpeg':
-                    extension = 'jpg'
-                elif mimetype == 'image/png':
-                    extension = 'png'
+                if change_image_form.new_image.data == u'':
+                    feed_template.image = None
+                    DBSession.add(feed_template)
+                    request.session.flash(
+                        _("Image has been succesfuly removed."),
+                        queue='success'
+                    )
                 else:
-                    raise httpexceptions.HTTPBadRequest()
-                while True:
-                    data = input_file.read(2 << 16)
-                    if not data:
-                        break
+                    file_hash = hashlib.md5()
+                    input_file = change_image_form.get_file()
+                    input_file.seek(0)
+                    data = input_file.read(1024)
                     file_hash.update(data)
-                feed_template.image = '.'.join((
-                    file_hash.hexdigest(),
-                    extension
-                ))
-                output_file_name = feed_template.get_image_path(request)
-                output_file_dirname = os.path.dirname(output_file_name)
-                try:
-                    os.makedirs(output_file_dirname)
-                except OSError as exception:
-                    if (exception.errno == errno.EEXIST and
-                            os.path.isdir(output_file_dirname)):
-                        pass
+                    mimetype = magic.from_buffer(data, mime=True)
+                    if mimetype == 'image/jpeg':
+                        extension = 'jpg'
+                    elif mimetype == 'image/png':
+                        extension = 'png'
                     else:
-                        raise
-                output_file = open(output_file_name, 'wb')
-                input_file.seek(0)
-                while True:
-                    data = input_file.read(2 << 16)
-                    if not data:
-                        break
-                    output_file.write(data)
-                output_file.close()
-                DBSession.add(feed_template)
-                request.session.flash(
-                    _("New image has been succesfuly set."),
-                    queue='success'
-                )
+                        raise httpexceptions.HTTPBadRequest()
+                    while True:
+                        data = input_file.read(2 << 16)
+                        if not data:
+                            break
+                        file_hash.update(data)
+                    feed_template.image = '.'.join((
+                        file_hash.hexdigest(),
+                        extension
+                    ))
+                    output_file_name = feed_template.get_image_path(request)
+                    output_file_dirname = os.path.dirname(output_file_name)
+                    try:
+                        os.makedirs(output_file_dirname)
+                    except OSError as exception:
+                        if (exception.errno == errno.EEXIST and
+                                os.path.isdir(output_file_dirname)):
+                            pass
+                        else:
+                            raise
+                    output_file = open(output_file_name, 'wb')
+                    input_file.seek(0)
+                    while True:
+                        data = input_file.read(2 << 16)
+                        if not data:
+                            break
+                        output_file.write(data)
+                    output_file.close()
+                    DBSession.add(feed_template)
+                    request.session.flash(
+                        _("New image has been succesfuly set."),
+                        queue='success'
+                    )
             else:
                 request.session.flash(
                     _(
@@ -311,6 +319,7 @@ def feed_template(request):
                 'sngconnect.devices.feed_template',
                 feed_template_id=feed_template.id
             ),
+            'image_url': feed_template.get_image_url(request),
             'data_stream_templates': [
                 {
                     'id': data_stream_template.id,
