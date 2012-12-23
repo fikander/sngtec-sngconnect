@@ -91,6 +91,15 @@ ROUTES = (
         'devices/{feed_template_id:\d+}/parameters'
             '/{data_stream_template_id:\d+}/delete'
     ),
+    (
+        'sngconnect.devices.chart_definition',
+        'devices/{feed_template_id:\d+}/charts/{chart_definition_id:\d+}'
+    ),
+    (
+        'sngconnect.devices.chart_definition_delete',
+        'devices/{feed_template_id:\d+}/charts'
+            '/{chart_definition_id:\d+}/delete',
+    ),
     # sngconnect.accounts
     (
         'sngconnect.accounts.sign_in',

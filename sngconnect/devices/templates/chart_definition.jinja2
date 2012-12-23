@@ -1,0 +1,27 @@
+{% extends "sngconnect.devices:templates/base.jinja2" %}
+{% from "sngconnect:templates/macros/horizontal_form_field.jinja2" import horizontal_form_field %}
+
+{% block main_breadcrumb %}
+    {{ super() }}
+    <li><a href="{{ feed_template.url }}" title="{{ feed_template.name }}">{{ feed_template.name }}</a></li>
+    <li><a href="{{ chart_definition.url }}" title="{{ chart_definition.name }}">{{ chart_definition.name }}</a></li>
+{% endblock %}
+
+{% block main_content %}
+    <div class="page-header">
+        <h1>{{ feed_template.name }}</h1>
+    </div>
+    <div class="page-container">
+        <h2>{{ chart_definition.name }}</h2>
+        <form action="" method="post">
+            {{ chart_definition_form.csrf_token }}
+            {{ chart_definition_form.id }}
+            {{ horizontal_form_field(chart_definition_form.name) }}
+            {{ horizontal_form_field(chart_definition_form.chart_type) }}
+            {{ horizontal_form_field(chart_definition_form.data_stream_template_ids) }}
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary"><span class="awe-check"></span> {% trans %}Save{% endtrans %}</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}

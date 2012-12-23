@@ -253,6 +253,12 @@ class FeedCharts(FeedViewBase):
                     chart_type='LINEAR',
                     csrf_context=self.request
                 ),
+                'DIFFERENTIAL': forms.CreateChartDefinitionForm(
+                    self.feed,
+                    self.feed.template.data_stream_templates,
+                    chart_type='DIFFERENTIAL',
+                    csrf_context=self.request
+                ),
             },
             'chart': None,
         })
@@ -318,6 +324,7 @@ class FeedChart(FeedCharts):
         self.context['chart'] = {
             'definition': {
                 'id': chart_definition.id,
+                'name': chart_definition.name,
             },
             'rendering_data': {
                 'id': chart_definition.id,
@@ -410,14 +417,42 @@ class FeedChartData(FeedChartApiViewBase):
                 end_date=end
             )
             if aggregate:
+                if self.chart_definition.chart_type == 'DIFFERENTIAL':
+                    data_points = map(
+                        lambda dp: (
+                            dp[0],
+                            decimal.Decimal(dp[1]['minimum'])
+                        ),
+                        data_points
+                    )
+                else:
+                    data_points = map(
+                        lambda dp: (
+                            dp[0],
+                            decimal.Decimal(dp[1]['sum']) /
+                                decimal.Decimal(dp[1]['count'])
+                        ),
+                        data_points
+                    )
+            else:
                 data_points = map(
                     lambda dp: (
                         dp[0],
-                        decimal.Decimal(dp[1]['sum']) /
-                            decimal.Decimal(dp[1]['count'])
+                        decimal.Decimal(dp[1])
                     ),
                     data_points
                 )
+            if self.chart_definition.chart_type == 'DIFFERENTIAL':
+                differential_data_points = []
+                for i in range(len(data_points)):
+                    try:
+                        differential_data_points.append((
+                            data_points[i][0],
+                            data_points[i + 1][1] - data_points[i][1]
+                        ))
+                    except IndexError:
+                        break
+                data_points = differential_data_points
             series_appstruct.append(
                 data_points
             )

@@ -5,7 +5,7 @@
     {{ super() }}
     <h2 id="chart"><span class="awe-bar-chart"></span> {% trans %}Chart{% endtrans %}</h2>
     <div class="row">
-        <article class="span12">
+        <div class="span12">
             <div class="well" style="padding-top: 10px;">
                 <form class="form-inline pull-left">
                     <label for="start_date" style="line-height: 25px; padding: 0 5px 0 5px;">{% trans %}From{% endtrans %}</label>
@@ -31,11 +31,11 @@
                     </div>
                 </div>
             </div>
-        </article>
-        <article class="span12 center">
-            <h3>{{ chart.definition_id }}</h3>
+        </div>
+        <div class="span12 center">
+            <h3>{{ chart.definition.name }}</h3>
             <div id="rendered-chart"></div>
-        </article>
+        </div>
     </div>
 {% endblock %}
 

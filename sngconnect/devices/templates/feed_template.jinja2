@@ -68,5 +68,51 @@
                 <button type="submit" name="submit_add_data_stream_template" class="btn btn-primary"><span class="awe-plus"></span> {% trans %}Add parameter template{% endtrans %}</button>
             </div>
         </form>
+        <h2>{% trans %}Charts{% endtrans %}</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>{% trans %}ID{% endtrans %}</th>
+                    <th>{% trans %}Name{% endtrans %}</th>
+                    <th>{% trans %}Type{% endtrans %}</th>
+                    <th>{% trans %}Parameters{% endtrans %}</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for chart_definition in feed_template.chart_definitions %}
+                    <tr>
+                        <td><code>{{ chart_definition.id }}</code></td>
+                        <td><a href="{{ chart_definition.url }}">{{ chart_definition.name }}</a></td>
+                        <td>{{ chart_definition.type_name }}</td>
+                        <td>
+                            {% for data_stream_template in chart_definition.data_stream_templates %}
+                                <a href="{{ data_stream_template.url }}">{{ data_stream_template.name }}</a>
+                                {%- if not loop.last %},{% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>
+                            <form action="{{ chart_definition.delete_url }}" method="post" style="background: none; margin: 0;">
+                                {{ chart_definition.delete_form.csrf_token }}
+                                {{ chart_definition.delete_form.chart_definition_id }}
+                                <button type="submit" class="btn btn-mini btn-danger">
+                                    {% trans %}Delete{% endtrans %}
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <h2>{% trans %}Add chart{% endtrans %}</h2>
+        <form action="" method="post">
+            {{ chart_definition_form.csrf_token }}
+            {{ horizontal_form_field(chart_definition_form.name) }}
+            {{ horizontal_form_field(chart_definition_form.chart_type) }}
+            {{ horizontal_form_field(chart_definition_form.data_stream_template_ids) }}
+            <div class="form-actions">
+                <button type="submit" name="submit_add_chart_definition" class="btn btn-primary"><span class="awe-plus"></span> {% trans %}Add chart{% endtrans %}</button>
+            </div>
+        </form>
     </div>
 {% endblock %}

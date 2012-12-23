@@ -4,7 +4,7 @@ from pyramid import httpexceptions
 
 from sngconnect.translation import _
 from sngconnect.database import (DBSession, FeedTemplate, DataStreamTemplate,
-    Feed, DataStream)
+    Feed, DataStream, ChartDefinition)
 from sngconnect.devices import forms
 
 @view_config(
@@ -135,12 +135,20 @@ def feed_template(request):
         ).one()
     except database_exceptions.NoResultFound:
         raise httpexceptions.HTTPNotFound()
+    data_stream_templates = DBSession.query(DataStreamTemplate).filter(
+        DataStreamTemplate.feed_template == feed_template
+    ).order_by(DataStreamTemplate.name)
     feed_template_form = forms.UpdateFeedTemplateForm(
         obj=feed_template,
         csrf_context=request
     )
     data_stream_template_form = forms.AddDataStreamTemplateForm(
         feed_template_id=feed_template.id,
+        csrf_context=request
+    )
+    chart_definition_form = forms.AddChartDefinitionForm(
+        feed_template,
+        data_stream_templates,
         csrf_context=request
     )
     if request.method == 'POST':
@@ -176,8 +184,10 @@ def feed_template(request):
                     queue='success'
                 )
                 return httpexceptions.HTTPFound(
-                    request.route_url('sngconnect.devices.feed_template'),
-                    feed_template_id=feed_template.id
+                    request.route_url(
+                        'sngconnect.devices.feed_template',
+                        feed_template_id=feed_template.id
+                    )
                 )
             else:
                 request.session.flash(
@@ -187,12 +197,48 @@ def feed_template(request):
                     ),
                     queue='error'
                 )
-    data_stream_templates = DBSession.query(DataStreamTemplate).filter(
-        DataStreamTemplate.feed_template == feed_template
-    ).order_by(DataStreamTemplate.name)
+        elif 'submit_add_chart_definition' in request.POST:
+            chart_definition_form.process(request.POST)
+            data_stream_templates_dict = dict((
+                (template.id, template)
+                for template in data_stream_templates
+            ))
+            if chart_definition_form.validate():
+                chart_definition = ChartDefinition(
+                    feed_template=feed_template
+                )
+                chart_definition_form.populate_obj(chart_definition)
+                for id in chart_definition_form.data_stream_template_ids.data:
+                    chart_definition.data_stream_templates.append(
+                        data_stream_templates_dict[id]
+                    )
+                DBSession.add(chart_definition)
+                request.session.flash(
+                    _("Chart has been successfuly added."),
+                    queue='success'
+                )
+                return httpexceptions.HTTPFound(
+                    request.route_url(
+                        'sngconnect.devices.feed_template',
+                        feed_template_id=feed_template.id
+                    )
+                )
+            else:
+                request.session.flash(
+                    _(
+                        "There were some problems with your request."
+                        " Please check the form for error messages."
+                    ),
+                    queue='error'
+                )
+    chart_definitions = DBSession.query(ChartDefinition).filter(
+        ChartDefinition.feed_template == feed_template,
+        ChartDefinition.feed == None
+    ).order_by(ChartDefinition.name)
     return {
         'feed_template_form': feed_template_form,
         'data_stream_template_form': data_stream_template_form,
+        'chart_definition_form': chart_definition_form,
         'feed_template': {
             'id': feed_template.id,
             'name': feed_template.name,
@@ -222,6 +268,41 @@ def feed_template(request):
                     ),
                 }
                 for data_stream_template in data_stream_templates
+            ],
+            'chart_definitions': [
+                {
+                    'id': chart_definition.id,
+                    'name': chart_definition.name,
+                    'type_name': chart_definition.chart_type_name,
+                    'data_stream_templates': [
+                        {
+                            'id': data_stream_template.id,
+                            'name': data_stream_template.name,
+                            'url': request.route_url(
+                                'sngconnect.devices.data_stream_template',
+                                feed_template_id=feed_template.id,
+                                data_stream_template_id=data_stream_template.id
+                            ),
+                        }
+                        for data_stream_template
+                        in chart_definition.data_stream_templates
+                    ],
+                    'url': request.route_url(
+                        'sngconnect.devices.chart_definition',
+                        feed_template_id=feed_template.id,
+                        chart_definition_id=chart_definition.id
+                    ),
+                    'delete_url': request.route_url(
+                        'sngconnect.devices.chart_definition_delete',
+                        feed_template_id=feed_template.id,
+                        chart_definition_id=chart_definition.id
+                    ),
+                    'delete_form': forms.DeleteChartDefinitionForm(
+                        csrf_context=request,
+                        chart_definition_id=chart_definition.id
+                    ),
+                }
+                for chart_definition in chart_definitions
             ],
         }
     }
@@ -316,8 +397,11 @@ def data_stream_template(request):
                 queue='success'
             )
             return httpexceptions.HTTPFound(
-                request.route_url('sngconnect.devices.data_stream_template'),
-                data_stream_template_id=data_stream_template.id
+                request.route_url(
+                    'sngconnect.devices.data_stream_template',
+                    feed_template_id=feed_template.id,
+                    data_stream_template_id=data_stream_template.id
+                )
             )
         else:
             request.session.flash(
@@ -344,6 +428,134 @@ def data_stream_template(request):
                 'sngconnect.devices.data_stream_template',
                 feed_template_id=feed_template.id,
                 data_stream_template_id=data_stream_template.id
+            ),
+        },
+    }
+
+@view_config(
+    route_name='sngconnect.devices.chart_definition_delete',
+    request_method='POST',
+    permission='sngconnect.devices.access'
+)
+def chart_definition_delete(request):
+    try:
+        feed_template, chart_definition = DBSession.query(
+            FeedTemplate,
+            ChartDefinition
+        ).filter(
+            FeedTemplate.id == request.matchdict['feed_template_id'],
+            (ChartDefinition.id ==
+                request.matchdict['chart_definition_id']),
+            ChartDefinition.feed_template_id == FeedTemplate.id,
+            ChartDefinition.feed == None
+        ).one()
+    except database_exceptions.NoResultFound:
+        raise httpexceptions.HTTPNotFound()
+    delete_form = forms.DeleteChartDefinitionForm(
+        chart_definition_id=chart_definition.id,
+        csrf_context=request
+    )
+    delete_form.process(request.POST)
+    if delete_form.validate():
+        DBSession.delete(chart_definition)
+        request.session.flash(
+            _("Chart has been successfuly deleted."),
+            queue='success'
+        )
+    else:
+        request.session.flash(
+            _(
+                "There were some problems with your request."
+                " Contact the system support."
+            ),
+            queue='error'
+        )
+    return httpexceptions.HTTPFound(
+        request.route_url(
+            'sngconnect.devices.feed_template',
+            feed_template_id=feed_template.id
+        )
+    )
+
+@view_config(
+    route_name='sngconnect.devices.chart_definition',
+    renderer='sngconnect.devices:templates/chart_definition.jinja2',
+    permission='sngconnect.devices.access'
+)
+def chart_definition(request):
+    try:
+        feed_template, chart_definition = DBSession.query(
+            FeedTemplate,
+            ChartDefinition
+        ).filter(
+            FeedTemplate.id == request.matchdict['feed_template_id'],
+            (ChartDefinition.id ==
+                request.matchdict['chart_definition_id']),
+            ChartDefinition.feed_template_id == FeedTemplate.id,
+            ChartDefinition.feed == None
+        ).one()
+    except database_exceptions.NoResultFound:
+        raise httpexceptions.HTTPNotFound()
+    data_stream_templates = DBSession.query(DataStreamTemplate).filter(
+        DataStreamTemplate.feed_template == feed_template
+    ).order_by(DataStreamTemplate.name)
+    chart_definition_form = forms.UpdateChartDefinitionForm(
+        chart_definition.id,
+        feed_template,
+        data_stream_templates,
+        obj=chart_definition,
+        csrf_context=request
+    )
+    if request.method == 'POST':
+        chart_definition_form.process(request.POST)
+        data_stream_templates_dict = dict((
+            (template.id, template)
+            for template in data_stream_templates
+        ))
+        if chart_definition_form.validate():
+            chart_definition_form.populate_obj(chart_definition)
+            chart_definition.data_stream_templates = []
+            for id in chart_definition_form.data_stream_template_ids.data:
+                chart_definition.data_stream_templates.append(
+                    data_stream_templates_dict[id]
+                )
+            DBSession.add(chart_definition)
+            request.session.flash(
+                _("Parameter template has been successfuly saved."),
+                queue='success'
+            )
+            return httpexceptions.HTTPFound(
+                request.route_url(
+                    'sngconnect.devices.chart_definition',
+                    feed_template_id=feed_template.id,
+                    chart_definition_id=chart_definition.id
+                )
+            )
+        else:
+            request.session.flash(
+                _(
+                    "There were some problems with your request."
+                    " Please check the form for error messages."
+                ),
+                queue='error'
+            )
+    return {
+        'chart_definition_form': chart_definition_form,
+        'feed_template': {
+            'id': feed_template.id,
+            'name': feed_template.name,
+            'url': request.route_url(
+                'sngconnect.devices.feed_template',
+                feed_template_id=feed_template.id
+            ),
+        },
+        'chart_definition': {
+            'id': chart_definition.id,
+            'name': chart_definition.name,
+            'url': request.route_url(
+                'sngconnect.devices.chart_definition',
+                feed_template_id=feed_template.id,
+                chart_definition_id=chart_definition.id
             ),
         },
     }
