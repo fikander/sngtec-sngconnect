@@ -1,5 +1,4 @@
 from wtforms import fields, validators, widgets
-import sqlalchemy as sql
 from sqlalchemy.orm import exc as database_exceptions
 
 from sngconnect.forms import SecureForm
@@ -186,6 +185,40 @@ class AddChartDefinitionForm(SecureForm):
         try:
             DBSession.query(ChartDefinition).filter(
                 ChartDefinition.feed_template == self.feed_template,
+                ChartDefinition.feed == None,
+                ChartDefinition.name == field.data
+            ).one()
+        except database_exceptions.NoResultFound:
+            pass
+        else:
+            raise validators.ValidationError(
+                _("This chart name is already taken.")
+            )
+
+class UpdateChartDefinitionForm(AddChartDefinitionForm):
+
+    id = fields.IntegerField(
+        widget=widgets.HiddenInput(),
+        validators=(
+            validators.DataRequired(),
+        )
+    )
+
+    def __init__(self, original_id, *args, **kwargs):
+        self.original_id = original_id
+        super(UpdateChartDefinitionForm, self).__init__(*args, **kwargs)
+
+    def validate_id(self, field):
+        if self.original_id != field.data:
+            raise validators.ValidationError()
+
+    def validate_name(self, field):
+        if field.errors:
+            return
+        try:
+            DBSession.query(ChartDefinition).filter(
+                ChartDefinition.feed_template == self.feed_template,
+                ChartDefinition.id != self.id.data,
                 ChartDefinition.feed == None,
                 ChartDefinition.name == field.data
             ).one()
