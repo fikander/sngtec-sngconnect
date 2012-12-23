@@ -220,7 +220,7 @@ class FeedDashboard(FeedViewBase):
                 try:
                     data_stream_serialized['today'] = daily_aggregates[0][1]
                 except IndexError:
-                    data_streams_serialized['today'] = None
+                    data_stream_serialized['today'] = None
             data_streams_serialized.append(data_stream_serialized)
         parameters = filter(
             lambda data_stream: not data_stream['writable'],
