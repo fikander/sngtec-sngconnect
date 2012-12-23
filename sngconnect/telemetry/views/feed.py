@@ -160,7 +160,8 @@ class FeedDashboard(FeedViewBase):
         data_streams = DBSession.query(DataStream).join(
             DataStreamTemplate
         ).filter(
-            DataStream.feed == self.feed
+            DataStream.feed == self.feed,
+            DataStreamTemplate.show_on_dashboard == True
         ).order_by(
             DataStreamTemplate.name
         )

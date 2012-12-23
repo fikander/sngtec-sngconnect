@@ -70,8 +70,8 @@
             {% if feed.image_url %}
                 <img src="{{ feed.image_url }}" style="float: left; margin-right: 20px;">
             {% endif %}
-            {% if parameters %}
-                <div style="float: left;">
+            <div style="float: left;">
+                {% if parameters %}
                     <h3>{% trans %}Parameters{% endtrans %}</h2>
                     <table class="table table-values">
                         <thead>
@@ -131,8 +131,8 @@
                             {% endfor %}
                         </tbody>
                     </table>
-                </div>
-            {% endif %}
+                {% endif %}
+            </div>
             <div style="clear: both;"></div>
             {% if charts %}
                 <h2 class="show-js"><span class="awe-bar-chart"></span> {% trans %}Important charts{% endtrans %}</h2>
