@@ -122,7 +122,7 @@ class CreateChartDefinitionForm(SecureForm):
     chart_type = fields.HiddenField(
         validators=(
             validators.DataRequired(),
-            validators.AnyOf(('LINEAR',)),
+            validators.AnyOf(('LINEAR', 'DIFFERENTIAL',)),
         )
     )
     name = fields.TextField(

@@ -46,7 +46,11 @@
                 chart: {
                     renderTo: {{ container_id|tojson }},
                     zoomType: 'x',
-                    type: 'spline',
+                    {% if rendering_data.type == 'DIFFERENTIAL' %}
+                        type: 'column',
+                    {% else %}
+                        type: 'spline',
+                    {% endif %}
                     backgroundColor: null,
                     style: {
                         fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',

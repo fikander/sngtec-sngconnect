@@ -79,12 +79,43 @@
                 </fieldset>
             </form>
         </div>
+        <div class="modal fade hide" id="create-chart-DIFFERENTIAL">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h3>{% trans %}Create differential chart{% endtrans %}</h3>
+            </div>
+            <form action="{{ create_chart_url }}" method="post" class="edit-chart-form">
+                <fieldset>
+                    <div class="modal-body">
+                        {{ create_chart_form.DIFFERENTIAL.csrf_token }}
+                        {{ create_chart_form.DIFFERENTIAL.chart_type }}
+                        {{ horizontal_form_field(create_chart_form.DIFFERENTIAL.name) }}
+                        {{ horizontal_form_field(create_chart_form.DIFFERENTIAL.data_stream_template_ids) }}
+                    </div>
+                    <div class="modal-footer">
+                        <a href="#" class="btn btn-wuxia" data-dismiss="modal">{% trans %}Close{% endtrans %}</a>
+                        <button type="submit" class="btn btn-wuxia btn-primary">{% trans %}Create{% endtrans %}</button>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
         <article class="span3">
             <div class="well analysis-tool">
                 <p class="lead">{% trans %}New linear chart{% endtrans %}</p>
                 <p>{% trans %}Visualise multiple parameters{% endtrans %}</p>
                 <div class="btn-group">
                     <a class="btn btn-warning" data-toggle="modal" href="#create-chart-LINEAR">
+                        <span class="awe-plus"></span> {% trans %}Create{% endtrans %}
+                    </a>
+                </div>
+            </div>
+        </article>
+        <article class="span3">
+            <div class="well analysis-tool">
+                <p class="lead">{% trans %}New differential chart{% endtrans %}</p>
+                <p>{% trans %}Visualise changes to parameters{% endtrans %}</p>
+                <div class="btn-group">
+                    <a class="btn btn-warning" data-toggle="modal" href="#create-chart-DIFFERENTIAL">
                         <span class="awe-plus"></span> {% trans %}Create{% endtrans %}
                     </a>
                 </div>
