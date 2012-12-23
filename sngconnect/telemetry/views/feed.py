@@ -94,6 +94,7 @@ class FeedViewBase(object):
                 'longitude': feed.longitude,
                 'created': feed.created,
                 'has_settings': self.has_settings,
+                'image_url': feed.template.get_image_url(request),
                 'dashboard_url': request.route_url(
                     'sngconnect.telemetry.feed_dashboard',
                     feed_id=feed.id
