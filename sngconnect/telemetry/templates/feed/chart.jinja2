@@ -24,8 +24,8 @@
                     <label style="line-height: 25px; padding: 0 5px 0 5px;">{% trans %}Last{% endtrans %}</label>
                     <div id="set-last-range" class="set-last-range-group btn-group">
                         <button class="btn" data-last="{{ 1 }}">{% trans %}hour{% endtrans %}</button>
-                        <button class="btn active" data-last="{{ 24 }}">{% trans %}24 hours{% endtrans %}</button>
-                        <button class="btn" data-last="{{ 24 * 7 }}">{% trans %}7 days{% endtrans %}</button>
+                        <button class="btn" data-last="{{ 24 }}">{% trans %}24 hours{% endtrans %}</button>
+                        <button class="btn active" data-last="{{ 24 * 7 }}">{% trans %}7 days{% endtrans %}</button>
                         <button class="btn" data-last="{{ 24 * 30 }}">{% trans %}30 days{% endtrans %}</button>
                         <button class="btn" data-last="{{ 24 * 365 }}">{% trans %}1 year{% endtrans %}</button>
                     </div>
@@ -41,7 +41,13 @@
 
 {% block body_scripts %}
     {{ super() }}
-    {{ render_chart('rendered-chart', '#set-range-button', '#set-last-range button', chart.rendering_data) }}
+    {{ render_chart(
+        'rendered-chart',
+        '#set-range-button',
+        '#set-last-range button',
+        chart.rendering_data,
+        24 * 7
+    ) }}
     <script>
         $(function(){
             $('.datepicker').datepicker({

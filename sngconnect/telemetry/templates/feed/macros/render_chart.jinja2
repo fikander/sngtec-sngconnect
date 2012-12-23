@@ -15,8 +15,9 @@
             }
         ]
     };
+    last = <show last n hours>;
 #}
-{% macro render_chart(container_id, range_set_button, last_set_buttons, rendering_data) %}
+{% macro render_chart(container_id, range_set_button, last_set_buttons, rendering_data, last=None) %}
     <script>
         $(function(){
             function reload_chart_data(chart, parameters) {
@@ -58,7 +59,16 @@
                     },
                     events: {
                         load: function() {
-                            reload_chart_data(this, {});
+                            reload_chart_data(
+                                this,
+                                {% if last %}
+                                    {
+                                        last: {{ last|tojson }}
+                                    }
+                                {% else %}
+                                    {}
+                                {% endif %}
+                            );
                         }
                     }
                 },
@@ -138,33 +148,37 @@
                     }
                 }
             });
-            $({{ last_set_buttons|tojson }}).click(function(event){
-                event.preventDefault();
-                var button = $(event.target);
-                button.parent(".set-last-range-group").find("button").removeClass("active");
-                button.addClass("active");
-                console.log(button.data("last"));
-                reload_chart_data(chart, {
-                    last: button.data("last")
-                });
-            });
-            $({{ range_set_button|tojson }}).click(function(event){
-                event.preventDefault();
-                var button = $(event.target);
-                var start_input = button.parent("form").find("input[name='start']");
-                var end_input = button.parent("form").find("input[name='end']");
-                var start = new Date(Date.parse(start_input.val()));
-                var end = new Date(Date.parse(end_input.val()));
-                if (end <= start) {
-                    alert({% filter tojson %}{% trans %}End date must be greater than start date.{% endtrans %}{% endfilter %});
-                } else {
-                    $({{ last_set_buttons|tojson }}).parent(".set-last-range-group").find("button").removeClass("active");
+            {% if last_set_buttons %}
+                $({{ last_set_buttons|tojson }}).click(function(event){
+                    event.preventDefault();
+                    var button = $(event.target);
+                    button.parent(".set-last-range-group").find("button").removeClass("active");
+                    button.addClass("active");
+                    console.log(button.data("last"));
                     reload_chart_data(chart, {
-                        start: start.toISOString(),
-                        end: end.toISOString()
+                        last: button.data("last")
                     });
-                }
-            });
+                });
+            {% endif %}
+            {% if range_set_button %}
+                $({{ range_set_button|tojson }}).click(function(event){
+                    event.preventDefault();
+                    var button = $(event.target);
+                    var start_input = button.parent("form").find("input[name='start']");
+                    var end_input = button.parent("form").find("input[name='end']");
+                    var start = new Date(Date.parse(start_input.val()));
+                    var end = new Date(Date.parse(end_input.val()));
+                    if (end <= start) {
+                        alert({% filter tojson %}{% trans %}End date must be greater than start date.{% endtrans %}{% endfilter %});
+                    } else {
+                        $({{ last_set_buttons|tojson }}).parent(".set-last-range-group").find("button").removeClass("active");
+                        reload_chart_data(chart, {
+                            start: start.toISOString(),
+                            end: end.toISOString()
+                        });
+                    }
+                });
+            {% endif %}
         });
     </script>
 {% endmacro %}

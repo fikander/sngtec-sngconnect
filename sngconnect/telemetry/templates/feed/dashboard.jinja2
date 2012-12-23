@@ -1,4 +1,5 @@
 {% extends "sngconnect.telemetry:templates/feed/base.jinja2" %}
+{% from "sngconnect.telemetry:templates/feed/macros/render_chart.jinja2" import render_chart with context %}
 {% from "sngconnect.telemetry:templates/feed/macros/message_table.jinja2" import message_table with context %}
 {% set active_secondary_navigation = "dashboard" %}
 
@@ -119,6 +120,21 @@
                 </tbody>
             </table>
             <h2><span class="awe-bar-chart"></span> {% trans %}Important charts{% endtrans %}</h2>
+            {% for chart in charts %}
+                <div class="form-inline pull-right">
+                    <label style="line-height: 25px; padding: 0 5px 0 5px;">{% trans %}Last{% endtrans %}</label>
+                    <div id="set-last-range-{{ chart.definition.id }}" class="set-last-range-group btn-group">
+                        <button class="btn" data-last="{{ 1 }}">{% trans %}hour{% endtrans %}</button>
+                        <button class="btn" data-last="{{ 24 }}">{% trans %}24 hours{% endtrans %}</button>
+                        <button class="btn active" data-last="{{ 24 * 7 }}">{% trans %}7 days{% endtrans %}</button>
+                        <button class="btn" data-last="{{ 24 * 30 }}">{% trans %}30 days{% endtrans %}</button>
+                        <button class="btn" data-last="{{ 24 * 365 }}">{% trans %}1 year{% endtrans %}</button>
+                    </div>
+                </div>
+                <div class="center">
+                    <div id="rendered-chart-{{ chart.definition.id }}"></div>
+                </div>
+            {% endfor %}
             <div class="row">
                 <div class="span6">
                     <h2><span class="awe-info-sign"></span> {% trans %}Information{% endtrans %}</h2>
@@ -197,4 +213,13 @@
             });
         });
     </script>
+    {% for chart in charts %}
+        {{ render_chart(
+            "rendered-chart-%d" % chart.definition.id,
+            None,
+            '#set-last-range-%d button' % chart.definition.id,
+            chart.rendering_data,
+            24 * 7
+        ) }}
+    {% endfor %}
 {% endblock %}

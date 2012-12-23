@@ -221,10 +221,46 @@ class FeedDashboard(FeedViewBase):
             lambda data_stream: data_stream['writable'],
             data_streams_serialized
         )
+        # Charts
+        chart_definitions = DBSession.query(ChartDefinition).filter(
+            ChartDefinition.feed_template == self.feed.template,
+            ChartDefinition.feed == None,
+            ChartDefinition.show_on_dashboard == True
+        ).order_by(
+            ChartDefinition.name
+        ).all()
+        charts = [
+            {
+                'definition': {
+                    'id': chart_definition.id,
+                    'name': chart_definition.name,
+                },
+                'rendering_data': {
+                    'id': chart_definition.id,
+                    'name': chart_definition.name,
+                    'type': chart_definition.chart_type,
+                    'data_url': self.request.route_url(
+                        'sngconnect.telemetry.feed_chart.data',
+                        feed_id=self.feed.id,
+                        chart_definition_id=chart_definition.id
+                    ),
+                    'data_stream_templates': [
+                        {
+                            'id': template.id,
+                            'name': template.name,
+                            'measurement_unit': template.measurement_unit,
+                        }
+                        for template in chart_definition.data_stream_templates
+                    ],
+                },
+            }
+            for chart_definition in chart_definitions
+        ]
         self.context.update({
             'last_updated': last_updated,
             'parameters': parameters,
             'settings': settings,
+            'charts': charts,
             'active_alarms': [
                 {
                     'id': alarm_definition.id,
@@ -273,7 +309,10 @@ class FeedCharts(FeedViewBase):
             FeedTemplate,
             Feed
         ).filter(
-            FeedTemplate.id == self.feed.template_id or Feed.id == self.feed.id
+            sql.or_(
+                FeedTemplate.id == self.feed.template_id,
+                Feed.id == self.feed.id
+            )
         ).order_by(
             ChartDefinition.feed_id,
             ChartDefinition.name
