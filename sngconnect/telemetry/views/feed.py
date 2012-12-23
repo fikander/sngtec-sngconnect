@@ -133,17 +133,20 @@ class FeedViewBase(object):
 )
 class FeedDashboard(FeedViewBase):
     def __call__(self):
+        # Last updated
         last_updated = (
             data_streams_store.LastDataPoints().get_last_data_stream_datetime(
                 self.feed.id
             )
         )
+        # Messages
         important_messages = DBSession.query(Message).filter(
             Message.feed == self.feed,
             Message.message_type == u'ERROR'
         ).order_by(
             sql.desc(Message.date)
         ).all()
+        # Alarms
         active_alarms = {}
         for data_stream_id, data in self.active_alarms.iteritems():
             active_alarms.update(data)
@@ -152,8 +155,76 @@ class FeedDashboard(FeedViewBase):
         ).filter(
             AlarmDefinition.id.in_(active_alarms.keys())
         )
+        # Data streams
+        data_streams = DBSession.query(DataStream).join(
+            DataStreamTemplate
+        ).filter(
+            DataStream.feed == self.feed
+        ).order_by(
+            DataStreamTemplate.name
+        )
+        last_data_points = (
+            data_streams_store.LastDataPoints().get_last_data_stream_data_points(
+                self.feed.id
+            )
+        )
+        data_streams_serialized = []
+        for data_stream in data_streams:
+            data_point = last_data_points.get(data_stream.id, None)
+            if data_point is None:
+                last_value = None
+            else:
+                last_value = {
+                    'value': decimal.Decimal(data_point[1]),
+                    'date': data_point[0],
+                }
+            data_stream_serialized = {
+                'id': data_stream.id,
+                'name': data_stream.name,
+                'measurement_unit': data_stream.measurement_unit,
+                'url': self.request.route_url(
+                    (
+                        'sngconnect.telemetry.feed_setting'
+                        if data_stream.writable
+                        else 'sngconnect.telemetry.feed_data_stream'
+                    ),
+                    feed_id=self.feed.id,
+                    data_stream_label=data_stream.label
+                ),
+                'last_value': last_value,
+                'writable': data_stream.writable,
+            }
+            if data_stream.writable:
+                data_stream_serialized['value_form'] = forms.ValueForm(
+                    value=data_stream.requested_value,
+                    locale=get_locale_name(self.request),
+                    csrf_context=self.request
+                )
+            else:
+                daily_aggregates = (
+                    data_streams_store.DailyAggregates().get_data_points(
+                        data_stream.id,
+                        start_date=pytz.utc.localize(datetime.datetime.utcnow()),
+                        end_date=pytz.utc.localize(datetime.datetime.utcnow())
+                    )
+                )
+                try:
+                    data_stream_serialized['today'] = daily_aggregates[0][1]
+                except IndexError:
+                    data_streams_serialized['today'] = None
+            data_streams_serialized.append(data_stream_serialized)
+        parameters = filter(
+            lambda data_stream: not data_stream['writable'],
+            data_streams_serialized
+        )
+        settings = filter(
+            lambda data_stream: data_stream['writable'],
+            data_streams_serialized
+        )
         self.context.update({
             'last_updated': last_updated,
+            'parameters': parameters,
+            'settings': settings,
             'active_alarms': [
                 {
                     'id': alarm_definition.id,

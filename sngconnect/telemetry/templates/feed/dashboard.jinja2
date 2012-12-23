@@ -63,16 +63,64 @@
     {% endif %}
     <div class="content">
         <div class="page-container">
+            <h2><span class="awe-eye-open"></span> {% trans %}Important parameters and settings{% endtrans %}</h2>
+            <h3>{% trans %}Parameters{% endtrans %}</h2>
+            <table class="table table-values">
+                <thead>
+                    <th>{% trans %}Name{% endtrans %}</th>
+                    <th>{% trans %}Last known value{% endtrans %}</th>
+                    <th>{% trans %}Today minimum/maximum{% endtrans %}</th>
+                </thead>
+                <tbody>
+                    {% for data_stream in parameters %}
+                        <tr>
+                            <td><a href="{{ data_stream.url }}">{{ data_stream.name }}</a></td>
+                            {% if data_stream.last_value %}
+                                <td><span class="current-value">{{ data_stream.last_value.value|format_decimal }} <span class="unit">{{ data_stream.measurement_unit }}</span></span></td>
+                            {% else %}
+                                <td class="no-data">{% trans %}no data{% endtrans %}</td>
+                            {% endif %}
+                            {% if data_stream.today %}
+                                <td><code>{{ data_stream.today.minimum|format_decimal }}</code> / <code>{{ data_stream.today.maximum|format_decimal }}</code></td>
+                            {% else %}
+                                <td class="no-data">{% trans %}no data{% endtrans %}</td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <h3>{% trans %}Settings{% endtrans %}</h2>
+            <table class="table table-values">
+                <thead>
+                    <th>{% trans %}Name{% endtrans %}</th>
+                    <th>{% trans %}Last known value{% endtrans %}</th>
+                    <th>{% trans %}Set{% endtrans %}</th>
+                </thead>
+                <tbody>
+                    {% for data_stream in settings %}
+                        <tr>
+                            <td><a href="{{ data_stream.url }}">{{ data_stream.name }}</a></td>
+                            {% if data_stream.last_value %}
+                                <td><span class="current-value">{{ data_stream.last_value.value|format_decimal }} <span class="unit">{{ data_stream.measurement_unit }}</span></span></td>
+                            {% else %}
+                                <td class="no-data">{% trans %}no data{% endtrans %}</td>
+                            {% endif %}
+                            <td>
+                                <form action="" method="post" style="margin-bottom: 0;" class="form-inline">
+                                    {{ data_stream.value_form.csrf_token }}
+                                    <div class="input-append">
+                                        {{ data_stream.value_form.value(class="input-small") }}
+                                        <button type="submit" class="btn">{% trans %}Set{% endtrans %}</button>
+                                    </div>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <h2><span class="awe-bar-chart"></span> {% trans %}Important charts{% endtrans %}</h2>
             <div class="row">
-                <article class="span6">
-                    <h2><span class="awe-eye-open"></span> {% trans %}Important parameters{% endtrans %}</h2>
-                </article>
-                <article class="span6">
-                    <h2><span class="awe-signal"></span> {% trans %}Chart{% endtrans %}</h2>
-                </article>
-            </div>
-            <div class="row">
-                <article class="span6">
+                <div class="span6">
                     <h2><span class="awe-info-sign"></span> {% trans %}Information{% endtrans %}</h2>
                     <table class="table">
                         <tbody>
@@ -97,9 +145,9 @@
                             </tr>
                         </tbody>
                     </table>
-                </article>
-                <article class="span6">
-                    <h2><span class="awe-globe"></span> {% trans %}Position{% endtrans %}</h2>
+                </div>
+                <div class="span6">
+                    <h2><span class="awe-globe"></span> {% trans %}Location{% endtrans %}</h2>
                     <div id="feed-location-map"></div>
                     <table class="table">
                         <tbody>
@@ -113,7 +161,7 @@
                             </tr>
                         </tbody>
                     </table>
-                </article>
+                </div>
             </div>
         </div>
     </div>
