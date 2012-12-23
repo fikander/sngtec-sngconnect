@@ -324,6 +324,7 @@ class FeedChart(FeedCharts):
         self.context['chart'] = {
             'definition': {
                 'id': chart_definition.id,
+                'name': chart_definition.name,
             },
             'rendering_data': {
                 'id': chart_definition.id,
