@@ -12271,3 +12271,6 @@ td.no-data {
 .analysis-tool:hover a:first-child {
   text-decoration: none;
 }
+.show-js {
+  display: none;
+}

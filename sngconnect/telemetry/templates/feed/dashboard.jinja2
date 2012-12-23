@@ -95,7 +95,7 @@
                 <thead>
                     <th>{% trans %}Name{% endtrans %}</th>
                     <th>{% trans %}Last known value{% endtrans %}</th>
-                    <th>{% trans %}Set{% endtrans %}</th>
+                    <th class="show-js">{% trans %}Set{% endtrans %}</th>
                 </thead>
                 <tbody>
                     {% for data_stream in settings %}
@@ -106,12 +106,15 @@
                             {% else %}
                                 <td class="no-data">{% trans %}no data{% endtrans %}</td>
                             {% endif %}
-                            <td>
-                                <form action="" method="post" style="background: none; margin-bottom: 0;" class="form-inline">
+                            <td class="show-js">
+                                <form action="{{ data_stream.value_url }}" class="set-value-form" method="post" style="background: none; margin-bottom: 0;" class="form-inline">
                                     {{ data_stream.value_form.csrf_token }}
-                                    <div class="input-append">
-                                        {{ data_stream.value_form.value(class="input-small") }}
-                                        <button type="submit" class="btn">{% trans %}Set{% endtrans %}</button>
+                                    <div style="height: 28px; margin: 0; padding: 0;" class="control-group">
+                                        <span class="input-append">
+                                            {{ data_stream.value_form.value(class="input-small") }}
+                                            <button type="submit" class="btn">{% trans %}Set{% endtrans %}</button>
+                                        </span>
+                                        <span class="loading" style="{% if data_stream.requested_value == None %}display: none; {% endif %}margin: -2px 0 0 10px;"></span>
                                     </div>
                                 </form>
                             </td>
@@ -119,9 +122,9 @@
                     {% endfor %}
                 </tbody>
             </table>
-            <h2><span class="awe-bar-chart"></span> {% trans %}Important charts{% endtrans %}</h2>
+            <h2 class="show-js"><span class="awe-bar-chart"></span> {% trans %}Important charts{% endtrans %}</h2>
             {% for chart in charts %}
-                <div class="form-inline pull-right">
+                <div class="show-js form-inline pull-right">
                     <label style="line-height: 25px; padding: 0 5px 0 5px;">{% trans %}Last{% endtrans %}</label>
                     <div id="set-last-range-{{ chart.definition.id }}" class="set-last-range-group btn-group">
                         <button class="btn" data-last="{{ 1 }}">{% trans %}hour{% endtrans %}</button>
@@ -164,7 +167,7 @@
                 </div>
                 <div class="span6">
                     <h2><span class="awe-globe"></span> {% trans %}Location{% endtrans %}</h2>
-                    <div id="feed-location-map"></div>
+                    <div id="feed-location-map" class="show-js"></div>
                     <table class="table">
                         <tbody>
                             <tr>
@@ -210,6 +213,31 @@
                 map: map,
                 title: {{ feed.name|tojson }},
                 position: position
+            });
+            $('.set-value-form').submit(function(event){
+                var form = $(event.target);
+                event.preventDefault();
+                $.ajax({
+                    url: form.attr("action"),
+                    type: "POST",
+                    data: form.serialize(),
+                    success: function(data, textStatus, jqXHR){
+                        if (data.success) {
+                            form.find(".control-group").removeClass("error");
+                            form.find(".loading").show();
+                            form.tooltip({
+                                title: {% filter tojson %}{% trans %}Change requested. Refresh the page to see when the value changes.{% endtrans %}{% endfilter %},
+                                trigger: "manual"
+                            });
+                            form.tooltip("show");
+                            setTimeout(function(){
+                                form.tooltip("hide");
+                            }, 1000 * 5);
+                        } else {
+                            form.find(".control-group").addClass("error");
+                        }
+                    }
+                });
             });
         });
     </script>

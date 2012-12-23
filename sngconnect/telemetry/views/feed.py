@@ -195,11 +195,19 @@ class FeedDashboard(FeedViewBase):
                 'writable': data_stream.writable,
             }
             if data_stream.writable:
-                data_stream_serialized['value_form'] = forms.ValueForm(
-                    value=data_stream.requested_value,
-                    locale=get_locale_name(self.request),
-                    csrf_context=self.request
-                )
+                data_stream_serialized.update({
+                    'value_url': self.request.route_url(
+                        'sngconnect.telemetry.feed_dashboard.set_value',
+                        feed_id=self.feed.id,
+                        data_stream_template_id=data_stream.template.id
+                    ),
+                    'value_form': forms.ValueForm(
+                        value=data_stream.requested_value,
+                        locale=get_locale_name(self.request),
+                        csrf_context=self.request
+                    ),
+                    'requested_value': data_stream.requested_value,
+                })
             else:
                 daily_aggregates = (
                     data_streams_store.DailyAggregates().get_data_points(
@@ -295,6 +303,52 @@ class FeedDashboard(FeedViewBase):
             ],
         })
         return self.context
+
+@view_config(
+    route_name='sngconnect.telemetry.feed_dashboard.set_value',
+    request_method='POST',
+    renderer='sngconnect.telemetry:templates/feed/setting.jinja2',
+    permission='sngconnect.telemetry.access'
+)
+class FeedDashboardSetValue(FeedViewBase):
+    def __call__(self):
+        if not self.request.is_xhr:
+            raise httpexceptions.HTTPBadRequest()
+        try:
+            data_stream = DBSession.query(DataStream).join(
+                DataStreamTemplate
+            ).filter(
+                DataStream.feed == self.feed,
+                DataStreamTemplate.writable == True,
+                DataStreamTemplate.id ==
+                    self.request.matchdict['data_stream_template_id']
+            ).one()
+        except database_exceptions.NoResultFound:
+            raise httpexceptions.HTTPNotFound()
+        value_form = forms.ValueForm(
+            value=data_stream.requested_value,
+            locale=get_locale_name(self.request),
+            csrf_context=self.request
+        )
+        if self.request.method == 'POST':
+            value_form.process(self.request.POST)
+            if value_form.validate():
+                DBSession.query(DataStream).filter(
+                    DataStream.id == data_stream.id
+                ).update({
+                    'requested_value': value_form.value.data,
+                    'value_requested_at': pytz.utc.localize(
+                        datetime.datetime.utcnow()
+                    ),
+                })
+                return Response(
+                    json.dumps({'success': True}),
+                    content_type='application/json'
+                )
+        return Response(
+            json.dumps({'success': False}),
+            content_type='application/json'
+        )
 
 @view_config(
     route_name='sngconnect.telemetry.feed_charts',
