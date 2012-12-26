@@ -61,6 +61,7 @@ def appearance(request):
         file_path = os.path.join(assets_path, filename)
         files.append({
             'filename': filename,
+            'url': request.static_url(file_path),
             'size': int(os.path.getsize(file_path)),
             'last_modification': datetime.datetime.fromtimestamp(
                 os.path.getmtime(file_path)

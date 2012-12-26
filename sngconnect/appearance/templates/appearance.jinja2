@@ -19,7 +19,7 @@
             <tbody>
                 {% for file in files %}
                     <tr>
-                        <td><code>{{ file.filename }}</code></td>
+                        <td><a href="{{ file.url }}">{{ file.filename }}</a></td>
                         <td>
                             {# TODO: filesizeformat filter was bugged in Jinja2 v 2.6 #}
                             {{ file.size / 1024 }} kB
