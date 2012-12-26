@@ -1,3 +1,5 @@
+import os
+
 from babel.core import Locale
 from babel.support import Format
 from pyramid import events, security
@@ -36,9 +38,30 @@ def add_user(event):
         ).one()
 
 @events.subscriber(events.BeforeRender)
-def add_can_access_devices(event):
-    event['can_access_devices'] = security.has_permission(
-        'sngconnect.devices.access',
-        event['request'].context,
-        event['request']
+def add_permissions(event):
+    event.update({
+        'can_access_devices': security.has_permission(
+            'sngconnect.devices.access',
+            event['request'].context,
+            event['request']
+        ),
+        'can_access_appearance': security.has_permission(
+            'sngconnect.appearance.access',
+            event['request'].context,
+            event['request']
+        ),
+    })
+
+
+@events.subscriber(events.BeforeRender)
+def add_appearance_stylesheet_url(event):
+    request = event['request']
+    assets_path = request.registry['settings'][
+        'sngconnect.appearance_assets_upload_path'
+    ]
+    stylesheet_filename = request.registry['settings'][
+        'sngconnect.appearance_stylesheet_filename'
+    ]
+    event['appearance_stylesheet_url'] = request.static_url(
+        os.path.join(assets_path, stylesheet_filename)
     )

@@ -1,4 +1,3 @@
-import tempfile
 import hashlib
 import os
 import errno

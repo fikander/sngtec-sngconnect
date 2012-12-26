@@ -18,4 +18,6 @@ class RootFactory(DefaultRootFactory):
         (Allow, Administrator, 'sngconnect.telemetry.change_all'),
         (Allow, Supplier,      'sngconnect.devices.access'),
         (Allow, Administrator, 'sngconnect.devices.access'),
+        (Allow, Supplier,      'sngconnect.appearance.access'),
+        (Allow, Administrator, 'sngconnect.appearance.access'),
     ]

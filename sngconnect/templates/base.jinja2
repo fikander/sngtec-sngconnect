@@ -8,6 +8,7 @@
                 <link rel="stylesheet" href="{{ ASSET_URL }}">
             {% endassets %}
         {% endblock %}
+        <link rel="stylesheet" href="{{ appearance_stylesheet_url }}">
         {% block head_scripts %}
             {% assets "base_js" %}
                 <script src="{{ ASSET_URL }}"></script>
@@ -33,6 +34,11 @@
                             {% if can_access_devices %}
                                 <ul class="nav active-arrows" role="navigation">
                                     <li><a href="{{ request.route_url("sngconnect.devices.feed_templates") }}" title="{% trans %}Device templates{% endtrans %}"><span class="awe-cog"></span> {% trans %}Device templates{% endtrans %}</a></li>
+                                </ul>
+                            {% endif %}
+                            {% if can_access_appearance %}
+                                <ul class="nav active-arrows" role="navigation">
+                                    <li><a href="{{ request.route_url("sngconnect.appearance.appearance") }}" title="{% trans %}Appearance{% endtrans %}"><span class="awe-eye-open"></span> {% trans %}Appearance{% endtrans %}</a></li>
                                 </ul>
                             {% endif %}
                         </nav>

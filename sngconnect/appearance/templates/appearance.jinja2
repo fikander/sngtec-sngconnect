@@ -1,0 +1,105 @@
+{% extends "sngconnect.devices:templates/base.jinja2" %}
+{% from "sngconnect:templates/macros/horizontal_form_field.jinja2" import horizontal_form_field %}
+
+{% block head_stylesheets %}
+    {{ super() }}
+    {% assets "appearance_css" %}
+        <link rel="stylesheet" href="{{ ASSET_URL }}">
+    {% endassets %}
+{% endblock %}
+{% block head_scripts %}
+    {{ super() }}
+    {% assets "appearance_js" %}
+        <script src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+{% endblock %}
+
+{% block main_content %}
+    <div class="page-header">
+        <h1>{% trans %}Appearance{% endtrans %}</h1>
+    </div>
+    <div class="page-container">
+        <h2><span class="awe-pencil"></span> {% trans %}Change stylesheet{% endtrans %}</h2>
+        <form action="" method="post">
+            {{ update_stylesheet_form.csrf_token }}
+            {% with field=update_stylesheet_form.stylesheet %}
+                <div class="control-group{% if field.errors %} error{% endif %}">
+                    <div class="controls">
+                        {{ field(style="width: 95%; min-height: 500px;") }}
+                        {% if field.errors %}
+                            {% for error in field.errors %}
+                                <div class="help-block" style="margin: 20px 0 0 0;">{{ error }}</div>
+                            {% endfor %}
+                        {% elif field.description %}
+                            <div class="help-block">{{ field.description }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endwith %}
+            <div class="form-actions">
+                <button type="submit" name="submit_update_stylesheet" class="btn btn-primary">
+                    <span class="awe-save"></span> {% trans %}Save{% endtrans %}
+                </button>
+            </div>
+        </form>
+        <h2><span class="awe-folder-open"></span> {% trans %}Uploaded images{% endtrans %}</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>{% trans %}Filename{% endtrans %}</th>
+                    <th>{% trans %}Size{% endtrans %}</th>
+                    <th>{% trans %}Last modification{% endtrans %}</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for file in files %}
+                    <tr>
+                        <td><a href="{{ file.url }}">{{ file.filename }}</a></td>
+                        <td>
+                            {# TODO: filesizeformat filter was bugged in Jinja2 v 2.6 #}
+                            {{ file.size / 1024 }} kB
+                        </td>
+                        <td>{{ file.last_modification|format_datetime }}</td>
+                        <td>
+                            <form action="{{ file.delete_url }}" method="post" style="background: none; margin: 0;">
+                                {{ file.delete_form.csrf_token }}
+                                {{ file.delete_form.filename }}
+                                <button type="submit" class="btn btn-mini btn-danger">
+                                    {% trans %}Delete{% endtrans %}
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="4" class="no-data">{% trans %}You currently have no uploaded images.{% endtrans %}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <h2><span class="awe-upload-alt"></span> {% trans %}Upload image{% endtrans %}</h2>
+        <form action="" method="post" enctype="multipart/form-data">
+            {{ upload_form.csrf_token }}
+            {{ horizontal_form_field(upload_form.new_file) }}
+            <div class="form-actions">
+                <button type="submit" name="submit_upload_asset" class="btn btn-primary">{% trans %}Upload{% endtrans %}</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}
+
+{% block body_scripts %}
+    {{ super() }}
+    <script>
+        $(function(){
+            var codeMirror = CodeMirror.fromTextArea(
+                $("#stylesheet")[0],
+                {
+                    lineNumbers: true,
+                    indentUnit: 4
+                }
+            );
+        });
+    </script>
+{% endblock %}
