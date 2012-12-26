@@ -8,8 +8,6 @@ from pyramid.view import view_config
 from sngconnect.translation import _
 from sngconnect.appearance import forms
 
-STYLESHEET_FILENAME = 'stylesheet.css'
-
 @view_config(
     route_name='sngconnect.appearance.appearance',
     renderer='sngconnect.appearance:templates/appearance.jinja2',
@@ -19,7 +17,10 @@ def appearance(request):
     assets_path = request.registry['settings'][
         'sngconnect.appearance_assets_upload_path'
     ]
-    stylesheet_file_path = os.path.join(assets_path, STYLESHEET_FILENAME)
+    stylesheet_filename = request.registry['settings'][
+        'sngconnect.appearance_stylesheet_filename'
+    ]
+    stylesheet_file_path = os.path.join(assets_path, stylesheet_filename)
     stylesheet = None
     try:
         with open(stylesheet_file_path, 'r') as stylesheet_file:
@@ -32,6 +33,9 @@ def appearance(request):
     )
     upload_form = forms.UploadAssetForm(
         assets_path,
+        disallow_filenames=(
+            stylesheet_filename,
+        ),
         csrf_context=request
     )
     if request.method == 'POST':
@@ -94,7 +98,7 @@ def appearance(request):
         filenames = set(os.listdir(assets_path))
     except OSError:
         filenames = set()
-    filenames.discard(STYLESHEET_FILENAME)
+    filenames.discard(stylesheet_filename)
     files = []
     for filename in filenames:
         file_path = os.path.join(assets_path, filename)
@@ -128,10 +132,13 @@ def delete_asset(request):
     assets_path = request.registry['settings'][
         'sngconnect.appearance_assets_upload_path'
     ]
+    stylesheet_filename = request.registry['settings'][
+        'sngconnect.appearance_stylesheet_filename'
+    ]
     delete_form = forms.DeleteAssetForm(csrf_context=request)
     delete_form.process(request.POST)
     if delete_form.validate():
-        if delete_form.filename.data != STYLESHEET_FILENAME:
+        if delete_form.filename.data != stylesheet_filename:
             try:
                 os.remove(os.path.join(assets_path, delete_form.filename.data))
             except OSError:

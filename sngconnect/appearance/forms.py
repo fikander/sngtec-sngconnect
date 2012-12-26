@@ -14,7 +14,6 @@ class UpdateStylesheetForm(SecureForm):
     stylesheet = fields.TextAreaField(
         _("Stylesheet"),
         validators=(
-            validators.DataRequired(),
             validators.Length(max=100000),
         )
     )
@@ -33,6 +32,8 @@ class UploadAssetForm(SecureForm):
 
     def __init__(self, assets_path, *args, **kwargs):
         super(UploadAssetForm, self).__init__(*args, **kwargs)
+        self.disallow_filenames = set(kwargs.pop('disallow_filenames', []))
+        self.disallow_filenames.add('robots.txt')
         self.assets_path = assets_path
 
     def validate_new_file(self, field):
@@ -52,6 +53,10 @@ class UploadAssetForm(SecureForm):
         if ASSET_FILENAME_RE.match(field.data.filename) is None:
             raise validators.ValidationError(
                 _("Filename can only contain letters, numbers and symbols: _ - .")
+            )
+        if field.data.filename in self.disallow_filenames:
+            raise validators.ValidationError(
+                _("This filename is not allowed.")
             )
         if os.path.exists(os.path.join(self.assets_path, field.data.filename)):
             raise validators.ValidationError(

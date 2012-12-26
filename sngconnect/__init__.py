@@ -1,4 +1,5 @@
 import os
+import errno
 
 import pytz
 import sqlalchemy
@@ -99,6 +100,21 @@ def main(global_config, **settings):
         path=settings['sngconnect.appearance_assets_upload_path'],
         cache_max_age=0
     )
+    # Create appearance stylesheet if not exists.
+    assets_path = settings['sngconnect.appearance_assets_upload_path']
+    appearance_stylesheet_path = os.path.join(
+        assets_path,
+        settings['sngconnect.appearance_stylesheet_filename']
+    )
+    try:
+        os.makedirs(assets_path)
+    except OSError as exception:
+        if (exception.errno == errno.EEXIST and
+                os.path.isdir(assets_path)):
+            pass
+        else:
+            raise
+    open(appearance_stylesheet_path, 'a').close()
     # Scan for view configurations.
     config.scan()
     # Return ready WSGI application.
