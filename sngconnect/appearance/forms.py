@@ -9,6 +9,16 @@ from sngconnect.translation import _
 ASSET_FILENAME_RE = re.compile(r'^[\w\-]+\.[\w\-]+$')
 ASSET_FILENAME_LENGTH = 50
 
+class UpdateStylesheetForm(SecureForm):
+
+    stylesheet = fields.TextAreaField(
+        _("Stylesheet"),
+        validators=(
+            validators.DataRequired(),
+            validators.Length(max=100000),
+        )
+    )
+
 class UploadAssetForm(SecureForm):
 
     ALLOWED_MIMETYPES = (

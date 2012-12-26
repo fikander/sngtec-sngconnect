@@ -1,9 +1,12 @@
 from webassets import Bundle
 
+CSS_FILTERS = ('cssrewrite', 'yui_css',)
+JS_FILTERS = 'yui_js'
+
 ASSET_BUNDLES = {
     'base_css': Bundle(
         'wuxia/css/sngconnect.css',
-        filters=('cssrewrite', 'yui_css',),
+        filters=CSS_FILTERS,
         output='compressed/base.css'
     ),
     'base_js': Bundle(
@@ -20,7 +23,18 @@ ASSET_BUNDLES = {
         'iso8601/iso8601.js',
         'wuxia/js/plugins/datepicker/bootstrap-datepicker.js',
         'sngconnect/js/base.js',
-        filters='yui_js',
+        filters=JS_FILTERS,
         output='compressed/base.js'
+    ),
+    'appearance_css': Bundle(
+        'codemirror/lib/codemirror.css',
+        filters=CSS_FILTERS,
+        output='compressed/appearance.css'
+    ),
+    'appearance_js': Bundle(
+        'codemirror/lib/codemirror.js',
+        'codemirror/mode/css/css.js',
+        filters=JS_FILTERS,
+        output='compressed/appearance.js'
     ),
 }
