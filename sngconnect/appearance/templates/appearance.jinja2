@@ -25,11 +25,19 @@
                             {{ file.size / 1024 }} kB
                         </td>
                         <td>{{ file.last_modification|format_datetime }}</td>
-                        <td></td>
+                        <td>
+                            <form action="{{ file.delete_url }}" method="post" style="background: none; margin: 0;">
+                                {{ file.delete_form.csrf_token }}
+                                {{ file.delete_form.filename }}
+                                <button type="submit" class="btn btn-mini btn-danger">
+                                    {% trans %}Delete{% endtrans %}
+                                </button>
+                            </form>
+                        </td>
                     </tr>
                 {% else %}
                     <tr>
-                        <td colspan="2" class="no-data">{% trans %}You currently have no uploaded images.{% endtrans %}</td>
+                        <td colspan="4" class="no-data">{% trans %}You currently have no uploaded images.{% endtrans %}</td>
                     </tr>
                 {% endfor %}
             </tbody>

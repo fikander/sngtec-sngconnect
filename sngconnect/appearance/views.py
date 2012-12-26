@@ -2,6 +2,7 @@ import os
 import errno
 import datetime
 
+from pyramid import httpexceptions
 from pyramid.view import view_config
 
 from sngconnect.translation import _
@@ -66,8 +67,41 @@ def appearance(request):
             'last_modification': datetime.datetime.fromtimestamp(
                 os.path.getmtime(file_path)
             ),
+            'delete_url': request.route_url(
+                'sngconnect.appearance.delete_asset'
+            ),
+            'delete_form': forms.DeleteAssetForm(
+                filename=filename,
+                csrf_context=request
+            ),
         })
     return {
         'files': files,
         'upload_form': upload_form,
     }
+
+@view_config(
+    route_name='sngconnect.appearance.delete_asset',
+    request_method='POST',
+    permission='sngconnect.appearance.access'
+)
+def delete_asset(request):
+    assets_path = request.registry['settings'][
+        'sngconnect.appearance_assets_upload_path'
+    ]
+    delete_form = forms.DeleteAssetForm(csrf_context=request)
+    delete_form.process(request.POST)
+    if delete_form.validate():
+        try:
+            os.remove(os.path.join(assets_path, delete_form.filename.data))
+        except OSError:
+            pass
+        request.session.flash(
+            _("File has been succesfuly deleted."),
+            queue='success'
+        )
+        return httpexceptions.HTTPFound(
+            request.route_url('sngconnect.appearance.appearance')
+        )
+    else:
+        raise httpexceptions.HTTPBadRequest()

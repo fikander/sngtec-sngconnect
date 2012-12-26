@@ -1,14 +1,15 @@
 import os
 import re
 
-from wtforms import fields, validators
+from wtforms import fields, widgets, validators
 
 from sngconnect.forms import SecureForm
 from sngconnect.translation import _
 
-class UploadAssetForm(SecureForm):
+ASSET_FILENAME_RE = re.compile(r'^[\w\-]+\.[\w\-]+$')
+ASSET_FILENAME_LENGTH = 50
 
-    FILENAME_RE = re.compile(r'^[\w\-]+\.[\w\-]+$')
+class UploadAssetForm(SecureForm):
 
     ALLOWED_MIMETYPES = (
         'image/png',
@@ -31,11 +32,14 @@ class UploadAssetForm(SecureForm):
             raise validators.ValidationError(
                 _("Incorrect filename.")
             )
-        if len(field.data.filename) > 50:
+        if len(field.data.filename) > ASSET_FILENAME_LENGTH:
             raise validators.ValidationError(
-                _("Filename must be less than 50 characters long.")
+                _(
+                    "Filename must be less than ${number} characters long.",
+                    mapping={'number': ASSET_FILENAME_LENGTH,}
+                )
             )
-        if self.FILENAME_RE.match(field.data.filename) is None:
+        if ASSET_FILENAME_RE.match(field.data.filename) is None:
             raise validators.ValidationError(
                 _("Filename can only contain letters, numbers and symbols: _ - .")
             )
@@ -60,3 +64,14 @@ class UploadAssetForm(SecureForm):
 
     def get_file(self):
         return self.new_file.data.file
+
+class DeleteAssetForm(SecureForm):
+
+    filename = fields.TextField(
+        widget=widgets.HiddenInput(),
+        validators=(
+            validators.DataRequired(),
+            validators.Length(max=ASSET_FILENAME_LENGTH),
+            validators.Regexp(ASSET_FILENAME_RE),
+        )
+    )

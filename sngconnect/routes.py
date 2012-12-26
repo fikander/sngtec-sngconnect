@@ -109,6 +109,10 @@ ROUTES = (
         'sngconnect.appearance.appearance',
         'appearance/'
     ),
+    (
+        'sngconnect.appearance.delete_asset',
+        'appearance/delete-asset/'
+    ),
     # sngconnect.accounts
     (
         'sngconnect.accounts.sign_in',
