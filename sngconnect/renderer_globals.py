@@ -36,9 +36,16 @@ def add_user(event):
         ).one()
 
 @events.subscriber(events.BeforeRender)
-def add_can_access_devices(event):
-    event['can_access_devices'] = security.has_permission(
-        'sngconnect.devices.access',
-        event['request'].context,
-        event['request']
-    )
+def add_permissions(event):
+    event.update({
+        'can_access_devices': security.has_permission(
+            'sngconnect.devices.access',
+            event['request'].context,
+            event['request']
+        ),
+        'can_access_appearance': security.has_permission(
+            'sngconnect.appearance.access',
+            event['request'].context,
+            event['request']
+        ),
+    })

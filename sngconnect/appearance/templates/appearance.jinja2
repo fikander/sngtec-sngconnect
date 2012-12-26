@@ -1,0 +1,46 @@
+{% extends "sngconnect.devices:templates/base.jinja2" %}
+{% from "sngconnect:templates/macros/horizontal_form_field.jinja2" import horizontal_form_field %}
+
+{% block main_content %}
+    <div class="page-header">
+        <h1>{% trans %}Appearance{% endtrans %}</h1>
+    </div>
+    <div class="page-container">
+        <h2><span class="awe-folder-open"></span> {% trans %}Uploaded images{% endtrans %}</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>{% trans %}Filename{% endtrans %}</th>
+                    <th>{% trans %}Size{% endtrans %}</th>
+                    <th>{% trans %}Last modification{% endtrans %}</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for file in files %}
+                    <tr>
+                        <td><code>{{ file.filename }}</code></td>
+                        <td>
+                            {# TODO: filesizeformat filter was bugged in Jinja2 v 2.6 #}
+                            {{ file.size / 1024 }} kB
+                        </td>
+                        <td>{{ file.last_modification|format_datetime }}</td>
+                        <td></td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="2" class="no-data">{% trans %}You currently have no uploaded images.{% endtrans %}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <h2><span class="awe-upload-alt"></span> {% trans %}Upload image{% endtrans %}</h2>
+        <form action="" method="post" enctype="multipart/form-data">
+            {{ upload_form.csrf_token }}
+            {{ horizontal_form_field(upload_form.new_file) }}
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">{% trans %}Upload{% endtrans %}</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}

@@ -94,7 +94,11 @@ def main(global_config, **settings):
         path=settings['sngconnect.device_image_upload_path'],
         cache_max_age=0
     )
-    print "serving from", settings['sngconnect.device_image_upload_path']
+    config.add_static_view(
+        name='appearance-assets',
+        path=settings['sngconnect.appearance_assets_upload_path'],
+        cache_max_age=0
+    )
     # Scan for view configurations.
     config.scan()
     # Return ready WSGI application.

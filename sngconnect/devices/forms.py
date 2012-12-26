@@ -1,9 +1,7 @@
 import os
-import mimetypes
 
 from wtforms import fields, validators, widgets
 from sqlalchemy.orm import exc as database_exceptions
-import magic
 
 from sngconnect.forms import SecureForm
 from sngconnect.translation import _
@@ -278,8 +276,6 @@ class ChangeFeedTemplateImageForm(SecureForm):
             )
         file = field.data.file
         file.seek(0, os.SEEK_END)
-        print ""
-        print file.tell()
         if file.tell() > 1024 * 512:
             raise validators.ValidationError(
                 _("Maximal file size is restricted to 512 KB.")
