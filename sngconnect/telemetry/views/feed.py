@@ -16,8 +16,8 @@ from pyramid.security import authenticated_userid, has_permission
 
 from sngconnect.translation import _
 from sngconnect.database import (DBSession, Feed, DataStreamTemplate,
-    DataStream, AlarmDefinition, Message, FeedUser, User, ChartDefinition,
-    FeedTemplate)
+    DataStream, AlarmDefinition, FeedUser, User, ChartDefinition, FeedTemplate)
+from sngconnect.services.message import MessageService
 from sngconnect.cassandra import data_streams as data_streams_store
 from sngconnect.cassandra import alarms as alarms_store
 from sngconnect.telemetry import forms, schemas
@@ -141,12 +141,7 @@ class FeedDashboard(FeedViewBase):
             )
         )
         # Messages
-        important_messages = DBSession.query(Message).filter(
-            Message.feed == self.feed,
-            Message.message_type == u'ERROR'
-        ).order_by(
-            sql.desc(Message.date)
-        ).all()
+        important_messages = MessageService.get_important_messages(self.feed)
         # Alarms
         active_alarms = {}
         for data_stream_id, data in self.active_alarms.iteritems():
@@ -1417,11 +1412,7 @@ class FeedPermissions(FeedViewBase):
 class FeedHistory(FeedViewBase):
 
     def __call__(self):
-        messages = DBSession.query(Message).filter(
-            Message.feed == self.feed
-        ).order_by(
-            sql.desc(Message.date)
-        )
+        messages = MessageService.get_feed_messages(self.feed)
         self.context.update({
             'messages': [
                 {
