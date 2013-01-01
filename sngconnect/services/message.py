@@ -1,28 +1,42 @@
 import sqlalchemy as sql
 
+from sngconnect.services.base import ServiceBase
+from sngconnect.services.notification import NotificationService
 from sngconnect.database import DBSession, Message
 
-class MessageService(object):
+class MessageService(ServiceBase):
 
     default_order = sql.desc(Message.date)
 
-    @classmethod
-    def create_message(cls, message):
+    def create_message(self, message):
         DBSession.add(message)
+        if message.send_notifications:
+            notification_service = self.get_service(NotificationService)
+            if message.feed is not None:
+                notification_service.notify_users(
+                    message.feed,
+                    # TODO What to send in email subject and SMS notification?
+                    "",
+                    message.content
+                )
+            else:
+                notification_service.notify_all(
+                    # TODO What to send in email subject and SMS notification?
+                    "",
+                    message.content
+                )
 
-    @classmethod
-    def get_important_messages(cls, feed):
+    def get_important_messages(self, feed):
         return DBSession.query(Message).filter(
             Message.feed == feed,
             Message.message_type == u'ERROR'
         ).order_by(
-            cls.default_order
+            self.default_order
         ).all()
 
-    @classmethod
-    def get_feed_messages(cls, feed):
+    def get_feed_messages(self, feed):
         return DBSession.query(Message).filter(
             Message.feed == feed
         ).order_by(
-            cls.default_order
+            self.default_order
         ).all()

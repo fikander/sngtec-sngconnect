@@ -247,7 +247,7 @@ def events(request):
         date=request_appstruct['timestamp'],
         content=request_appstruct['message']
     )
-    MessageService.create_message(message)
+    MessageService(request).create_message(message)
     # TODO: switch alarms associated with alarm_on, alarm_off events
     return Response()
 

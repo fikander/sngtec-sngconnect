@@ -141,7 +141,8 @@ class FeedDashboard(FeedViewBase):
             )
         )
         # Messages
-        important_messages = MessageService.get_important_messages(self.feed)
+        message_service = MessageService(self.request)
+        important_messages = message_service.get_important_messages(self.feed)
         # Alarms
         active_alarms = {}
         for data_stream_id, data in self.active_alarms.iteritems():
@@ -1412,7 +1413,7 @@ class FeedPermissions(FeedViewBase):
 class FeedHistory(FeedViewBase):
 
     def __call__(self):
-        messages = MessageService.get_feed_messages(self.feed)
+        messages = MessageService(self.request).get_feed_messages(self.feed)
         self.context.update({
             'messages': [
                 {

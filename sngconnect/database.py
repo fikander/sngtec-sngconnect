@@ -594,6 +594,8 @@ class Message(ModelBase):
             'INFORMATION',
             'WARNING',
             'ERROR',
+            'COMMENT',
+            'ANNOUNCEMENT',
             name='MESSAGE_TYPE_TYPE'
         ),
         nullable=False
@@ -618,6 +620,20 @@ class Message(ModelBase):
 
     def __repr__(self):
         return '<Message(id=%s)>' % self.id
+
+    @property
+    def send_notifications(self):
+        if self.message_type in ('ERROR', 'WARNING',):
+            return True
+        else:
+            return False
+
+    @property
+    def confirmation_required(self):
+        if self.message_type in ('ERROR', 'ANNOUNCEMENT',):
+            return True
+        else:
+            return False
 
 class LogRequest(ModelBase):
 
