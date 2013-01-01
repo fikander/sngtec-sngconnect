@@ -20,4 +20,6 @@ class RootFactory(DefaultRootFactory):
         (Allow, Administrator, 'sngconnect.devices.access'),
         (Allow, Supplier,      'sngconnect.appearance.access'),
         (Allow, Administrator, 'sngconnect.appearance.access'),
+        (Allow, Supplier,      'sngconnect.announcements.access'),
+        (Allow, Administrator, 'sngconnect.announcements.access'),
     ]

@@ -1,0 +1,21 @@
+{% extends "sngconnect.devices:templates/base.jinja2" %}
+{% from "sngconnect:templates/macros/horizontal_form_field.jinja2" import horizontal_form_field %}
+{% from "sngconnect:templates/macros/message_table.jinja2" import message_table with context %}
+
+{% block main_content %}
+    <div class="page-header">
+        <h1>{% trans %}Announcements{% endtrans %}</h1>
+    </div>
+    <div class="page-container">
+        <h2><span class="awe-bullhorn"></span> {% trans %}New announcement{% endtrans %}</h2>
+        <form action="" method="post">
+            {{ announcement_form.csrf_token }}
+            {{ horizontal_form_field(announcement_form.content, kwargs={'class': '', 'style': 'width: 98%;', 'rows': 10}) }}
+            <div class="form-actions">
+                <button type="submit" name="submit_announcement" class="btn btn-primary">{% trans %}Send{% endtrans %}</button>
+            </div>
+        </form>
+        <h2><span class="awe-th-list"></span> {% trans %}Sent announcements{% endtrans %}</h2>
+        {{ message_table(messages) }}
+    </div>
+{% endblock %}

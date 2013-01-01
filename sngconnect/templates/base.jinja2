@@ -41,6 +41,11 @@
                                     <li><a href="{{ request.route_url("sngconnect.appearance.appearance") }}" title="{% trans %}Appearance{% endtrans %}"><span class="awe-eye-open"></span> {% trans %}Appearance{% endtrans %}</a></li>
                                 </ul>
                             {% endif %}
+                            {% if can_access_announcements %}
+                                <ul class="nav active-arrows" role="navigation">
+                                    <li><a href="{{ request.route_url("sngconnect.announcements.announcements") }}" title="{% trans %}Announcements{% endtrans %}"><span class="awe-bullhorn"></span> {% trans %}Announcements{% endtrans %}</a></li>
+                                </ul>
+                            {% endif %}
                         </nav>
                         {% if user %}
                             <nav class="nav-collapse user">

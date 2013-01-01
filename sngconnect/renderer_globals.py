@@ -50,6 +50,11 @@ def add_permissions(event):
             event['request'].context,
             event['request']
         ),
+        'can_access_announcements': security.has_permission(
+            'sngconnect.announcements.access',
+            event['request'].context,
+            event['request']
+        ),
     })
 
 

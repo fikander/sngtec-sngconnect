@@ -26,6 +26,13 @@ class MessageService(ServiceBase):
                     message.content
                 )
 
+    def get_announcements(self):
+        return DBSession.query(Message).filter(
+            Message.message_type == u'ANNOUNCEMENT'
+        ).order_by(
+            self.default_order
+        ).all()
+
     def get_important_messages(self, feed):
         return DBSession.query(Message).filter(
             Message.feed == feed,
