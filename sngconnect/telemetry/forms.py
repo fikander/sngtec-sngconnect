@@ -1,13 +1,14 @@
 import decimal
 
 import sqlalchemy as sql
-from wtforms import fields, validators, widgets
+from wtforms import Form, fields, validators, widgets
 from sqlalchemy.orm import exc as database_exceptions
 import babel.numbers
 
 from sngconnect.forms import SecureForm
 from sngconnect.translation import _
-from sngconnect.database import DBSession, User, ChartDefinition
+from sngconnect.database import (DBSession, User, ChartDefinition, Message,
+    DataStreamTemplate, DataStream)
 
 class LocalizedDecimalField(fields.DecimalField):
 
@@ -241,3 +242,39 @@ class CommentForm(SecureForm):
             validators.Length(min=5, max=100000),
         )
     )
+
+class FilterMessagesForm(Form):
+
+    data_stream_template_id = fields.SelectField(
+        _("Parameter"),
+        choices=[],
+        coerce=lambda x: None if x == '' else int(x)
+    )
+    author_id = fields.SelectField(
+        _("Author"),
+        choices=[],
+        coerce=lambda x: None if x == '' else int(x)
+    )
+
+    def __init__(self, feed, users, data_stream_templates, message_service, *args, **kwargs):
+        super(FilterMessagesForm, self).__init__(*args, **kwargs)
+        self.feed = feed
+        self.message_service = message_service
+        self.data_stream_template_id.choices = [
+            ('', _("All")),
+            (-1, _("None")),
+        ] + [
+            (template.id, template.name) for template in data_stream_templates
+        ]
+        self.author_id.choices = [
+            ('', _("All")),
+        ] + [
+            (user.id, user.email) for user in users
+        ]
+
+    def get_messages(self):
+        return self.message_service.get_feed_messages(
+            self.feed,
+            data_stream_template_id=self.data_stream_template_id.data,
+            author_id=self.author_id.data
+        )

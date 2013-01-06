@@ -3,7 +3,8 @@ import sqlalchemy as sql
 from sngconnect.cassandra.confirmations import Confirmations
 from sngconnect.services.base import ServiceBase
 from sngconnect.services.notification import NotificationService
-from sngconnect.database import DBSession, Message, User, FeedUser
+from sngconnect.database import (DBSession, Message, User, FeedUser,
+    DataStream, DataStreamTemplate)
 
 class MessageService(ServiceBase):
 
@@ -65,10 +66,28 @@ class MessageService(ServiceBase):
             self.default_order
         ).all()
 
-    def get_feed_messages(self, feed):
-        return DBSession.query(Message).filter(
+    def get_feed_messages(self, feed, data_stream_template_id=None,
+            author_id=None):
+        query = DBSession.query(Message).filter(
             Message.feed == feed
-        ).order_by(
+        )
+        if author_id is not None:
+            query = query.filter(
+                Message.author_id == author_id
+            )
+        if data_stream_template_id is not None:
+            if data_stream_template_id == -1:
+                query = query.filter(
+                    Message.data_stream == None
+                )
+            else:
+                query = query.join(
+                    DataStream,
+                    DataStreamTemplate
+                ).filter(
+                    DataStreamTemplate.id == data_stream_template_id
+                )
+        return query.order_by(
             self.default_order
         ).all()
 

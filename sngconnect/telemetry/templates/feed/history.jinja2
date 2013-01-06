@@ -18,5 +18,25 @@
         </div>
     </form>
     <h2><span class="awe-calendar"></span> {% trans %}Browse history{% endtrans %}</h2>
+    <form action="" method="get" class="well form-inline">
+        <span class="{% if filter_form.data_stream_template_id.errors %}error{% endif %}">
+            {{ filter_form.data_stream_template_id.label(class='control-label') }}
+            <span class="controls">
+                {{ filter_form.data_stream_template_id }}
+            </span>
+        </span>
+        <span style="margin-left: 10px;" class="{% if filter_form.author_id.errors %}error{% endif %}">
+            {{ filter_form.author_id.label(class='control-label') }}
+            <span class="controls">
+                {{ filter_form.author_id }}
+            </span>
+        </span>
+        <span style="margin-left: 10px;">
+            <button type="submit" class="btn btn-primary">
+                <span class="awe-filter"></span>
+                {% trans %}Filter{% endtrans %}
+            </button>
+        </span>
+    </form>
     {{ message_table(messages) }}
 {% endblock %}

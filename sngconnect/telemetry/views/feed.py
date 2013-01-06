@@ -19,6 +19,7 @@ from sngconnect.database import (DBSession, Feed, DataStreamTemplate,
     DataStream, AlarmDefinition, FeedUser, User, ChartDefinition, FeedTemplate,
     Message)
 from sngconnect.services.message import MessageService
+from sngconnect.services.user import UserService
 from sngconnect.cassandra import data_streams as data_streams_store
 from sngconnect.cassandra import alarms as alarms_store
 from sngconnect.telemetry import forms, schemas
@@ -1559,9 +1560,18 @@ class FeedHistory(FeedViewBase):
                     ),
                     queue='error'
                 )
-        messages = message_service.get_feed_messages(self.feed)
+        user_service = UserService(self.request)
+        filter_form = forms.FilterMessagesForm(
+            self.feed,
+            user_service.get_all_feed_users(self.feed),
+            self.feed.template.data_stream_templates,
+            message_service,
+            self.request.GET
+        )
+        messages = filter_form.get_messages()
         self.context.update({
             'comment_form': comment_form,
+            'filter_form': filter_form,
             'messages': [
                 {
                     'id': message.id,
