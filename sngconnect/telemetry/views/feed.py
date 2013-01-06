@@ -71,6 +71,12 @@ class FeedViewBase(object):
             }
         self.request = request
         self.feed = feed
+        try:
+            self.user = DBSession.query(User).filter(
+                User.id == self.user_id
+            ).one()
+        except database_exceptions.NoResultFound:
+            raise httpexceptions.HTTPForbidden()
         self.feed_user = feed_user
         self.feed_permissions = feed_permissions
         settings_count = DBSession.query(DataStream).join(
@@ -143,7 +149,10 @@ class FeedDashboard(FeedViewBase):
         )
         # Messages
         message_service = MessageService(self.request)
-        important_messages = message_service.get_important_messages(self.feed)
+        unconfirmed_messages = message_service.get_unconfirmed_messages(
+            self.user,
+            feed=self.feed
+        )
         # Alarms
         active_alarms = {}
         for data_stream_id, data in self.active_alarms.iteritems():
@@ -298,7 +307,7 @@ class FeedDashboard(FeedViewBase):
                     'content': message.content,
                     'date': message.date,
                 }
-                for message in important_messages
+                for message in unconfirmed_messages
             ],
         })
         return self.context

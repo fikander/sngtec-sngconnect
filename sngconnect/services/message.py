@@ -3,7 +3,7 @@ import sqlalchemy as sql
 from sngconnect.cassandra.confirmations import Confirmations
 from sngconnect.services.base import ServiceBase
 from sngconnect.services.notification import NotificationService
-from sngconnect.database import DBSession, Message
+from sngconnect.database import DBSession, Message, User, FeedUser
 
 class MessageService(ServiceBase):
 
@@ -16,6 +16,20 @@ class MessageService(ServiceBase):
 
     def create_message(self, message):
         DBSession.add(message)
+        if message.confirmation_required:
+            if message.feed is not None:
+                users = DBSession.query(User).join(
+                    FeedUser
+                ).filter(
+                    FeedUser.feed == message.feed,
+                    FeedUser.role_user == True
+                ).all()
+            else:
+                users = DBSession.query(User).all()
+            self.confirmations.set_unconfirmed(
+                [user.id for user in users],
+                message.id
+            )
         if message.send_notifications:
             if message.feed is not None:
                 self.notification_service.notify_users(
@@ -38,11 +52,16 @@ class MessageService(ServiceBase):
             self.default_order
         ).all()
 
-    def get_important_messages(self, feed):
-        return DBSession.query(Message).filter(
-            Message.feed == feed,
-            Message.message_type == u'ERROR'
-        ).order_by(
+    def get_unconfirmed_messages(self, user, feed=None):
+        message_ids = self.confirmations.get_unconfirmed(user.id)
+        query = DBSession.query(Message).filter(
+            Message.id.in_(message_ids)
+        )
+        if feed is not None:
+            query = query.filter(
+                Message.feed == feed
+            )
+        return query.order_by(
             self.default_order
         ).all()
 
