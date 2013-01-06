@@ -71,3 +71,10 @@ class MessageService(ServiceBase):
         ).order_by(
             self.default_order
         ).all()
+
+    def get_data_stream_messages(self, data_stream):
+        return DBSession.query(Message).filter(
+            Message.data_stream == data_stream
+        ).order_by(
+            self.default_order
+        ).all()

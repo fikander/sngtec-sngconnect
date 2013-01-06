@@ -774,6 +774,8 @@ class FeedDataStream(FeedViewBase):
             ).one()
         except database_exceptions.NoResultFound:
             raise httpexceptions.HTTPNotFound()
+        message_service = MessageService(self.request)
+        comment_form = forms.CommentForm(csrf_context=self.request)
         minimal_value = DBSession.query(AlarmDefinition).filter(
             AlarmDefinition.data_stream == data_stream,
             AlarmDefinition.alarm_type == 'MINIMAL_VALUE'
@@ -795,93 +797,125 @@ class FeedDataStream(FeedViewBase):
             )
         )
         if self.request.method == 'POST':
-            value_bounds_form.process(self.request.POST)
-            if value_bounds_form.validate():
-                maximum_alarm = None
-                minimum_alarm = None
-                if minimal_value is None:
-                    if value_bounds_form.minimum.data is not None:
-                        minimum_alarm = AlarmDefinition(
-                            data_stream=data_stream,
-                            alarm_type='MINIMAL_VALUE',
-                            boundary=value_bounds_form.minimum.data
-                        )
-                        DBSession.add(minimum_alarm)
-                else:
-                    query = DBSession.query(AlarmDefinition).filter(
-                        AlarmDefinition.data_stream == data_stream,
-                        AlarmDefinition.alarm_type == 'MINIMAL_VALUE',
-                    )
-                    if value_bounds_form.minimum.data is not None:
-                        query.update({
-                            'boundary': value_bounds_form.minimum.data
-                        })
-                        minimum_alarm = query.one()
+            if 'submit_value_bounds' in self.request.POST:
+                value_bounds_form.process(self.request.POST)
+                if value_bounds_form.validate():
+                    maximum_alarm = None
+                    minimum_alarm = None
+                    if minimal_value is None:
+                        if value_bounds_form.minimum.data is not None:
+                            minimum_alarm = AlarmDefinition(
+                                data_stream=data_stream,
+                                alarm_type='MINIMAL_VALUE',
+                                boundary=value_bounds_form.minimum.data
+                            )
+                            DBSession.add(minimum_alarm)
                     else:
-                        query.delete()
-                        minimum_alarm = None
-                if maximal_value is None:
-                    if value_bounds_form.maximum.data is not None:
-                        maximum_alarm = AlarmDefinition(
-                            data_stream=data_stream,
-                            alarm_type='MAXIMAL_VALUE',
-                            boundary=value_bounds_form.maximum.data
+                        query = DBSession.query(AlarmDefinition).filter(
+                            AlarmDefinition.data_stream == data_stream,
+                            AlarmDefinition.alarm_type == 'MINIMAL_VALUE',
                         )
-                        DBSession.add(maximum_alarm)
-                else:
-                    query = DBSession.query(AlarmDefinition).filter(
-                        AlarmDefinition.data_stream == data_stream,
-                        AlarmDefinition.alarm_type == 'MAXIMAL_VALUE',
-                    )
-                    if value_bounds_form.maximum.data is not None:
-                        query.update({
-                            'boundary': value_bounds_form.maximum.data
-                        })
-                        maximum_alarm = query.one()
-                    else:
-                        query.delete()
-                        maximum_alarm = None
-                alarms_on = []
-                alarms_off = []
-                if last_data_point is not None:
-                    for alarm_definition in [minimum_alarm, maximum_alarm]:
-                        if alarm_definition is None:
-                            continue
-                        if (alarm_definition.check_value(last_data_point[1]) is
-                                None):
-                            alarms_off.append(alarm_definition.id)
+                        if value_bounds_form.minimum.data is not None:
+                            query.update({
+                                'boundary': value_bounds_form.minimum.data
+                            })
+                            minimum_alarm = query.one()
                         else:
-                            alarms_on.append(alarm_definition.id)
-                    alarms_store.Alarms().set_alarms_on(
-                        self.feed.id,
-                        data_stream.id,
-                        alarms_on,
-                        last_data_point[0]
+                            query.delete()
+                            minimum_alarm = None
+                    if maximal_value is None:
+                        if value_bounds_form.maximum.data is not None:
+                            maximum_alarm = AlarmDefinition(
+                                data_stream=data_stream,
+                                alarm_type='MAXIMAL_VALUE',
+                                boundary=value_bounds_form.maximum.data
+                            )
+                            DBSession.add(maximum_alarm)
+                    else:
+                        query = DBSession.query(AlarmDefinition).filter(
+                            AlarmDefinition.data_stream == data_stream,
+                            AlarmDefinition.alarm_type == 'MAXIMAL_VALUE',
+                        )
+                        if value_bounds_form.maximum.data is not None:
+                            query.update({
+                                'boundary': value_bounds_form.maximum.data
+                            })
+                            maximum_alarm = query.one()
+                        else:
+                            query.delete()
+                            maximum_alarm = None
+                    alarms_on = []
+                    alarms_off = []
+                    if last_data_point is not None:
+                        for alarm_definition in [minimum_alarm, maximum_alarm]:
+                            if alarm_definition is None:
+                                continue
+                            if (alarm_definition.check_value(last_data_point[1]) is
+                                    None):
+                                alarms_off.append(alarm_definition.id)
+                            else:
+                                alarms_on.append(alarm_definition.id)
+                        alarms_store.Alarms().set_alarms_on(
+                            self.feed.id,
+                            data_stream.id,
+                            alarms_on,
+                            last_data_point[0]
+                        )
+                        alarms_store.Alarms().set_alarms_off(
+                            self.feed.id,
+                            data_stream.id,
+                            alarms_off
+                        )
+                    self.request.session.flash(
+                        _("Parameter allowed values have been successfuly saved."),
+                        queue='success'
                     )
-                    alarms_store.Alarms().set_alarms_off(
-                        self.feed.id,
-                        data_stream.id,
-                        alarms_off
+                    return httpexceptions.HTTPFound(
+                        self.request.route_url(
+                            'sngconnect.telemetry.feed_data_stream',
+                            feed_id=self.feed.id,
+                            data_stream_label=data_stream.label
+                        )
                     )
-                self.request.session.flash(
-                    _("Parameter allowed values have been successfuly saved."),
-                    queue='success'
-                )
-                return httpexceptions.HTTPFound(
-                    self.request.route_url(
-                        'sngconnect.telemetry.feed_data_stream',
-                        feed_id=self.feed.id,
-                        data_stream_label=data_stream.label
+                else:
+                    self.request.session.flash(
+                        _(
+                            "There were some problems with your request."
+                            " Please check the form for error messages."
+                        ),
+                        queue='error'
                     )
-                )
-            else:
-                self.request.session.flash(
-                    _(
-                        "There were some problems with your request."
-                        " Please check the form for error messages."
-                    ),
-                    queue='error'
-                )
+            elif 'submit_comment' in self.request.POST:
+                comment_form.process(self.request.POST)
+                if comment_form.validate():
+                    message = Message(
+                        message_type='COMMENT',
+                        date=pytz.utc.localize(datetime.datetime.utcnow()),
+                        feed=self.feed,
+                        data_stream=data_stream,
+                        author_id=self.user_id
+                    )
+                    comment_form.populate_obj(message)
+                    message_service.create_message(message)
+                    self.request.session.flash(
+                        _("Your comment has been successfuly saved."),
+                        queue='success'
+                    )
+                    return httpexceptions.HTTPFound(
+                        self.request.route_url(
+                            'sngconnect.telemetry.feed_data_stream',
+                            feed_id=self.feed.id,
+                            data_stream_label=data_stream.label
+                        )
+                    )
+                else:
+                    self.request.session.flash(
+                        _(
+                            "There were some problems with your request."
+                            " Please check the form for error messages."
+                        ),
+                        queue='error'
+                    )
         hourly_aggregates = data_streams_store.HourlyAggregates().get_data_points(
             data_stream.id,
             start_date=pytz.utc.localize(datetime.datetime.utcnow()),
@@ -954,6 +988,7 @@ class FeedDataStream(FeedViewBase):
                 decimal.Decimal(last_year_values[i][1]['sum'])
                 / decimal.Decimal(last_year_values[i][1]['count'])
             )
+        messages = message_service.get_data_stream_messages(data_stream)
         self.context.update({
             'value_bounds_form': value_bounds_form,
             'data_stream': {
@@ -986,6 +1021,24 @@ class FeedDataStream(FeedViewBase):
                     data_stream_label=data_stream.label
                 ),
             },
+            'comment_form': comment_form,
+            'messages': [
+                {
+                    'id': message.id,
+                    'message_type': message.message_type,
+                    'author': (
+                        {
+                            'id': message.author.id,
+                            'name': message.author.email
+                        }
+                        if message.author is not None
+                        else None
+                    ),
+                    'content': message.content,
+                    'date': message.date,
+                }
+                for message in messages
+            ],
         })
         return self.context
 
@@ -1065,36 +1118,70 @@ class FeedSetting(FeedViewBase):
             locale=get_locale_name(self.request),
             csrf_context=self.request
         )
+        message_service = MessageService(self.request)
+        comment_form = forms.CommentForm(csrf_context=self.request)
         if self.request.method == 'POST':
-            value_form.process(self.request.POST)
-            if value_form.validate():
-                DBSession.query(DataStream).filter(
-                    DataStream.id == data_stream.id
-                ).update({
-                    'requested_value': value_form.value.data,
-                    'value_requested_at': pytz.utc.localize(
-                        datetime.datetime.utcnow()
-                    ),
-                })
-                self.request.session.flash(
-                    _("Setting value has been successfuly saved."),
-                    queue='success'
-                )
-                return httpexceptions.HTTPFound(
-                    self.request.route_url(
-                        'sngconnect.telemetry.feed_setting',
-                        feed_id=self.feed.id,
-                        data_stream_label=data_stream.label
+            if 'submit_value' in self.request.POST:
+                value_form.process(self.request.POST)
+                if value_form.validate():
+                    DBSession.query(DataStream).filter(
+                        DataStream.id == data_stream.id
+                    ).update({
+                        'requested_value': value_form.value.data,
+                        'value_requested_at': pytz.utc.localize(
+                            datetime.datetime.utcnow()
+                        ),
+                    })
+                    self.request.session.flash(
+                        _("Setting value has been successfuly saved."),
+                        queue='success'
                     )
-                )
-            else:
-                self.request.session.flash(
-                    _(
-                        "There were some problems with your request."
-                        " Please check the form for error messages."
-                    ),
-                    queue='error'
-                )
+                    return httpexceptions.HTTPFound(
+                        self.request.route_url(
+                            'sngconnect.telemetry.feed_setting',
+                            feed_id=self.feed.id,
+                            data_stream_label=data_stream.label
+                        )
+                    )
+                else:
+                    self.request.session.flash(
+                        _(
+                            "There were some problems with your request."
+                            " Please check the form for error messages."
+                        ),
+                        queue='error'
+                    )
+            elif 'submit_comment' in self.request.POST:
+                comment_form.process(self.request.POST)
+                if comment_form.validate():
+                    message = Message(
+                        message_type='COMMENT',
+                        date=pytz.utc.localize(datetime.datetime.utcnow()),
+                        feed=self.feed,
+                        data_stream=data_stream,
+                        author_id=self.user_id
+                    )
+                    comment_form.populate_obj(message)
+                    message_service.create_message(message)
+                    self.request.session.flash(
+                        _("Your comment has been successfuly saved."),
+                        queue='success'
+                    )
+                    return httpexceptions.HTTPFound(
+                        self.request.route_url(
+                            'sngconnect.telemetry.feed_setting',
+                            feed_id=self.feed.id,
+                            data_stream_label=data_stream.label
+                        )
+                    )
+                else:
+                    self.request.session.flash(
+                        _(
+                            "There were some problems with your request."
+                            " Please check the form for error messages."
+                        ),
+                        queue='error'
+                    )
         last_day_values = data_streams_store.Measurements().get_data_points(
             data_stream.id,
             start_date=pytz.utc.localize(
@@ -1126,6 +1213,7 @@ class FeedSetting(FeedViewBase):
                 decimal.Decimal(last_year_values[i][1]['sum'])
                 / decimal.Decimal(last_year_values[i][1]['count'])
             )
+        messages = message_service.get_data_stream_messages(data_stream)
         self.context.update({
             'value_form': value_form,
             'data_stream': {
@@ -1148,6 +1236,24 @@ class FeedSetting(FeedViewBase):
                     data_stream_label=data_stream.label
                 ),
             },
+            'comment_form': comment_form,
+            'messages': [
+                {
+                    'id': message.id,
+                    'message_type': message.message_type,
+                    'author': (
+                        {
+                            'id': message.author.id,
+                            'name': message.author.email
+                        }
+                        if message.author is not None
+                        else None
+                    ),
+                    'content': message.content,
+                    'date': message.date,
+                }
+                for message in messages
+            ],
         })
         return self.context
 
