@@ -2,7 +2,8 @@ import logging
 
 from pycassa.system_manager import SIMPLE_STRATEGY
 
-from sngconnect.cassandra import configuration, data_streams, alarms
+from sngconnect.cassandra import (configuration, data_streams, alarms,
+    notifications)
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +31,7 @@ def initialize_keyspace(settings):
         data_streams.MeasurementDays,
         data_streams.LastDataPoints,
         alarms.Alarms,
+        notifications.Notifications,
     )
     for proxy_class in column_family_proxy_classes:
         proxy_class.create(manager, arguments['keyspace'])
