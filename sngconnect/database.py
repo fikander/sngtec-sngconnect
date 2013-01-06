@@ -639,7 +639,7 @@ class Message(ModelBase):
 
     @property
     def confirmation_required(self):
-        if self.message_type in ('ERROR', 'ANNOUNCEMENT',):
+        if self.message_type in ('ERROR',):
             return True
         else:
             return False
