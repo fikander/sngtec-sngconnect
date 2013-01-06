@@ -1,5 +1,6 @@
 import sqlalchemy as sql
 
+from sngconnect.cassandra.confirmations import Confirmations
 from sngconnect.services.base import ServiceBase
 from sngconnect.services.notification import NotificationService
 from sngconnect.database import DBSession, Message
@@ -8,19 +9,23 @@ class MessageService(ServiceBase):
 
     default_order = sql.desc(Message.date)
 
+    def __init__(self, *args, **kwargs):
+        super(MessageService, self).__init__(*args, **kwargs)
+        self.notification_service = self.get_service(NotificationService)
+        self.confirmations = Confirmations()
+
     def create_message(self, message):
         DBSession.add(message)
         if message.send_notifications:
-            notification_service = self.get_service(NotificationService)
             if message.feed is not None:
-                notification_service.notify_users(
+                self.notification_service.notify_users(
                     message.feed,
                     # TODO What to send in email subject and SMS notification?
                     "",
                     message.content
                 )
             else:
-                notification_service.notify_all(
+                self.notification_service.notify_all(
                     # TODO What to send in email subject and SMS notification?
                     "",
                     message.content

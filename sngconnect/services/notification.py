@@ -4,10 +4,10 @@ from pyramid_mailer.message import Message as EmailMessage
 from sngconnect.services.base import ServiceBase
 from sngconnect.database import DBSession, User, FeedUser
 
-class NotificationsService(ServiceBase):
+class NotificationService(ServiceBase):
 
     def __init__(self, *args, **kwargs):
-        super(NotificationsService, self).__init__(*args, **kwargs)
+        super(NotificationService, self).__init__(*args, **kwargs)
         self.mailer = get_mailer(self.request)
         self.email_sender = self.request.registry['settings']['mail.sender']
         self.email_template = self.request.registry[
