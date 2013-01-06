@@ -16,7 +16,8 @@ from pyramid.security import authenticated_userid, has_permission
 
 from sngconnect.translation import _
 from sngconnect.database import (DBSession, Feed, DataStreamTemplate,
-    DataStream, AlarmDefinition, FeedUser, User, ChartDefinition, FeedTemplate)
+    DataStream, AlarmDefinition, FeedUser, User, ChartDefinition, FeedTemplate,
+    Message)
 from sngconnect.services.message import MessageService
 from sngconnect.cassandra import data_streams as data_streams_store
 from sngconnect.cassandra import alarms as alarms_store
@@ -1406,19 +1407,58 @@ class FeedPermissions(FeedViewBase):
 
 @view_config(
     route_name='sngconnect.telemetry.feed_history',
-    request_method='GET',
     renderer='sngconnect.telemetry:templates/feed/history.jinja2',
     permission='sngconnect.telemetry.access'
 )
 class FeedHistory(FeedViewBase):
 
     def __call__(self):
-        messages = MessageService(self.request).get_feed_messages(self.feed)
+        message_service = MessageService(self.request)
+        comment_form = forms.CommentForm(csrf_context=self.request)
+        if self.request.method == 'POST':
+            comment_form.process(self.request.POST)
+            if comment_form.validate():
+                message = Message(
+                    message_type='COMMENT',
+                    date=pytz.utc.localize(datetime.datetime.utcnow()),
+                    feed=self.feed,
+                    author_id=self.user_id
+                )
+                comment_form.populate_obj(message)
+                message_service.create_message(message)
+                self.request.session.flash(
+                    _("Your comment has been successfuly saved."),
+                    queue='success'
+                )
+                return httpexceptions.HTTPFound(
+                    self.request.route_url(
+                        'sngconnect.telemetry.feed_history',
+                        feed_id=self.feed.id
+                    )
+                )
+            else:
+                self.request.session.flash(
+                    _(
+                        "There were some problems with your request."
+                        " Please check the form for error messages."
+                    ),
+                    queue='error'
+                )
+        messages = message_service.get_feed_messages(self.feed)
         self.context.update({
+            'comment_form': comment_form,
             'messages': [
                 {
                     'id': message.id,
                     'message_type': message.message_type,
+                    'author': (
+                        {
+                            'id': message.author.id,
+                            'name': message.author.email
+                        }
+                        if message.author is not None
+                        else None
+                    ),
                     'content': message.content,
                     'date': message.date,
                 }

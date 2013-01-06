@@ -7,7 +7,7 @@ from pyramid import httpexceptions
 from sngconnect.translation import _
 from sngconnect.announcements import forms
 from sngconnect.services.message import MessageService
-from sngconnect.database import DBSession, Message
+from sngconnect.database import Message
 
 @view_config(
     route_name='sngconnect.announcements.announcements',
@@ -15,6 +15,7 @@ from sngconnect.database import DBSession, Message
     permission='sngconnect.announcements.access'
 )
 def announcements(request):
+    message_service = MessageService(request)
     announcement_form = forms.CreateAnnouncementForm(csrf_context=request)
     if request.method == 'POST':
         announcement_form.process(request.POST)
@@ -24,7 +25,7 @@ def announcements(request):
                 date=pytz.utc.localize(datetime.datetime.utcnow())
             )
             announcement_form.populate_obj(message)
-            DBSession.add(message)
+            message_service.create_message(message)
             request.session.flash(
                 _("Announcement has been successfuly sent."),
                 queue='success'
@@ -40,7 +41,7 @@ def announcements(request):
                 ),
                 queue='error'
             )
-    messages = MessageService(request).get_announcements()
+    messages = message_service.get_announcements()
     return {
         'announcement_form': announcement_form,
         'messages': messages,

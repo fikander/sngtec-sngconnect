@@ -231,3 +231,13 @@ class SetChartRangeForm(SecureForm):
             raise validators.ValidationError(
                 _("End date must be greater than start date.")
             )
+
+class CommentForm(SecureForm):
+
+    content = fields.TextAreaField(
+        _("Content"),
+        validators=(
+            validators.DataRequired(),
+            validators.Length(min=5, max=100000),
+        )
+    )

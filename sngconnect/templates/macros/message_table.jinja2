@@ -15,7 +15,12 @@
                     {%- endif -%}
                 >
                     <td>{{ message.date|format_datetime }}</td>
-                    <td>{{ message.content }}</td>
+                    <td>
+                        {% if message.author %}
+                            <strong>{{ message.author.name }}:</strong>
+                        {% endif %}
+                        {{ message.content }}
+                    </td>
                 </tr>
             {% else %}
                 <tr>

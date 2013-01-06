@@ -589,6 +589,11 @@ class Message(ModelBase):
         sql.ForeignKey(DataStream.id),
         doc="Related data stream's identifier."
     )
+    author_id = sql.Column(
+        sql.Integer,
+        sql.ForeignKey(User.id),
+        doc="Author's identifier."
+    )
     message_type = sql.Column(
         sql.Enum(
             'INFORMATION',
@@ -616,6 +621,10 @@ class Message(ModelBase):
     data_stream = orm.relationship(
         DataStream,
         backref=orm.backref('messages')
+    )
+    author = orm.relationship(
+        User,
+        backref=orm.backref('authored_messages')
     )
 
     def __repr__(self):
