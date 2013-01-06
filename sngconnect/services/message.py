@@ -26,19 +26,6 @@ class MessageService(ServiceBase):
                     message.content
                 )
 
-    def get_unread_messages(self, user):
-        notification_service = self.get_service(NotificationService)
-        ids = notification_service.get_unread_message_ids(user)
-        return DBSession.query(Message).filter(
-            Message.id.in_(ids)
-        ).order_by(
-            self.default_order
-        ).all()
-
-    def mark_as_read(self, user, messages):
-        notification_service = self.get_service(NotificationService)
-        notification_service.mark_as_read(user, messages)
-
     def get_announcements(self):
         return DBSession.query(Message).filter(
             Message.message_type == u'ANNOUNCEMENT'

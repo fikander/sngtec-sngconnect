@@ -3,9 +3,9 @@ from pycassa import types as pycassa_types
 
 from sngconnect.cassandra.column_family_proxy import ColumnFamilyProxy
 
-class Notifications(ColumnFamilyProxy):
+class Confirmations(ColumnFamilyProxy):
 
-    _column_family_name = 'Notifications'
+    _column_family_name = 'Confirmations'
 
     @classmethod
     def create(cls, system_manager, keyspace, **additional_kwargs):
@@ -21,13 +21,13 @@ class Notifications(ColumnFamilyProxy):
             'key_validation_class',
             pycassa_types.IntegerType()
         )
-        super(Notifications, cls).create(
+        super(Confirmations, cls).create(
             system_manager,
             keyspace,
             **additional_kwargs
         )
 
-    def set_unread(self, user_ids, message_id):
+    def set_unconfirmed(self, user_ids, message_id):
         self.column_family.batch_insert(
             dict((
                 (user_id, {message_id: ''})
@@ -35,10 +35,10 @@ class Notifications(ColumnFamilyProxy):
             ))
         )
 
-    def set_read(self, user_id, message_ids):
+    def set_confirmed(self, user_id, message_ids):
         self.column_family.remove(user_id, message_ids)
 
-    def get_unread(self, user_id):
+    def get_unconfirmed(self, user_id):
         try:
             return self.column_family.get(user_id).keys()
         except pycassa.NotFoundException:
