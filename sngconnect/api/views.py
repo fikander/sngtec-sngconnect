@@ -12,6 +12,7 @@ from pyramid.response import Response
 
 from sngconnect.database import (DBSession, Feed, DataStreamTemplate,
     DataStream, AlarmDefinition, LogRequest, Message, Command)
+from sngconnect.services.message import MessageService
 from sngconnect.cassandra.data_streams import (Measurements, HourlyAggregates,
     DailyAggregates, MonthlyAggregates, LastDataPoints)
 from sngconnect.cassandra.alarms import Alarms
@@ -246,7 +247,7 @@ def events(request):
         date=request_appstruct['timestamp'],
         content=request_appstruct['message']
     )
-    DBSession.add(message)
+    MessageService(request).create_message(message)
     # TODO: switch alarms associated with alarm_on, alarm_off events
     return Response()
 

@@ -1,5 +1,6 @@
 {% extends "sngconnect.telemetry:templates/feed/base.jinja2" %}
-{% from "sngconnect.telemetry:templates/feed/macros/message_table.jinja2" import message_table with context %}
+{% from "sngconnect:templates/macros/horizontal_form_field.jinja2" import horizontal_form_field %}
+{% from "sngconnect:templates/macros/message_table.jinja2" import message_table with context %}
 {% set active_secondary_navigation = "history" %}
 
 {% block main_breadcrumb %}
@@ -8,5 +9,34 @@
 {% endblock %}
 
 {% block page_content %}
+    <h2><span class="awe-comment"></span> {% trans %}Add comment{% endtrans %}</h2>
+    <form action="" method="post">
+        {{ comment_form.csrf_token }}
+        {{ horizontal_form_field(comment_form.content, kwargs={'class': '', 'style': 'width: 98%;', 'rows': 5}) }}
+        <div class="form-actions">
+            <button type="submit" name="submit_comment" class="btn btn-primary">{% trans %}Add{% endtrans %}</button>
+        </div>
+    </form>
+    <h2><span class="awe-calendar"></span> {% trans %}Browse history{% endtrans %}</h2>
+    <form action="" method="get" class="well form-inline">
+        <span class="{% if filter_form.data_stream_template_id.errors %}error{% endif %}">
+            {{ filter_form.data_stream_template_id.label(class='control-label') }}
+            <span class="controls">
+                {{ filter_form.data_stream_template_id }}
+            </span>
+        </span>
+        <span style="margin-left: 10px;" class="{% if filter_form.author_id.errors %}error{% endif %}">
+            {{ filter_form.author_id.label(class='control-label') }}
+            <span class="controls">
+                {{ filter_form.author_id }}
+            </span>
+        </span>
+        <span style="margin-left: 10px;">
+            <button type="submit" class="btn btn-primary">
+                <span class="awe-filter"></span>
+                {% trans %}Filter{% endtrans %}
+            </button>
+        </span>
+    </form>
     {{ message_table(messages) }}
 {% endblock %}

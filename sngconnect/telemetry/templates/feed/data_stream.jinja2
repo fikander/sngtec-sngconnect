@@ -1,5 +1,6 @@
 {% extends "sngconnect.telemetry:templates/feed/data_streams.jinja2" %}
 {% from "sngconnect:templates/macros/horizontal_form_field.jinja2" import horizontal_form_field %}
+{% from "sngconnect:templates/macros/message_table.jinja2" import message_table with context %}
 
 {% block main_breadcrumb %}
     {{ super() }}
@@ -85,7 +86,7 @@
                 {{ horizontal_form_field(value_bounds_form.minimum) }}
                 {{ horizontal_form_field(value_bounds_form.maximum) }}
                 <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">{% trans %}Set{% endtrans %}</button>
+                    <button type="submit" name="submit_value_bounds" class="btn btn-primary">{% trans %}Set{% endtrans %}</button>
                 </div>
             </form>
         </article>
@@ -99,7 +100,16 @@
         <div id="last-week-chart"></div>
         <div id="last-year-chart"></div>
     {% endif %}
-    <h2><span class="awe-calendar"></span> {% trans %}History{% endtrans %}</h2>
+    <h2><span class="awe-comment"></span> {% trans %}Add comment{% endtrans %}</h2>
+    <form action="" method="post">
+        {{ comment_form.csrf_token }}
+        {{ horizontal_form_field(comment_form.content, kwargs={'class': '', 'style': 'width: 98%;', 'rows': 5}) }}
+        <div class="form-actions">
+            <button type="submit" name="submit_comment" class="btn btn-primary">{% trans %}Add{% endtrans %}</button>
+        </div>
+    </form>
+    <h2><span class="awe-calendar"></span> {% trans %}Browse history{% endtrans %}</h2>
+    {{ message_table(messages) }}
 {% endblock %}
 
 {% block body_scripts %}

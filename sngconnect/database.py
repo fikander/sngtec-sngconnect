@@ -589,11 +589,18 @@ class Message(ModelBase):
         sql.ForeignKey(DataStream.id),
         doc="Related data stream's identifier."
     )
+    author_id = sql.Column(
+        sql.Integer,
+        sql.ForeignKey(User.id),
+        doc="Author's identifier."
+    )
     message_type = sql.Column(
         sql.Enum(
             'INFORMATION',
             'WARNING',
             'ERROR',
+            'COMMENT',
+            'ANNOUNCEMENT',
             name='MESSAGE_TYPE_TYPE'
         ),
         nullable=False
@@ -615,9 +622,27 @@ class Message(ModelBase):
         DataStream,
         backref=orm.backref('messages')
     )
+    author = orm.relationship(
+        User,
+        backref=orm.backref('authored_messages')
+    )
 
     def __repr__(self):
         return '<Message(id=%s)>' % self.id
+
+    @property
+    def send_notifications(self):
+        if self.message_type in ('ERROR', 'WARNING',):
+            return True
+        else:
+            return False
+
+    @property
+    def confirmation_required(self):
+        if self.message_type in ('ERROR',):
+            return True
+        else:
+            return False
 
 class LogRequest(ModelBase):
 

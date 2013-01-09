@@ -1,6 +1,6 @@
 {% extends "sngconnect.telemetry:templates/feed/base.jinja2" %}
+{% from "sngconnect:templates/macros/message_table.jinja2" import message_table with context %}
 {% from "sngconnect.telemetry:templates/feed/macros/render_chart.jinja2" import render_chart with context %}
-{% from "sngconnect.telemetry:templates/feed/macros/message_table.jinja2" import message_table with context %}
 {% set active_secondary_navigation = "dashboard" %}
 
 {% block head_stylesheets %}
