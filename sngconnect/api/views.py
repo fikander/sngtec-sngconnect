@@ -114,7 +114,7 @@ def feed_data_stream(request):
     if data_stream.writable and data_stream.requested_value is not None:
         error = abs(data_stream.requested_value - last_value)
         maximal_error = (
-            decimal.Decimal(sys.float_info.epsilon) * max((
+            decimal.Decimal(str(sys.float_info.epsilon)) * max((
                 2 ** -1022,
                 abs(data_stream.requested_value),
                 abs(last_value))
