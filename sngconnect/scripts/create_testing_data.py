@@ -265,6 +265,22 @@ def create_test_data():
             measurement_unit='.',
             writable=True
         ),
+        DataStreamTemplate(
+            id=starting_id + 26,
+            feed_template=feed_template,
+            label='WT1_partial_1',
+            name='WT1_partial_1',
+            measurement_unit='.',
+            writable=True
+        ),
+        DataStreamTemplate(
+            id=starting_id + 27,
+            feed_template=feed_template,
+            label='WT1_partial_2',
+            name='WT1_partial_2',
+            measurement_unit='.',
+            writable=True
+        ),
     ]
     DBSession.add_all(data_stream_templates)
     id = starting_id
