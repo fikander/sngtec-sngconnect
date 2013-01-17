@@ -9,6 +9,10 @@ ROUTES = (
         'feeds'
     ),
     (
+        'sngconnect.telemetry.feeds.new',
+        'feeds/new'
+    ),
+    (
         'sngconnect.telemetry.feed_dashboard',
         'feeds/{feed_id:\d+}'
     ),

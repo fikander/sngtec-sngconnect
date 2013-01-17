@@ -34,6 +34,23 @@ def feeds(request):
         request.route_url('sngconnect.telemetry.dashboard')
     )
 
+@view_config(
+    route_name='sngconnect.telemetry.feeds.new',
+    renderer='sngconnect.telemetry:templates/feed/new.jinja2',
+    permission='sngconnect.telemetry.create_feed'
+)
+def feeds_new(request):
+    feed_templates = DBSession.query(FeedTemplate).order_by(
+        sql.asc(FeedTemplate.name)
+    )
+    create_form = forms.CreateFeedForm(
+        feed_templates,
+        csrf_context=request
+    )
+    return {
+        'create_form': create_form,
+    }
+
 class FeedViewBase(object):
 
     def __init__(self, request):

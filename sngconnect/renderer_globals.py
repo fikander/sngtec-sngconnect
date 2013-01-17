@@ -55,6 +55,11 @@ def add_permissions(event):
             event['request'].context,
             event['request']
         ),
+        'can_create_feed': security.has_permission(
+            'sngconnect.telemetry.create_feed',
+            event['request'].context,
+            event['request']
+        ),
     })
 
 

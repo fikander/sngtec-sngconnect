@@ -1,0 +1,36 @@
+{% extends "sngconnect:templates/base.jinja2" %}
+{% from "sngconnect:templates/macros/horizontal_form_field.jinja2" import horizontal_form_field %}
+
+{% block main_breadcrumb %}
+    {{ super() }}
+    <li><a href="{{ request.route_url('sngconnect.telemetry.feeds.new') }}">{% trans %}New device{% endtrans %}</a></li>
+{% endblock %}
+
+{% block body_main %}
+    <div class="content">
+        <div class="page-header">
+            {% block page_header %}
+                <h1>{% trans %}New device{% endtrans %}</h1>
+            {% endblock %}
+        </div>
+        <div class="page-container">
+            {% block page_content %}
+                <form action="" method="post" class="form-horizontal">
+                    {{ create_form.csrf_token }}
+                    {{ horizontal_form_field(create_form.template_id) }}
+                    {{ horizontal_form_field(create_form.owner_email) }}
+                    {{ horizontal_form_field(create_form.name) }}
+                    {{ horizontal_form_field(create_form.description) }}
+                    {{ horizontal_form_field(create_form.latitude) }}
+                    {{ horizontal_form_field(create_form.longitude) }}
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-wuxia btn-primary">
+                            <span class="awe-plus"></span>
+                            {% trans %}Add device{% endtrans %}
+                        </button>
+                    </div>
+                </form>
+            {% endblock %}
+        </div>
+    </div>
+{% endblock %}

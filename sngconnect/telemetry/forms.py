@@ -7,8 +7,7 @@ import babel.numbers
 
 from sngconnect.forms import SecureForm
 from sngconnect.translation import _
-from sngconnect.database import (DBSession, User, ChartDefinition, Message,
-    DataStreamTemplate, DataStream)
+from sngconnect.database import DBSession, User, ChartDefinition
 
 class LocalizedDecimalField(fields.DecimalField):
 
@@ -278,3 +277,52 @@ class FilterMessagesForm(Form):
             data_stream_template_id=self.data_stream_template_id.data,
             author_id=self.author_id.data
         )
+
+class CreateFeedForm(SecureForm):
+
+    template_id = fields.SelectField(
+        _("Device type"),
+        choices=[],
+        coerce=int
+    )
+    owner_email = fields.TextField(
+        _("Owner's e-mail"),
+        validators=(
+            validators.DataRequired(),
+            validators.Length(max=200),
+            validators.Email(),
+        )
+    )
+    name = fields.TextField(
+        _("Name"),
+        validators=(
+            validators.DataRequired(),
+            validators.Length(max=200),
+        )
+    )
+    description = fields.TextAreaField(
+        _("Description"),
+        validators=(
+            validators.Length(max=1000),
+        )
+    )
+    address = fields.TextField(
+        _("Address"),
+        validators=(
+            validators.Length(max=200),
+        )
+    )
+    latitude = LocalizedDecimalField(
+        _("Latitude"),
+        places=None
+    )
+    longitude = LocalizedDecimalField(
+        _("Longitude"),
+        places=None
+    )
+
+    def __init__(self, feed_templates, *args, **kwargs):
+        super(CreateFeedForm, self).__init__(*args, **kwargs)
+        self.template_id.choices = [
+            (template.id, template.name) for template in feed_templates
+        ]
