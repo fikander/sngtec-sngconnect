@@ -312,11 +312,17 @@ class CreateFeedForm(SecureForm):
     )
     latitude = LocalizedDecimalField(
         _("Latitude"),
-        places=None
+        places=None,
+        validators=(
+            validators.DataRequired(),
+        )
     )
     longitude = LocalizedDecimalField(
         _("Longitude"),
-        places=None
+        places=None,
+        validators=(
+            validators.DataRequired(),
+        )
     )
 
     def __init__(self, feed_templates, forced_owner, *args, **kwargs):
