@@ -40,11 +40,22 @@ def feeds(request):
     permission='sngconnect.telemetry.create_feed'
 )
 def feeds_new(request):
+    try:
+        user = DBSession.query(User).filter(
+            User.id == authenticated_userid(request)
+        ).one()
+    except database_exceptions.NoResultFound:
+        raise httpexceptions.HTTPForbidden()
     feed_templates = DBSession.query(FeedTemplate).order_by(
         sql.asc(FeedTemplate.name)
     )
+    if user.role_maintainer == True:
+        forced_user = None
+    else:
+        forced_user = user
     create_form = forms.CreateFeedForm(
         feed_templates,
+        forced_user,
         csrf_context=request
     )
     return {

@@ -321,8 +321,19 @@ class CreateFeedForm(SecureForm):
         places=None
     )
 
-    def __init__(self, feed_templates, *args, **kwargs):
+    def __init__(self, feed_templates, forced_owner, *args, **kwargs):
+        if forced_owner is not None:
+            kwargs['owner_email'] = forced_owner.email
+            self.disable_owner_email = True
+        else:
+            self.disable_owner_email = False
+        self.forced_owner = forced_owner
         super(CreateFeedForm, self).__init__(*args, **kwargs)
         self.template_id.choices = [
             (template.id, template.name) for template in feed_templates
         ]
+
+    def validate_owner_email(self, field):
+        if self.forced_owner is not None:
+            if self.owner_email.data != self.forced_owner.email:
+                raise validators.ValidationError("")

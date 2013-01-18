@@ -18,7 +18,11 @@
                 <form action="" method="post" class="form-horizontal">
                     {{ create_form.csrf_token }}
                     {{ horizontal_form_field(create_form.template_id) }}
-                    {{ horizontal_form_field(create_form.owner_email) }}
+                    {% if create_form.disable_owner_email %}
+                        {{ horizontal_form_field(create_form.owner_email, kwargs={'disabled': True}) }}
+                    {% else %}
+                        {{ horizontal_form_field(create_form.owner_email) }}
+                    {% endif %}
                     {{ horizontal_form_field(create_form.name) }}
                     {{ horizontal_form_field(create_form.description) }}
                     {{ horizontal_form_field(create_form.latitude) }}
