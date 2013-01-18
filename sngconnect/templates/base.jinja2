@@ -87,7 +87,7 @@
                     {% for message in request.session.pop_flash(queue=message_queue) %}
                         <div class="alert alert-{{ message_queue }}">
                             <button type="button" class="close" data-dismiss="alert">×</button>
-                            {{ message }}
+                            {{ message|safe }}
                         </div>
                     {% endfor %}
                 {% endfor %}

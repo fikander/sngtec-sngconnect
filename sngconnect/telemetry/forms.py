@@ -24,7 +24,7 @@ class LocalizedDecimalField(fields.DecimalField):
             return ''
 
     def process_formdata(self, valuelist):
-        if valuelist:
+        if valuelist and valuelist[0]:
             try:
                 self.data = decimal.Decimal(
                     str(
@@ -288,9 +288,7 @@ class CreateFeedForm(SecureForm):
     owner_email = fields.TextField(
         _("Owner's e-mail"),
         validators=(
-            validators.DataRequired(),
             validators.Length(max=200),
-            validators.Email(),
         )
     )
     name = fields.TextField(
@@ -327,13 +325,31 @@ class CreateFeedForm(SecureForm):
             self.disable_owner_email = True
         else:
             self.disable_owner_email = False
-        self.forced_owner = forced_owner
+        locale = kwargs.pop('locale')
         super(CreateFeedForm, self).__init__(*args, **kwargs)
+        self.forced_owner = forced_owner
+        self.latitude.set_locale(locale)
+        self.longitude.set_locale(locale)
         self.template_id.choices = [
             (template.id, template.name) for template in feed_templates
         ]
 
     def validate_owner_email(self, field):
+        if field.errors:
+            return
         if self.forced_owner is not None:
-            if self.owner_email.data != self.forced_owner.email:
-                raise validators.ValidationError("")
+            return
+        validators.DataRequired()(self, field)
+        validators.Email()(self, field)
+        try:
+            self.owner = DBSession.query(User).filter(
+                User.email == field.data,
+                User.activated != None
+            ).one()
+        except database_exceptions.NoResultFound:
+            raise validators.ValidationError(
+                _("There is no active user having this e-mail address.")
+            )
+
+    def get_owner(self):
+        return self.owner

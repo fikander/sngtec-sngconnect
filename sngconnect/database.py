@@ -1,8 +1,10 @@
 import os
 import decimal
+import datetime
 import random
 import string
 
+import pytz
 import bcrypt
 import sqlalchemy as sql
 from sqlalchemy import orm
@@ -207,6 +209,13 @@ class Feed(ModelBase):
         sql.DateTime(timezone=True),
         nullable=False
     )
+    activation_code = sql.Column(
+        sql.String(length=50)
+    )
+    activation_code_regenerated = sql.Column(
+        sql.DateTime(timezone=True),
+        nullable=False
+    )
 
     template = orm.relationship(
         FeedTemplate,
@@ -228,6 +237,12 @@ class Feed(ModelBase):
 
     def regenerate_api_key(self):
         self.api_key = generate_random_string(100)
+
+    def regenerate_activation_code(self):
+        self.activation_code = generate_random_string(10).upper()
+        self.activation_code_regenerated = pytz.utc.localize(
+            datetime.datetime.utcnow()
+        )
 
 class FeedUser(ModelBase):
 

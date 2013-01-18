@@ -11,7 +11,7 @@ from sqlalchemy.orm import exc as database_exceptions, joinedload
 from pyramid.response import Response
 from pyramid.view import view_config
 from pyramid import httpexceptions
-from pyramid.i18n import get_locale_name
+from pyramid.i18n import get_locale_name, get_localizer
 from pyramid.security import authenticated_userid, has_permission
 
 from sngconnect.translation import _
@@ -56,8 +56,56 @@ def feeds_new(request):
     create_form = forms.CreateFeedForm(
         feed_templates,
         forced_user,
+        locale=get_locale_name(request),
         csrf_context=request
     )
+    if request.method == 'POST':
+        create_form.process(request.POST)
+        if create_form.validate():
+            feed = Feed()
+            create_form.populate_obj(feed)
+            feed.created = pytz.utc.localize(datetime.datetime.utcnow())
+            feed.regenerate_api_key()
+            feed.regenerate_activation_code()
+            DBSession.add(feed)
+            feed_user = FeedUser(
+                feed=feed,
+                role_user=True,
+                can_change_permissions=True
+            )
+            if forced_user is None:
+                feed_user.user = create_form.get_owner()
+                feed_maintainer = FeedUser(
+                    feed=feed,
+                    user=user,
+                    role_maintainer=True,
+                    can_change_permissions=True
+                )
+                DBSession.add(feed_maintainer)
+            else:
+                feed_user.user = user
+            DBSession.add(feed_user)
+            request.session.flash(
+                get_localizer(request).translate(_(
+                    "New device has been added. Use this code to connect the"
+                    " device: <code>${activation_code}</code>",
+                    mapping={
+                        'activation_code': feed.activation_code,
+                    }
+                )),
+                queue='success'
+            )
+            return httpexceptions.HTTPFound(
+                request.route_url('sngconnect.telemetry.feeds.new')
+            )
+        else:
+            request.session.flash(
+                _(
+                    "There were some problems with your request."
+                    " Please check the form for error messages."
+                ),
+                queue='error'
+            )
     return {
         'create_form': create_form,
     }
