@@ -8,7 +8,6 @@ class NotificationService(ServiceBase):
 
     def __init__(self, *args, **kwargs):
         super(NotificationService, self).__init__(*args, **kwargs)
-        self.mailer = get_mailer(self.request)
         self.email_sender = self.request.registry['settings']['mail.sender']
         self.email_template = self.request.registry[
             'jinja2_environment'
@@ -43,4 +42,4 @@ class NotificationService(ServiceBase):
                     message=message
                 )
             )
-            self.mailer.send(email)
+            get_mailer(self.request).send(email)

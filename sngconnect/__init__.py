@@ -16,6 +16,28 @@ from sngconnect import template_filters
 from sngconnect.cassandra import connection_pool as cassandra_connection_pool
 
 def main(global_config, **settings):
+    config = configure_application(settings)
+    # Create appearance stylesheet if not exists.
+    assets_path = settings['sngconnect.appearance_assets_upload_path']
+    appearance_stylesheet_path = os.path.join(
+        assets_path,
+        settings['sngconnect.appearance_stylesheet_filename']
+    )
+    try:
+        os.makedirs(assets_path)
+    except OSError as exception:
+        if (exception.errno == errno.EEXIST and
+                os.path.isdir(assets_path)):
+            pass
+        else:
+            raise
+    open(appearance_stylesheet_path, 'a').close()
+    # Scan for view configurations.
+    config.scan()
+    # Return ready WSGI application.
+    return config.make_wsgi_app()
+
+def configure_application(settings, config=None):
     # Provide deployment-independent settings
     settings.update({
         # Webassets
@@ -33,18 +55,22 @@ def main(global_config, **settings):
     # Configure Cassandra connection.
     cassandra_connection_pool.initialize_connection_pool(settings)
     # Create application configurator.
-    config = Configurator(settings=settings)
+    if config is None:
+        config = Configurator(settings=settings)
+    else:
+        config.add_settings(settings)
     config.registry['settings'] = settings
+    config.registry['database_engine'] = database_engine
     # Configure ACL.
     config.set_root_factory(RootFactory)
     # Configure security.
+    authorization_policy = ACLAuthorizationPolicy()
+    config.set_authorization_policy(authorization_policy)
     authentication_policy = AuthTktAuthenticationPolicy(
         settings['session.secret'],
         callback=User.authentication_callback
     )
     config.set_authentication_policy(authentication_policy)
-    authorization_policy = ACLAuthorizationPolicy()
-    config.set_authorization_policy(authorization_policy)
     # Configure session.
     session_factory = UnencryptedCookieSessionFactoryConfig(
         settings['session.secret']
@@ -100,22 +126,4 @@ def main(global_config, **settings):
         path=settings['sngconnect.appearance_assets_upload_path'],
         cache_max_age=0
     )
-    # Create appearance stylesheet if not exists.
-    assets_path = settings['sngconnect.appearance_assets_upload_path']
-    appearance_stylesheet_path = os.path.join(
-        assets_path,
-        settings['sngconnect.appearance_stylesheet_filename']
-    )
-    try:
-        os.makedirs(assets_path)
-    except OSError as exception:
-        if (exception.errno == errno.EEXIST and
-                os.path.isdir(assets_path)):
-            pass
-        else:
-            raise
-    open(appearance_stylesheet_path, 'a').close()
-    # Scan for view configurations.
-    config.scan()
-    # Return ready WSGI application.
-    return config.make_wsgi_app()
+    return config

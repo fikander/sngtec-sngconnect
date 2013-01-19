@@ -35,7 +35,18 @@ class TestFeedDataStreamPut(ApiTestMixin, unittest.TestCase):
 
     def setUp(self):
         super(TestFeedDataStreamPut, self).setUp()
-        feed_template = FeedTemplate(id=1, name='Feed template 1')
+        feed_template = FeedTemplate(
+            id=1,
+            name='Feed template 1',
+            modbus_bandwidth=9600,
+            modbus_port='/dev/ttyS0',
+            modbus_parity='EVEN',
+            modbus_data_bits=8,
+            modbus_stop_bits=1,
+            modbus_timeout=5,
+            modbus_endianness='BIG',
+            modbus_polling_interval=120
+        )
         feed = Feed(
             id=1,
             template=feed_template,
@@ -53,7 +64,11 @@ class TestFeedDataStreamPut(ApiTestMixin, unittest.TestCase):
             name=u"DataStream 1",
             description=u"Description",
             measurement_unit=u"cm",
-            writable=False
+            writable=False,
+            modbus_register_type='HOLDING',
+            modbus_slave=1,
+            modbus_address=1,
+            modbus_count=1
         )
         data_stream_template_2 = DataStreamTemplate(
             id=2,
@@ -62,7 +77,11 @@ class TestFeedDataStreamPut(ApiTestMixin, unittest.TestCase):
             name=u"DataStream 2",
             description=u"Description",
             measurement_unit=u"cm",
-            writable=True
+            writable=True,
+            modbus_register_type='HOLDING',
+            modbus_slave=1,
+            modbus_address=2,
+            modbus_count=1
         )
         data_stream_1 = DataStream(
             id=1,
@@ -284,7 +303,18 @@ class TestFeedGet(ApiTestMixin, unittest.TestCase):
 
     def setUp(self):
         super(TestFeedGet, self).setUp()
-        feed_template = FeedTemplate(id=1, name='Feed template 1')
+        feed_template = FeedTemplate(
+            id=1,
+            name='Feed template 1',
+            modbus_bandwidth=9600,
+            modbus_port='/dev/ttyS0',
+            modbus_parity='EVEN',
+            modbus_data_bits=8,
+            modbus_stop_bits=1,
+            modbus_timeout=5,
+            modbus_endianness='BIG',
+            modbus_polling_interval=120
+        )
         feed = Feed(
             id=1,
             template=feed_template,
@@ -302,7 +332,11 @@ class TestFeedGet(ApiTestMixin, unittest.TestCase):
             name=u"DataStream 1",
             description=u"Description",
             measurement_unit=u"cm",
-            writable=False
+            writable=False,
+            modbus_register_type='HOLDING',
+            modbus_slave=1,
+            modbus_address=1,
+            modbus_count=1
         )
         data_stream_template2 = DataStreamTemplate(
             id=2,
@@ -311,7 +345,11 @@ class TestFeedGet(ApiTestMixin, unittest.TestCase):
             name=u"DataStream 2",
             description=u"Description",
             measurement_unit=u"mm",
-            writable=True
+            writable=True,
+            modbus_register_type='HOLDING',
+            modbus_slave=1,
+            modbus_address=2,
+            modbus_count=1
         )
         data_stream1 = DataStream(
             id=1,
@@ -407,7 +445,18 @@ class TestUploadLog(ApiTestMixin, unittest.TestCase):
 
     def setUp(self):
         super(TestUploadLog, self).setUp()
-        feed_template = FeedTemplate(id=1, name='Feed template 1')
+        feed_template = FeedTemplate(
+            id=1,
+            name='Feed template 1',
+            modbus_bandwidth=9600,
+            modbus_port='/dev/ttyS0',
+            modbus_parity='EVEN',
+            modbus_data_bits=8,
+            modbus_stop_bits=1,
+            modbus_timeout=5,
+            modbus_endianness='BIG',
+            modbus_polling_interval=120
+        )
         feed = Feed(
             id=1,
             template=feed_template,
@@ -488,7 +537,18 @@ class TestEvents(ApiTestMixin, unittest.TestCase):
 
     def setUp(self):
         super(TestEvents, self).setUp()
-        feed_template = FeedTemplate(id=1, name='Feed template 1')
+        feed_template = FeedTemplate(
+            id=1,
+            name='Feed template 1',
+            modbus_bandwidth=9600,
+            modbus_port='/dev/ttyS0',
+            modbus_parity='EVEN',
+            modbus_data_bits=8,
+            modbus_stop_bits=1,
+            modbus_timeout=5,
+            modbus_endianness='BIG',
+            modbus_polling_interval=120
+        )
         feed = Feed(
             id=1,
             template=feed_template,
@@ -557,7 +617,18 @@ class TestCommands(ApiTestMixin, unittest.TestCase):
 
     def setUp(self):
         super(TestCommands, self).setUp()
-        feed_template = FeedTemplate(id=1, name='Feed template 1')
+        feed_template = FeedTemplate(
+            id=1,
+            name='Feed template 1',
+            modbus_bandwidth=9600,
+            modbus_port='/dev/ttyS0',
+            modbus_parity='EVEN',
+            modbus_data_bits=8,
+            modbus_stop_bits=1,
+            modbus_timeout=5,
+            modbus_endianness='BIG',
+            modbus_polling_interval=120
+        )
         feed = Feed(
             id=1,
             template=feed_template,

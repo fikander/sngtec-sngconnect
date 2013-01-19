@@ -1,11 +1,10 @@
 import logging
 import decimal
 
-import sqlalchemy
 from pyramid import testing
 
+from sngconnect import configure_application
 from sngconnect import cassandra as cassandra_management
-from sngconnect.cassandra import connection_pool
 from sngconnect.database import DBSession, ModelBase
 
 class TestMixin(object):
@@ -15,24 +14,28 @@ class TestMixin(object):
             format='%(levelname)s: %(message)s',
             level=logging.WARNING
         )
-        self.config = testing.setUp()
-        self.testing_cassandra_configuration = {
+        self.settings = {
+            'database.url': 'sqlite://',
             'cassandra.servers': 'localhost:9160',
-            'cassandra.keyspace': '__sngconnect_testing'
+            'cassandra.keyspace': '__sngconnect_testing',
+            'mail.sender': 'test@example.com',
+            'session.secret': 'somesecret',
+            'sngconnect.default_timezone': 'Europe/Warsaw',
+            'sngconnect.device_image_upload_path': '',
+            'sngconnect.appearance_assets_upload_path': '',
+            'sngconnect.appearance_stylesheet_filename': '',
         }
-        cassandra_management.initialize_keyspace(
-            self.testing_cassandra_configuration
+        self.config = testing.setUp()
+        cassandra_management.initialize_keyspace(self.settings)
+        self.config = configure_application(
+            self.settings,
+            self.config
         )
-        connection_pool.initialize_connection_pool(
-            self.testing_cassandra_configuration
-        )
-        database_engine = sqlalchemy.create_engine('sqlite://')
-        DBSession.configure(bind=database_engine)
-        ModelBase.metadata.create_all(database_engine)
+        ModelBase.metadata.create_all(self.config.registry['database_engine'])
 
     def tearDown(self):
         DBSession.remove()
-        cassandra_management.drop_keyspace(self.testing_cassandra_configuration)
+        cassandra_management.drop_keyspace(self.settings)
         testing.tearDown()
 
     def assertAggregatesEqual(self, first, second):
