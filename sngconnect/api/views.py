@@ -387,7 +387,7 @@ def activate(request):
                 content_type='application/json'
             )
         else:
-            raise httpexceptions.HTTPBadRequest(
+            raise httpexceptions.HTTPForbidden(
                 "This activation code has expired."
             )
     else:

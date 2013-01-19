@@ -810,3 +810,109 @@ class TestFeedConfiguration(ApiTestMixin, unittest.TestCase):
                 ],
             }
         })
+
+class TestActivate(ApiTestMixin, unittest.TestCase):
+
+    def setUp(self):
+        super(TestActivate, self).setUp()
+        feed_template = FeedTemplate(
+            id=1,
+            name='Feed template 1',
+            modbus_bandwidth=9600,
+            modbus_port='/dev/ttyS0',
+            modbus_parity='EVEN',
+            modbus_data_bits=8,
+            modbus_stop_bits=1,
+            modbus_timeout=5,
+            modbus_endianness='BIG',
+            modbus_polling_interval=120
+        )
+        feed = Feed(
+            id=1,
+            template=feed_template,
+            name=u"Feed 1",
+            description=u"Description",
+            latitude=20.5,
+            longitude=15.3,
+            created=pytz.utc.localize(datetime.datetime.utcnow()),
+            api_key='some-api-key',
+            activation_code='some-activation-code',
+            activation_code_regenerated=pytz.utc.localize(
+                datetime.datetime.utcnow()
+            ),
+        )
+        self.activation_code = feed.activation_code
+        DBSession.add_all([
+            feed_template,
+            feed,
+        ])
+        transaction.commit()
+
+    def get_request(self, feed_id, activation_code, device_uuid):
+        request = testing.DummyRequest()
+        request.matchdict.update({
+            'feed_id': feed_id,
+        })
+        if activation_code is not None:
+            request.POST['activation_code'] = activation_code
+        if device_uuid is not None:
+            request.POST['device_uuid'] = device_uuid
+        return request
+
+    def test_invalid_ids(self):
+        request = self.get_request(234234, 'somecode', 'some-uuid')
+        with transaction.manager:
+            self.assertRaises(
+                httpexceptions.HTTPNotFound,
+                views.activate,
+                request
+            )
+
+    def test_invalid_code(self):
+        request = self.get_request(
+            1,
+            self.activation_code + 'foobar',
+            '2feefa53-8dc9-441e-8c81-b8aa7fb919fd'
+        )
+        with transaction.manager:
+            self.assertRaises(
+                httpexceptions.HTTPForbidden,
+                views.activate,
+                request
+            )
+
+    def test_expired_code(self):
+        with transaction.manager:
+            DBSession.query(Feed).filter(
+                Feed.id == 1
+            ).update({
+                'activation_code_regenerated': (
+                    datetime.datetime.utcnow() - datetime.timedelta(days=300)
+                )
+            })
+        request = self.get_request(
+            1,
+            self.activation_code,
+            '2feefa53-8dc9-441e-8c81-b8aa7fb919fd'
+        )
+        with transaction.manager:
+            self.assertRaises(
+                httpexceptions.HTTPForbidden,
+                views.activate,
+                request
+            )
+
+    def test_normal_operation(self):
+        request = self.get_request(
+            1,
+            self.activation_code,
+            '2feefa53-8dc9-441e-8c81-b8aa7fb919fd'
+        )
+        with transaction.manager:
+            response = views.activate(request)
+        self.assertEqual(response.status_code, 200)
+        self.assertSequenceEqual(response.json_body.keys(), ['api_key'])
+        self.assertNotEqual(response.json_body['api_key'], 'some-api-key')
+        feed = DBSession.query(Feed).filter(Feed.id == 1).one()
+        self.assertEqual(feed.device_uuid, '2feefa538dc9441e8c81b8aa7fb919fd')
+        self.assertEqual(feed.api_key, response.json_body['api_key'])

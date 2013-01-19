@@ -296,7 +296,7 @@ class Feed(ModelBase):
             datetime.datetime.utcnow() -
             self.activation_code_regenerated
         )
-        if difference < self.ACTIVATION_CODE_VALIDITY_PERIOD:
+        if difference > self.ACTIVATION_CODE_VALIDITY_PERIOD:
             return True
         else:
             return False
