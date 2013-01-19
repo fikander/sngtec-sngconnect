@@ -47,7 +47,7 @@ class ValueForm(SecureForm):
         _("Value"),
         places=None,
         validators=(
-            validators.DataRequired(),
+            validators.InputRequired(),
         )
     )
 
