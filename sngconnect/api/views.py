@@ -286,86 +286,6 @@ def commands(request):
         content_type='application/json'
     )
 
-#@view_config(
-#    route_name='sngconnect.api.activate',
-#    request_method='GET'
-#)
-#def activate(request):
-#    """
-#    Activate the feed and get configuration.
-#    """
-#    try:
-#        feed_id = int(request.matchdict['feed_id'])
-#        activation_code = request.POST['activation_code']
-#        device_uuid = uuid.UUID(request.POST['device_uuid'])
-#    except (KeyError, ValueError):
-#        raise httpexceptions.HTTPNotFound("Invalid request arguments.")
-#    try:
-#        feed = DBSession.query(Feed).filter(id=feed_id).one()
-#    except database_exceptions.NoResultFound:
-#        raise httpexceptions.HTTPNotFound("Feed not found.")
-#    if feed.activation_code == activation_code:
-#        if not feed.has_activation_code_expired():
-#            feed.activation_code = None
-#            feed.activation_code_regenerated = None
-#            feed.device_uuid = device_uuid.hex
-#            DBSession.add(feed)
-#            data_stream_templates = DBSession.query(
-#                DataStreamTemplate
-#            ).filter(
-#                DataStreamTemplate.feed_template == feed.template
-#            ).order_by(
-#                sql.asc(DataStreamTemplate.label)
-#            )
-#            cstruct = schemas.ActivateResponse().serialize({
-#                'feed': {
-#                    'id': feed.id,
-#                    'api_key': feed.api_key,
-#                    'modbus': {
-#                        'bandwidth': feed.modbus_bandwidth,
-#                        'port': feed.modbus_port,
-#                        'parity': (
-#                            'even' if feed.modbus_parity == 'EVEN' else 'odd'
-#                        ),
-#                        'data_bits': feed.modbus_data_bits,
-#                        'stop_bits': feed.modbus_stop_bits,
-#                        'timeout': feed.modbus_timeout,
-#                        'endianness': (
-#                            'big'
-#                            if feed.modbus_endianness == 'BIG' else
-#                            'little'
-#                        ),
-#                        'polling_interval': feed.modbus_polling_interval,
-#                    },
-#                    'data_streams': [
-#                        {
-#                            'label': data_stream_template.label,
-#                            'modbus': {
-#                                'register_type': (
-#                                    'holding'
-#                                    if data_stream_template.modbus_register_type == 'HOLDING' else
-#                                    'input'
-#                                ),
-#                                'slave': data_stream_template.modbus_slave,
-#                                'address': data_stream_template.modbus_address,
-#                                'count': data_stream_template.modbus_count,
-#                            },
-#                        }
-#                        for data_stream_template in data_stream_templates
-#                    ],
-#                },
-#            })
-#            return Response(
-#                json.dumps(cstruct),
-#                content_type='application/json'
-#            )
-#        else:
-#            raise httpexceptions.HTTPBadRequest(
-#                "This activation code has expired."
-#            )
-#    else:
-#        raise httpexceptions.HTTPForbidden("Invalid activation code.")
-
 @view_config(
     route_name='sngconnect.api.feed_configuration',
     request_method='GET'
@@ -381,6 +301,10 @@ def feed_configuration(request):
     except (KeyError, ValueError):
         raise httpexceptions.HTTPNotFound("Invalid request arguments.")
     authorize_request(request, feed_id)
+    try:
+        feed = DBSession.query(Feed).filter(Feed.id == feed_id).one()
+    except database_exceptions.NoResultFound:
+        raise httpexceptions.HTTPNotFound("Feed not found.")
     data_stream_templates = DBSession.query(
         DataStreamTemplate
     ).filter(
@@ -392,20 +316,20 @@ def feed_configuration(request):
         'feed': {
             'id': feed.id,
             'modbus': {
-                'bandwidth': feed.modbus_bandwidth,
-                'port': feed.modbus_port,
+                'bandwidth': feed.template.modbus_bandwidth,
+                'port': feed.template.modbus_port,
                 'parity': (
-                    'even' if feed.modbus_parity == 'EVEN' else 'odd'
+                    'even' if feed.template.modbus_parity == 'EVEN' else 'odd'
                 ),
-                'data_bits': feed.modbus_data_bits,
-                'stop_bits': feed.modbus_stop_bits,
-                'timeout': feed.modbus_timeout,
+                'data_bits': feed.template.modbus_data_bits,
+                'stop_bits': feed.template.modbus_stop_bits,
+                'timeout': feed.template.modbus_timeout,
                 'endianness': (
                     'big'
-                    if feed.modbus_endianness == 'BIG' else
+                    if feed.template.modbus_endianness == 'BIG' else
                     'little'
                 ),
-                'polling_interval': feed.modbus_polling_interval,
+                'polling_interval': feed.template.modbus_polling_interval,
             },
             'data_streams': [
                 {
@@ -445,7 +369,7 @@ def activate(request):
     except (KeyError, ValueError):
         raise httpexceptions.HTTPNotFound("Invalid request arguments.")
     try:
-        feed = DBSession.query(Feed).filter(id=feed_id).one()
+        feed = DBSession.query(Feed).filter(Feed.id == feed_id).one()
     except database_exceptions.NoResultFound:
         raise httpexceptions.HTTPNotFound("Feed not found.")
     if feed.activation_code == activation_code:

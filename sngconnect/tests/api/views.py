@@ -692,3 +692,121 @@ class TestCommands(ApiTestMixin, unittest.TestCase):
                 },
             ],
         })
+
+class TestFeedConfiguration(ApiTestMixin, unittest.TestCase):
+
+    def setUp(self):
+        super(TestFeedConfiguration, self).setUp()
+        feed_template = FeedTemplate(
+            id=1,
+            name='Feed template 1',
+            modbus_bandwidth=9600,
+            modbus_port='/dev/ttyS0',
+            modbus_parity='EVEN',
+            modbus_data_bits=8,
+            modbus_stop_bits=1,
+            modbus_timeout=5,
+            modbus_endianness='BIG',
+            modbus_polling_interval=120
+        )
+        feed = Feed(
+            id=1,
+            template=feed_template,
+            name=u"Feed 1",
+            description=u"Description",
+            latitude=20.5,
+            longitude=15.3,
+            created=pytz.utc.localize(datetime.datetime.utcnow())
+        )
+        self.api_key = feed.api_key
+        data_stream_template_1 = DataStreamTemplate(
+            id=1,
+            feed_template=feed_template,
+            label='data_stream',
+            name=u"DataStream 1",
+            description=u"Description",
+            measurement_unit=u"cm",
+            writable=False,
+            modbus_register_type='HOLDING',
+            modbus_slave=1,
+            modbus_address=1,
+            modbus_count=1
+        )
+        data_stream_template_2 = DataStreamTemplate(
+            id=2,
+            feed_template=feed_template,
+            label='data_stream_2',
+            name=u"DataStream 2",
+            description=u"Description",
+            measurement_unit=u"cm",
+            writable=True,
+            modbus_register_type='HOLDING',
+            modbus_slave=1,
+            modbus_address=2,
+            modbus_count=1
+        )
+        DBSession.add_all([
+            feed_template,
+            feed,
+            data_stream_template_1,
+            data_stream_template_2,
+        ])
+        transaction.commit()
+
+    def get_request(self, feed_id):
+        request = testing.DummyRequest()
+        request.matchdict.update({
+            'feed_id': feed_id,
+        })
+        _sign(request, self.api_key)
+        return request
+
+    def test_invalid_ids(self):
+        request = self.get_request(234234)
+        with transaction.manager:
+            self.assertRaises(
+                httpexceptions.HTTPNotFound,
+                views.feed_configuration,
+                request
+            )
+
+    def test_normal_operation(self):
+        request = self.get_request(1)
+        with transaction.manager:
+            response = views.feed_configuration(request)
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(response.json_body, {
+            'feed': {
+                'id': '1',
+                'modbus': {
+                    'bandwidth': '9600',
+                    'port': '/dev/ttyS0',
+                    'parity': 'even',
+                    'data_bits': '8',
+                    'stop_bits': '1',
+                    'timeout': '5',
+                    'endianness': 'big',
+                    'polling_interval': '120',
+                },
+                'data_streams': [
+                    {
+                        'label': 'data_stream',
+                        'modbus': {
+                            'register_type': 'holding',
+                            'slave': '1',
+                            'address': '1',
+                            'count': '1',
+                        },
+                    },
+                    {
+                        'label': 'data_stream_2',
+                        'modbus': {
+                            'register_type': 'holding',
+                            'slave': '1',
+                            'address': '2',
+                            'count': '1',
+                        },
+                    },
+                ],
+            }
+        })
