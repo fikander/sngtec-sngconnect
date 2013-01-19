@@ -141,8 +141,13 @@ class FeedConfiguration(colander.MappingSchema):
     id = colander.SchemaNode(
         colander.Integer()
     )
+    modbus = FeedModbusConfiguration()
+    data_streams = DataStreamConfigurations()
+
+class FeedConfigurationResponse(colander.MappingSchema):
+    feed = FeedConfiguration()
+
+class ActivateResponse(colander.MappingSchema):
     api_key = colander.SchemaNode(
         colander.String()
     )
-    modbus = FeedModbusConfiguration()
-    data_streams = DataStreamConfigurations()

@@ -151,7 +151,7 @@ ROUTES = (
     (
         'sngconnect.api.feed',
         'api/v1/feeds/{feed_id:\d+}/datastreams.json'
-     ),
+    ),
     (
         'sngconnect.api.events',
         'api/v1/feeds/{feed_id:\d+}/events.json'
@@ -163,6 +163,10 @@ ROUTES = (
     (
         'sngconnect.api.upload_log',
         'api/v1/upload-log/{log_request_id:\d+}/{log_request_hash:\w+}.json'
+    ),
+    (
+        'sngconnect.api.feed_configuration',
+        'api/v1/feeds/{feed_id:\d+}/configuration.json'
     ),
     (
         'sngconnect.api.activate',
