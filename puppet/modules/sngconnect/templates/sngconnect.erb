@@ -1,0 +1,41 @@
+#!/bin/bash
+
+BASE=/home/vagrant
+VIRTUALENV=$BASE/environment
+CONFIGURATION=/vagrant/development.ini
+
+LOG_FILE=$BASE/var/log/pserve.log
+PID_FILE=$BASE/var/run/pserve.pid
+
+start_application()
+{
+    . $VIRTUALENV/bin/activate && pserve $CONFIGURATION --daemon --pid-file=$PID_FILE --log-file=$LOG_FILE
+}
+
+stop_application()
+{
+    . $VIRTUALENV/bin/activate && pserve $CONFIGURATION --stop-daemon --pid-file=$PID_FILE
+}
+
+case "$1" in
+    start)
+        start_application
+        exit $?
+        ;;
+    stop)
+        stop_application
+        exit $?
+        ;;
+    restart)
+        stop_application && start_application
+        exit $?
+        ;;
+    status)
+        . $VIRTUALENV/bin/activate && pserve $CONFIGURATION --status --pid-file=$PID_FILE
+        exit $?
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart|status}" >&2
+        exit 1
+        ;;
+esac

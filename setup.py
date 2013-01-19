@@ -21,6 +21,7 @@ requires = [
     'pycassa',
     'Babel',
     'WTForms',
+    'psycopg2',
     'yuicompressor',
     'python-magic',
     'pyramid_tm',
@@ -57,8 +58,8 @@ setup(
     [paste.app_factory]
     main = sngconnect:main
     [console_scripts]
-    sng_initailize_database = sngconnect.scripts.initialize_database:main
-    sng_initailize_cassandra = sngconnect.scripts.initialize_cassandra:main
+    sng_initialize_database = sngconnect.scripts.initialize_database:main
+    sng_initialize_cassandra = sngconnect.scripts.initialize_cassandra:main
     sng_generate_random_data = sngconnect.scripts.generate_random_data:main
     sng_create_testing_data = sngconnect.scripts.create_testing_data:main
     """,
