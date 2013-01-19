@@ -374,7 +374,7 @@ class TestMeasurements(CassandraTestMixin, unittest.TestCase):
             self.measurements.get_data_points(
                 data_stream_id,
                 start_date=_utc_datetime(2015, 9, 26, 11, 19),
-                end_date=_utc_datetime(2050, 9, 26, 11, 19, 27)
+                end_date=_utc_datetime(2020, 9, 26, 11, 19, 27)
             ),
             []
         )
@@ -382,7 +382,7 @@ class TestMeasurements(CassandraTestMixin, unittest.TestCase):
             self.measurements.get_data_points(
                 data_stream_id,
                 start_date=_utc_datetime(2015, 9, 26, 11, 19),
-                end_date=_utc_datetime(2050, 9, 26, 11, 19, 27)
+                end_date=_utc_datetime(2020, 9, 26, 11, 19, 27)
             ),
             []
         )
