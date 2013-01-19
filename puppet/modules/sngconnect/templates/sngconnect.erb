@@ -9,7 +9,7 @@ PID_FILE=$BASE/var/run/pserve.pid
 
 start_application()
 {
-    . $VIRTUALENV/bin/activate && pserve $CONFIGURATION --daemon --pid-file=$PID_FILE --log-file=$LOG_FILE
+    . $VIRTUALENV/bin/activate && pserve $CONFIGURATION --reload --monitor-restart --daemon --pid-file=$PID_FILE --log-file=$LOG_FILE
 }
 
 stop_application()

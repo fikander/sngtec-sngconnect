@@ -221,7 +221,10 @@ class FeedDashboard(FeedViewBase):
                 self.feed.regenerate_activation_code()
                 DBSession.add(self.feed)
             activation = {
-                'code': self.feed.get_activation_code(),
+                'code': ':'.join((
+                    str(self.feed.id),
+                    self.feed.activation_code,
+                )),
             }
         else:
             activation = None

@@ -293,7 +293,7 @@ class Feed(ModelBase):
         if self.activation_code_regenerated is None:
             return None
         difference = (
-            datetime.datetime.utcnow() -
+            pytz.utc.localize(datetime.datetime.utcnow()) -
             self.activation_code_regenerated
         )
         if difference > self.ACTIVATION_CODE_VALIDITY_PERIOD:
