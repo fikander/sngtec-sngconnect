@@ -82,7 +82,15 @@ def generate_data(feed_count):
     DBSession.add_all([user, maintainer, supplier, admin])
     for i in range(1, feed_count + 1):
         feed_template = FeedTemplate(
-            name=u"Feed template %d" % i
+            name=u"Feed template %d" % i,
+            modbus_bandwidth=9600,
+            modbus_port='/dev/ttyS0',
+            modbus_parity='EVEN',
+            modbus_data_bits=8,
+            modbus_stop_bits=1,
+            modbus_timeout=5,
+            modbus_endianness='BIG',
+            modbus_polling_interval=120
         )
         feed = Feed(
             template=feed_template,
@@ -96,6 +104,8 @@ def generate_data(feed_count):
                 datetime.datetime.now() - datetime.timedelta(days=80)
             )
         )
+        feed.regenerate_api_key()
+        feed.regenerate_activation_code()
         feed_user_user = FeedUser(role_user=True, can_change_permissions=True)
         feed.feed_users.append(feed_user_user)
         user.feed_users.append(feed_user_user)
@@ -125,7 +135,11 @@ def generate_data(feed_count):
                     u'cm³',
                 ]),
                 writable=random.choice([True, False, False]),
-                show_on_dashboard=random.choice((True, False))
+                show_on_dashboard=random.choice((True, False)),
+                modbus_register_type='HOLDING',
+                modbus_slave=1,
+                modbus_address=j,
+                modbus_count=random.choice([1, 2])
             )
             data_stream = DataStream(
                 template=data_stream_template,

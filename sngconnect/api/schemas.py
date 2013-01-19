@@ -75,3 +75,74 @@ class Commands(colander.SequenceSchema):
 
 class GetCommandsResponse(colander.MappingSchema):
     commands = Commands()
+
+class FeedModbusConfiguration(colander.MappingSchema):
+    bandwidth = colander.SchemaNode(
+        colander.Integer()
+    )
+    port = colander.SchemaNode(
+        colander.String()
+    )
+    parity = colander.SchemaNode(
+        colander.String(),
+        validator=colander.OneOf([
+            'even',
+            'odd',
+        ])
+    )
+    data_bits = colander.SchemaNode(
+        colander.Integer()
+    )
+    stop_bits = colander.SchemaNode(
+        colander.Integer()
+    )
+    timeout = colander.SchemaNode(
+        colander.Integer()
+    )
+    endianness = colander.SchemaNode(
+        colander.String(),
+        validator=colander.OneOf([
+            'big',
+            'little',
+        ])
+    )
+    polling_interval = colander.SchemaNode(
+        colander.Integer()
+    )
+
+class DataStreamModbusConfiguration(colander.MappingSchema):
+    register_type = colander.SchemaNode(
+        colander.String(),
+        validator=colander.OneOf([
+            'holding',
+            'input',
+        ])
+    )
+    slave = colander.SchemaNode(
+        colander.Integer()
+    )
+    address = colander.SchemaNode(
+        colander.Integer()
+    )
+    count = colander.SchemaNode(
+        colander.Integer()
+    )
+
+class DataStreamConfiguration(colander.MappingSchema):
+    label = colander.SchemaNode(
+        colander.String()
+    )
+    modbus = DataStreamModbusConfiguration()
+
+class DataStreamConfigurations(colander.SequenceSchema):
+    data_stream = DataStreamConfiguration()
+
+class FeedConfiguration(colander.MappingSchema):
+    id = colander.SchemaNode(
+        colander.Integer()
+    )
+    api_key = colander.SchemaNode(
+        colander.String()
+    )
+    modbus = FeedModbusConfiguration()
+    data_streams = DataStreamConfigurations()

@@ -148,6 +148,47 @@ class FeedTemplate(ModelBase):
         nullable=True
     )
 
+    modbus_bandwidth = sql.Column(
+        sql.Integer,
+        nullable=False
+    )
+    modbus_port = sql.Column(
+        sql.String(length=50),
+        nullable=False
+    )
+    modbus_parity = sql.Column(
+        sql.Enum(
+            'EVEN',
+            'ODD',
+            name='MODBUS_PARITY_TYPE'
+        ),
+        nullable=False
+    )
+    modbus_data_bits = sql.Column(
+        sql.Integer,
+        nullable=False
+    )
+    modbus_stop_bits = sql.Column(
+        sql.Integer,
+        nullable=False
+    )
+    modbus_timeout = sql.Column(
+        sql.Integer,
+        nullable=False
+    )
+    modbus_endianness = sql.Column(
+        sql.Enum(
+            'BIG',
+            'LITTLE',
+            name='MODBUS_ENDIANNESS_TYPE'
+        ),
+        nullable=False
+    )
+    modbus_polling_interval = sql.Column(
+        sql.Integer,
+        nullable=False
+    )
+
     def get_image_path(self, request):
         if self.image is None:
             return None
@@ -169,6 +210,8 @@ class FeedTemplate(ModelBase):
 class Feed(ModelBase):
 
     __tablename__ = 'sngconnect_feeds'
+
+    ACTIVATION_CODE_VALIDITY_PERIOD = datetime.timedelta(hours=12)
 
     id = sql.Column(
         sql.Integer,
@@ -213,8 +256,10 @@ class Feed(ModelBase):
         sql.String(length=50)
     )
     activation_code_regenerated = sql.Column(
-        sql.DateTime(timezone=True),
-        nullable=False
+        sql.DateTime(timezone=True)
+    )
+    device_uuid = sql.Column(
+        sql.String(length=50)
     )
 
     template = orm.relationship(
@@ -243,6 +288,18 @@ class Feed(ModelBase):
         self.activation_code_regenerated = pytz.utc.localize(
             datetime.datetime.utcnow()
         )
+
+    def has_activation_code_expired(self):
+        if self.activation_code_regenerated is None:
+            return None
+        difference = (
+            datetime.datetime.utcnow() -
+            self.activation_code_regenerated
+        )
+        if difference < self.ACTIVATION_CODE_VALIDITY_PERIOD:
+            return True
+        else:
+            return False
 
 class FeedUser(ModelBase):
 
@@ -344,6 +401,27 @@ class DataStreamTemplate(ModelBase):
         sql.Boolean,
         nullable=False,
         default=False
+    )
+
+    modbus_register_type = sql.Column(
+        sql.Enum(
+            'HOLDING',
+            'INPUT',
+            name='MODBUS_REGISTER_TYPE'
+        ),
+        nullable=False
+    )
+    modbus_slave = sql.Column(
+        sql.Integer,
+        nullable=False
+    )
+    modbus_address = sql.Column(
+        sql.Integer,
+        nullable=False
+    )
+    modbus_count = sql.Column(
+        sql.Integer,
+        nullable=False
     )
 
     feed_template = orm.relationship(

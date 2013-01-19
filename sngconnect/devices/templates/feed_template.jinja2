@@ -14,6 +14,14 @@
         <form action="" method="post">
             {{ feed_template_form.csrf_token }}
             {{ horizontal_form_field(feed_template_form.name) }}
+            {{ horizontal_form_field(feed_template_form.modbus_bandwidth) }}
+            {{ horizontal_form_field(feed_template_form.modbus_port) }}
+            {{ horizontal_form_field(feed_template_form.modbus_parity) }}
+            {{ horizontal_form_field(feed_template_form.modbus_data_bits) }}
+            {{ horizontal_form_field(feed_template_form.modbus_stop_bits) }}
+            {{ horizontal_form_field(feed_template_form.modbus_timeout) }}
+            {{ horizontal_form_field(feed_template_form.modbus_endianness) }}
+            {{ horizontal_form_field(feed_template_form.modbus_polling_interval) }}
             <div class="form-actions">
                 <button type="submit" name="submit_save_feed_template" class="btn btn-primary"><span class="awe-check"></span> {% trans %}Save{% endtrans %}</button>
             </div>
@@ -72,6 +80,10 @@
             {{ horizontal_form_field(data_stream_template_form.description) }}
             {{ horizontal_form_field(data_stream_template_form.measurement_unit) }}
             {{ horizontal_form_field(data_stream_template_form.writable) }}
+            {{ horizontal_form_field(data_stream_template_form.modbus_register_type) }}
+            {{ horizontal_form_field(data_stream_template_form.modbus_slave) }}
+            {{ horizontal_form_field(data_stream_template_form.modbus_address) }}
+            {{ horizontal_form_field(data_stream_template_form.modbus_count) }}
             {{ horizontal_form_field(data_stream_template_form.show_on_dashboard) }}
             <div class="form-actions">
                 <button type="submit" name="submit_add_data_stream_template" class="btn btn-primary"><span class="awe-plus"></span> {% trans %}Add parameter template{% endtrans %}</button>

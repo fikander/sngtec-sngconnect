@@ -164,4 +164,8 @@ ROUTES = (
         'sngconnect.api.upload_log',
         'api/v1/upload-log/{log_request_id:\d+}/{log_request_hash:\w+}.json'
     ),
+    (
+        'sngconnect.api.activate',
+        'api/v1/activate/{feed_id:\d+}'
+    ),
 )

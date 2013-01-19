@@ -35,6 +35,14 @@ def create_test_data():
     feed_template = FeedTemplate(
         id=starting_id,
         name=u"Licznik prądu",
+        modbus_bandwidth=9600,
+        modbus_port='/dev/ttyS0',
+        modbus_parity='EVEN',
+        modbus_data_bits=8,
+        modbus_stop_bits=1,
+        modbus_timeout=5,
+        modbus_endianness='BIG',
+        modbus_polling_interval=120
     )
     feed = Feed(
         id=starting_id,
@@ -47,6 +55,7 @@ def create_test_data():
         api_key='pnqt1tgDLBbzoghjCBDrpcD2NXUCP1WGFUDwm7baQTgmgueS5eU5c4W9EpLrnorJKC4DMfKe255YbwPvAJ7ppbD21NAs8XLk4XQb',
         created=pytz.utc.localize(datetime.datetime.utcnow())
     )
+    feed.regenerate_activation_code()
     user = DBSession.query(User).filter(User.email == 'user@example.com').one()
     feed_user = FeedUser(
         id=starting_id,
@@ -63,7 +72,11 @@ def create_test_data():
             label='t1_total',
             name='t1_total',
             measurement_unit='0.01 kWh',
-            writable=False
+            writable=False,
+            modbus_register_type='HOLDING',
+            modbus_slave=1,
+            modbus_address=27,
+            modbus_count=2
         ),
         DataStreamTemplate(
             id=starting_id + 1,
@@ -71,7 +84,11 @@ def create_test_data():
             label='t2_total',
             name='t2_total',
             measurement_unit='0.01 kWh',
-            writable=False
+            writable=False,
+            modbus_register_type='HOLDING',
+            modbus_slave=1,
+            modbus_address=31,
+            modbus_count=2
         ),
         DataStreamTemplate(
             id=starting_id + 2,
@@ -79,7 +96,11 @@ def create_test_data():
             label='baud',
             name='baud',
             measurement_unit='baud',
-            writable=False
+            writable=False,
+            modbus_register_type='HOLDING',
+            modbus_slave=1,
+            modbus_address=2,
+            modbus_count=2
         ),
         DataStreamTemplate(
             id=starting_id + 3,
@@ -87,7 +108,11 @@ def create_test_data():
             label='version',
             name='version',
             measurement_unit='.',
-            writable=False
+            writable=False,
+            modbus_register_type='HOLDING',
+            modbus_slave=1,
+            modbus_address=0,
+            modbus_count=1
         ),
         DataStreamTemplate(
             id=starting_id + 4,
@@ -95,7 +120,11 @@ def create_test_data():
             label='phase1_URMS',
             name='phase1_URMS',
             measurement_unit='V',
-            writable=False
+            writable=False,
+            modbus_register_type='HOLDING',
+            modbus_slave=1,
+            modbus_address=35,
+            modbus_count=1
         ),
         DataStreamTemplate(
             id=starting_id + 5,
@@ -103,7 +132,11 @@ def create_test_data():
             label='phase1_IRMS',
             name='phase1_IRMS',
             measurement_unit='0.1 A',
-            writable=False
+            writable=False,
+            modbus_register_type='HOLDING',
+            modbus_slave=1,
+            modbus_address=36,
+            modbus_count=1
         ),
         DataStreamTemplate(
             id=starting_id + 6,
@@ -111,7 +144,11 @@ def create_test_data():
             label='phase1_PRMS',
             name='phase1_PRMS',
             measurement_unit='0.01 kW',
-            writable=False
+            writable=False,
+            modbus_register_type='HOLDING',
+            modbus_slave=1,
+            modbus_address=37,
+            modbus_count=1
         ),
         DataStreamTemplate(
             id=starting_id + 7,
@@ -119,7 +156,11 @@ def create_test_data():
             label='phase1_QRMS',
             name='phase1_QRMS',
             measurement_unit='0.01 kVA',
-            writable=False
+            writable=False,
+            modbus_register_type='HOLDING',
+            modbus_slave=1,
+            modbus_address=38,
+            modbus_count=1
         ),
         DataStreamTemplate(
             id=starting_id + 8,
@@ -127,7 +168,11 @@ def create_test_data():
             label='phase1_cos_phi',
             name='phase1_cos_phi',
             measurement_unit='.',
-            writable=False
+            writable=False,
+            modbus_register_type='HOLDING',
+            modbus_slave=1,
+            modbus_address=39,
+            modbus_count=1
         ),
         DataStreamTemplate(
             id=starting_id + 9,
@@ -135,7 +180,11 @@ def create_test_data():
             label='modbus_timeout',
             name='modbus_timeout',
             measurement_unit='s',
-            writable=False
+            writable=False,
+            modbus_register_type='HOLDING',
+            modbus_slave=1,
+            modbus_address=22,
+            modbus_count=1
         ),
         DataStreamTemplate(
             id=starting_id + 10,
@@ -143,7 +192,11 @@ def create_test_data():
             label='total_PRMS',
             name='total_PRMS',
             measurement_unit='0.01 kW',
-            writable=False
+            writable=False,
+            modbus_register_type='HOLDING',
+            modbus_slave=1,
+            modbus_address=50,
+            modbus_count=1
         ),
         DataStreamTemplate(
             id=starting_id + 11,
@@ -151,7 +204,11 @@ def create_test_data():
             label='total_QRMS',
             name='total_QRMS',
             measurement_unit='0.01 kVA',
-            writable=False
+            writable=False,
+            modbus_register_type='HOLDING',
+            modbus_slave=1,
+            modbus_address=51,
+            modbus_count=1
         ),
         DataStreamTemplate(
             id=starting_id + 12,
@@ -159,7 +216,11 @@ def create_test_data():
             label='phase2_URMS',
             name='phase2_URMS',
             measurement_unit='V',
-            writable=False
+            writable=False,
+            modbus_register_type='HOLDING',
+            modbus_slave=1,
+            modbus_address=40,
+            modbus_count=1
         ),
         DataStreamTemplate(
             id=starting_id + 13,
@@ -167,7 +228,11 @@ def create_test_data():
             label='phase2_IRMS',
             name='phase2_IRMS',
             measurement_unit='0.1 A',
-            writable=False
+            writable=False,
+            modbus_register_type='HOLDING',
+            modbus_slave=1,
+            modbus_address=41,
+            modbus_count=1
         ),
         DataStreamTemplate(
             id=starting_id + 14,
@@ -175,7 +240,11 @@ def create_test_data():
             label='phase2_PRMS',
             name='phase2_PRMS',
             measurement_unit='0.01 kW',
-            writable=False
+            writable=False,
+            modbus_register_type='HOLDING',
+            modbus_slave=1,
+            modbus_address=42,
+            modbus_count=1
         ),
         DataStreamTemplate(
             id=starting_id + 15,
@@ -183,7 +252,11 @@ def create_test_data():
             label='phase2_QRMS',
             name='phase2_QRMS',
             measurement_unit='0.01 kVA',
-            writable=False
+            writable=False,
+            modbus_register_type='HOLDING',
+            modbus_slave=1,
+            modbus_address=43,
+            modbus_count=1
         ),
         DataStreamTemplate(
             id=starting_id + 16,
@@ -191,7 +264,11 @@ def create_test_data():
             label='phase2_cos_phi',
             name='phase2_cos_phi',
             measurement_unit='.',
-            writable=False
+            writable=False,
+            modbus_register_type='HOLDING',
+            modbus_slave=1,
+            modbus_address=44,
+            modbus_count=1
         ),
         DataStreamTemplate(
             id=starting_id + 17,
@@ -199,7 +276,11 @@ def create_test_data():
             label='phase3_URMS',
             name='phase3_URMS',
             measurement_unit='V',
-            writable=False
+            writable=False,
+            modbus_register_type='HOLDING',
+            modbus_slave=1,
+            modbus_address=45,
+            modbus_count=1
         ),
         DataStreamTemplate(
             id=starting_id + 18,
@@ -207,7 +288,11 @@ def create_test_data():
             label='phase3_IRMS',
             name='phase3_IRMS',
             measurement_unit='0.1 A',
-            writable=False
+            writable=False,
+            modbus_register_type='HOLDING',
+            modbus_slave=1,
+            modbus_address=46,
+            modbus_count=1
         ),
         DataStreamTemplate(
             id=starting_id + 19,
@@ -215,7 +300,11 @@ def create_test_data():
             label='phase3_PRMS',
             name='phase3_PRMS',
             measurement_unit='0.01 kW',
-            writable=False
+            writable=False,
+            modbus_register_type='HOLDING',
+            modbus_slave=1,
+            modbus_address=47,
+            modbus_count=1
         ),
         DataStreamTemplate(
             id=starting_id + 20,
@@ -223,7 +312,11 @@ def create_test_data():
             label='phase3_QRMS',
             name='phase3_QRMS',
             measurement_unit='0.01 kVA',
-            writable=False
+            writable=False,
+            modbus_register_type='HOLDING',
+            modbus_slave=1,
+            modbus_address=48,
+            modbus_count=1
         ),
         DataStreamTemplate(
             id=starting_id + 21,
@@ -231,7 +324,11 @@ def create_test_data():
             label='phase3_cos_phi',
             name='phase3_cos_phi',
             measurement_unit='.',
-            writable=False
+            writable=False,
+            modbus_register_type='HOLDING',
+            modbus_slave=1,
+            modbus_address=49,
+            modbus_count=1
         ),
         DataStreamTemplate(
             id=starting_id + 22,
@@ -239,7 +336,11 @@ def create_test_data():
             label='t1_partial',
             name='t1_partial',
             measurement_unit='0.01 kWh',
-            writable=True
+            writable=True,
+            modbus_register_type='HOLDING',
+            modbus_slave=1,
+            modbus_address=29,
+            modbus_count=2
         ),
         DataStreamTemplate(
             id=starting_id + 23,
@@ -247,7 +348,11 @@ def create_test_data():
             label='t2_partial',
             name='t2_partial',
             measurement_unit='0.01 kWh',
-            writable=True
+            writable=True,
+            modbus_register_type='HOLDING',
+            modbus_slave=1,
+            modbus_address=33,
+            modbus_count=2
         ),
         DataStreamTemplate(
             id=starting_id + 24,
@@ -255,7 +360,11 @@ def create_test_data():
             label='tariff_register',
             name='tariff_register',
             measurement_unit='.',
-            writable=True
+            writable=True,
+            modbus_register_type='HOLDING',
+            modbus_slave=1,
+            modbus_address=26,
+            modbus_count=1
         ),
         DataStreamTemplate(
             id=starting_id + 25,
@@ -263,7 +372,11 @@ def create_test_data():
             label='status',
             name='status',
             measurement_unit='.',
-            writable=True
+            writable=True,
+            modbus_register_type='HOLDING',
+            modbus_slave=1,
+            modbus_address=21,
+            modbus_count=1
         ),
         DataStreamTemplate(
             id=starting_id + 26,
@@ -271,7 +384,11 @@ def create_test_data():
             label='WT1_partial_1',
             name='WT1_partial_1',
             measurement_unit='.',
-            writable=True
+            writable=True,
+            modbus_register_type='HOLDING',
+            modbus_slave=1,
+            modbus_address=29,
+            modbus_count=2
         ),
         DataStreamTemplate(
             id=starting_id + 27,
@@ -279,7 +396,11 @@ def create_test_data():
             label='WT1_partial_2',
             name='WT1_partial_2',
             measurement_unit='.',
-            writable=True
+            writable=True,
+            modbus_register_type='HOLDING',
+            modbus_slave=1,
+            modbus_address=33,
+            modbus_count=2
         ),
     ]
     DBSession.add_all(data_stream_templates)
@@ -300,6 +421,14 @@ def create_test_data2():
     feed_template = FeedTemplate(
         id=starting_id,
         name=u"NIBE Modbus 40",
+        modbus_bandwidth=9600,
+        modbus_port='/dev/ttyS0',
+        modbus_parity='EVEN',
+        modbus_data_bits=8,
+        modbus_stop_bits=1,
+        modbus_timeout=5,
+        modbus_endianness='BIG',
+        modbus_polling_interval=120
     )
     feed = Feed(
         id=starting_id,
@@ -312,6 +441,7 @@ def create_test_data2():
         api_key='aaaa1tgDLBbzoghjCBDrpcD2NXUCP1WGFUDwm7baQTgmgueS5eU5c4W9EpLrnorJKC4DMfKe255YbwPvAJ7ppbD21NAs8XLk4XQb',
         created=pytz.utc.localize(datetime.datetime.utcnow())
     )
+    feed.regenerate_activation_code()
     user = DBSession.query(User).filter(User.email == 'user@example.com').one()
     feed_user = FeedUser(
         id=starting_id,
@@ -327,24 +457,36 @@ def create_test_data2():
             feed_template=feed_template,
             name='Outdoor temperature (BT1)',
             label='outdoor_temp',
-            measurement_unit='deg C',
-            writable=False
+            measurement_unit=u'°C',
+            writable=False,
+            modbus_register_type='HOLDING',
+            modbus_slave=1,
+            modbus_address=40004,
+            modbus_count=1
         ),
         DataStreamTemplate(
             id=starting_id + 1,
             feed_template=feed_template,
             name='Flow temperature (BT2)',
             label='flow_temp',
-            measurement_unit='deg C',
-            writable=False
+            measurement_unit=u'°C',
+            writable=False,
+            modbus_register_type='HOLDING',
+            modbus_slave=1,
+            modbus_address=40008,
+            modbus_count=1
         ),
         DataStreamTemplate(
             id=starting_id + 2,
             feed_template=feed_template,
             name='Return temperature (BT3)',
             label='return_temp',
-            measurement_unit='deg C',
-            writable=False
+            measurement_unit=u'°C',
+            writable=False,
+            modbus_register_type='HOLDING',
+            modbus_slave=1,
+            modbus_address=40012,
+            modbus_count=1
         ),
         DataStreamTemplate(
             id=starting_id + 3,
@@ -352,7 +494,11 @@ def create_test_data2():
             name='Hot water, top (BT7)',
             label='hot_water_top',
             measurement_unit='?',
-            writable=False
+            writable=False,
+            modbus_register_type='HOLDING',
+            modbus_slave=1,
+            modbus_address=40013,
+            modbus_count=1
         ),
         DataStreamTemplate(
             id=starting_id + 4,
@@ -360,7 +506,11 @@ def create_test_data2():
             name='Hot water middle (BT6)',
             label='hot_water_middle',
             measurement_unit='?',
-            writable=False
+            writable=False,
+            modbus_register_type='HOLDING',
+            modbus_slave=1,
+            modbus_address=40014,
+            modbus_count=1
         ),
         DataStreamTemplate(
             id=starting_id + 5,
@@ -368,7 +518,11 @@ def create_test_data2():
             name='Brine in (BT10)',
             label='brine_in',
             measurement_unit='?',
-            writable=False
+            writable=False,
+            modbus_register_type='HOLDING',
+            modbus_slave=1,
+            modbus_address=40014,
+            modbus_count=1
         ),
         DataStreamTemplate(
             id=starting_id + 6,
@@ -376,15 +530,23 @@ def create_test_data2():
             name='Brine out (BT11)',
             label='brine_out',
             measurement_unit='?',
-            writable=False
+            writable=False,
+            modbus_register_type='HOLDING',
+            modbus_slave=1,
+            modbus_address=40014,
+            modbus_count=1
         ),
         DataStreamTemplate(
             id=starting_id + 7,
             feed_template=feed_template,
             name='Room temperature (BT50)',
             label='room_temp',
-            measurement_unit='deg C',
-            writable=False
+            measurement_unit=u'°C',
+            writable=False,
+            modbus_register_type='HOLDING',
+            modbus_slave=1,
+            modbus_address=40033,
+            modbus_count=1
         ),
         DataStreamTemplate(
             id=starting_id + 8,
@@ -392,7 +554,11 @@ def create_test_data2():
             name='Degree minutes',
             label='degree_minutes',
             measurement_unit='?',
-            writable=False
+            writable=False,
+            modbus_register_type='HOLDING',
+            modbus_slave=1,
+            modbus_address=43005,
+            modbus_count=1
         ),
     ]
     DBSession.add_all(data_stream_templates)

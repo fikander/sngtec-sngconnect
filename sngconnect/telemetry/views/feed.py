@@ -86,17 +86,14 @@ def feeds_new(request):
                 feed_user.user = user
             DBSession.add(feed_user)
             request.session.flash(
-                get_localizer(request).translate(_(
-                    "New device has been added. Use this code to connect the"
-                    " device: <code>${activation_code}</code>",
-                    mapping={
-                        'activation_code': feed.activation_code,
-                    }
-                )),
+                _(
+                    "New device has been added. Go to the device dashboard to"
+                    " obtain the activation code."
+                ),
                 queue='success'
             )
             return httpexceptions.HTTPFound(
-                request.route_url('sngconnect.telemetry.feeds.new')
+                request.route_url('sngconnect.telemetry.dashboard')
             )
         else:
             request.session.flash(
@@ -218,6 +215,16 @@ class FeedViewBase(object):
 )
 class FeedDashboard(FeedViewBase):
     def __call__(self):
+        # Activation
+        if self.feed.activation_code is not None:
+            if self.feed.has_activation_code_expired():
+                self.feed.regenerate_activation_code()
+                DBSession.add(self.feed)
+            activation = {
+                'code': self.feed.get_activation_code(),
+            }
+        else:
+            activation = None
         # Last updated
         last_updated = (
             data_streams_store.LastDataPoints().get_last_data_stream_datetime(
@@ -354,6 +361,7 @@ class FeedDashboard(FeedViewBase):
             'parameters': parameters,
             'settings': settings,
             'charts': charts,
+            'activation': activation,
             'active_alarms': [
                 {
                     'id': alarm_definition.id,

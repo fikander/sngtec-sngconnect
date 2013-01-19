@@ -36,6 +36,14 @@
         <form action="" method="post">
             {{ feed_template_form.csrf_token }}
             {{ horizontal_form_field(feed_template_form.name) }}
+            {{ horizontal_form_field(feed_template_form.modbus_bandwidth) }}
+            {{ horizontal_form_field(feed_template_form.modbus_port) }}
+            {{ horizontal_form_field(feed_template_form.modbus_parity) }}
+            {{ horizontal_form_field(feed_template_form.modbus_data_bits) }}
+            {{ horizontal_form_field(feed_template_form.modbus_stop_bits) }}
+            {{ horizontal_form_field(feed_template_form.modbus_timeout) }}
+            {{ horizontal_form_field(feed_template_form.modbus_endianness) }}
+            {{ horizontal_form_field(feed_template_form.modbus_polling_interval) }}
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary"><span class="awe-plus"></span> {% trans %}Add device template{% endtrans %}</button>
             </div>
