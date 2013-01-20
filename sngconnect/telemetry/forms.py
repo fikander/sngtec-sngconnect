@@ -359,3 +359,12 @@ class CreateFeedForm(SecureForm):
 
     def get_owner(self):
         return self.owner
+
+class ConfirmMessageForm(SecureForm):
+
+    id = fields.IntegerField(
+        widget=widgets.HiddenInput(),
+        validators=(
+            validators.DataRequired(),
+        )
+    )

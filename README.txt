@@ -4,25 +4,35 @@ sngconnect README
 Getting Started
 ---------------
 
+- Install Vagrant - http://www.vagrantup.com
+
 - cd <directory containing this file>
 
-- $venv/bin/python setup.py develop
+- vagrant up
 
-- $venv/bin/sng_initialize_database development.ini
+- Application is now available on localhost:8080
 
-- $venv/bin/sng_initialize_cassandra development.ini
+- vagrant ssh
 
-- $venv/bin/sng_generate_random_data development.ini 1
+- . environment/bin/activate
 
-- $venv/bin/pserve development.ini --reload
+- sng_generate_random_data /vagrant/development.ini 1
+
+- sng_create_testing_data /vagrant/development.ini
 
 Translation
 -----------
 
 - cd <directory containing this file>
 
-- $venv/bin/python setup.py extract_messages
+- vagrant ssh
 
-- $venv/bin/python setup.py update_catalog
+- . environment/bin/activate
 
-- $venv/bin/python setup.py compile_catalog
+- cd /vagrant
+
+- python setup.py extract_messages
+
+- python setup.py update_catalog
+
+- python setup.py compile_catalog

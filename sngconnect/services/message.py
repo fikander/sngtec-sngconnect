@@ -15,8 +15,14 @@ class MessageService(ServiceBase):
         self.notification_service = self.get_service(NotificationService)
         self.confirmations = Confirmations()
 
+    def get_message(self, id):
+        return DBSession.query(Message).filter(
+            Message.id == id
+        ).one()
+
     def create_message(self, message):
         DBSession.add(message)
+        DBSession.flush()
         if message.confirmation_required:
             if message.feed is not None:
                 users = DBSession.query(User).join(
@@ -33,7 +39,7 @@ class MessageService(ServiceBase):
             )
         if message.send_notifications:
             if message.feed is not None:
-                self.notification_service.notify_users(
+                self.notification_service.notify_feed_users(
                     message.feed,
                     # TODO What to send in email subject and SMS notification?
                     "",
@@ -65,6 +71,9 @@ class MessageService(ServiceBase):
         return query.order_by(
             self.default_order
         ).all()
+
+    def confirm_message(self, user, message):
+        self.confirmations.set_confirmed(user.id, [message.id])
 
     def get_feed_messages(self, feed, data_stream_template_id=None,
             author_id=None):

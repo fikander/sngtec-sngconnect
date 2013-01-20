@@ -7,6 +7,11 @@ class UserService(ServiceBase):
 
     default_order = sql.asc(User.email)
 
+    def get_user(self, id):
+        return DBSession.query(User).filter(
+            User.id == id
+        ).one()
+
     def get_all_users(self, summary, message):
         return DBSession.query(User).order_by(
             self.default_order

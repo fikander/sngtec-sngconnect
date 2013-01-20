@@ -76,6 +76,10 @@ ROUTES = (
         'sngconnect.telemetry.feed_history',
         'feeds/{feed_id:\d+}/history'
     ),
+    (
+        'sngconnect.telemetry.confirm_message',
+        'feeds/confirm-message'
+    ),
     # sngconnect.devices
     (
         'sngconnect.devices.feed_templates',

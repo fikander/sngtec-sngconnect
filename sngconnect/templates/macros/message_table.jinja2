@@ -16,6 +16,16 @@
                 >
                     <td>{{ message.date|format_datetime }}</td>
                     <td>
+                        {% if message.confirm_form %}
+                            <form action="{{ message.confirm_url }}"
+                            method="post" style="float: right; margin: 0; background: none;">
+                                {{ message.confirm_form.csrf_token }}
+                                {{ message.confirm_form.id }}
+                                <button type="submit" class="btn btn-mini btn-success">
+                                    <span class="awe-ok"></span> {% trans %}Confirm{% endtrans %}
+                                </button>
+                            </form>
+                        {% endif %}
                         {% if message.author %}
                             <strong>{{ message.author.name }}:</strong>
                         {% endif %}

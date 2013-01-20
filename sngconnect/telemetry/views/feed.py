@@ -11,7 +11,7 @@ from sqlalchemy.orm import exc as database_exceptions, joinedload
 from pyramid.response import Response
 from pyramid.view import view_config
 from pyramid import httpexceptions
-from pyramid.i18n import get_locale_name, get_localizer
+from pyramid.i18n import get_locale_name
 from pyramid.security import authenticated_userid, has_permission
 
 from sngconnect.translation import _
@@ -394,6 +394,13 @@ class FeedDashboard(FeedViewBase):
                     'message_type': message.message_type,
                     'content': message.content,
                     'date': message.date,
+                    'confirm_url': self.request.route_url(
+                        'sngconnect.telemetry.confirm_message'
+                    ),
+                    'confirm_form': forms.ConfirmMessageForm(
+                        id=message.id,
+                        csrf_context=self.request
+                    ),
                 }
                 for message in unconfirmed_messages
             ],

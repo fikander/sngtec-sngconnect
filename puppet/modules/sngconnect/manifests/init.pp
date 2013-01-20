@@ -76,12 +76,12 @@ class sngconnect {
             release     => '11x',
             repos       => 'main',
             key         => 'F758CE318D77295D',
-            key_server  => 'pgp.mit.edu',
+            key_server  => 'keyserver.ubuntu.com',
             include_src => 'true',
         }
         apt::key { 'apache-cassandra-0.7.5-key':
             key        => '2B5C1B00',
-            key_server => 'pgp.mit.edu',
+            key_server => 'keyserver.ubuntu.com',
         }
         exec { 'update-cassandra-repository':
             command   => "${apt::params::provider} update",
