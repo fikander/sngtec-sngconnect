@@ -6,14 +6,9 @@ class sngconnect {
         command   => "${apt::params::provider} update",
         logoutput => 'on_failure',
     }
-    exec { 'update-packages':
-        command   => "${apt::params::provider} -y dist-upgrade",
-        logoutput => 'on_failure',
-        require   => Exec['update-package-repositories'],
-    }
-    Exec['update-packages'] -> Package <| |>
-    Exec['update-packages'] -> Apt::Source <| |>
-    Exec['update-packages'] -> Apt::Key <| |>
+    Exec['update-package-repositories'] -> Package <| |>
+    Exec['update-package-repositories'] -> Apt::Source <| |>
+    Exec['update-package-repositories'] -> Apt::Key <| |>
 
     class command-line-utils {
         package { 'build-essential':
