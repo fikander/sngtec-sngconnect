@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: SNG:connect\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-01-22 13:29+0000\n"
-"PO-Revision-Date: 2013-01-22 15:14+0000\n"
+"PO-Revision-Date: 2013-01-22 15:50+0000\n"
 "Last-Translator: pdylewski <p.dylewski@synergiatech.pl>\n"
 "Language-Team: Polish (http://www.transifex.com/projects/p/sngconnect/language/pl/)\n"
 "MIME-Version: 1.0\n"
@@ -88,7 +88,7 @@ msgstr ""
 
 #: sngconnect/accounts/views.py:191
 msgid "Your password has been successfuly changed."
-msgstr ""
+msgstr "Twóje hasło zostało zmienione. "
 
 #: sngconnect/accounts/views.py:198 sngconnect/announcements/views.py:38
 #: sngconnect/appearance/views.py:56 sngconnect/appearance/views.py:91
@@ -283,7 +283,7 @@ msgstr "Rozmiar"
 
 #: sngconnect/appearance/templates/appearance.jinja2:51
 msgid "Last modification"
-msgstr ""
+msgstr "Ostatnia modyfikacja"
 
 #: sngconnect/appearance/templates/appearance.jinja2:69
 #: sngconnect/devices/templates/feed_template.jinja2:66
@@ -743,11 +743,11 @@ msgstr "Wykres"
 
 #: sngconnect/telemetry/templates/feed/chart.jinja2:11
 msgid "From"
-msgstr ""
+msgstr "Od"
 
 #: sngconnect/telemetry/templates/feed/chart.jinja2:16
 msgid "to"
-msgstr ""
+msgstr "do"
 
 #: sngconnect/telemetry/templates/feed/chart.jinja2:21
 msgid "Set range"
@@ -756,7 +756,7 @@ msgstr ""
 #: sngconnect/telemetry/templates/feed/chart.jinja2:24
 #: sngconnect/telemetry/templates/feed/dashboard.jinja2:150
 msgid "Last"
-msgstr ""
+msgstr "Ostatnia"
 
 #: sngconnect/telemetry/templates/feed/chart.jinja2:26
 #: sngconnect/telemetry/templates/feed/dashboard.jinja2:152
@@ -1024,7 +1024,7 @@ msgstr "Dzień"
 #: sngconnect/telemetry/templates/feed/data_stream.jinja2:175
 #: sngconnect/telemetry/templates/feed/setting.jinja2:133
 msgid "Last week"
-msgstr ""
+msgstr "Ostatni tydzień"
 
 #: sngconnect/telemetry/templates/feed/data_stream.jinja2:215
 #: sngconnect/telemetry/templates/feed/data_stream.jinja2:289
@@ -1071,7 +1071,7 @@ msgstr ""
 
 #: sngconnect/telemetry/templates/feed/permissions.jinja2:19
 msgid "Can manage users"
-msgstr ""
+msgstr "Może zarządzać użytkownikami"
 
 #: sngconnect/telemetry/templates/feed/permissions.jinja2:38
 msgid "no users yet"
@@ -1156,7 +1156,7 @@ msgstr ""
 
 #: sngconnect/telemetry/views/feed.py:1410
 msgid "User has been successfuly added."
-msgstr ""
+msgstr "Użytkownik został dodany. "
 
 #: sngconnect/telemetry/views/feed.py:1438
 msgid "This maintainer already has access to this device."
@@ -1169,11 +1169,11 @@ msgstr ""
 #: sngconnect/telemetry/views/feed.py:1545
 #: sngconnect/telemetry/views/feed.py:1608
 msgid "User permissions have been successfuly saved."
-msgstr ""
+msgstr "Uprawnienia użytkownika zostały zapisane."
 
 #: sngconnect/templates/base.jinja2:69
 msgid "Sign out"
-msgstr ""
+msgstr "Wyloguj"
 
 #: sngconnect/templates/base.jinja2:105
 msgid "Help"
