@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: SNG:connect\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-01-22 13:29+0000\n"
-"PO-Revision-Date: 2013-01-22 14:40+0000\n"
+"PO-Revision-Date: 2013-01-22 15:14+0000\n"
 "Last-Translator: pdylewski <p.dylewski@synergiatech.pl>\n"
 "Language-Team: Polish (http://www.transifex.com/projects/p/sngconnect/language/pl/)\n"
 "MIME-Version: 1.0\n"
@@ -180,7 +180,7 @@ msgstr ""
 
 #: sngconnect/announcements/forms.py:9 sngconnect/telemetry/forms.py:238
 msgid "Content"
-msgstr ""
+msgstr "Zawartość"
 
 #: sngconnect/announcements/views.py:30
 msgid "Announcement has been successfuly sent."
@@ -318,7 +318,7 @@ msgstr ""
 #: sngconnect/telemetry/templates/feed/data_streams.jinja2:13
 #: sngconnect/telemetry/templates/feed/settings.jinja2:13
 msgid "Name"
-msgstr ""
+msgstr "Nazwa"
 
 #: sngconnect/devices/forms.py:21
 msgid "Modbus bandwidth"
@@ -420,7 +420,7 @@ msgstr ""
 #: sngconnect/devices/templates/feed_template.jinja2:37
 #: sngconnect/devices/templates/feed_template.jinja2:100
 msgid "Show on dashboard"
-msgstr ""
+msgstr "Pokaż na pulpicie"
 
 #: sngconnect/devices/forms.py:208
 msgid "There is already parameter template having this label."
@@ -442,7 +442,7 @@ msgstr "Wybierz do 3 parametrów"
 #: sngconnect/devices/forms.py:296 sngconnect/devices/forms.py:330
 #: sngconnect/telemetry/forms.py:171 sngconnect/telemetry/forms.py:208
 msgid "This chart name is already taken."
-msgstr ""
+msgstr "Ta nazwa wykresu jest już używana"
 
 #: sngconnect/devices/forms.py:360
 msgid ""
@@ -595,7 +595,7 @@ msgstr ""
 #: sngconnect/errors/templates/bad_request.jinja2:11
 #: sngconnect/errors/templates/not_found.jinja2:11
 msgid "Back to Dashboard"
-msgstr ""
+msgstr "Powrót do pulpitu"
 
 #: sngconnect/errors/templates/not_found.jinja2:9
 msgid "Page not found..."
@@ -700,11 +700,11 @@ msgstr ""
 
 #: sngconnect/telemetry/templates/dashboard.jinja2:27
 msgid "Map"
-msgstr ""
+msgstr "Mapa"
 
 #: sngconnect/telemetry/templates/dashboard.jinja2:29
 msgid "Monitored devices"
-msgstr ""
+msgstr "Monitorowane urządzenia"
 
 #: sngconnect/telemetry/templates/dashboard.jinja2:34
 msgid "Alarms"
@@ -712,28 +712,28 @@ msgstr ""
 
 #: sngconnect/telemetry/templates/dashboard.jinja2:35
 msgid "Device"
-msgstr ""
+msgstr "Urządzenie"
 
 #: sngconnect/telemetry/templates/feed/base.jinja2:15
 #: sngconnect/templates/base.jinja2:32 sngconnect/templates/base.jinja2:83
 msgid "Dashboard"
-msgstr ""
+msgstr "Pulpit"
 
 #: sngconnect/telemetry/templates/feed/base.jinja2:37
 #: sngconnect/telemetry/templates/feed/dashboard.jinja2:111
 #: sngconnect/telemetry/templates/feed/settings.jinja2:6
 msgid "Settings"
-msgstr ""
+msgstr "Ustawienia"
 
 #: sngconnect/telemetry/templates/feed/base.jinja2:45
 #: sngconnect/telemetry/templates/feed/permissions.jinja2:7
 msgid "Permissions"
-msgstr ""
+msgstr "Uprawnienia"
 
 #: sngconnect/telemetry/templates/feed/base.jinja2:52
 #: sngconnect/telemetry/templates/feed/history.jinja2:8
 msgid "History"
-msgstr ""
+msgstr "Historia"
 
 #: sngconnect/telemetry/templates/feed/chart.jinja2:6
 #: sngconnect/telemetry/templates/feed/data_stream.jinja2:98
@@ -761,31 +761,31 @@ msgstr ""
 #: sngconnect/telemetry/templates/feed/chart.jinja2:26
 #: sngconnect/telemetry/templates/feed/dashboard.jinja2:152
 msgid "hour"
-msgstr ""
+msgstr "godzina"
 
 #: sngconnect/telemetry/templates/feed/chart.jinja2:27
 #: sngconnect/telemetry/templates/feed/dashboard.jinja2:153
 msgid "24 hours"
-msgstr ""
+msgstr "24 godz."
 
 #: sngconnect/telemetry/templates/feed/chart.jinja2:28
 #: sngconnect/telemetry/templates/feed/dashboard.jinja2:154
 msgid "7 days"
-msgstr ""
+msgstr "7 dni"
 
 #: sngconnect/telemetry/templates/feed/chart.jinja2:29
 #: sngconnect/telemetry/templates/feed/dashboard.jinja2:155
 msgid "30 days"
-msgstr ""
+msgstr "30 dni"
 
 #: sngconnect/telemetry/templates/feed/chart.jinja2:30
 #: sngconnect/telemetry/templates/feed/dashboard.jinja2:156
 msgid "1 year"
-msgstr ""
+msgstr "1 rok"
 
 #: sngconnect/telemetry/templates/feed/charts.jinja2:11
 msgid "Chart definitions"
-msgstr ""
+msgstr "Definicje wykresów"
 
 #: sngconnect/telemetry/templates/feed/charts.jinja2:22
 msgid "Edit"
@@ -793,7 +793,7 @@ msgstr ""
 
 #: sngconnect/telemetry/templates/feed/charts.jinja2:39
 msgid "New linear chart"
-msgstr ""
+msgstr "Nowy wykres liniowy"
 
 #: sngconnect/telemetry/templates/feed/charts.jinja2:40
 msgid "Visualise multiple parameters"
@@ -808,7 +808,7 @@ msgstr "Utwórz"
 
 #: sngconnect/telemetry/templates/feed/charts.jinja2:53
 msgid "New differential chart"
-msgstr ""
+msgstr "Nowy wykres różniczkowy"
 
 #: sngconnect/telemetry/templates/feed/charts.jinja2:54
 msgid "Visualise changes to parameters"
@@ -1014,7 +1014,7 @@ msgstr "Dodaj"
 #: sngconnect/telemetry/templates/feed/history.jinja2:20
 #: sngconnect/telemetry/templates/feed/setting.jinja2:72
 msgid "Browse history"
-msgstr ""
+msgstr "Historia"
 
 #: sngconnect/telemetry/templates/feed/data_stream.jinja2:125
 #: sngconnect/telemetry/templates/feed/setting.jinja2:85
@@ -1036,7 +1036,7 @@ msgstr ""
 #: sngconnect/telemetry/templates/feed/data_stream.jinja2:249
 #: sngconnect/telemetry/templates/feed/setting.jinja2:205
 msgid "Last year"
-msgstr ""
+msgstr "Ostatni rok"
 
 #: sngconnect/telemetry/templates/feed/data_streams.jinja2:10
 msgid "Current parameter values"
@@ -1089,11 +1089,11 @@ msgstr "Dodaj użytkownika"
 
 #: sngconnect/telemetry/templates/feed/permissions.jinja2:61
 msgid "Maintainers"
-msgstr ""
+msgstr "Instalatorzy"
 
 #: sngconnect/telemetry/templates/feed/permissions.jinja2:66
 msgid "Maintainer"
-msgstr ""
+msgstr "Instalator"
 
 #: sngconnect/telemetry/templates/feed/permissions.jinja2:68
 msgid "Can manage maintainers"
@@ -1101,12 +1101,12 @@ msgstr ""
 
 #: sngconnect/telemetry/templates/feed/permissions.jinja2:87
 msgid "no maintainers yet"
-msgstr ""
+msgstr "Aktualnie brak instalatorów"
 
 #: sngconnect/telemetry/templates/feed/permissions.jinja2:97
 #: sngconnect/telemetry/templates/feed/permissions.jinja2:104
 msgid "Add maintainer"
-msgstr ""
+msgstr "Dodaj instalatora"
 
 #: sngconnect/telemetry/templates/feed/setting.jinja2:23
 #: sngconnect/telemetry/templates/feed/setting.jinja2:32
@@ -1120,7 +1120,7 @@ msgstr "Ustaw wartość"
 
 #: sngconnect/telemetry/templates/feed/settings.jinja2:10
 msgid "Current setting values"
-msgstr ""
+msgstr "Aktualnie ustawiona wartość"
 
 #: sngconnect/telemetry/templates/feed/settings.jinja2:31
 msgid "This device has no settings."
@@ -1144,7 +1144,7 @@ msgstr ""
 #: sngconnect/telemetry/views/feed.py:1262
 #: sngconnect/telemetry/views/feed.py:1640
 msgid "Your comment has been successfuly saved."
-msgstr ""
+msgstr "Twoja wiadomość została zapisana. "
 
 #: sngconnect/telemetry/views/feed.py:1231
 msgid "Setting value has been successfuly saved."
