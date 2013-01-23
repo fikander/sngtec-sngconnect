@@ -939,6 +939,7 @@ class FeedDataStream(FeedViewBase):
                         else:
                             query.delete()
                             maximum_alarm = None
+                    DBSession.flush()
                     alarms_on = []
                     alarms_off = []
                     if last_data_point is not None:
