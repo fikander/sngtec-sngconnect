@@ -5,35 +5,61 @@ VIRTUALENV=$BASE/environment
 CONFIGURATION=/vagrant/development.ini
 USER=vagrant
 
-LOG_FILE=$BASE/var/log/pserve.log
-PID_FILE=$BASE/var/run/pserve.pid
+SCREEN_SESSION_NAME=pserve
 
 start_application()
 {
-    su $USER -c ". $VIRTUALENV/bin/activate && pserve $CONFIGURATION --reload --monitor-restart --daemon --pid-file=$PID_FILE --log-file=$LOG_FILE"
+    su $USER -c "screen -S $SCREEN_SESSION_NAME -d -m /bin/bash -c '. $VIRTUALENV/bin/activate && pserve $CONFIGURATION --reload --monitor-restart'"
 }
 
 stop_application()
 {
-    su $USER -c ". $VIRTUALENV/bin/activate && pserve $CONFIGURATION --stop-daemon --pid-file=$PID_FILE"
+    su $USER -c "screen -S $SCREEN_SESSION_NAME -p 0 -X stuff "
+}
+
+application_status()
+{
+    su $USER -c "screen -list | grep -q $SCREEN_SESSION_NAME"
 }
 
 case "$1" in
     start)
-        start_application
-        exit $?
+        application_status
+        if [ "$?" -eq "1" ]; then
+            start_application && echo "Started."
+            exit $?
+        else
+            echo "Already running." >&2
+            exit 1
+        fi
         ;;
     stop)
-        stop_application
-        exit $?
+        if [ "$?" -eq "0" ]; then
+            stop_application && echo "Stopped"
+            exit $?
+        else
+            echo "Not running." >&2
+            exit 1
+        fi
         ;;
     restart)
-        stop_application && start_application
-        exit $?
+        if [ "$?" -eq "0" ]; then
+            stop_application && start_application && echo "Restarted."
+            exit $?
+        else
+            echo "Not running." >&2
+            exit 1
+        fi
         ;;
     status)
-        su $USER -c ". $VIRTUALENV/bin/activate && pserve $CONFIGURATION --status --pid-file=$PID_FILE"
-        exit $?
+        application_status
+        if [ "$?" -eq "0" ]; then
+            echo "Running."
+            exit 0
+        else
+            echo "Not running." >&2
+            exit 1
+        fi
         ;;
     *)
         echo "Usage: $0 {start|stop|restart|status}" >&2
