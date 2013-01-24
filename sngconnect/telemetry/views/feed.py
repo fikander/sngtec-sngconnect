@@ -1671,6 +1671,23 @@ class FeedHistory(FeedViewBase):
                 {
                     'id': message.id,
                     'message_type': message.message_type,
+                    'data_stream': (
+                        {
+                            'id': message.data_stream.id,
+                            'name': message.data_stream.name,
+                            'url': self.request.route_url(
+                                (
+                                    'sngconnect.telemetry.feed_data_stream'
+                                    if not message.data_stream.writable else
+                                    'sngconnect.telemetry.feed_settings'
+                                ),
+                                feed_id=message.data_stream.feed_id,
+                                data_stream_label=message.data_stream.label
+                            ),
+                        }
+                        if message.data_stream is not None
+                        else None
+                    ),
                     'author': (
                         {
                             'id': message.author.id,

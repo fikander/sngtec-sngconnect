@@ -26,6 +26,9 @@
                                 </button>
                             </form>
                         {% endif %}
+                        {% if message.data_stream %}
+                            <a href="{{ message.data_stream.url }}">{{ message.data_stream.name }}</a>:
+                        {% endif %}
                         {% if message.author %}
                             <strong>{{ message.author.name }}:</strong>
                         {% endif %}
