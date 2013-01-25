@@ -41,6 +41,9 @@ class sngconnect {
         package { 'git':
             ensure => present,
         }
+        package { 'screen':
+            ensure => present,
+        }
         package { 'vim-nox':
             ensure => present,
         }
