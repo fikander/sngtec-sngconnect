@@ -26,7 +26,6 @@
                     {% if data_stream.today %}
                         <td><span class="other-value">{{ data_stream.today.minimum|format_decimal }} / {{ data_stream.today.maximum|format_decimal }} <span class="unit">{{ data_stream.measurement_unit }}</span></span></td>
                     {% else %}
-                        <td><span class="other-value">100.12 / 455.891 <span class="unit">mm</span></span></td>
                         <td class="no-data">{% trans %}no data{% endtrans %}</td>
                     {% endif %}
                 </tr>
