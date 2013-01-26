@@ -8,7 +8,7 @@
 
 {% block page_content %}
     <h2><span class="awe-th-list"></span> {% trans %}Current parameter values{% endtrans %}</h2>
-    <table class="table table-values">
+    <table class="table table-values" data-provides="rowlink">
         <thead>
             <th>{% trans %}Name{% endtrans %}</th>
             <th>{% trans %}Last known value{% endtrans %}</th>
@@ -19,13 +19,14 @@
                 <tr>
                     <td><a href="{{ data_stream.url }}">{{ data_stream.name }}</a></td>
                     {% if data_stream.last_value %}
-				        <td><span class="current-value">{{ data_stream.last_value.value|format_decimal }} <span class="unit">{{ data_stream.measurement_unit }}</span></span></td>
+                        <td><span class="current-value">{{ data_stream.last_value.value|format_decimal }} <span class="unit">{{ data_stream.measurement_unit }}</span></span></td>
                     {% else %}
                         <td class="no-data">{% trans %}no data{% endtrans %}</td>
                     {% endif %}
                     {% if data_stream.today %}
-                        <td><code>{{ data_stream.today.minimum|format_decimal }}</code> / <code>{{ data_stream.today.maximum|format_decimal }}</code></td>
+                        <td><span class="other-value">{{ data_stream.today.minimum|format_decimal }} / {{ data_stream.today.maximum|format_decimal }} <span class="unit">{{ data_stream.measurement_unit }}</span></span></td>
                     {% else %}
+                        <td><span class="other-value">100.12 / 455.891 <span class="unit">mm</span></span></td>
                         <td class="no-data">{% trans %}no data{% endtrans %}</td>
                     {% endif %}
                 </tr>

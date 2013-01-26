@@ -17,7 +17,7 @@
                     <tr>
                         <th>{% trans %}Current value{% endtrans %}</th>
                         {% if data_stream.last_value %}
-                            <td><code>{{ data_stream.last_value.value|format_decimal }}</code></td>
+                            <td><span class="current-value">{{ data_stream.last_value.value|format_decimal }} <span class="unit">{{ data_stream.measurement_unit }}</span></span></td>
                         {% else %}
                             <td class="no-data">{% trans %}no data{% endtrans %}</td>
                         {% endif %}
@@ -25,7 +25,7 @@
                     {% if data_stream.last_value %}
                         <tr>
                             <th>{% trans %}Last update{% endtrans %}</th>
-                            <td>{{ data_stream.last_value.date|format_datetime }}</td>
+                            <td><span class="other-value">{{ data_stream.last_value.date|format_datetime }}</span></td>
                         </tr>
                     {% endif %}
                 </tbody>
@@ -43,9 +43,9 @@
                     <tr>
                         <th>{% trans %}This hour{% endtrans %}</td>
                         {% if data_stream.this_hour %}
-                            <td><code>{{ data_stream.this_hour.mean|format_decimal }}</code></td>
-                            <td><code>{{ data_stream.this_hour.minimum|format_decimal }}</code></td>
-                            <td><code>{{ data_stream.this_hour.maximum|format_decimal }}</code></td>
+                            <td><span class="other-value">{{ data_stream.this_hour.mean|format_decimal }}</span</td>
+                            <td><span class="other-value">{{ data_stream.this_hour.minimum|format_decimal }}</span></td>
+                            <td><span class="other-value">{{ data_stream.this_hour.maximum|format_decimal }}</span></td>
                         {% else %}
                             <td class="no-data" colspan="3">{% trans %}no data{% endtrans %}</td>
                         {% endif %}
@@ -53,9 +53,9 @@
                     <tr>
                         <th>{% trans %}Today{% endtrans %}</td>
                         {% if data_stream.today %}
-                            <td><code>{{ data_stream.today.mean|format_decimal }}</code></td>
-                            <td><code>{{ data_stream.today.minimum|format_decimal }}</code></td>
-                            <td><code>{{ data_stream.today.maximum|format_decimal }}</code></td>
+                            <td><span class="other-value">{{ data_stream.today.mean|format_decimal }}</span></td>
+                            <td><span class="other-value">{{ data_stream.today.minimum|format_decimal }}</span></td>
+                            <td><span class="other-value">{{ data_stream.today.maximum|format_decimal }}</span></td>
                         {% else %}
                             <td class="no-data" colspan="3">{% trans %}no data{% endtrans %}</td>
                         {% endif %}
@@ -63,9 +63,9 @@
                     <tr>
                         <th>{% trans %}This month{% endtrans %}</td>
                         {% if data_stream.this_month %}
-                            <td><code>{{ data_stream.this_month.mean|format_decimal }}</code></td>
-                            <td><code>{{ data_stream.this_month.minimum|format_decimal }}</code></td>
-                            <td><code>{{ data_stream.this_month.maximum|format_decimal }}</code></td>
+                            <td><span class="other-value">{{ data_stream.this_month.mean|format_decimal }}</span></td>
+                            <td><span class="other-value">{{ data_stream.this_month.minimum|format_decimal }}</span></td>
+                            <td><span class="other-value">{{ data_stream.this_month.maximum|format_decimal }}</span></td>
                         {% else %}
                             <td class="no-data" colspan="3">{% trans %}no data{% endtrans %}</td>
                         {% endif %}
