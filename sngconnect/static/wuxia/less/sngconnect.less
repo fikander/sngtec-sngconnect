@@ -18,6 +18,34 @@
     }
 }
 
+.other-value {
+    color: @headingsColor;
+    margin: 0;
+    font-family: inherit;
+    font-weight: normal;
+    text-rendering: optimizelegibility;
+    .unit {
+        color: @grayLight;
+    }
+}
+
+// required for bootstrap-rowlink
+tr.rowlink td {
+    cursor: pointer;
+}
+tr.rowlink td.nolink {
+    cursor: auto;
+}
+.table tbody tr.rowlink:hover td {
+//    background-color: @tableBackgroundHover;
+}
+a.rowlink {
+    color: inherit;
+    font: inherit;
+    text-decoration: inherit;
+}
+
+//
 .dashboard-diagram {
     max-width: 100%;
 }

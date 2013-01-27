@@ -9246,9 +9246,9 @@ abbr[title] {
 .navbar .brand {
   padding: 0;
   margin: 0px 0 0;
-  background-image: url("../img/sngconnect_logo_with_text_white_179x45.png");
+  background-image: url("../img/sngconnect_logo_with_text_white_160x45.png");
   background-repeat: no-repeat;
-  width: 179px;
+  width: 169px;
   height: 45px;
   font: 0/0 a;
   color: transparent;
@@ -12230,6 +12230,27 @@ div.jGrowl div.inverse a:hover {
 }
 .current-value .unit {
   color: #999999;
+}
+.other-value {
+  color: #525252;
+  margin: 0;
+  font-family: inherit;
+  font-weight: normal;
+  text-rendering: optimizelegibility;
+}
+.other-value .unit {
+  color: #999999;
+}
+tr.rowlink td {
+  cursor: pointer;
+}
+tr.rowlink td.nolink {
+  cursor: auto;
+}
+a.rowlink {
+  color: inherit;
+  font: inherit;
+  text-decoration: inherit;
 }
 .dashboard-diagram {
   max-width: 100%;
