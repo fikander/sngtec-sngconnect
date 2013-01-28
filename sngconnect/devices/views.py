@@ -96,7 +96,7 @@ def feed_template_delete(request):
             request.session.flash(
                 _(
                     "Device template cannot be deleted as there are"
-                    " already devices basing on it. Contact the system"
+                    " already devices based on it. Contact the system"
                     " support for further information."
                 ),
                 queue='error'
@@ -419,7 +419,7 @@ def data_stream_template_delete(request):
             request.session.flash(
                 _(
                     "Parameter template cannot be deleted as there are"
-                    " already parameters basing on it. Contact the system"
+                    " already parameters based on it. Contact the system"
                     " support for further information."
                 ),
                 queue='error'
