@@ -353,7 +353,11 @@ class FeedDashboard(FeedViewBase):
                             'name': template.name,
                             'measurement_unit': template.measurement_unit,
                         }
-                        for template in chart_definition.data_stream_templates
+                        for template in sorted(
+                            chart_definition.data_stream_templates,
+                            None,
+                            lambda template: template.id
+                        )
                     ],
                 },
             }
@@ -608,7 +612,11 @@ class FeedChart(FeedCharts):
                         'name': template.name,
                         'measurement_unit': template.measurement_unit,
                     }
-                    for template in chart_definition.data_stream_templates
+                    for template in sorted(
+                        chart_definition.data_stream_templates,
+                        None,
+                        lambda template: template.id
+                    )
                 ],
             },
         }
