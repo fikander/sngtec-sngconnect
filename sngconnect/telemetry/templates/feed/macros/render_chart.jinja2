@@ -22,6 +22,7 @@
         $(function(){
             function reload_chart_data(chart, parameters) {
                 chart.showLoading();
+                chart.currentDataParameters = parameters;
                 $.getJSON(
                     {{ rendering_data.data_url|tojson }},
                     parameters,
@@ -43,6 +44,55 @@
                     }
                 );
             }
+            function update_chart_data(chart) {
+                if (chart.currentDataParameters.end !== undefined) {
+                    return;
+                }
+                var start = null;
+                $.each(chart.series, function(index, series){
+                    var point = series.data[series.data.length - 1];
+                    if (point === undefined) {
+                        return;
+                    }
+                    if (start === null || start > point.x) {
+                        start = point.x;
+                    }
+                });
+                var parameters = {};
+                if (start !== null) {
+                    parameters.start = (new Date(start)).toISOString();
+                }
+                $.getJSON(
+                    {{ rendering_data.data_url|tojson }},
+                    parameters,
+                    function(data, textStatus, jqXHR) {
+                        data = data.map(function(a){
+                            return a.map(function(b){
+                                return [
+                                    Date.parse(b[0]),
+                                    parseFloat(b[1])
+                                ];
+                            });
+                        });
+                        $.each(chart.series, function(index, series){
+                            var last_chart_point = series.data[series.data.length - 1];
+                            var new_data = data[index];
+                            if (last_chart_point !== undefined) {
+                                new_data = $.grep(
+                                    data[index],
+                                    function(point, index){
+                                        return (point[0] > last_chart_point.x);
+                                    }
+                                );
+                            }
+                            $.each(new_data, function(index, point){
+                                series.addPoint(point, false);
+                            });
+                        });
+                        chart.redraw();
+                    }
+                );
+            }
             var chart = new Highcharts.Chart({
                 chart: {
                     renderTo: {{ container_id|tojson }},
@@ -59,8 +109,9 @@
                     },
                     events: {
                         load: function() {
+                            var chart = this;
                             reload_chart_data(
-                                this,
+                                chart,
                                 {% if last %}
                                     {
                                         last: {{ last|tojson }}
@@ -69,6 +120,9 @@
                                     {}
                                 {% endif %}
                             );
+                            setInterval(function(){
+                                update_chart_data(chart);
+                            }, 2000);
                         }
                     }
                 },
@@ -154,7 +208,6 @@
                     var button = $(event.target);
                     button.parent(".set-last-range-group").find("button").removeClass("active");
                     button.addClass("active");
-                    console.log(button.data("last"));
                     reload_chart_data(chart, {
                         last: button.data("last")
                     });
