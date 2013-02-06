@@ -14,7 +14,7 @@ class UpdateStylesheetForm(SecureForm):
     stylesheet = fields.TextAreaField(
         _("Stylesheet"),
         validators=(
-            validators.Length(max=100000),
+            validators.Length(max=500000),
         )
     )
 
