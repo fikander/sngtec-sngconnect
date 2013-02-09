@@ -103,15 +103,29 @@ def feed_data_stream(request):
     alarm_definitions = DBSession.query(AlarmDefinition).filter(
         AlarmDefinition.data_stream_id == data_stream.id
     )
+    alarm_messages = []
     alarms_on = []
     alarms_off = []
     for alarm_definition in alarm_definitions:
-        if alarm_definition.check_value(last_value) is None:
+        message_content = alarm_definition.check_value(last_value)
+        if message_content is None:
             alarms_off.append(alarm_definition.id)
         else:
             alarms_on.append(alarm_definition.id)
+            alarm_messages.append(
+                Message(
+                    feed=alarm_definition.data_stream.feed,
+                    data_stream=alarm_definition.data_stream,
+                    message_type='ERROR',
+                    date=last_date,
+                    content=message_content
+                )
+            )
     Alarms().set_alarms_on(feed_id, data_stream.id, alarms_on, last_date)
     Alarms().set_alarms_off(feed_id, data_stream.id, alarms_off)
+    message_service = MessageService(request)
+    for message in alarm_messages:
+        message_service.create_message(message)
     # Set requested value to None if applied.
     if data_stream.writable and data_stream.requested_value is not None:
         error = abs(data_stream.requested_value - last_value)
