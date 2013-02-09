@@ -450,7 +450,7 @@ class DataStream(ModelBase):
         doc="Related feed's identifier."
     )
     requested_value = sql.Column(
-        sql.Numeric(precision=50),
+        sql.Numeric(precision=50, scale=25),
         doc="Value requested by user."
     )
     value_requested_at = sql.Column(
@@ -618,7 +618,7 @@ class AlarmDefinition(ModelBase):
         nullable=False
     )
     boundary = sql.Column(
-        sql.Numeric(precision=50),
+        sql.Numeric(precision=50, scale=25),
         nullable=False
     )
 
