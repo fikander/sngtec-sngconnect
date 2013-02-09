@@ -705,8 +705,10 @@ class FeedChartData(FeedChartApiViewBase):
                     data_points = map(
                         lambda dp: (
                             dp[0],
-                            decimal.Decimal(dp[1]['sum']) /
-                                decimal.Decimal(dp[1]['count'])
+                            (
+                                decimal.Decimal(dp[1]['sum']) /
+                                    decimal.Decimal(dp[1]['count'])
+                            ).quantize(decimal.Decimal('.01'))
                         ),
                         data_points
                     )
