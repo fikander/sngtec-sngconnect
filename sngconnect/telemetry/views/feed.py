@@ -676,7 +676,10 @@ class FeedChartData(FeedChartApiViewBase):
             DataStream.template_id
         )
         series_appstruct = []
-        delta = end - start
+        if start is not None and last is not None:
+            delta = datetime.timedelta(hours=last)
+        else:
+            delta = end - start
         aggregate = True
         if (self.chart_definition.chart_type != 'DIFFERENTIAL' and
                 delta <= datetime.timedelta(hours=24)):

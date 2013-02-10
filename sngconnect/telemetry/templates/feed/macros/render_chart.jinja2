@@ -58,7 +58,9 @@
                         start = point.x;
                     }
                 });
-                var parameters = {};
+                var parameters = {
+                    last: chart.currentDataParameters.last
+                };
                 if (start !== null) {
                     parameters.start = (new Date(start)).toISOString();
                 }
