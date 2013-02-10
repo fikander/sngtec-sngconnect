@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sngconnect 0.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2013-01-22 13:29+0000\n"
+"POT-Creation-Date: 2013-02-10 09:57+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -38,6 +38,33 @@ msgstr ""
 #: sngconnect/accounts/forms.py:12 sngconnect/accounts/forms.py:62
 #: sngconnect/telemetry/forms.py:93
 msgid "E-mail"
+msgstr ""
+
+#: sngconnect/accounts/forms.py:14 sngconnect/accounts/forms.py:22
+#: sngconnect/accounts/forms.py:32 sngconnect/accounts/forms.py:39
+#: sngconnect/accounts/forms.py:53 sngconnect/accounts/forms.py:64
+#: sngconnect/accounts/forms.py:88 sngconnect/announcements/forms.py:11
+#: sngconnect/appearance/forms.py:88 sngconnect/devices/forms.py:16
+#: sngconnect/devices/forms.py:23 sngconnect/devices/forms.py:30
+#: sngconnect/devices/forms.py:40 sngconnect/devices/forms.py:46
+#: sngconnect/devices/forms.py:53 sngconnect/devices/forms.py:60
+#: sngconnect/devices/forms.py:71 sngconnect/devices/forms.py:77
+#: sngconnect/devices/forms.py:100 sngconnect/devices/forms.py:118
+#: sngconnect/devices/forms.py:124 sngconnect/devices/forms.py:131
+#: sngconnect/devices/forms.py:145 sngconnect/devices/forms.py:159
+#: sngconnect/devices/forms.py:165 sngconnect/devices/forms.py:172
+#: sngconnect/devices/forms.py:179 sngconnect/devices/forms.py:228
+#: sngconnect/devices/forms.py:250 sngconnect/devices/forms.py:256
+#: sngconnect/devices/forms.py:265 sngconnect/devices/forms.py:304
+#: sngconnect/devices/forms.py:338 sngconnect/telemetry/forms.py:50
+#: sngconnect/telemetry/forms.py:95 sngconnect/telemetry/forms.py:124
+#: sngconnect/telemetry/forms.py:131 sngconnect/telemetry/forms.py:140
+#: sngconnect/telemetry/forms.py:179 sngconnect/telemetry/forms.py:218
+#: sngconnect/telemetry/forms.py:223 sngconnect/telemetry/forms.py:240
+#: sngconnect/telemetry/forms.py:297 sngconnect/telemetry/forms.py:317
+#: sngconnect/telemetry/forms.py:324 sngconnect/telemetry/forms.py:348
+#: sngconnect/telemetry/forms.py:368
+msgid "This field is required."
 msgstr ""
 
 #: sngconnect/accounts/forms.py:20 sngconnect/accounts/forms.py:30
@@ -92,10 +119,10 @@ msgstr ""
 #: sngconnect/devices/views.py:202 sngconnect/devices/views.py:236
 #: sngconnect/devices/views.py:299 sngconnect/devices/views.py:483
 #: sngconnect/devices/views.py:611 sngconnect/telemetry/views/feed.py:100
-#: sngconnect/telemetry/views/feed.py:977 sngconnect/telemetry/views/feed.py:1008
-#: sngconnect/telemetry/views/feed.py:1243 sngconnect/telemetry/views/feed.py:1274
-#: sngconnect/telemetry/views/feed.py:1421 sngconnect/telemetry/views/feed.py:1467
-#: sngconnect/telemetry/views/feed.py:1651
+#: sngconnect/telemetry/views/feed.py:991 sngconnect/telemetry/views/feed.py:1022
+#: sngconnect/telemetry/views/feed.py:1257 sngconnect/telemetry/views/feed.py:1288
+#: sngconnect/telemetry/views/feed.py:1435 sngconnect/telemetry/views/feed.py:1481
+#: sngconnect/telemetry/views/feed.py:1665
 msgid ""
 "There were some problems with your request. Please check the form for error "
 "messages."
@@ -446,7 +473,7 @@ msgstr ""
 
 #: sngconnect/devices/views.py:97
 msgid ""
-"Device template cannot be deleted as there are already devices basing on it. "
+"Device template cannot be deleted as there are already devices based on it. "
 "Contact the system support for further information."
 msgstr ""
 
@@ -491,8 +518,8 @@ msgstr ""
 
 #: sngconnect/devices/views.py:420
 msgid ""
-"Parameter template cannot be deleted as there are already parameters basing "
-"on it. Contact the system support for further information."
+"Parameter template cannot be deleted as there are already parameters based on"
+" it. Contact the system support for further information."
 msgstr ""
 
 #: sngconnect/devices/views.py:471 sngconnect/devices/views.py:599
@@ -635,7 +662,7 @@ msgid "There is no active user having this e-mail address."
 msgstr ""
 
 #: sngconnect/telemetry/forms.py:232
-#: sngconnect/telemetry/templates/feed/macros/render_chart.jinja2:172
+#: sngconnect/telemetry/templates/feed/macros/render_chart.jinja2:227
 msgid "End date must be greater than start date."
 msgstr ""
 
@@ -956,11 +983,11 @@ msgid "Period"
 msgstr ""
 
 #: sngconnect/telemetry/templates/feed/data_stream.jinja2:37
-msgid "Mean value"
+msgid "Minimal value"
 msgstr ""
 
 #: sngconnect/telemetry/templates/feed/data_stream.jinja2:38
-msgid "Minimal value"
+msgid "Mean value"
 msgstr ""
 
 #: sngconnect/telemetry/templates/feed/data_stream.jinja2:39
@@ -1126,36 +1153,36 @@ msgid ""
 "activation code."
 msgstr ""
 
-#: sngconnect/telemetry/views/feed.py:965
+#: sngconnect/telemetry/views/feed.py:979
 msgid "Parameter allowed values have been successfuly saved."
 msgstr ""
 
-#: sngconnect/telemetry/views/feed.py:996 sngconnect/telemetry/views/feed.py:1262
-#: sngconnect/telemetry/views/feed.py:1640
+#: sngconnect/telemetry/views/feed.py:1010 sngconnect/telemetry/views/feed.py:1276
+#: sngconnect/telemetry/views/feed.py:1654
 msgid "Your comment has been successfuly saved."
 msgstr ""
 
-#: sngconnect/telemetry/views/feed.py:1231
+#: sngconnect/telemetry/views/feed.py:1245
 msgid "Setting value has been successfuly saved."
 msgstr ""
 
-#: sngconnect/telemetry/views/feed.py:1395
+#: sngconnect/telemetry/views/feed.py:1409
 msgid "This user already has access to this device."
 msgstr ""
 
-#: sngconnect/telemetry/views/feed.py:1410
+#: sngconnect/telemetry/views/feed.py:1424
 msgid "User has been successfuly added."
 msgstr ""
 
-#: sngconnect/telemetry/views/feed.py:1438
+#: sngconnect/telemetry/views/feed.py:1452
 msgid "This maintainer already has access to this device."
 msgstr ""
 
-#: sngconnect/telemetry/views/feed.py:1456
+#: sngconnect/telemetry/views/feed.py:1470
 msgid "Maintainer has been successfuly added."
 msgstr ""
 
-#: sngconnect/telemetry/views/feed.py:1545 sngconnect/telemetry/views/feed.py:1608
+#: sngconnect/telemetry/views/feed.py:1559 sngconnect/telemetry/views/feed.py:1622
 msgid "User permissions have been successfuly saved."
 msgstr ""
 
@@ -1187,7 +1214,7 @@ msgstr ""
 msgid "Confirm"
 msgstr ""
 
-#: sngconnect/templates/macros/message_table.jinja2:38
+#: sngconnect/templates/macros/message_table.jinja2:41
 msgid "No messages yet."
 msgstr ""
 

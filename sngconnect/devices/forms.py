@@ -13,21 +13,21 @@ class UpdateFeedTemplateForm(SecureForm):
     name = fields.TextField(
         _("Name"),
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
             validators.Length(max=200),
         )
     )
     modbus_bandwidth = fields.IntegerField(
         _("Modbus bandwidth"),
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
             validators.NumberRange(min=0),
         )
     )
     modbus_port = fields.TextField(
         _("Modbus port path"),
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
         )
     )
     modbus_parity = fields.SelectField(
@@ -37,27 +37,27 @@ class UpdateFeedTemplateForm(SecureForm):
             ('ODD', _("Odd")),
         ],
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
         )
     )
     modbus_data_bits = fields.IntegerField(
         _("Modbus data bits"),
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
             validators.NumberRange(min=0),
         )
     )
     modbus_stop_bits = fields.IntegerField(
         _("Modbus stop bits"),
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
             validators.NumberRange(min=0),
         )
     )
     modbus_timeout = fields.IntegerField(
         _("Modbus timeout"),
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
             validators.NumberRange(min=0),
         )
     )
@@ -68,13 +68,13 @@ class UpdateFeedTemplateForm(SecureForm):
             ('LITTLE', _("Little endian")),
         ],
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
         )
     )
     modbus_polling_interval = fields.IntegerField(
         _("Modbus polling interval"),
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
             validators.NumberRange(min=0),
         )
     )
@@ -97,7 +97,7 @@ class DeleteFeedTemplateForm(SecureForm):
     feed_template_id = fields.IntegerField(
         widget=widgets.HiddenInput(),
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
         )
     )
 
@@ -115,20 +115,20 @@ class UpdateDataStreamTemplateForm(SecureForm):
     feed_template_id = fields.IntegerField(
         widget=widgets.HiddenInput(),
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
         )
     )
     label = fields.TextField(
         _("Label"),
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
             validators.Length(max=100),
         )
     )
     name = fields.TextField(
         _("Name"),
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
             validators.Length(max=200),
         )
     )
@@ -142,7 +142,7 @@ class UpdateDataStreamTemplateForm(SecureForm):
     measurement_unit = fields.TextField(
         _("Measurement unit"),
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
             validators.Length(max=50),
         )
     )
@@ -156,27 +156,27 @@ class UpdateDataStreamTemplateForm(SecureForm):
             ('INPUT', _("Input register")),
         ],
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
         )
     )
     modbus_slave = fields.IntegerField(
         _("Modbus slave"),
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
             validators.NumberRange(min=0),
         )
     )
     modbus_address = fields.IntegerField(
         _("Modbus address"),
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
             validators.NumberRange(min=0),
         )
     )
     modbus_count = fields.IntegerField(
         _("Modbus count"),
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
             validators.NumberRange(min=0),
         )
     )
@@ -225,7 +225,7 @@ class DeleteDataStreamTemplateForm(SecureForm):
     data_stream_template_id = fields.IntegerField(
         widget=widgets.HiddenInput(),
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
         )
     )
 
@@ -247,13 +247,13 @@ class AddChartDefinitionForm(SecureForm):
             ('DIFFERENTIAL', _("Differential")),
         ],
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
         )
     )
     name = fields.TextField(
         _("Name"),
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
             validators.Length(max=200),
         )
     )
@@ -262,7 +262,7 @@ class AddChartDefinitionForm(SecureForm):
         choices=[],
         coerce=int,
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
         )
     )
     show_on_dashboard = fields.BooleanField(
@@ -301,7 +301,7 @@ class UpdateChartDefinitionForm(AddChartDefinitionForm):
     id = fields.IntegerField(
         widget=widgets.HiddenInput(),
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
         )
     )
 
@@ -335,7 +335,7 @@ class DeleteChartDefinitionForm(SecureForm):
     chart_definition_id = fields.IntegerField(
         widget=widgets.HiddenInput(),
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
         )
     )
 

@@ -36,7 +36,7 @@ class LocalizedDecimalField(fields.DecimalField):
                 )
             except babel.numbers.NumberFormatError:
                 self.data = None
-                raise ValueError(self.gettext('Not a valid decimal value'))
+                raise ValueError(self.gettext("Not a valid decimal value"))
 
     def set_locale(self, locale):
         self.locale = locale
@@ -47,7 +47,7 @@ class ValueForm(SecureForm):
         _("Value"),
         places=None,
         validators=(
-            validators.InputRequired(),
+            validators.InputRequired(message=_("This field is required.")),
         )
     )
 
@@ -92,7 +92,7 @@ class AddFeedUserForm(SecureForm):
     email = fields.TextField(
         _("E-mail"),
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
             validators.Length(max=200),
             validators.Email(),
         )
@@ -121,14 +121,14 @@ class CreateChartDefinitionForm(SecureForm):
 
     chart_type = fields.HiddenField(
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
             validators.AnyOf(('LINEAR', 'DIFFERENTIAL',)),
         )
     )
     name = fields.TextField(
         _("Name"),
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
             validators.Length(max=200),
         )
     )
@@ -137,7 +137,7 @@ class CreateChartDefinitionForm(SecureForm):
         choices=[],
         coerce=int,
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
         )
     )
 
@@ -176,7 +176,7 @@ class UpdateChartDefinitionForm(CreateChartDefinitionForm):
     id = fields.IntegerField(
         widget=widgets.HiddenInput(),
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
         )
     )
 
@@ -215,12 +215,12 @@ class SetChartRangeForm(SecureForm):
 
     start = fields.DateField(
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
         )
     )
     end = fields.DateField(
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
         )
     )
 
@@ -237,7 +237,7 @@ class CommentForm(SecureForm):
     content = fields.TextAreaField(
         _("Content"),
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
             validators.Length(min=5, max=100000),
         )
     )
@@ -294,7 +294,7 @@ class CreateFeedForm(SecureForm):
     name = fields.TextField(
         _("Name"),
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
             validators.Length(max=200),
         )
     )
@@ -314,14 +314,14 @@ class CreateFeedForm(SecureForm):
         _("Latitude"),
         places=None,
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
         )
     )
     longitude = LocalizedDecimalField(
         _("Longitude"),
         places=None,
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
         )
     )
 
@@ -345,7 +345,7 @@ class CreateFeedForm(SecureForm):
             return
         if self.forced_owner is not None:
             return
-        validators.DataRequired()(self, field)
+        validators.DataRequired(message=_("This field is required."))(self, field)
         validators.Email()(self, field)
         try:
             self.owner = DBSession.query(User).filter(
@@ -365,6 +365,6 @@ class ConfirmMessageForm(SecureForm):
     id = fields.IntegerField(
         widget=widgets.HiddenInput(),
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
         )
     )

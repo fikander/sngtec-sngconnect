@@ -8,7 +8,7 @@ class CreateAnnouncementForm(SecureForm):
     content = fields.TextAreaField(
         _("Content"),
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
             validators.Length(min=5, max=100000),
         )
     )

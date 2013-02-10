@@ -1,11 +1,11 @@
 {% macro horizontal_form_field(field, kwargs={}) %}
     <div class="control-group{% if field.errors %} error{% endif %}">
-        {{ field.label(class='control-label') }}
+        <label for="{{ field.label.field_id }}" class="control-label">{{ _(field.label.text) }}</label>
         <div class="controls">
             {{ field(class='input-xlarge', **kwargs) }}
             {% if field.errors %}
                 {% for error in field.errors %}
-                    <span class="help-block">{{ error }}</span>
+                    <span class="help-block">{{ _(error) }}</span>
                 {% endfor %}
             {% elif field.description %}
                 <div class="help-block">{{ field.description }}</div>

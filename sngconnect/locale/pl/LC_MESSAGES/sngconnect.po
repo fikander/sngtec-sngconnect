@@ -1,24 +1,25 @@
-# Translations template for sngconnect.
+# Polish translations for sngconnect.
 # Copyright (C) 2013 ORGANIZATION
 # This file is distributed under the same license as the sngconnect project.
-# 
+#
 # Translators:
 # Mikołaj Siedlarek <m.siedlarek@fatico.com>, 2013.
-#  <p.dylewski@synergiatech.pl>, 2013.
+# <p.dylewski@synergiatech.pl>, 2013.
 msgid ""
 msgstr ""
-"Project-Id-Version: SNG:connect\n"
+"Project-Id-Version:  SNG:connect\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2013-01-22 13:29+0000\n"
+"POT-Creation-Date: 2013-02-10 09:57+0000\n"
 "PO-Revision-Date: 2013-01-22 15:50+0000\n"
 "Last-Translator: pdylewski <p.dylewski@synergiatech.pl>\n"
-"Language-Team: Polish (http://www.transifex.com/projects/p/sngconnect/language/pl/)\n"
+"Language-Team: Polish "
+"(http://www.transifex.com/projects/p/sngconnect/language/pl/)\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && "
+"(n%100<10 || n%100>=20) ? 1 : 2)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.6\n"
-"Language: pl\n"
-"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
 #: sngconnect/database.py:574 sngconnect/database.py:583
 #: sngconnect/devices/forms.py:246
@@ -31,8 +32,7 @@ msgid "Differential"
 msgstr ""
 
 #: sngconnect/database.py:645
-msgid ""
-"Value (${actual_value}) is greater than maximal value (${maximal_value})."
+msgid "Value (${actual_value}) is greater than maximal value (${maximal_value})."
 msgstr ""
 
 #: sngconnect/database.py:655
@@ -43,6 +43,33 @@ msgstr ""
 #: sngconnect/telemetry/forms.py:93
 msgid "E-mail"
 msgstr "E-mail"
+
+#: sngconnect/accounts/forms.py:14 sngconnect/accounts/forms.py:22
+#: sngconnect/accounts/forms.py:32 sngconnect/accounts/forms.py:39
+#: sngconnect/accounts/forms.py:53 sngconnect/accounts/forms.py:64
+#: sngconnect/accounts/forms.py:88 sngconnect/announcements/forms.py:11
+#: sngconnect/appearance/forms.py:88 sngconnect/devices/forms.py:16
+#: sngconnect/devices/forms.py:23 sngconnect/devices/forms.py:30
+#: sngconnect/devices/forms.py:40 sngconnect/devices/forms.py:46
+#: sngconnect/devices/forms.py:53 sngconnect/devices/forms.py:60
+#: sngconnect/devices/forms.py:71 sngconnect/devices/forms.py:77
+#: sngconnect/devices/forms.py:100 sngconnect/devices/forms.py:118
+#: sngconnect/devices/forms.py:124 sngconnect/devices/forms.py:131
+#: sngconnect/devices/forms.py:145 sngconnect/devices/forms.py:159
+#: sngconnect/devices/forms.py:165 sngconnect/devices/forms.py:172
+#: sngconnect/devices/forms.py:179 sngconnect/devices/forms.py:228
+#: sngconnect/devices/forms.py:250 sngconnect/devices/forms.py:256
+#: sngconnect/devices/forms.py:265 sngconnect/devices/forms.py:304
+#: sngconnect/devices/forms.py:338 sngconnect/telemetry/forms.py:50
+#: sngconnect/telemetry/forms.py:95 sngconnect/telemetry/forms.py:124
+#: sngconnect/telemetry/forms.py:131 sngconnect/telemetry/forms.py:140
+#: sngconnect/telemetry/forms.py:179 sngconnect/telemetry/forms.py:218
+#: sngconnect/telemetry/forms.py:223 sngconnect/telemetry/forms.py:240
+#: sngconnect/telemetry/forms.py:297 sngconnect/telemetry/forms.py:317
+#: sngconnect/telemetry/forms.py:324 sngconnect/telemetry/forms.py:348
+#: sngconnect/telemetry/forms.py:368
+msgid "This field is required."
+msgstr "To pole jest wymagane."
 
 #: sngconnect/accounts/forms.py:20 sngconnect/accounts/forms.py:30
 msgid "Password"
@@ -70,8 +97,8 @@ msgstr ""
 
 #: sngconnect/accounts/views.py:41
 msgid ""
-"This account is currently inactive. Please follow the instructions we sent "
-"you on your e-mail address."
+"This account is currently inactive. Please follow the instructions we "
+"sent you on your e-mail address."
 msgstr ""
 
 #: sngconnect/accounts/views.py:101
@@ -96,16 +123,16 @@ msgstr "Twóje hasło zostało zmienione. "
 #: sngconnect/devices/views.py:202 sngconnect/devices/views.py:236
 #: sngconnect/devices/views.py:299 sngconnect/devices/views.py:483
 #: sngconnect/devices/views.py:611 sngconnect/telemetry/views/feed.py:100
-#: sngconnect/telemetry/views/feed.py:977
-#: sngconnect/telemetry/views/feed.py:1008
-#: sngconnect/telemetry/views/feed.py:1243
-#: sngconnect/telemetry/views/feed.py:1274
-#: sngconnect/telemetry/views/feed.py:1421
-#: sngconnect/telemetry/views/feed.py:1467
-#: sngconnect/telemetry/views/feed.py:1651
+#: sngconnect/telemetry/views/feed.py:991
+#: sngconnect/telemetry/views/feed.py:1022
+#: sngconnect/telemetry/views/feed.py:1257
+#: sngconnect/telemetry/views/feed.py:1288
+#: sngconnect/telemetry/views/feed.py:1435
+#: sngconnect/telemetry/views/feed.py:1481
+#: sngconnect/telemetry/views/feed.py:1665
 msgid ""
-"There were some problems with your request. Please check the form for error "
-"messages."
+"There were some problems with your request. Please check the form for "
+"error messages."
 msgstr ""
 
 #: sngconnect/accounts/templates/activate.jinja2:9
@@ -160,14 +187,15 @@ msgstr ""
 
 #: sngconnect/accounts/templates/sign_up.jinja2:14
 msgid ""
-"Follow the instructions in the e-mail we sent you to activate your account."
+"Follow the instructions in the e-mail we sent you to activate your "
+"account."
 msgstr ""
 
 #: sngconnect/accounts/templates/sign_up.jinja2:15
 #, python-format
 msgid ""
-"Once you activate your account you can <a href=\"%(sign_in_url)s\">sign in "
-"here</a>"
+"Once you activate your account you can <a href=\"%(sign_in_url)s\">sign "
+"in here</a>"
 msgstr ""
 
 #: sngconnect/accounts/templates/sign_up.jinja2:29
@@ -445,8 +473,7 @@ msgid "This chart name is already taken."
 msgstr "Ta nazwa wykresu jest już używana"
 
 #: sngconnect/devices/forms.py:360
-msgid ""
-"Only PNG and JPG formats are allowed. Leave empty to delete current image."
+msgid "Only PNG and JPG formats are allowed. Leave empty to delete current image."
 msgstr ""
 
 #: sngconnect/devices/views.py:29
@@ -455,14 +482,14 @@ msgstr ""
 
 #: sngconnect/devices/views.py:97
 msgid ""
-"Device template cannot be deleted as there are already devices basing on it."
-" Contact the system support for further information."
+"Device template cannot be deleted as there are already devices based on "
+"it. Contact the system support for further information."
 msgstr ""
 
 #: sngconnect/devices/views.py:106
 msgid ""
-"Device template cannot be deleted as it has parameter templates assigned to "
-"it. Contact the system support for further information."
+"Device template cannot be deleted as it has parameter templates assigned "
+"to it. Contact the system support for further information."
 msgstr ""
 
 #: sngconnect/devices/views.py:116
@@ -471,8 +498,7 @@ msgstr ""
 
 #: sngconnect/devices/views.py:121 sngconnect/devices/views.py:429
 #: sngconnect/devices/views.py:542
-msgid ""
-"There were some problems with your request. Contact the system support."
+msgid "There were some problems with your request. Contact the system support."
 msgstr ""
 
 #: sngconnect/devices/views.py:169
@@ -501,8 +527,8 @@ msgstr ""
 
 #: sngconnect/devices/views.py:420
 msgid ""
-"Parameter template cannot be deleted as there are already parameters basing "
-"on it. Contact the system support for further information."
+"Parameter template cannot be deleted as there are already parameters "
+"based on it. Contact the system support for further information."
 msgstr ""
 
 #: sngconnect/devices/views.py:471 sngconnect/devices/views.py:599
@@ -576,8 +602,8 @@ msgstr ""
 
 #: sngconnect/errors/views.py:32
 msgid ""
-"You don't have permission to see this page. Try logging in as a different "
-"user."
+"You don't have permission to see this page. Try logging in as a different"
+" user."
 msgstr ""
 
 #: sngconnect/errors/templates/bad_request.jinja2:9
@@ -587,8 +613,8 @@ msgstr ""
 #: sngconnect/errors/templates/bad_request.jinja2:10
 #, python-format
 msgid ""
-"Sorry, it appears your browser did something we do not fully understand. If "
-"the problem persists, please contact our support at <a "
+"Sorry, it appears your browser did something we do not fully understand. "
+"If the problem persists, please contact our support at <a "
 "href=\"mailto:%(email)s\">%(email)s</a>."
 msgstr ""
 
@@ -605,13 +631,13 @@ msgstr ""
 #, python-format
 msgid ""
 "Sorry, it appears the page you were looking for doesn't exist anymore or "
-"might have been moved. If the problem persists, please contact our support "
-"at <a href=\"mailto:%(email)s\">%(email)s</a>."
+"might have been moved. If the problem persists, please contact our "
+"support at <a href=\"mailto:%(email)s\">%(email)s</a>."
 msgstr ""
 
 #: sngconnect/telemetry/forms.py:39
 msgid "Not a valid decimal value"
-msgstr ""
+msgstr "Niepoprawna liczba."
 
 #: sngconnect/telemetry/forms.py:47
 #: sngconnect/telemetry/templates/feed/data_stream.jinja2:153
@@ -645,7 +671,7 @@ msgid "There is no active user having this e-mail address."
 msgstr ""
 
 #: sngconnect/telemetry/forms.py:232
-#: sngconnect/telemetry/templates/feed/macros/render_chart.jinja2:172
+#: sngconnect/telemetry/templates/feed/macros/render_chart.jinja2:227
 msgid "End date must be greater than start date."
 msgstr ""
 
@@ -694,8 +720,8 @@ msgstr "Urządzenia"
 #: sngconnect/telemetry/templates/dashboard.jinja2:21
 #, python-format
 msgid ""
-"You have <code>%(count)s</code> devices with alarm active. If you don't know"
-" what it means - contact your devices's administrator."
+"You have <code>%(count)s</code> devices with alarm active. If you don't "
+"know what it means - contact your devices's administrator."
 msgstr ""
 
 #: sngconnect/telemetry/templates/dashboard.jinja2:27
@@ -966,12 +992,12 @@ msgid "Period"
 msgstr "Okres"
 
 #: sngconnect/telemetry/templates/feed/data_stream.jinja2:37
-msgid "Mean value"
-msgstr "Wartość średnia"
-
-#: sngconnect/telemetry/templates/feed/data_stream.jinja2:38
 msgid "Minimal value"
 msgstr "Wartość minimalna"
+
+#: sngconnect/telemetry/templates/feed/data_stream.jinja2:38
+msgid "Mean value"
+msgstr "Wartość średnia"
 
 #: sngconnect/telemetry/templates/feed/data_stream.jinja2:39
 msgid "Maximal value"
@@ -1136,38 +1162,38 @@ msgid ""
 "activation code."
 msgstr ""
 
-#: sngconnect/telemetry/views/feed.py:965
+#: sngconnect/telemetry/views/feed.py:979
 msgid "Parameter allowed values have been successfuly saved."
 msgstr ""
 
-#: sngconnect/telemetry/views/feed.py:996
-#: sngconnect/telemetry/views/feed.py:1262
-#: sngconnect/telemetry/views/feed.py:1640
+#: sngconnect/telemetry/views/feed.py:1010
+#: sngconnect/telemetry/views/feed.py:1276
+#: sngconnect/telemetry/views/feed.py:1654
 msgid "Your comment has been successfuly saved."
 msgstr "Twoja wiadomość została zapisana. "
 
-#: sngconnect/telemetry/views/feed.py:1231
+#: sngconnect/telemetry/views/feed.py:1245
 msgid "Setting value has been successfuly saved."
 msgstr ""
 
-#: sngconnect/telemetry/views/feed.py:1395
+#: sngconnect/telemetry/views/feed.py:1409
 msgid "This user already has access to this device."
 msgstr ""
 
-#: sngconnect/telemetry/views/feed.py:1410
+#: sngconnect/telemetry/views/feed.py:1424
 msgid "User has been successfuly added."
 msgstr "Użytkownik został dodany. "
 
-#: sngconnect/telemetry/views/feed.py:1438
+#: sngconnect/telemetry/views/feed.py:1452
 msgid "This maintainer already has access to this device."
 msgstr ""
 
-#: sngconnect/telemetry/views/feed.py:1456
+#: sngconnect/telemetry/views/feed.py:1470
 msgid "Maintainer has been successfuly added."
 msgstr ""
 
-#: sngconnect/telemetry/views/feed.py:1545
-#: sngconnect/telemetry/views/feed.py:1608
+#: sngconnect/telemetry/views/feed.py:1559
+#: sngconnect/telemetry/views/feed.py:1622
 msgid "User permissions have been successfuly saved."
 msgstr "Uprawnienia użytkownika zostały zapisane."
 
@@ -1199,6 +1225,6 @@ msgstr "Wiadomość"
 msgid "Confirm"
 msgstr "Potwierdź"
 
-#: sngconnect/templates/macros/message_table.jinja2:38
+#: sngconnect/templates/macros/message_table.jinja2:41
 msgid "No messages yet."
 msgstr "Aktualnie brak wiadomości"

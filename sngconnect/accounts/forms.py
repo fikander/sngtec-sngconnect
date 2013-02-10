@@ -11,7 +11,7 @@ class AuthenticationForm(SecureForm):
     email = fields.TextField(
         _("E-mail"),
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
             validators.Length(max=200),
             validators.Email(),
         )
@@ -19,7 +19,7 @@ class AuthenticationForm(SecureForm):
     password = fields.PasswordField(
         _("Password"),
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
             validators.Length(max=1000),
         )
     )
@@ -29,14 +29,14 @@ class ChangePasswordForm(SecureForm):
     password = fields.PasswordField(
         _("Password"),
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
             validators.Length(min=5, max=1000),
         )
     )
     repeated_password = fields.PasswordField(
         _("Repeat password"),
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
             validators.Length(min=5, max=1000),
             validators.EqualTo('password'),
         )
@@ -50,7 +50,7 @@ class ChangeAccountDataForm(SecureForm):
             lambda x: None if x is None else re.sub(r'[^\+\d]', '', x),
         ),
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
             validators.Length(max=50),
             validators.Regexp(r'\+?\d+'),
         )
@@ -61,7 +61,7 @@ class SignUpForm(ChangeAccountDataForm, ChangePasswordForm):
     email = fields.TextField(
         _("E-mail"),
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
             validators.Length(max=200),
             validators.Email(),
         )
@@ -85,7 +85,7 @@ class ActivationForm(SecureForm):
     phone_activation_code = fields.TextField(
         _("Phone activation code"),
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
             validators.Length(max=1000)
         )
     )

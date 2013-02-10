@@ -85,7 +85,7 @@ class DeleteAssetForm(SecureForm):
     filename = fields.TextField(
         widget=widgets.HiddenInput(),
         validators=(
-            validators.DataRequired(),
+            validators.DataRequired(message=_("This field is required.")),
             validators.Length(max=ASSET_FILENAME_LENGTH),
             validators.Regexp(ASSET_FILENAME_RE),
         )
