@@ -35,7 +35,11 @@ class TimeSeriesDateIndex(ColumnFamilyProxy):
         self.column_family.insert(timeline_id, values)
 
     def get_days(self, timeline_id, start_date=None, end_date=None):
-        kwargs = {}
+        kwargs = {
+            # Setting column count to Cassandra's maximum. We assume that
+            # clients of this API know what they're doing.
+            'column_count': 2000000000,
+        }
         if start_date is not None:
             kwargs['column_start'] = self.force_precision(start_date)
         if end_date is not None:
