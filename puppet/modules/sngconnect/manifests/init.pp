@@ -129,6 +129,7 @@ class sngconnect {
             command   => '. /home/vagrant/environment/bin/activate && cd /vagrant && python setup.py develop',
             provider  => shell,
             user      => 'vagrant',
+            timeout   => 3600,
             logoutput => 'on_failure',
             require   => [
                 Exec['install-numpy'],
