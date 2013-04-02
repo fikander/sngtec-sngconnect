@@ -21,21 +21,22 @@ def add_sign_out_form(event):
     )
 
 @events.subscriber(events.BeforeRender)
-def add_format(event):
-    event['format'] = Format(
-        Locale(get_locale_name(event['request'])),
-        event['request'].registry['default_timezone']
-    )
-
-@events.subscriber(events.BeforeRender)
 def add_user(event):
     user_id = security.authenticated_userid(event['request'])
     if user_id is None:
         event['user'] = None
+        timezone = None
     else:
         event['user'] = DBSession.query(User).filter(
             User.id == user_id
         ).one()
+        timezone = event['user'].timezone
+    if timezone is None:
+        timezone = event['request'].registry['default_timezone']
+    event['format'] = Format(
+        Locale(get_locale_name(event['request'])),
+        timezone
+    )
 
 @events.subscriber(events.BeforeRender)
 def add_permissions(event):

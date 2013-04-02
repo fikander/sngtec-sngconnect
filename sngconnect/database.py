@@ -81,6 +81,8 @@ class User(ModelBase):
     send_sms_info = sql.Column(sql.Boolean, nullable=False, default=True)
     send_sms_comment = sql.Column(sql.Boolean, nullable=False, default=False)
 
+    timezone_tzname = sql.Column(sql.String(length=50), nullable=False)
+
     _role_mapping = {
         'role_user': security.User,
         'role_maintainer': security.Maintainer,
@@ -95,6 +97,10 @@ class User(ModelBase):
             for attribute_name, principal in self._role_mapping.iteritems()
             if getattr(self, attribute_name, False)
         ]
+
+    @property
+    def timezone(self):
+        return pytz.timezone(self.timezone_tzname)
 
     def __init__(self, *args, **kwargs):
         super(User, self).__init__(*args, **kwargs)

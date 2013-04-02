@@ -90,7 +90,8 @@ def sing_up(request):
         if sign_up_form.validate():
             user = User(
                 email=sign_up_form.email.data.lower(),
-                phone=sign_up_form.phone.data
+                phone=sign_up_form.phone.data,
+                timezone_tzname=str(request.registry['default_timezone'])
             )
             user.set_password(sign_up_form.password.data)
             DBSession.add(user)

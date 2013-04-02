@@ -48,35 +48,40 @@ def generate_data(feed_count):
         email='user@example.com',
         phone='+48123456789',
         activated=pytz.utc.localize(datetime.datetime.utcnow()),
-        role_user=True
+        role_user=True,
+        timezone_tzname='Europe/Warsaw'
     )
     user.set_password('user')
     kid = User(
         email='kid@example.com',
         phone='+48123456789',
         activated=pytz.utc.localize(datetime.datetime.utcnow()),
-        role_user=True
+        role_user=True,
+        timezone_tzname='Europe/Warsaw'
     )
     kid.set_password('kid')
     maintainer = User(
         email='maintainer@example.com',
         phone='+48123456789',
         activated=pytz.utc.localize(datetime.datetime.utcnow()),
-        role_maintainer=True
+        role_maintainer=True,
+        timezone_tzname='Europe/Warsaw'
     )
     maintainer.set_password('maintainer')
     supplier = User(
         email='supplier@example.com',
         phone='+48123456789',
         activated=pytz.utc.localize(datetime.datetime.utcnow()),
-        role_supplier=True
+        role_supplier=True,
+        timezone_tzname='Europe/Warsaw'
     )
     supplier.set_password('supplier')
     admin = User(
         email='admin@example.com',
         phone='+48123456789',
         activated=pytz.utc.localize(datetime.datetime.utcnow()),
-        role_administrator=True
+        role_administrator=True,
+        timezone_tzname='Europe/Warsaw'
     )
     admin.set_password('admin')
     DBSession.add_all([user, maintainer, supplier, admin])

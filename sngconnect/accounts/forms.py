@@ -1,5 +1,6 @@
 import re
 
+import pytz
 from wtforms import fields, validators
 
 from sngconnect.forms import SecureForm
@@ -54,6 +55,10 @@ class ChangeAccountDataForm(SecureForm):
             validators.Length(max=50),
             validators.Regexp(r'\+?\d+'),
         )
+    )
+    timezone_tzname = fields.SelectField(
+        _("Time zone"),
+        choices=[(name, name) for name in pytz.all_timezones]
     )
 
 class ChangeNotificationSettings(SecureForm):
