@@ -56,6 +56,18 @@ class ChangeAccountDataForm(SecureForm):
         )
     )
 
+class ChangeNotificationSettings(SecureForm):
+
+    send_email_error = fields.BooleanField(_("E-mail errors"))
+    send_email_warning = fields.BooleanField(_("E-mail warnings"))
+    send_email_info = fields.BooleanField(_("E-mail information"))
+    send_email_comment = fields.BooleanField(_("E-mail comments"))
+
+    send_sms_error = fields.BooleanField(_("SMS errors"))
+    send_sms_warning = fields.BooleanField(_("SMS warnings"))
+    send_sms_info = fields.BooleanField(_("SMS information"))
+    send_sms_comment = fields.BooleanField(_("SMS comments"))
+
 class SignUpForm(ChangeAccountDataForm, ChangePasswordForm):
 
     email = fields.TextField(

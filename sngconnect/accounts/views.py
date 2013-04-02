@@ -168,6 +168,10 @@ def settings(request):
         obj=user,
         csrf_context=request
     )
+    change_notification_settings_form = forms.ChangeNotificationSettings(
+        obj=user,
+        csrf_context=request
+    )
     change_password_form = forms.ChangePasswordForm(csrf_context=request)
     if request.method == 'POST':
         if 'submit_change_account_data' in request.POST:
@@ -177,6 +181,21 @@ def settings(request):
                 DBSession.add(user)
                 request.session.flash(
                     _("Your account data has been successfuly changed."),
+                    queue='success'
+                )
+                return httpexceptions.HTTPFound(
+                    request.route_url('sngconnect.accounts.settings')
+                )
+        if 'submit_change_notification_settings' in request.POST:
+            change_notification_settings_form.process(request.POST)
+            if change_notification_settings_form.validate():
+                change_notification_settings_form.populate_obj(user)
+                DBSession.add(user)
+                request.session.flash(
+                    _(
+                        "Your notification settings have been successfuly"
+                        " changed."
+                    ),
                     queue='success'
                 )
                 return httpexceptions.HTTPFound(
@@ -203,5 +222,6 @@ def settings(request):
         )
     return {
         'change_account_data_form': change_account_data_form,
+        'change_notification_settings_form': change_notification_settings_form,
         'change_password_form': change_password_form,
     }

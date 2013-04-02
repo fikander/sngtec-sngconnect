@@ -71,6 +71,16 @@ class User(ModelBase):
     role_supplier = sql.Column(sql.Boolean, nullable=False, default=False)
     role_administrator = sql.Column(sql.Boolean, nullable=False, default=False)
 
+    send_email_error = sql.Column(sql.Boolean, nullable=False, default=True)
+    send_email_warning = sql.Column(sql.Boolean, nullable=False, default=True)
+    send_email_info = sql.Column(sql.Boolean, nullable=False, default=True)
+    send_email_comment = sql.Column(sql.Boolean, nullable=False, default=False)
+
+    send_sms_error = sql.Column(sql.Boolean, nullable=False, default=True)
+    send_sms_warning = sql.Column(sql.Boolean, nullable=False, default=True)
+    send_sms_info = sql.Column(sql.Boolean, nullable=False, default=True)
+    send_sms_comment = sql.Column(sql.Boolean, nullable=False, default=False)
+
     _role_mapping = {
         'role_user': security.User,
         'role_maintainer': security.Maintainer,
