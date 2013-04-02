@@ -20,6 +20,7 @@ from sngconnect.database import (DBSession, Feed, DataStreamTemplate,
     Message)
 from sngconnect.services.message import MessageService
 from sngconnect.services.user import UserService
+from sngconnect.services.data_stream import DataStreamService
 from sngconnect.cassandra import data_streams as data_streams_store
 from sngconnect.cassandra import alarms as alarms_store
 from sngconnect.telemetry import forms, schemas
@@ -440,14 +441,11 @@ class FeedDashboardSetValue(FeedViewBase):
         if self.request.method == 'POST':
             value_form.process(self.request.POST)
             if value_form.validate():
-                DBSession.query(DataStream).filter(
-                    DataStream.id == data_stream.id
-                ).update({
-                    'requested_value': value_form.value.data,
-                    'value_requested_at': pytz.utc.localize(
-                        datetime.datetime.utcnow()
-                    ),
-                })
+                data_stream_service = DataStreamService(self.request)
+                data_stream_service.set_requested_value(
+                    data_stream,
+                    value_form.value.data
+                )
                 return Response(
                     json.dumps({'success': True}),
                     content_type='application/json'
@@ -1233,14 +1231,11 @@ class FeedSetting(FeedViewBase):
             if 'submit_value' in self.request.POST:
                 value_form.process(self.request.POST)
                 if value_form.validate():
-                    DBSession.query(DataStream).filter(
-                        DataStream.id == data_stream.id
-                    ).update({
-                        'requested_value': value_form.value.data,
-                        'value_requested_at': pytz.utc.localize(
-                            datetime.datetime.utcnow()
-                        ),
-                    })
+                    data_stream_service = DataStreamService(self.request)
+                    data_stream_service.set_requested_value(
+                        data_stream,
+                        value_form.value.data
+                    )
                     self.request.session.flash(
                         _("Setting value has been successfuly saved."),
                         queue='success'

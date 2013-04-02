@@ -29,6 +29,7 @@ requires = [
     'pyramid_debugtoolbar',
     'pyramid_webassets',
     'pyramid_mailer',
+    'apscheduler',
     'zope.sqlalchemy',
     'repoze.sendmail',
     'waitress',

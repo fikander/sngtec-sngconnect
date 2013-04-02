@@ -7,6 +7,7 @@ from pyramid.config import Configurator
 from pyramid.session import UnencryptedCookieSessionFactoryConfig
 from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
+from apscheduler.scheduler import Scheduler
 
 from sngconnect.database import DBSession, User
 from sngconnect.routes import ROUTES
@@ -34,6 +35,8 @@ def main(global_config, **settings):
     open(appearance_stylesheet_path, 'a').close()
     # Scan for view configurations.
     config.scan()
+    # Start the scheduler.
+    config.registry['scheduler'].start()
     # Return ready WSGI application.
     return config.make_wsgi_app()
 
@@ -85,6 +88,8 @@ def configure_application(settings, config=None):
     config.registry['default_timezone'] = pytz.timezone(
         settings['sngconnect.default_timezone']
     )
+    # Configure scheduler.
+    config.registry['scheduler'] = Scheduler()
     # Include add-ons.
     config.include('pyramid_tm')
     config.include('pyramid_jinja2')
