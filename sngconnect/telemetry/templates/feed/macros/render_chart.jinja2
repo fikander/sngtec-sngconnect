@@ -14,12 +14,29 @@
     };
     last = <show last n hours>;
 #}
-{% macro render_chart(container_id, range_set_button, last_set_buttons, rendering_data, last=None) %}
+{% macro render_chart(container_id, range_set_button, last_set_buttons, rendering_data, last) %}
     <script>
         $(function(){
+            function update_x_axis(chart) {
+                var parameters = chart.currentDataParameters;
+                if (parameters.end !== undefined) {
+                    console.log(parameters);
+                    chart.get("x-axis").setExtremes(
+                        Date.parse(parameters.start),
+                        Date.parse(parameters.end)
+                    );
+                } else {
+                    var now = new Date();
+                    chart.get("x-axis").setExtremes(
+                        new Date(now.getTime() - (60000 * 60 * parameters.last)),
+                        now
+                    );
+                }
+            }
             function reload_chart_data(chart, parameters) {
                 chart.showLoading();
                 chart.currentDataParameters = parameters;
+                update_x_axis(chart);
                 $.getJSON(
                     {{ rendering_data.data_url|tojson }},
                     parameters,
@@ -65,6 +82,7 @@
                     {{ rendering_data.data_url|tojson }},
                     parameters,
                     function(data, textStatus, jqXHR) {
+                        update_x_axis(chart);
                         data = data.map(function(a){
                             return a.map(function(b){
                                 return [
@@ -111,19 +129,16 @@
                             var chart = this;
                             reload_chart_data(
                                 chart,
-                                {% if last %}
-                                    {
-                                        last: {{ last|tojson }}
-                                    }
-                                {% else %}
-                                    {}
-                                {% endif %}
+                                {
+                                    last: {{ last|tojson }}
+                                }
                             );
                             setInterval(function(){
                                 update_chart_data(chart);
                             }, 5000);
                         }
-                    }
+                    },
+                    ignoreHiddenSeries: true
                 },
                 title: {
                     text: null
@@ -157,6 +172,7 @@
                     }
                 },
                 xAxis: [{
+                    id: 'x-axis',
                     type: 'datetime'
                 }],
                 yAxis: [
