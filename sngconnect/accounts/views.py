@@ -10,6 +10,7 @@ from pyramid_mailer.message import Message as EmailMessage
 
 from sngconnect.translation import _
 from sngconnect.database import DBSession, User
+from sngconnect.services.sms import SMSService
 from sngconnect.accounts import forms
 
 @view_config(
@@ -113,11 +114,20 @@ def sing_up(request):
                         'sngconnect.accounts.activate',
                         email=user.email,
                         email_activation_code=user.email_activation_code
-                    ),
-                    phone_activation_code=user.phone_activation_code
+                    )
                 )
             )
             get_mailer(request).send(activation_email)
+            sms_service = SMSService(request.registry)
+            sms_service.send_sms(
+                [user.phone],
+                _(
+                    "Your SNG:connect confirmation code is: ${code}",
+                    mapping={
+                        'code': user.phone_activation_code,
+                    }
+                )
+            )
             successful_submission = True
     return {
         'sign_up_form': sign_up_form,

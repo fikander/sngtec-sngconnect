@@ -3,7 +3,3 @@
 {% trans %}To activate your account use the link below:{% endtrans %}
 
     {{ activation_url }}
-
-{% trans %}When asked for a phone confirmation code please input the following:{% endtrans %}
-
-    {{ phone_activation_code }}

@@ -108,6 +108,12 @@ class sngconnect {
     }
 
     class virtualenv {
+        package { 'libxml2-dev':
+            ensure => present,
+        }
+        package { 'libxslt1-dev':
+            ensure => present,
+        }
         exec { 'create-virtualenv':
             command   => '/usr/bin/virtualenv /home/vagrant/environment',
             creates   => '/home/vagrant/environment',
@@ -132,6 +138,8 @@ class sngconnect {
             timeout   => 3600,
             logoutput => 'on_failure',
             require   => [
+                Package['libxml2-dev'],
+                Package['libxslt1-dev'],
                 Exec['install-numpy'],
                 Class['postgresql'],
                 Class['command-line-utils'],

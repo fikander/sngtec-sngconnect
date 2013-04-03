@@ -2,6 +2,7 @@ from pyramid_mailer.interfaces import IMailer
 from pyramid_mailer.message import Message as EmailMessage
 
 from sngconnect.services.base import ServiceBase
+from sngconnect.services.sms import SMSService
 from sngconnect.database import DBSession, User, FeedUser
 
 class NotificationService(ServiceBase):
@@ -12,6 +13,13 @@ class NotificationService(ServiceBase):
         'ERROR': 'send_email_error',
         'COMMENT': 'send_email_comment',
         'ANNOUNCEMENT': 'send_email_info',
+    }
+    _user_severity_flag_sms = {
+        'INFORMATION': 'send_sms_info',
+        'WARNING': 'send_sms_warning',
+        'ERROR': 'send_sms_error',
+        'COMMENT': 'send_sms_comment',
+        'ANNOUNCEMENT': 'send_sms_info',
     }
 
     def __init__(self, *args, **kwargs):
@@ -37,19 +45,26 @@ class NotificationService(ServiceBase):
         self._notify(users, summary, message)
 
     def _notify(self, users, summary, message):
+        mailer = self.registry.getUtility(IMailer)
+        sms_service = self.get_service(SMSService)
         for user in users:
-            if not getattr(user, self._user_severity_flag_email[message.type]):
-                continue
-            email = EmailMessage(
-                subject=summary,
-                sender=self.email_sender,
-                recipients=[user.email],
-                body=self.email_template.render(
-                    user={
-                        'id': user.id,
-                    },
-                    summary=summary,
-                    message=message
+            if getattr(user, self._user_severity_flag_email[message.type]):
+                email = EmailMessage(
+                    subject=summary,
+                    sender=self.email_sender,
+                    recipients=[user.email],
+                    body=self.email_template.render(
+                        user={
+                            'id': user.id,
+                        },
+                        summary=summary,
+                        message=message
+                    )
                 )
-            )
-            self.registry.getUtility(IMailer).send(email)
+                mailer.send(email)
+            if (getattr(user, self._user_severity_flag_sms[message.type])
+                    and user.phone):
+                sms_service.send_sms(
+                    [user.phone],
+                    summary
+                )

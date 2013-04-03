@@ -23,6 +23,8 @@ requires = [
     'WTForms',
     'psycopg2',
     'yuicompressor',
+    'requests',
+    'lxml',
     'python-magic',
     'pyramid_tm',
     'pyramid_jinja2',
