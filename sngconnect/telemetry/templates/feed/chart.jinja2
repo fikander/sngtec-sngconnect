@@ -1,42 +1,17 @@
 {% extends "sngconnect.telemetry:templates/feed/charts.jinja2" %}
+{% from "sngconnect.telemetry:templates/feed/macros/chart_controls.jinja2" import chart_controls with context %}
 {% from "sngconnect.telemetry:templates/feed/macros/render_chart.jinja2" import render_chart with context %}
 
 {% block page_content %}
     {{ super() }}
     <h2 id="chart"><span class="awe-bar-chart"></span> {% trans %}Chart{% endtrans %}</h2>
-    <div class="row">
-        <div class="span12">
-            <div class="well" style="padding-top: 10px;">
-                <form class="form-inline pull-left">
-                    <label for="start_date" style="line-height: 25px; padding: 0 5px 0 5px;">{% trans %}From{% endtrans %}</label>
-                    <div class="input-append">
-                        {{ set_range_form.start(id="start_date", class="datepicker input-small") }}
-                        <span class="add-on"><i class="awe-calendar"></i></span>
-                    </div>
-                    <label for="end_date" style="line-height: 25px; padding: 0 5px 0 5px;">{% trans %}to{% endtrans %}</label>
-                    <div class="input-append">
-                        {{ set_range_form.end(id="end_date", class="datepicker input-small") }}
-                        <span class="add-on"><i class="awe-calendar"></i></span>
-                    </div>
-                    <button id="set-range-button" class="btn">{% trans %}Set range{% endtrans %}</button>
-                </form>
-                <div class="form-inline pull-right">
-                    <label style="line-height: 25px; padding: 0 5px 0 5px;">{% trans %}Last{% endtrans %}</label>
-                    <div id="set-last-range" class="set-last-range-group btn-group">
-                        <button class="btn" data-last="{{ 1 }}">{% trans %}hour{% endtrans %}</button>
-                        <button class="btn" data-last="{{ 24 }}">{% trans %}24 hours{% endtrans %}</button>
-                        <button class="btn active" data-last="{{ 24 * 7 }}">{% trans %}7 days{% endtrans %}</button>
-                        <button class="btn" data-last="{{ 24 * 30 }}">{% trans %}30 days{% endtrans %}</button>
-                        <button class="btn" data-last="{{ 24 * 365 }}">{% trans %}1 year{% endtrans %}</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="span12 center">
-            <h3>{{ chart.definition.name }}</h3>
-            <div id="rendered-chart"></div>
-        </div>
-    </div>
+    {{ chart_controls(
+        'rendered-chart',
+        chart.definition.name,
+        set_range_form,
+        'set-range-button',
+        'set-last-range'
+    ) }}
 {% endblock %}
 
 {% block body_scripts %}

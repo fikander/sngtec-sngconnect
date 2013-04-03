@@ -625,9 +625,9 @@ class FeedChart(FeedCharts):
         )
         return self.context
 
-class FeedChartApiViewBase(FeedViewBase):
+class FeedChartDefinitionViewBase(FeedViewBase):
     def __init__(self, request):
-        super(FeedChartApiViewBase, self).__init__(request)
+        super(FeedChartDefinitionViewBase, self).__init__(request)
         try:
             self.chart_definition = DBSession.query(ChartDefinition).filter(
                 (ChartDefinition.id ==
@@ -637,12 +637,7 @@ class FeedChartApiViewBase(FeedViewBase):
         except database_exceptions.NoResultFound:
             raise httpexceptions.HTTPNotFound()
 
-@view_config(
-    route_name='sngconnect.telemetry.feed_chart.data',
-    request_method='GET',
-    permission='sngconnect.telemetry.access'
-)
-class FeedChartData(FeedChartApiViewBase):
+class ChartDataMixin(object):
     def __call__(self):
         try:
             last = max(0, int(self.request.GET['last']))
@@ -665,21 +660,27 @@ class FeedChartData(FeedChartApiViewBase):
                 start = end - datetime.timedelta(hours=last)
         data_stream_template_ids = map(
             lambda dst: dst.id,
-            self.chart_definition.data_stream_templates
+            self.data_stream_templates
         )
+        print ""
+        print data_stream_template_ids
+        print ""
         data_stream_ids = DBSession.query(DataStream.id).filter(
             DataStream.feed == self.feed,
             DataStream.template_id.in_(data_stream_template_ids)
         ).order_by(
             DataStream.template_id
         )
+        print "A"
+        print list(data_stream_ids)
+        print "B"
         series_appstruct = []
         if start is not None and last is not None:
             delta = datetime.timedelta(hours=last)
         else:
             delta = end - start
         aggregate = True
-        if (self.chart_definition.chart_type != 'DIFFERENTIAL' and
+        if (self.chart_type != 'DIFFERENTIAL' and
                 delta <= datetime.timedelta(hours=24)):
             data_store = data_streams_store.Measurements()
             aggregate = False
@@ -694,7 +695,7 @@ class FeedChartData(FeedChartApiViewBase):
                 end_date=end
             )
             if aggregate:
-                if self.chart_definition.chart_type == 'DIFFERENTIAL':
+                if self.chart_type == 'DIFFERENTIAL':
                     data_points = map(
                         lambda dp: (
                             dp[0],
@@ -721,7 +722,7 @@ class FeedChartData(FeedChartApiViewBase):
                     ),
                     data_points
                 )
-            if self.chart_definition.chart_type == 'DIFFERENTIAL':
+            if self.chart_type == 'DIFFERENTIAL':
                 differential_data_points = []
                 for i in range(len(data_points)):
                     try:
@@ -741,11 +742,25 @@ class FeedChartData(FeedChartApiViewBase):
         )
 
 @view_config(
+    route_name='sngconnect.telemetry.feed_chart.data',
+    request_method='GET',
+    permission='sngconnect.telemetry.access'
+)
+class FeedChartData(ChartDataMixin, FeedChartDefinitionViewBase):
+
+    def __init__(self, request):
+        super(FeedChartData, self).__init__(request)
+        self.data_stream_templates = (
+            self.chart_definition.data_stream_templates
+        )
+        self.chart_type = self.chart_definition.chart_type
+
+@view_config(
     route_name='sngconnect.telemetry.feed_chart.update',
     request_method='POST',
     permission='sngconnect.telemetry.access'
 )
-class FeedChartsUpdate(FeedChartApiViewBase):
+class FeedChartsUpdate(FeedChartDefinitionViewBase):
     def __call__(self):
         update_chart_form = forms.UpdateChartDefinitionForm(
             self.chart_definition.id,
@@ -784,7 +799,7 @@ class FeedChartsUpdate(FeedChartApiViewBase):
     request_method='POST',
     permission='sngconnect.telemetry.access'
 )
-class FeedChartsDelete(FeedChartApiViewBase):
+class FeedChartsDelete(FeedChartDefinitionViewBase):
     def __call__(self):
         delete_chart_form = forms.DeleteChartDefinitionForm(
             csrf_context=self.request
@@ -862,32 +877,46 @@ class FeedDataStreams(FeedViewBase):
         })
         return self.context
 
+class FeedDataStreamViewBase(FeedViewBase):
+
+    _data_stream_writable = None
+
+    def __init__(self, request):
+        super(FeedDataStreamViewBase, self).__init__(request)
+        try:
+            query = DBSession.query(DataStream).join(
+                DataStreamTemplate
+            ).filter(
+                DataStream.feed == self.feed,
+                (DataStreamTemplate.label ==
+                    self.request.matchdict['data_stream_label'])
+            )
+            if self._data_stream_writable is not None:
+                query = query.filter(
+                    DataStreamTemplate.writable == self._data_stream_writable
+                )
+            self.data_stream = query.one()
+        except database_exceptions.NoResultFound:
+            raise httpexceptions.HTTPBadRequest()
+
 @view_config(
     route_name='sngconnect.telemetry.feed_data_stream',
     renderer='sngconnect.telemetry:templates/feed/data_stream.jinja2',
     permission='sngconnect.telemetry.access'
 )
-class FeedDataStream(FeedViewBase):
+class FeedDataStream(FeedDataStreamViewBase):
+
+    _data_stream_writable = False
+
     def __call__(self):
-        try:
-            data_stream = DBSession.query(DataStream).join(
-                DataStreamTemplate
-            ).filter(
-                DataStream.feed == self.feed,
-                DataStreamTemplate.writable == False,
-                (DataStreamTemplate.label ==
-                    self.request.matchdict['data_stream_label'])
-            ).one()
-        except database_exceptions.NoResultFound:
-            raise httpexceptions.HTTPNotFound()
         message_service = MessageService(self.request.registry)
         comment_form = forms.CommentForm(csrf_context=self.request)
         minimal_value = DBSession.query(AlarmDefinition).filter(
-            AlarmDefinition.data_stream == data_stream,
+            AlarmDefinition.data_stream == self.data_stream,
             AlarmDefinition.alarm_type == 'MINIMAL_VALUE'
         ).value('boundary')
         maximal_value = DBSession.query(AlarmDefinition).filter(
-            AlarmDefinition.data_stream == data_stream,
+            AlarmDefinition.data_stream == self.data_stream,
             AlarmDefinition.alarm_type == 'MAXIMAL_VALUE'
         ).value('boundary')
         value_bounds_form = forms.ValueBoundsForm(
@@ -899,7 +928,7 @@ class FeedDataStream(FeedViewBase):
         last_data_point = (
             data_streams_store.LastDataPoints().get_last_data_stream_data_point(
                 self.feed.id,
-                data_stream.id
+                self.data_stream.id
             )
         )
         if self.request.method == 'POST':
@@ -911,14 +940,14 @@ class FeedDataStream(FeedViewBase):
                     if minimal_value is None:
                         if value_bounds_form.minimum.data is not None:
                             minimum_alarm = AlarmDefinition(
-                                data_stream=data_stream,
+                                data_stream=self.data_stream,
                                 alarm_type='MINIMAL_VALUE',
                                 boundary=value_bounds_form.minimum.data
                             )
                             DBSession.add(minimum_alarm)
                     else:
                         query = DBSession.query(AlarmDefinition).filter(
-                            AlarmDefinition.data_stream == data_stream,
+                            AlarmDefinition.data_stream == self.data_stream,
                             AlarmDefinition.alarm_type == 'MINIMAL_VALUE',
                         )
                         if value_bounds_form.minimum.data is not None:
@@ -932,14 +961,14 @@ class FeedDataStream(FeedViewBase):
                     if maximal_value is None:
                         if value_bounds_form.maximum.data is not None:
                             maximum_alarm = AlarmDefinition(
-                                data_stream=data_stream,
+                                data_stream=self.data_stream,
                                 alarm_type='MAXIMAL_VALUE',
                                 boundary=value_bounds_form.maximum.data
                             )
                             DBSession.add(maximum_alarm)
                     else:
                         query = DBSession.query(AlarmDefinition).filter(
-                            AlarmDefinition.data_stream == data_stream,
+                            AlarmDefinition.data_stream == self.data_stream,
                             AlarmDefinition.alarm_type == 'MAXIMAL_VALUE',
                         )
                         if value_bounds_form.maximum.data is not None:
@@ -964,13 +993,13 @@ class FeedDataStream(FeedViewBase):
                                 alarms_on.append(alarm_definition.id)
                         alarms_store.Alarms().set_alarms_on(
                             self.feed.id,
-                            data_stream.id,
+                            self.data_stream.id,
                             alarms_on,
                             last_data_point[0]
                         )
                         alarms_store.Alarms().set_alarms_off(
                             self.feed.id,
-                            data_stream.id,
+                            self.data_stream.id,
                             alarms_off
                         )
                     self.request.session.flash(
@@ -981,7 +1010,7 @@ class FeedDataStream(FeedViewBase):
                         self.request.route_url(
                             'sngconnect.telemetry.feed_data_stream',
                             feed_id=self.feed.id,
-                            data_stream_label=data_stream.label
+                            data_stream_label=self.data_stream.label
                         )
                     )
                 else:
@@ -999,7 +1028,7 @@ class FeedDataStream(FeedViewBase):
                         message_type='COMMENT',
                         date=pytz.utc.localize(datetime.datetime.utcnow()),
                         feed=self.feed,
-                        data_stream=data_stream,
+                        data_stream=self.data_stream,
                         author_id=self.user_id
                     )
                     comment_form.populate_obj(message)
@@ -1012,7 +1041,7 @@ class FeedDataStream(FeedViewBase):
                         self.request.route_url(
                             'sngconnect.telemetry.feed_data_stream',
                             feed_id=self.feed.id,
-                            data_stream_label=data_stream.label
+                            data_stream_label=self.data_stream.label
                         )
                     )
                 else:
@@ -1024,7 +1053,7 @@ class FeedDataStream(FeedViewBase):
                         queue='error'
                     )
         hourly_aggregates = data_streams_store.HourlyAggregates().get_data_points(
-            data_stream.id,
+            self.data_stream.id,
             start_date=pytz.utc.localize(datetime.datetime.utcnow()),
             end_date=pytz.utc.localize(datetime.datetime.utcnow())
         )
@@ -1037,7 +1066,7 @@ class FeedDataStream(FeedViewBase):
         except IndexError:
             this_hour = None
         daily_aggregates = data_streams_store.DailyAggregates().get_data_points(
-            data_stream.id,
+            self.data_stream.id,
             start_date=pytz.utc.localize(datetime.datetime.utcnow()),
             end_date=pytz.utc.localize(datetime.datetime.utcnow())
         )
@@ -1051,7 +1080,7 @@ class FeedDataStream(FeedViewBase):
             today = None
         monthly_aggregates = (
             data_streams_store.MonthlyAggregates().get_data_points(
-                data_stream.id,
+                self.data_stream.id,
                 start_date=pytz.utc.localize(datetime.datetime.utcnow()),
                 end_date=pytz.utc.localize(datetime.datetime.utcnow())
             )
@@ -1064,45 +1093,14 @@ class FeedDataStream(FeedViewBase):
             )
         except IndexError:
             this_month = None
-        last_day_values = data_streams_store.Measurements().get_data_points(
-            data_stream.id,
-            start_date=pytz.utc.localize(
-                datetime.datetime.utcnow() - datetime.timedelta(days=1)
-            ),
-            end_date=pytz.utc.localize(datetime.datetime.utcnow())
-        )
-        last_week_values = data_streams_store.HourlyAggregates().get_data_points(
-            data_stream.id,
-            start_date=pytz.utc.localize(
-                datetime.datetime.utcnow() - datetime.timedelta(days=7)
-            ),
-            end_date=pytz.utc.localize(datetime.datetime.utcnow())
-        )
-        for i in range(len(last_week_values)):
-            last_week_values[i][1]['mean'] = (
-                decimal.Decimal(last_week_values[i][1]['sum'])
-                / decimal.Decimal(last_week_values[i][1]['count'])
-            )
-        last_year_values = data_streams_store.DailyAggregates().get_data_points(
-            data_stream.id,
-            start_date=pytz.utc.localize(
-                datetime.datetime.utcnow() - datetime.timedelta(days=365)
-            ),
-            end_date=pytz.utc.localize(datetime.datetime.utcnow())
-        )
-        for i in range(len(last_year_values)):
-            last_year_values[i][1]['mean'] = (
-                decimal.Decimal(last_year_values[i][1]['sum'])
-                / decimal.Decimal(last_year_values[i][1]['count'])
-            )
-        messages = message_service.get_data_stream_messages(data_stream)
+        messages = message_service.get_data_stream_messages(self.data_stream)
         self.context.update({
             'value_bounds_form': value_bounds_form,
             'data_stream': {
-                'id': data_stream.id,
-                'name': data_stream.name,
-                'measurement_unit': data_stream.measurement_unit,
-                'description': data_stream.description,
+                'id': self.data_stream.id,
+                'name': self.data_stream.name,
+                'measurement_unit': self.data_stream.measurement_unit,
+                'description': self.data_stream.description,
                 'last_value': {
                     'date': last_data_point[0],
                     'value': decimal.Decimal(last_data_point[1]),
@@ -1119,14 +1117,33 @@ class FeedDataStream(FeedViewBase):
                     lambda x: (x[0], decimal.Decimal(x[1])),
                     this_month.items()
                 )) if this_month is not None else None,
-                'last_day_values': last_day_values,
-                'last_week_values': last_week_values,
-                'last_year_values': last_year_values,
                 'url': self.request.route_url(
                     'sngconnect.telemetry.feed_data_stream',
                     feed_id=self.feed.id,
-                    data_stream_label=data_stream.label
+                    data_stream_label=self.data_stream.label
                 ),
+            },
+            'set_range_form': forms.SetChartRangeForm(
+                start=datetime.date.today() - datetime.timedelta(days=1),
+                end=datetime.date.today(),
+                csrf_context=self.request
+            ),
+            'chart_rendering_data': {
+                'type': 'LINEAR',
+                'data_url': self.request.route_url(
+                    'sngconnect.telemetry.feed_data_stream.chart_data',
+                    feed_id=self.feed.id,
+                    data_stream_label=self.data_stream.label
+                ),
+                'data_stream_templates': [
+                    {
+                        'id': self.data_stream.template.id,
+                        'name': self.data_stream.template.name,
+                        'measurement_unit': (
+                            self.data_stream.template.measurement_unit
+                        ),
+                    }
+                ],
             },
             'comment_form': comment_form,
             'messages': [
@@ -1148,6 +1165,20 @@ class FeedDataStream(FeedViewBase):
             ],
         })
         return self.context
+
+@view_config(
+    route_name='sngconnect.telemetry.feed_data_stream.chart_data',
+    request_method='GET',
+    permission='sngconnect.telemetry.access'
+)
+class FeedDataStreamChartData(ChartDataMixin, FeedDataStreamViewBase):
+
+    def __init__(self, request):
+        super(FeedDataStreamChartData, self).__init__(request)
+        self.data_stream_templates = [
+            self.data_stream.template
+        ]
+        self.chart_type = 'LINEAR'
 
 @view_config(
     route_name='sngconnect.telemetry.feed_settings',
@@ -1201,27 +1232,19 @@ class FeedSettings(FeedDataStreams):
     renderer='sngconnect.telemetry:templates/feed/setting.jinja2',
     permission='sngconnect.telemetry.access'
 )
-class FeedSetting(FeedViewBase):
+class FeedSetting(FeedDataStreamViewBase):
+
+    _data_stream_writable = True
+
     def __call__(self):
-        try:
-            data_stream = DBSession.query(DataStream).join(
-                DataStreamTemplate
-            ).filter(
-                DataStream.feed == self.feed,
-                DataStreamTemplate.writable == True,
-                (DataStreamTemplate.label ==
-                    self.request.matchdict['data_stream_label'])
-            ).one()
-        except database_exceptions.NoResultFound:
-            raise httpexceptions.HTTPNotFound()
         last_data_point = (
             data_streams_store.LastDataPoints().get_last_data_stream_data_point(
                 self.feed.id,
-                data_stream.id
+                self.data_stream.id
             )
         )
         value_form = forms.ValueForm(
-            value=data_stream.requested_value,
+            value=self.data_stream.requested_value,
             locale=get_locale_name(self.request),
             csrf_context=self.request
         )
@@ -1235,7 +1258,7 @@ class FeedSetting(FeedViewBase):
                         self.request.registry
                     )
                     data_stream_service.set_requested_value(
-                        data_stream,
+                        self.data_stream,
                         value_form.value.data
                     )
                     self.request.session.flash(
@@ -1246,7 +1269,7 @@ class FeedSetting(FeedViewBase):
                         self.request.route_url(
                             'sngconnect.telemetry.feed_setting',
                             feed_id=self.feed.id,
-                            data_stream_label=data_stream.label
+                            data_stream_label=self.data_stream.label
                         )
                     )
                 else:
@@ -1264,7 +1287,7 @@ class FeedSetting(FeedViewBase):
                         message_type='COMMENT',
                         date=pytz.utc.localize(datetime.datetime.utcnow()),
                         feed=self.feed,
-                        data_stream=data_stream,
+                        data_stream=self.data_stream,
                         author_id=self.user_id
                     )
                     comment_form.populate_obj(message)
@@ -1277,7 +1300,7 @@ class FeedSetting(FeedViewBase):
                         self.request.route_url(
                             'sngconnect.telemetry.feed_setting',
                             feed_id=self.feed.id,
-                            data_stream_label=data_stream.label
+                            data_stream_label=self.data_stream.label
                         )
                     )
                 else:
@@ -1288,59 +1311,47 @@ class FeedSetting(FeedViewBase):
                         ),
                         queue='error'
                     )
-        last_day_values = data_streams_store.Measurements().get_data_points(
-            data_stream.id,
-            start_date=pytz.utc.localize(
-                datetime.datetime.utcnow() - datetime.timedelta(days=1)
-            ),
-            end_date=pytz.utc.localize(datetime.datetime.utcnow())
-        )
-        last_week_values = data_streams_store.HourlyAggregates().get_data_points(
-            data_stream.id,
-            start_date=pytz.utc.localize(
-                datetime.datetime.utcnow() - datetime.timedelta(days=7)
-            ),
-            end_date=pytz.utc.localize(datetime.datetime.utcnow())
-        )
-        for i in range(len(last_week_values)):
-            last_week_values[i][1]['mean'] = (
-                decimal.Decimal(last_week_values[i][1]['sum'])
-                / decimal.Decimal(last_week_values[i][1]['count'])
-            )
-        last_year_values = data_streams_store.DailyAggregates().get_data_points(
-            data_stream.id,
-            start_date=pytz.utc.localize(
-                datetime.datetime.utcnow() - datetime.timedelta(days=365)
-            ),
-            end_date=pytz.utc.localize(datetime.datetime.utcnow())
-        )
-        for i in range(len(last_year_values)):
-            last_year_values[i][1]['mean'] = (
-                decimal.Decimal(last_year_values[i][1]['sum'])
-                / decimal.Decimal(last_year_values[i][1]['count'])
-            )
-        messages = message_service.get_data_stream_messages(data_stream)
+        messages = message_service.get_data_stream_messages(self.data_stream)
         self.context.update({
             'value_form': value_form,
             'data_stream': {
-                'id': data_stream.id,
-                'name': data_stream.name,
-                'measurement_unit': data_stream.measurement_unit,
-                'description': data_stream.description,
-                'requested_value': data_stream.requested_value,
-                'value_requested_at': data_stream.value_requested_at,
+                'id': self.data_stream.id,
+                'name': self.data_stream.name,
+                'measurement_unit': self.data_stream.measurement_unit,
+                'description': self.data_stream.description,
+                'requested_value': self.data_stream.requested_value,
+                'value_requested_at': self.data_stream.value_requested_at,
                 'last_value': {
                     'date': last_data_point[0],
                     'value': decimal.Decimal(last_data_point[1]),
                 } if last_data_point else None,
-                'last_day_values': last_day_values,
-                'last_week_values': last_week_values,
-                'last_year_values': last_year_values,
                 'url': self.request.route_url(
                     'sngconnect.telemetry.feed_setting',
                     feed_id=self.feed.id,
-                    data_stream_label=data_stream.label
+                    data_stream_label=self.data_stream.label
                 ),
+            },
+            'set_range_form': forms.SetChartRangeForm(
+                start=datetime.date.today() - datetime.timedelta(days=1),
+                end=datetime.date.today(),
+                csrf_context=self.request
+            ),
+            'chart_rendering_data': {
+                'type': 'LINEAR',
+                'data_url': self.request.route_url(
+                    'sngconnect.telemetry.feed_data_stream.chart_data',
+                    feed_id=self.feed.id,
+                    data_stream_label=self.data_stream.label
+                ),
+                'data_stream_templates': [
+                    {
+                        'id': self.data_stream.template.id,
+                        'name': self.data_stream.template.name,
+                        'measurement_unit': (
+                            self.data_stream.template.measurement_unit
+                        ),
+                    }
+                ],
             },
             'comment_form': comment_form,
             'messages': [

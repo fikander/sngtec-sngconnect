@@ -1,6 +1,8 @@
 {% extends "sngconnect.telemetry:templates/feed/settings.jinja2" %}
 {% from "sngconnect:templates/macros/horizontal_form_field.jinja2" import horizontal_form_field %}
 {% from "sngconnect:templates/macros/message_table.jinja2" import message_table with context %}
+{% from "sngconnect.telemetry:templates/feed/macros/chart_controls.jinja2" import chart_controls with context %}
+{% from "sngconnect.telemetry:templates/feed/macros/render_chart.jinja2" import render_chart with context %}
 
 {% block main_breadcrumb %}
     {{ super() }}
@@ -55,12 +57,14 @@
             <h2><span class="awe-info-sign"></span> {% trans %}Notifications{% endtrans %}</h2>
         </article>
     </div>
-    {% if data_stream.last_day_values or data_stream.last_week_values or data_stream.last_year_values%}
-        <h2><span class="awe-signal"></span> {% trans %}Chart{% endtrans %}</h2>
-        <div id="last-day-chart"></div>
-        <div id="last-week-chart"></div>
-        <div id="last-year-chart"></div>
-    {% endif %}
+    <h2><span class="awe-signal"></span> {% trans %}Chart{% endtrans %}</h2>
+    {{ chart_controls(
+        'rendered-chart',
+        '',
+        set_range_form,
+        'set-range-button',
+        'set-last-range'
+    ) }}
     <h2><span class="awe-comment"></span> {% trans %}Add comment{% endtrans %}</h2>
     <form action="" method="post">
         {{ comment_form.csrf_token }}
@@ -75,200 +79,19 @@
 
 {% block body_scripts %}
     {{ super() }}
-    {% if data_stream.last_week_values %}
-        <script>
-            $(function(){
-                var last_day_chart;
-                $(document).ready(function(){
-                    last_day_chart = new Highcharts.Chart({
-                        chart: {renderTo: "last-day-chart", backgroundColor: null},
-                        title: {text: {% filter tojson %}{% trans %}Last day{% endtrans %}{% endfilter %}},
-                        xAxis: {type: "datetime"},
-                        yAxis: {
-                            title: {text: {{ data_stream.name|tojson }} + " [" + {{ data_stream.measurement_unit|tojson }} + "]"}
-                        },
-                        tooltip: {shared: true},
-                        legend: {enabled: true},
-                        colors: ['#80699B', '#4572A7'],
-                        plotOptions: {
-                            area: {
-                                lineWidth: 1,
-                                marker: {
-                                    enabled: false,
-                                    states: {
-                                        hover: {
-                                            enabled: true,
-                                            radius: 5
-                                        }
-                                    }
-                                },
-                                shadow: false,
-                                states: {
-                                    hover: {lineWidth: 1}
-                                }
-                            }
-                        },
-                        series: [
-                            {
-                                name: "{% trans %}Value{% endtrans %}",
-                                type: "area",
-                                data: [
-                                    {%- for data_point in data_stream.last_day_values -%}
-                                        {%- with d = data_point[0] -%}
-                                            [Date.UTC({{ d.year }},{{ d.month }},{{ d.day}},{{ d.hour }},{{ d.minute }},{{ d.second }},{{ d.microsecond / 1000 }}),{{ data_point[1] }}]
-                                            {%- if not loop.last %},{% endif -%}
-                                        {%- endwith -%}
-                                    {%- endfor -%}
-                                ]
-                            }
-                        ]
-                    });
-                });
+    {{ render_chart(
+        'rendered-chart',
+        '#set-range-button',
+        '#set-last-range button',
+        chart_rendering_data,
+        24 * 7
+    ) }}
+    <script>
+        $(function(){
+            $('.datepicker').datepicker({
+                format: "yyyy-mm-dd",
+                weekStart: 1
             });
-            $(function(){
-                var last_week_chart;
-                $(document).ready(function(){
-                    last_week_chart = new Highcharts.Chart({
-                        chart: {renderTo: "last-week-chart", backgroundColor: null},
-                        title: {text: {% filter tojson %}{% trans %}Last week{% endtrans %}{% endfilter %}},
-                        xAxis: {type: "datetime"},
-                        yAxis: {
-                            title: {text: {{ data_stream.name|tojson }} + " [" + {{ data_stream.measurement_unit|tojson }} + "]"}
-                        },
-                        tooltip: {shared: true},
-                        legend: {enabled: true},
-                        colors: ['#AA4643', '#80699B', '#4572A7'],
-                        plotOptions: {
-                            area: {
-                                lineWidth: 1,
-                                marker: {
-                                    enabled: false,
-                                    states: {
-                                        hover: {
-                                            enabled: true,
-                                            radius: 5
-                                        }
-                                    }
-                                },
-                                shadow: false,
-                                states: {
-                                    hover: {lineWidth: 1}
-                                }
-                            }
-                        },
-                        series: [
-                            {
-                                name: "{% trans %}Maximum{% endtrans %}",
-                                type: "area",
-                                data: [
-                                    {%- for data_point in data_stream.last_week_values -%}
-                                        {%- with d = data_point[0] -%}
-                                            [Date.UTC({{ d.year }},{{ d.month }},{{ d.day}},{{ d.hour }},{{ d.minute }},{{ d.second }},{{ d.microsecond / 1000 }}),{{ data_point[1].maximum }}]
-                                            {%- if not loop.last %},{% endif -%}
-                                        {%- endwith -%}
-                                    {%- endfor -%}
-                                ]
-                            },
-                            {
-                                name: "{% trans %}Mean{% endtrans %}",
-                                type: "area",
-                                data: [
-                                    {%- for data_point in data_stream.last_week_values -%}
-                                        {%- with d = data_point[0] -%}
-                                            [Date.UTC({{ d.year }},{{ d.month }},{{ d.day}},{{ d.hour }},{{ d.minute }},{{ d.second }},{{ d.microsecond / 1000 }}),{{ data_point[1].mean }}]
-                                            {%- if not loop.last %},{% endif -%}
-                                        {%- endwith -%}
-                                    {%- endfor -%}
-                                ]
-                            },
-                            {
-                                name: "{% trans %}Minimum{% endtrans %}",
-                                type: "area",
-                                data: [
-                                    {%- for data_point in data_stream.last_week_values -%}
-                                        {%- with d = data_point[0] -%}
-                                            [Date.UTC({{ d.year }},{{ d.month }},{{ d.day}},{{ d.hour }},{{ d.minute }},{{ d.second }},{{ d.microsecond / 1000 }}),{{ data_point[1].minimum }}]
-                                            {%- if not loop.last %},{% endif -%}
-                                        {%- endwith -%}
-                                    {%- endfor -%}
-                                ]
-                            }
-                        ]
-                    });
-                });
-            });
-            $(function(){
-                var last_year_chart;
-                $(document).ready(function(){
-                    last_year_chart = new Highcharts.Chart({
-                        chart: {renderTo: "last-year-chart", backgroundColor: null},
-                        title: {text: {% filter tojson %}{% trans %}Last year{% endtrans %}{% endfilter %}},
-                        xAxis: {type: "datetime"},
-                        yAxis: {
-                            title: {text: {{ data_stream.name|tojson }} + " [" + {{ data_stream.measurement_unit|tojson }} + "]"}
-                        },
-                        tooltip: {shared: true},
-                        legend: {enabled: true},
-                        colors: ['#AA4643', '#80699B', '#4572A7'],
-                        plotOptions: {
-                            area: {
-                                lineWidth: 1,
-                                marker: {
-                                    enabled: false,
-                                    states: {
-                                        hover: {
-                                            enabled: true,
-                                            radius: 5
-                                        }
-                                    }
-                                },
-                                shadow: false,
-                                states: {
-                                    hover: {lineWidth: 1}
-                                }
-                            }
-                        },
-                        series: [
-                            {
-                                name: "{% trans %}Maximum{% endtrans %}",
-                                type: "area",
-                                data: [
-                                    {%- for data_point in data_stream.last_year_values -%}
-                                        {%- with d = data_point[0] -%}
-                                            [Date.UTC({{ d.year }},{{ d.month }},{{ d.day}},{{ d.hour }},{{ d.minute }},{{ d.second }},{{ d.microsecond / 1000 }}),{{ data_point[1].maximum }}]
-                                            {%- if not loop.last %},{% endif -%}
-                                        {%- endwith -%}
-                                    {%- endfor -%}
-                                ]
-                            },
-                            {
-                                name: "{% trans %}Mean{% endtrans %}",
-                                type: "area",
-                                data: [
-                                    {%- for data_point in data_stream.last_year_values -%}
-                                        {%- with d = data_point[0] -%}
-                                            [Date.UTC({{ d.year }},{{ d.month }},{{ d.day}},{{ d.hour }},{{ d.minute }},{{ d.second }},{{ d.microsecond / 1000 }}),{{ data_point[1].mean }}]
-                                            {%- if not loop.last %},{% endif -%}
-                                        {%- endwith -%}
-                                    {%- endfor -%}
-                                ]
-                            },
-                            {
-                                name: "{% trans %}Minimum{% endtrans %}",
-                                type: "area",
-                                data: [
-                                    {%- for data_point in data_stream.last_year_values -%}
-                                        {%- with d = data_point[0] -%}
-                                            [Date.UTC({{ d.year }},{{ d.month }},{{ d.day}},{{ d.hour }},{{ d.minute }},{{ d.second }},{{ d.microsecond / 1000 }}),{{ data_point[1].minimum }}]
-                                            {%- if not loop.last %},{% endif -%}
-                                        {%- endwith -%}
-                                    {%- endfor -%}
-                                ]
-                            }
-                        ]
-                    });
-                });
-            });
-        </script>
-    {% endif %}
+        });
+    </script>
 {% endblock %}

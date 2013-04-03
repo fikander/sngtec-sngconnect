@@ -53,6 +53,10 @@ ROUTES = (
         'feeds/{feed_id:\d+}/parameters/{data_stream_label:\w+}'
     ),
     (
+        'sngconnect.telemetry.feed_data_stream.chart_data',
+        'feeds/{feed_id:\d+}/parameters/{data_stream_label:\w+}/data'
+    ),
+    (
         'sngconnect.telemetry.feed_settings',
         'feeds/{feed_id:\d+}/settings'
     ),
