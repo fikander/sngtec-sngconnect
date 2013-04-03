@@ -14,6 +14,7 @@ from sngconnect.routes import ROUTES
 from sngconnect.assets import ASSET_BUNDLES
 from sngconnect.security import RootFactory
 from sngconnect import template_filters
+from sngconnect.jobs import register_jobs
 from sngconnect.cassandra import connection_pool as cassandra_connection_pool
 
 def main(global_config, **settings):
@@ -90,6 +91,7 @@ def configure_application(settings, config=None):
     )
     # Configure scheduler.
     config.registry['scheduler'] = Scheduler()
+    register_jobs(config.registry, config.registry['scheduler'])
     # Include add-ons.
     config.include('pyramid_tm')
     config.include('pyramid_jinja2')

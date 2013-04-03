@@ -60,13 +60,14 @@ class DataStreamService(ServiceBase):
                 )
             )
             notification_service = NotificationService(registry)
-            notification_service.notify_feed_user(
-                data_stream.feed,
-                _(
-                    "Unable to set parameter ${parameter_name}.",
-                    mapping={
-                        'parameter_name': data_stream.name
-                    }
-                ),
-                message
-            )
+            with transaction.manager:
+                notification_service.notify_feed_users(
+                    data_stream.feed,
+                    _(
+                        "Unable to set parameter ${parameter_name}.",
+                        mapping={
+                            'parameter_name': data_stream.name
+                        }
+                    ),
+                    message
+                )
