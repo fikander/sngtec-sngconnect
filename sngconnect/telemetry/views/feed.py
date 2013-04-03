@@ -662,18 +662,12 @@ class ChartDataMixin(object):
             lambda dst: dst.id,
             self.data_stream_templates
         )
-        print ""
-        print data_stream_template_ids
-        print ""
         data_stream_ids = DBSession.query(DataStream.id).filter(
             DataStream.feed == self.feed,
             DataStream.template_id.in_(data_stream_template_ids)
         ).order_by(
             DataStream.template_id
         )
-        print "A"
-        print list(data_stream_ids)
-        print "B"
         series_appstruct = []
         if start is not None and last is not None:
             delta = datetime.timedelta(hours=last)
