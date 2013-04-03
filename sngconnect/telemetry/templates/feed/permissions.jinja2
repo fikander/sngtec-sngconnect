@@ -14,13 +14,16 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th>{% trans %}User{% endtrans %}</th>
+                        <th>{% trans %}Name [person]{% endtrans %}</th>
+                        <th>{% trans %}E-mail{% endtrans %}</th>
                         <th>{% trans %}Can access the device{% endtrans %}</th>
                         <th>{% trans %}Can manage users{% endtrans %}</th>
+                    </tr>
                 </thead>
                 <tbody>
                     {% for feed_user in feed_users %}
                         <tr>
+                            <td>{{ feed_user.user.name }}</td>
                             <td>{{ feed_user.user.email }}</td>
                             <td><input type="checkbox" name="can_access-{{ feed_user.id }}" checked="true"
                                 {%- if feed_user.user.id == user.id %} disabled="true"
@@ -35,7 +38,7 @@
                             ></td>
                         </tr>
                     {% else %}
-                        <tr><td colspan="3" class="no-data">{% trans %}no users yet{% endtrans %}</td></tr>
+                        <tr><td colspan="4" class="no-data">{% trans %}no users yet{% endtrans %}</td></tr>
                     {% endfor %}
                 </tbody>
             </table>
@@ -63,13 +66,18 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th>{% trans %}Maintainer{% endtrans %}</th>
+                    <th>{% trans %}Company{% endtrans %}</th>
+                    <th>{% trans %}Name [person]{% endtrans %}</th>
+                    <th>{% trans %}E-mail{% endtrans %}</th>
                     <th>{% trans %}Can access the device{% endtrans %}</th>
                     <th>{% trans %}Can manage maintainers{% endtrans %}</th>
+                </tr>
             </thead>
             <tbody>
                 {% for feed_user in feed_maintainers %}
                     <tr>
+                        <td>{% if feed_user.user.company_name %}{{ feed_user.user.company_name }}{% endif %}</td>
+                        <td>{{ feed_user.user.name }}</td>
                         <td>{{ feed_user.user.email }}</td>
                         <td><input type="checkbox" checked="true"
                             {%- if feed_user.user.id == user.id %} disabled="true"
@@ -84,7 +92,7 @@
                         ></td>
                     </tr>
                 {% else %}
-                    <tr><td colspan="3" class="no-data">{% trans %}no maintainers yet{% endtrans %}</td></tr>
+                    <tr><td colspan="5" class="no-data">{% trans %}no maintainers yet{% endtrans %}</td></tr>
                 {% endfor %}
             </tbody>
         </table>

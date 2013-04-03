@@ -43,7 +43,7 @@ class ChangePasswordForm(SecureForm):
         )
     )
 
-class ChangeAccountDataForm(SecureForm):
+class AccountDataBaseForm(SecureForm):
 
     phone = fields.TextField(
         _("Phone number"),
@@ -56,6 +56,32 @@ class ChangeAccountDataForm(SecureForm):
             validators.Regexp(r'\+?\d+'),
         )
     )
+    user_name = fields.TextField(
+        _("Name [person]"),
+        validators=(
+            validators.DataRequired(message=_("This field is required.")),
+            validators.Length(max=200),
+        )
+    )
+    company_name = fields.TextField(
+        _("Company name"),
+        validators=(
+            validators.Length(max=200),
+        )
+    )
+
+    def __init__(self, *args, **kwargs):
+        obj = kwargs.get('obj')
+        if obj is not None:
+            kwargs['user_name'] = obj.name
+        super(AccountDataBaseForm, self).__init__(*args, **kwargs)
+
+    def populate_obj(self, obj, *args, **kwargs):
+        super(AccountDataBaseForm, self).populate_obj(obj, *args, **kwargs)
+        self.user_name.populate_obj(obj, 'name')
+
+class ChangeAccountDataForm(AccountDataBaseForm):
+
     timezone_tzname = fields.SelectField(
         _("Time zone"),
         choices=[(name, name) for name in pytz.all_timezones]
@@ -73,7 +99,7 @@ class ChangeNotificationSettings(SecureForm):
     send_sms_info = fields.BooleanField(_("SMS information"))
     send_sms_comment = fields.BooleanField(_("SMS comments"))
 
-class SignUpForm(ChangeAccountDataForm, ChangePasswordForm):
+class SignUpForm(AccountDataBaseForm, ChangePasswordForm):
 
     email = fields.TextField(
         _("E-mail"),

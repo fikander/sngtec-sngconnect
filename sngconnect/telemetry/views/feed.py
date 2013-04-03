@@ -1136,7 +1136,7 @@ class FeedDataStream(FeedViewBase):
                     'author': (
                         {
                             'id': message.author.id,
-                            'name': message.author.email
+                            'name': message.author.name
                         }
                         if message.author is not None
                         else None
@@ -1350,7 +1350,7 @@ class FeedSetting(FeedViewBase):
                     'author': (
                         {
                             'id': message.author.id,
-                            'name': message.author.email
+                            'name': message.author.name
                         }
                         if message.author is not None
                         else None
@@ -1701,7 +1701,7 @@ class FeedHistory(FeedViewBase):
                     'author': (
                         {
                             'id': message.author.id,
-                            'name': message.author.email
+                            'name': message.author.name
                         }
                         if message.author is not None
                         else None

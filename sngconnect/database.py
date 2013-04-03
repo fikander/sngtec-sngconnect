@@ -53,6 +53,15 @@ class User(ModelBase):
             " format."
     )
 
+    name = sql.Column(
+        sql.Unicode(length=200),
+        nullable=False
+    )
+    company_name = sql.Column(
+        sql.Unicode(length=200),
+        nullable=True
+    )
+
     activated = sql.Column(
         sql.DateTime(timezone=True),
         default=None

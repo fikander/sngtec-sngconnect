@@ -91,6 +91,12 @@ def sing_up(request):
             user = User(
                 email=sign_up_form.email.data.lower(),
                 phone=sign_up_form.phone.data,
+                name=sign_up_form.name.data,
+                company_name=(
+                    sign_up_form.company_name.data
+                    if sign_up_form.company_name.data else
+                    None
+                ),
                 timezone_tzname=str(request.registry['default_timezone'])
             )
             user.set_password(sign_up_form.password.data)
