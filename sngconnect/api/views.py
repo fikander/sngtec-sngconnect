@@ -123,7 +123,7 @@ def feed_data_stream(request):
             )
     Alarms().set_alarms_on(feed_id, data_stream.id, alarms_on, last_date)
     Alarms().set_alarms_off(feed_id, data_stream.id, alarms_off)
-    message_service = MessageService(request)
+    message_service = MessageService(request.registry)
     for message in alarm_messages:
         message_service.create_message(message)
     # Set requested value to None if applied.
@@ -263,7 +263,7 @@ def events(request):
         date=request_appstruct['timestamp'],
         content=request_appstruct['message']
     )
-    MessageService(request).create_message(message)
+    MessageService(request.registry).create_message(message)
     # TODO: switch alarms associated with alarm_on, alarm_off events
     return Response()
 

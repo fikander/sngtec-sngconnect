@@ -15,7 +15,7 @@ from sngconnect.database import Message
     permission='sngconnect.announcements.access'
 )
 def announcements(request):
-    message_service = MessageService(request)
+    message_service = MessageService(request.registry)
     announcement_form = forms.CreateAnnouncementForm(csrf_context=request)
     if request.method == 'POST':
         announcement_form.process(request.POST)

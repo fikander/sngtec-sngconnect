@@ -236,7 +236,7 @@ class FeedDashboard(FeedViewBase):
             )
         )
         # Messages
-        message_service = MessageService(self.request)
+        message_service = MessageService(self.request.registry)
         unconfirmed_messages = message_service.get_unconfirmed_messages(
             self.user,
             feed=self.feed
@@ -441,7 +441,7 @@ class FeedDashboardSetValue(FeedViewBase):
         if self.request.method == 'POST':
             value_form.process(self.request.POST)
             if value_form.validate():
-                data_stream_service = DataStreamService(self.request)
+                data_stream_service = DataStreamService(self.request.registry)
                 data_stream_service.set_requested_value(
                     data_stream,
                     value_form.value.data
@@ -880,7 +880,7 @@ class FeedDataStream(FeedViewBase):
             ).one()
         except database_exceptions.NoResultFound:
             raise httpexceptions.HTTPNotFound()
-        message_service = MessageService(self.request)
+        message_service = MessageService(self.request.registry)
         comment_form = forms.CommentForm(csrf_context=self.request)
         minimal_value = DBSession.query(AlarmDefinition).filter(
             AlarmDefinition.data_stream == data_stream,
@@ -1225,13 +1225,15 @@ class FeedSetting(FeedViewBase):
             locale=get_locale_name(self.request),
             csrf_context=self.request
         )
-        message_service = MessageService(self.request)
+        message_service = MessageService(self.request.registry)
         comment_form = forms.CommentForm(csrf_context=self.request)
         if self.request.method == 'POST':
             if 'submit_value' in self.request.POST:
                 value_form.process(self.request.POST)
                 if value_form.validate():
-                    data_stream_service = DataStreamService(self.request)
+                    data_stream_service = DataStreamService(
+                        self.request.registry
+                    )
                     data_stream_service.set_requested_value(
                         data_stream,
                         value_form.value.data
@@ -1632,7 +1634,7 @@ class FeedPermissions(FeedViewBase):
 class FeedHistory(FeedViewBase):
 
     def __call__(self):
-        message_service = MessageService(self.request)
+        message_service = MessageService(self.request.registry)
         comment_form = forms.CommentForm(csrf_context=self.request)
         if self.request.method == 'POST':
             comment_form.process(self.request.POST)
@@ -1663,7 +1665,7 @@ class FeedHistory(FeedViewBase):
                     ),
                     queue='error'
                 )
-        user_service = UserService(self.request)
+        user_service = UserService(self.request.registry)
         filter_form = forms.FilterMessagesForm(
             self.feed,
             user_service.get_all_feed_users(self.feed),

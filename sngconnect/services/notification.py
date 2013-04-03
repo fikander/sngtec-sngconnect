@@ -1,4 +1,4 @@
-from pyramid_mailer import get_mailer
+from pyramid_mailer.interfaces import IMailer
 from pyramid_mailer.message import Message as EmailMessage
 
 from sngconnect.services.base import ServiceBase
@@ -16,8 +16,8 @@ class NotificationService(ServiceBase):
 
     def __init__(self, *args, **kwargs):
         super(NotificationService, self).__init__(*args, **kwargs)
-        self.email_sender = self.request.registry['settings']['mail.sender']
-        self.email_template = self.request.registry[
+        self.email_sender = self.registry['settings']['mail.sender']
+        self.email_template = self.registry[
             'jinja2_environment'
         ].get_template(
             'sngconnect:templates/notification/emails/notification.txt'
@@ -52,4 +52,4 @@ class NotificationService(ServiceBase):
                     message=message
                 )
             )
-            get_mailer(self.request).send(email)
+            self.registry.getUtility(IMailer).send(email)

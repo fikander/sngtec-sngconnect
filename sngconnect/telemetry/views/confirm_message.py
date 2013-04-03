@@ -19,8 +19,8 @@ def confirm_message(request):
     form = forms.ConfirmMessageForm(csrf_context=request)
     form.process(request.POST)
     if form.validate():
-        message_service = MessageService(request)
-        user_service = UserService(request)
+        message_service = MessageService(request.registry)
+        user_service = UserService(request.registry)
         try:
             message = message_service.get_message(form.id.data)
         except database_exceptions.NoResultFound:

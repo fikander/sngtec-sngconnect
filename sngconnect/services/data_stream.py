@@ -4,7 +4,9 @@ import pytz
 import transaction
 
 from sngconnect.services.base import ServiceBase
-from sngconnect.database import DBSession, DataStream
+from sngconnect.services.notification import NotificationService
+from sngconnect.database import DBSession, DataStream, Message
+from sngconnect.translation import _
 
 class DataStreamService(ServiceBase):
 
@@ -19,14 +21,14 @@ class DataStreamService(ServiceBase):
                 datetime.datetime.utcnow()
             ),
         })
-        self.request.registry['scheduler'].add_date_job(
+        self.registry['scheduler'].add_date_job(
             DataStreamService.assert_requested_value,
             datetime.datetime.utcnow() + self._requested_value_timeout,
-            [data_stream.id]
+            [self.registry, data_stream.id]
         )
 
     @classmethod
-    def assert_requested_value(cls, data_stream_id):
+    def assert_requested_value(cls, registry, data_stream_id):
         data_stream = DBSession.query(DataStream).filter(
             DataStream.id == data_stream_id
         ).one()
@@ -45,3 +47,26 @@ class DataStreamService(ServiceBase):
                     'requested_value': None,
                     'value_requested_at': None,
                 })
+            message = Message(
+                feed=data_stream.feed,
+                data_stream=data_stream,
+                message_type='ERROR',
+                date=pytz.utc.localize(datetime.datetime.utcnow()),
+                content=_(
+                    "${feed_name} did not respond to the request.",
+                    mapping={
+                        'feed_name': data_stream.feed.name,
+                    }
+                )
+            )
+            notification_service = NotificationService(registry)
+            notification_service.notify_feed_user(
+                data_stream.feed,
+                _(
+                    "Unable to set parameter ${parameter_name}.",
+                    mapping={
+                        'parameter_name': data_stream.name
+                    }
+                ),
+                message
+            )
