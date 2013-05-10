@@ -9,6 +9,8 @@
             {
                 'name': <parameter name>,
                 'measurement_unit': <measurement unit>,
+                'minimum': <minimal Y-axis value>,
+                'maximum': <maximal Y-axis value>,
             }
         ]
     };
@@ -20,7 +22,6 @@
             function update_x_axis(chart) {
                 var parameters = chart.currentDataParameters;
                 if (parameters.end !== undefined) {
-                    console.log(parameters);
                     chart.get("x-axis").setExtremes(
                         Date.parse(parameters.start),
                         Date.parse(parameters.end)
@@ -191,7 +192,9 @@
                                 style: {
                                     color: {{ loop.cycle('#EC6446', '#318BDE', '#89A54E', '#4572A7', '#AA4643')|tojson }}
                                 }
-                            }
+                            },
+                            min: {{ data_stream_template.minimum|tojson }},
+                            max: {{ data_stream_template.maximum|tojson }}
                             {%- if loop.cycle(True, False) -%}
                                 ,
                                 opposite: true

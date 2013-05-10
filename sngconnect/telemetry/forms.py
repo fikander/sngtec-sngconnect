@@ -1,45 +1,10 @@
-import decimal
-
 import sqlalchemy as sql
 from wtforms import Form, fields, validators, widgets
 from sqlalchemy.orm import exc as database_exceptions
-import babel.numbers
 
-from sngconnect.forms import SecureForm
+from sngconnect.forms import SecureForm, LocalizedDecimalField
 from sngconnect.translation import _
 from sngconnect.database import DBSession, User, ChartDefinition
-
-class LocalizedDecimalField(fields.DecimalField):
-
-    def _value(self):
-        if self.raw_data:
-            return self.raw_data[0]
-        elif self.data is not None:
-            return babel.numbers.format_decimal(
-                self.data,
-                format='0.##################################################',
-                locale=self.locale
-            )
-        else:
-            return ''
-
-    def process_formdata(self, valuelist):
-        if valuelist and valuelist[0]:
-            try:
-                self.data = decimal.Decimal(
-                    str(
-                        babel.numbers.parse_decimal(
-                            valuelist[0],
-                            locale=self.locale
-                        )
-                    )
-                )
-            except babel.numbers.NumberFormatError:
-                self.data = None
-                raise ValueError(self.gettext("Not a valid decimal value"))
-
-    def set_locale(self, locale):
-        self.locale = locale
 
 class ValueForm(SecureForm):
 

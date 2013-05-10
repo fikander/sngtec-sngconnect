@@ -428,6 +428,13 @@ class DataStreamTemplate(ModelBase):
         default=False
     )
 
+    default_minimum = sql.Column(
+        sql.Numeric(precision=50, scale=25)
+    )
+    default_maximum = sql.Column(
+        sql.Numeric(precision=50, scale=25)
+    )
+
     modbus_register_type = sql.Column(
         sql.Enum(
             'HOLDING',

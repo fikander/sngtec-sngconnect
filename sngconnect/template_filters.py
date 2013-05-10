@@ -4,6 +4,8 @@ import decimal
 import jinja2
 
 def tojson(value):
+    if isinstance(value, decimal.Decimal):
+        value = float(value)
     return jinja2.Markup(json.dumps(value))
 
 @jinja2.contextfilter

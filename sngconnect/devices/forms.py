@@ -3,7 +3,7 @@ import os
 from wtforms import fields, validators, widgets
 from sqlalchemy.orm import exc as database_exceptions
 
-from sngconnect.forms import SecureForm
+from sngconnect.forms import SecureForm, LocalizedDecimalField
 from sngconnect.translation import _
 from sngconnect.database import (DBSession, FeedTemplate, DataStreamTemplate,
     ChartDefinition)
@@ -149,6 +149,20 @@ class UpdateDataStreamTemplateForm(SecureForm):
     writable = fields.BooleanField(
         _("Writable")
     )
+    default_minimum = LocalizedDecimalField(
+        _("Default minimum"),
+        places=None,
+        validators=(
+            validators.Optional(),
+        )
+    )
+    default_maximum = LocalizedDecimalField(
+        _("Default maximum"),
+        places=None,
+        validators=(
+            validators.Optional(),
+        )
+    )
     modbus_register_type = fields.SelectField(
         _("Modbus register type"),
         choices=[
@@ -188,11 +202,23 @@ class UpdateDataStreamTemplateForm(SecureForm):
     def __init__(self, feed_template_id=None, *args, **kwargs):
         self._feed_template_id = feed_template_id
         kwargs['feed_template_id'] = feed_template_id
+        locale = kwargs.pop('locale')
         super(UpdateDataStreamTemplateForm, self).__init__(*args, **kwargs)
+        self.default_minimum.set_locale(locale)
+        self.default_maximum.set_locale(locale)
 
     def validate_feed_template_id(self, field):
         if field.data != self._feed_template_id:
             raise validators.ValidationError()
+
+    def validate_default_maximum(self, field):
+        if field.errors:
+            return
+        if self.default_minimum.data > field.data:
+            raise validators.ValidationError(
+                _("Default maximum must be greater than or equal to the"
+                  " default minimum.")
+            )
 
 class AddDataStreamTemplateForm(UpdateDataStreamTemplateForm):
 

@@ -6,6 +6,7 @@ import magic
 from sqlalchemy.orm import exc as database_exceptions
 from pyramid.view import view_config
 from pyramid import httpexceptions
+from pyramid.i18n import get_locale_name
 
 from sngconnect.translation import _
 from sngconnect.database import (DBSession, FeedTemplate, DataStreamTemplate,
@@ -149,7 +150,8 @@ def feed_template(request):
     )
     data_stream_template_form = forms.AddDataStreamTemplateForm(
         feed_template_id=feed_template.id,
-        csrf_context=request
+        csrf_context=request,
+        locale=get_locale_name(request)
     )
     chart_definition_form = forms.AddChartDefinitionForm(
         feed_template,
@@ -170,8 +172,10 @@ def feed_template(request):
                     queue='success'
                 )
                 return httpexceptions.HTTPFound(
-                    request.route_url('sngconnect.devices.feed_template'),
-                    feed_template_id=feed_template.id
+                    request.route_url(
+                        'sngconnect.devices.feed_template',
+                        feed_template_id=feed_template.id
+                    )
                 )
             else:
                 request.session.flash(
@@ -338,7 +342,8 @@ def feed_template(request):
                     ),
                     'delete_form': forms.DeleteDataStreamTemplateForm(
                         csrf_context=request,
-                        data_stream_template_id=data_stream_template.id
+                        data_stream_template_id=data_stream_template.id,
+                        locale=get_locale_name(request)
                     ),
                 }
                 for data_stream_template in data_stream_templates
@@ -402,7 +407,8 @@ def data_stream_template_delete(request):
         raise httpexceptions.HTTPNotFound()
     delete_form = forms.DeleteDataStreamTemplateForm(
         data_stream_template_id=data_stream_template.id,
-        csrf_context=request
+        csrf_context=request,
+        locale=get_locale_name(request)
     )
     delete_form.process(request.POST)
     if delete_form.validate():
@@ -460,7 +466,8 @@ def data_stream_template(request):
     data_stream_template_form = forms.UpdateDataStreamTemplateForm(
         feed_template_id=feed_template.id,
         obj=data_stream_template,
-        csrf_context=request
+        csrf_context=request,
+        locale=get_locale_name(request)
     )
     if request.method == 'POST':
         data_stream_template_form.process(request.POST)

@@ -353,6 +353,8 @@ class FeedDashboard(FeedViewBase):
                             'id': template.id,
                             'name': template.name,
                             'measurement_unit': template.measurement_unit,
+                            'minimum': template.default_minimum,
+                            'maximum': template.default_maximum,
                         }
                         for template in sorted(
                             chart_definition.data_stream_templates,
@@ -609,6 +611,8 @@ class FeedChart(FeedCharts):
                         'id': template.id,
                         'name': template.name,
                         'measurement_unit': template.measurement_unit,
+                        'minimum': template.default_minimum,
+                        'maximum': template.default_maximum,
                     }
                     for template in sorted(
                         chart_definition.data_stream_templates,
@@ -909,10 +913,14 @@ class FeedDataStream(FeedDataStreamViewBase):
             AlarmDefinition.data_stream == self.data_stream,
             AlarmDefinition.alarm_type == 'MINIMAL_VALUE'
         ).value('boundary')
+        if minimal_value is None:
+            minimal_value = self.data_stream.template.default_minimum
         maximal_value = DBSession.query(AlarmDefinition).filter(
             AlarmDefinition.data_stream == self.data_stream,
             AlarmDefinition.alarm_type == 'MAXIMAL_VALUE'
         ).value('boundary')
+        if maximal_value is None:
+            maximal_value = self.data_stream.template.default_maximum
         value_bounds_form = forms.ValueBoundsForm(
             minimum=minimal_value,
             maximum=maximal_value,
@@ -1136,6 +1144,8 @@ class FeedDataStream(FeedDataStreamViewBase):
                         'measurement_unit': (
                             self.data_stream.template.measurement_unit
                         ),
+                        'minimum': self.data_stream.template.default_minimum,
+                        'maximum': self.data_stream.template.default_maximum,
                     }
                 ],
             },
@@ -1344,6 +1354,8 @@ class FeedSetting(FeedDataStreamViewBase):
                         'measurement_unit': (
                             self.data_stream.template.measurement_unit
                         ),
+                        'minimum': self.data_stream.template.default_minimum,
+                        'maximum': self.data_stream.template.default_maximum,
                     }
                 ],
             },
