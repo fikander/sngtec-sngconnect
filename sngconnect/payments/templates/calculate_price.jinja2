@@ -1,0 +1,3 @@
+{% if price and value %}
+    &times; {{ price|format_currency }} = <strong>{{ value|format_currency }}</strong>
+{% endif %}

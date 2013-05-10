@@ -1,0 +1,82 @@
+{% extends "sngconnect.payments:templates/base.jinja2" %}
+{% from "sngconnect:templates/macros/horizontal_form_field.jinja2" import horizontal_form_field %}
+
+{% block main_content %}
+    <div class="page-header">
+        <h1>{% trans %}Coins{% endtrans %}</h1>
+    </div>
+    <div class="page-container">
+        <h2>{% trans coins=user.coins %}You have <strong>{{ coins }}</strong> coins. Need more?{% endtrans %}</h2>
+        <div class="row">
+            <div class="span6">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th colspan="2">{% trans %}Amount of coins{% endtrans %}</th>
+                            <th colspan="2">{% trans %}Price per coin{% endtrans %}</th>
+                        </tr>
+                        <tr>
+                            <th>{% trans %}From{% endtrans %}</th>
+                            <th>{% trans %}To{% endtrans %}</th>
+                            <th>{% trans %}Net{% endtrans %}</th>
+                            <th>{% trans %}Gross{% endtrans %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for position in coin_prices %}
+                            <tr>
+                                <td>{{ position.minimum }}</td>
+                                <td>
+                                    {% if position.maximum %}
+                                        {{ position.maximum }}
+                                    {% else %}
+                                        &mdash;
+                                    {% endif %}
+                                </td>
+                                <td>{{ position.price_net|format_currency }}</td>
+                                <td>{{ position.price_gross|format_currency }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="span6">
+                <form action="" method="post" class="form">
+                    {{ buy_form.csrf_token }}
+                    {{ horizontal_form_field(buy_form.coins) }}
+                    <div class="form-actions">
+                        <button type="submit" name="submit_value" class="btn btn-primary"><span class="awe-shopping-cart"></span> {% trans %}Buy{% endtrans %}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block body_scripts %}
+    {{ super() }}
+    <script>
+        $(function(){
+            var input = $("input[name='coins']");
+            var help = input.parent().find(".help-inline");
+            if (help.length < 1) {
+                help = $("<span class=\"help-inline\"></span>");
+                help.css({
+                    "margin-bottom": "9px"
+                });
+                input.after(help);
+            }
+            input.keyup(function(event){
+                $.get(
+                    {{ request.route_url('sngconnect.payments.calculate_price')|tojson }},
+                    {
+                        coins: $(event.target).val()
+                    },
+                    function(data, textStatus, jqXHR) {
+                        help.html(data);
+                    }
+                );
+            });
+        });
+    </script>
+{% endblock %}

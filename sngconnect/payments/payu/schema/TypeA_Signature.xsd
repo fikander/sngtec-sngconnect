@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:payu="http://www.openpayu.com/openpayu.xsd" targetNamespace="http://www.openpayu.com/openpayu.xsd" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.1">
+	<xs:include schemaLocation="Common.xsd"/>
+	<xs:complexType name="Signature">
+		<xs:sequence>
+			<!-- podpis wykonany zapewniajacy integralnosc oraz autentycznosc przesylki, za pomoca klucza symetrycznego -->
+			<xs:element name="Sig" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<!-- typ algorytmu z javax.security.MessegeDigest -->
+			<xs:element name="Algorithm" type="payu:Algorithm" minOccurs="1" maxOccurs="1"/>
+			<!-- pola rozdzielane przecinkiem ktore byly brane do skladania podpisu -->
+			<xs:element name="Fields" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<!-- separator wartosci znajdujących się w polu Fields -->
+			<xs:element name="Separator" type="xs:string" default="," minOccurs="1" maxOccurs="1"/>
+			<!-- sender name -->
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

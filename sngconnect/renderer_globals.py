@@ -15,6 +15,12 @@ def add_google_maps_api_key(event):
     )
 
 @events.subscriber(events.BeforeRender)
+def add_currency(event):
+    event['currency_format'] = (
+        event['request'].registry.settings['sngconnect.currency_format'].decode('utf-8')
+    )
+
+@events.subscriber(events.BeforeRender)
 def add_sign_out_form(event):
     event['sign_out_form'] = SignOutForm(
         csrf_context=event['request']

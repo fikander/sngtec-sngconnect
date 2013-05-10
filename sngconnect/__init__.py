@@ -112,6 +112,7 @@ def configure_application(settings, config=None):
         'format_time': template_filters.format_time,
         'format_number': template_filters.format_number,
         'format_decimal': template_filters.format_decimal,
+        'format_currency': template_filters.format_currency,
     })
     jinja2_environment.assets_environment = config.get_webassets_env()
     # Configure routes.

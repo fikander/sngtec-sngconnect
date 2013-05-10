@@ -84,6 +84,24 @@ ROUTES = (
         'sngconnect.telemetry.confirm_message',
         'feeds/confirm-message'
     ),
+    # sngconnect.payments
+    (
+        'sngconnect.payments.index',
+        'payments/'
+    ),
+    (
+        'sngconnect.payments.confirmation',
+        'payments/confirmation'
+    ),
+    (
+        'sngconnect.payments.calculate_price',
+        'payments/calculate_price'
+    ),
+    # sngconnect.payments.payu
+    (
+        'sngconnect.payments.payu.notify',
+        'payments/payu/notify'
+    ),
     # sngconnect.devices
     (
         'sngconnect.devices.feed_templates',

@@ -75,6 +75,12 @@ class User(ModelBase):
         nullable=False
     )
 
+    coins = sql.Column(
+        sql.Integer,
+        nullable=False,
+        default=0
+    )
+
     role_user = sql.Column(sql.Boolean, nullable=False, default=False)
     role_maintainer = sql.Column(sql.Boolean, nullable=False, default=False)
     role_supplier = sql.Column(sql.Boolean, nullable=False, default=False)
@@ -153,6 +159,112 @@ class User(ModelBase):
         except database_exceptions.NoResultFound:
             return None
         return user.roles
+
+class Order(ModelBase):
+
+    __tablename__ = 'sngconnect_orders'
+
+    id = sql.Column(
+        sql.Integer,
+        primary_key=True
+    )
+    status = sql.Column(
+        sql.Enum(
+            'PLACED',
+            'CANCELED',
+            'REALIZED',
+            name='ORDER_STATUS_TYPE'
+        ),
+        nullable=False
+    )
+    placed = sql.Column(
+        sql.DateTime,
+        nullable=False
+    )
+    canceled = sql.Column(
+        sql.DateTime
+    )
+    realized = sql.Column(
+        sql.DateTime
+    )
+    user_id = sql.Column(
+        sql.Integer,
+        sql.ForeignKey(User.id),
+        nullable=False
+    )
+    client_email = sql.Column(
+        sql.Unicode(length=200),
+        nullable=False
+    )
+    audit_data = sql.Column(
+        sql.UnicodeText,
+        nullable=False
+    )
+    coins = sql.Column(
+        sql.Integer,
+        nullable=False
+    )
+    price_net = sql.Column(
+        sql.Numeric(precision=14, scale=4),
+        nullable=False
+    )
+    price_tax = sql.Column(
+        sql.Numeric(precision=14, scale=4),
+        nullable=False
+    )
+    price_gross = sql.Column(
+        sql.Numeric(precision=14, scale=4),
+        nullable=False
+    )
+    value_net = sql.Column(
+        sql.Numeric(precision=14, scale=4),
+        nullable=False
+    )
+    value_tax = sql.Column(
+        sql.Numeric(precision=14, scale=4),
+        nullable=False
+    )
+    value_gross = sql.Column(
+        sql.Numeric(precision=14, scale=4),
+        nullable=False
+    )
+
+    user = orm.relationship(
+        User,
+        backref=orm.backref('orders')
+    )
+
+class PayUSession(ModelBase):
+
+    __tablename__ = 'sngconnect_payu_sessions'
+
+    id = sql.Column(
+        sql.Integer,
+        primary_key=True
+    )
+    status = sql.Column(
+        sql.Enum(
+            'CREATED',
+            'CANCELED',
+            'REALIZED',
+            name='PAYU_SESSION_STATUS_TYPE'
+        ),
+        nullable=False
+    )
+    order_id = sql.Column(
+        sql.Integer,
+        sql.ForeignKey(Order.id),
+        nullable=False
+    )
+    create_order_request_id = sql.Column(
+        sql.String(length=100),
+        nullable=False
+    )
+
+    order = orm.relationship(
+        Order,
+        backref=orm.backref('payu_sessions')
+    )
 
 class FeedTemplate(ModelBase):
 

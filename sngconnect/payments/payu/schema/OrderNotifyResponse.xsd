@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:payu="http://www.openpayu.com/openpayu.xsd" targetNamespace="http://www.openpayu.com/openpayu.xsd" elementFormDefault="qualified" version="1.1">
+	<xs:include schemaLocation="BaseResponse.xsd"/>
+	<xs:annotation>
+		<xs:documentation xml:lang="pl">Struktura opisująca odpowiedź na komunikat notyfikujący o zmianie zamówienia.</xs:documentation>
+		<xs:documentation xml:lang="en">Structure that describes the order notify response.</xs:documentation>
+	</xs:annotation>
+	<xs:complexType name="OrderNotifyResponse">
+		<xs:complexContent>
+			<xs:extension base="payu:BaseResponse"/>
+		</xs:complexContent>
+	</xs:complexType>
+</xs:schema>
