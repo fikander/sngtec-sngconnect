@@ -27,6 +27,8 @@ from sngconnect.telemetry.views.feed.base import FeedViewBase
 class FeedCharts(FeedViewBase):
     def __init__(self, request):
         super(FeedCharts, self).__init__(request)
+        if 'access_charts' not in self.feed_permissions:
+            raise httpexceptions.HTTPUnauthorized()
         self.chart_definitions = DBSession.query(ChartDefinition).join(
             FeedTemplate,
             Feed
@@ -102,6 +104,8 @@ class FeedCharts(FeedViewBase):
 )
 class FeedChartsCreate(FeedViewBase):
     def __call__(self):
+        if 'access_charts' not in self.feed_permissions:
+            raise httpexceptions.HTTPUnauthorized()
         create_chart_form = forms.CreateChartDefinitionForm(
             self.feed,
             self.feed.template.data_stream_templates,
@@ -192,6 +196,8 @@ class FeedChart(FeedCharts):
 
 class FeedChartDefinitionViewBase(FeedViewBase):
     def __init__(self, request):
+        if 'access_charts' not in self.feed_permissions:
+            raise httpexceptions.HTTPUnauthorized()
         super(FeedChartDefinitionViewBase, self).__init__(request)
         try:
             self.chart_definition = DBSession.query(ChartDefinition).filter(

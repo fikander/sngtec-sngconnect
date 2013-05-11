@@ -1,5 +1,6 @@
 from pyramid_mailer.interfaces import IMailer
 from pyramid_mailer.message import Message as EmailMessage
+from sqlalchemy.orm import joinedload
 
 from sngconnect.services.base import ServiceBase
 from sngconnect.services.sms import SMSService
@@ -33,38 +34,45 @@ class NotificationService(ServiceBase):
 
     def notify_all(self, summary, message):
         users = DBSession.query(User).all()
-        self._notify(users, summary, message)
+        for user in users:
+            self._send_email(user, summary, message)
+            self._send_sms(user, summary, message)
 
     def notify_feed_users(self, feed, summary, message):
-        users = DBSession.query(User).join(
-            FeedUser
+        feed_users = DBSession.query(FeedUser).join(User).options(
+            joinedload(FeedUser.user)
         ).filter(
-            FeedUser.feed == feed,
-            FeedUser.role_user == True
-        ).all()
-        self._notify(users, summary, message)
+            FeedUser.feed == self.feed
+        )
+        for feed_user in feed_users:
+            permissions = feed_user.get_permissions()
+            if 'email_notifications' in permissions:
+                self._send_email(feed_user.user, summary, message)
+            if 'sms_notifications' in permissions:
+                self._send_sms(feed_user.user, summary, message)
 
-    def _notify(self, users, summary, message):
+    def _send_email(self, user, summary, message):
         mailer = self.registry.getUtility(IMailer)
+        if getattr(user, self._user_severity_flag_email[message.type]):
+            email = EmailMessage(
+                subject=summary,
+                sender=self.email_sender,
+                recipients=[user.email],
+                body=self.email_template.render(
+                    user={
+                        'id': user.id,
+                    },
+                    summary=summary,
+                    message=message
+                )
+            )
+            mailer.send(email)
+
+    def _send_sms(self, user, summary, message):
         sms_service = self.get_service(SMSService)
-        for user in users:
-            if getattr(user, self._user_severity_flag_email[message.type]):
-                email = EmailMessage(
-                    subject=summary,
-                    sender=self.email_sender,
-                    recipients=[user.email],
-                    body=self.email_template.render(
-                        user={
-                            'id': user.id,
-                        },
-                        summary=summary,
-                        message=message
-                    )
-                )
-                mailer.send(email)
-            if (getattr(user, self._user_severity_flag_sms[message.type])
-                    and user.phone):
-                sms_service.send_sms(
-                    [user.phone],
-                    summary
-                )
+        if (getattr(user, self._user_severity_flag_sms[message.type])
+                and user.phone):
+            sms_service.send_sms(
+                [user.phone],
+                summary
+            )

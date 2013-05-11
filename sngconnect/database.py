@@ -445,10 +445,7 @@ class FeedUser(ModelBase):
         sql.UniqueConstraint(
             'feed_id',
             'user_id',
-            'role_user',
-            'role_maintainer'
         ),
-        sql.CheckConstraint('role_user <> role_maintainer'),
     )
 
     id = sql.Column(
@@ -465,22 +462,18 @@ class FeedUser(ModelBase):
         sql.ForeignKey(User.id),
         nullable=False
     )
-
-    role_user = sql.Column(
-        sql.Boolean,
-        nullable=False,
-        default=False
-    )
-    role_maintainer = sql.Column(
-        sql.Boolean,
-        nullable=False,
-        default=False
-    )
-
-    can_change_permissions = sql.Column(
-        sql.Boolean,
-        nullable=False,
-        default=False
+    role = sql.Column(
+        sql.Enum(
+            'OWNER_BASIC',
+            'OWNER_STANDARD',
+            'OWNER_PLUS',
+            'USER_STANDARD',
+            'USER_PLUS',
+            'MAINTAINER_STANDARD',
+            'MAINTAINER_PLUS',
+            name='FEED_USER_ROLE_TYPE'
+        ),
+        nullable=False
     )
 
     user = orm.relationship(
@@ -491,6 +484,101 @@ class FeedUser(ModelBase):
         Feed,
         backref=orm.backref('feed_users')
     )
+
+    _permission_mapping = {
+        'access_permissions': (
+            'OWNER_BASIC',
+            'OWNER_STANDARD',
+            'OWNER_PLUS',
+            'MAINTAINER_PLUS',
+        ),
+        'manage_users': (
+            'OWNER_BASIC',
+            'OWNER_STANDARD',
+            'OWNER_PLUS',
+        ),
+        'manage_users_plus': (
+            'OWNER_PLUS',
+        ),
+        'manage_maintainers_standard': (
+            'MAINTAINER_PLUS',
+        ),
+        'access_charts': (
+            'OWNER_STANDARD',
+            'OWNER_PLUS',
+            'USER_PLUS',
+            'MAINTAINER_STANDARD',
+            'MAINTAINER_PLUS',
+        ),
+        'access_data_streams': (
+            'OWNER_STANDARD',
+            'OWNER_PLUS',
+            'USER_PLUS',
+            'MAINTAINER_STANDARD',
+            'MAINTAINER_PLUS',
+        ),
+        'access_settings': (
+            'OWNER_STANDARD',
+            'OWNER_PLUS',
+            'USER_PLUS',
+            'MAINTAINER_STANDARD',
+            'MAINTAINER_PLUS',
+        ),
+        'email_notifications': (
+            'OWNER_STANDARD',
+            'OWNER_PLUS',
+            'USER_PLUS',
+            'MAINTAINER_STANDARD',
+            'MAINTAINER_PLUS',
+        ),
+        'sms_notifications': (
+            'OWNER_STANDARD',
+            'OWNER_PLUS',
+            'USER_PLUS',
+            'MAINTAINER_STANDARD',
+            'MAINTAINER_PLUS',
+        ),
+        'change_settings': (
+            'OWNER_STANDARD',
+            'OWNER_PLUS',
+            'USER_PLUS',
+            'MAINTAINER_STANDARD',
+            'MAINTAINER_PLUS',
+        ),
+    }
+
+    @property
+    def role_owner(self):
+        return self.role in (
+            'OWNER_BASIC',
+            'OWNER_STANDARD',
+            'OWNER_PLUS',
+        )
+
+    @property
+    def role_user(self):
+        return self.role in (
+            'USER_STANDARD',
+            'USER_PLUS',
+        )
+
+    @property
+    def role_maintainer(self):
+        return self.role in (
+            'MAINTAINER_STANDARD',
+            'MAINTAINER_PLUS',
+        )
+
+    def get_permissions(self):
+        return set((
+            permission
+            for permission, roles in self._permission_mapping.iteritems()
+            if self.role in roles
+        ))
+
+    @classmethod
+    def get_all_permissions(cls):
+        return set(cls._permission_mapping.keys())
 
 class DataStreamTemplate(ModelBase):
 

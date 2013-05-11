@@ -333,3 +333,12 @@ class ConfirmMessageForm(SecureForm):
             validators.DataRequired(message=_("This field is required.")),
         )
     )
+
+class RevokeMaintainerAccessForm(SecureForm):
+
+    id = fields.IntegerField(
+        widget=widgets.HiddenInput(),
+        validators=(
+            validators.DataRequired(message=_("This field is required.")),
+        )
+    )

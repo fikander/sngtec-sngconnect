@@ -28,6 +28,8 @@ from sngconnect.telemetry.views.feed.charts import ChartDataMixin
 )
 class FeedDataStreams(FeedViewBase):
     def __call__(self):
+        if 'access_data_streams' not in self.feed_permissions:
+            raise httpexceptions.HTTPUnauthorized()
         data_streams = DBSession.query(DataStream).join(
             DataStreamTemplate
         ).filter(
@@ -111,6 +113,8 @@ class FeedDataStream(FeedDataStreamViewBase):
     _data_stream_writable = False
 
     def __call__(self):
+        if 'access_data_streams' not in self.feed_permissions:
+            raise httpexceptions.HTTPUnauthorized()
         message_service = MessageService(self.request.registry)
         comment_form = forms.CommentForm(csrf_context=self.request)
         minimal_value = DBSession.query(AlarmDefinition).filter(
@@ -396,6 +400,8 @@ class FeedDataStreamChartData(ChartDataMixin, FeedDataStreamViewBase):
 )
 class FeedSettings(FeedDataStreams):
     def __call__(self):
+        if 'access_settings' not in self.feed_permissions:
+            raise httpexceptions.HTTPUnauthorized()
         if not self.has_settings:
             raise httpexceptions.HTTPNotFound()
         data_streams = DBSession.query(DataStream).join(
@@ -445,6 +451,8 @@ class FeedSetting(FeedDataStreamViewBase):
     _data_stream_writable = True
 
     def __call__(self):
+        if 'access_settings' not in self.feed_permissions:
+            raise httpexceptions.HTTPUnauthorized()
         last_data_point = (
             data_streams_store.LastDataPoints().get_last_data_stream_data_point(
                 self.feed.id,
@@ -460,6 +468,8 @@ class FeedSetting(FeedDataStreamViewBase):
         comment_form = forms.CommentForm(csrf_context=self.request)
         if self.request.method == 'POST':
             if 'submit_value' in self.request.POST:
+                if 'change_settings' not in self.feed_permissions:
+                    raise httpexceptions.HTTPUnauthorized()
                 value_form.process(self.request.POST)
                 if value_form.validate():
                     data_stream_service = DataStreamService(

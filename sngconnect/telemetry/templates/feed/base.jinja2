@@ -18,27 +18,33 @@
                         <span class="badge badge-important">{{ active_alarms_count|format_number }}</span>
                     {% endif %}
                 </li>
-                <li{% if active_secondary_navigation == "charts" %} class="active"{% endif %}>
-                    <a href="{{ feed.charts_url }}">
-                        <span class="awe-bar-chart"></span>
-                        {% trans %}Charts{% endtrans %}
-                    </a>
-                </li>
-                <li{% if active_secondary_navigation == "data_streams" %} class="active"{% endif %}>
-                    <a href="{{ feed.data_streams_url }}">
-                        <span class="awe-th-list"></span>
-                        {% trans %}Parameters{% endtrans %}
-                    </a>
-                </li>
-                {% if feed.has_settings %}
-                    <li{% if active_secondary_navigation == "settings" %} class="active"{% endif %}>
-                        <a href="{{ feed.settings_url }}">
-                            <span class="awe-cog"></span>
-                            {% trans %}Settings{% endtrans %}
+                {% if 'access_charts' in feed_permissions %}
+                    <li{% if active_secondary_navigation == "charts" %} class="active"{% endif %}>
+                        <a href="{{ feed.charts_url }}">
+                            <span class="awe-bar-chart"></span>
+                            {% trans %}Charts{% endtrans %}
                         </a>
                     </li>
                 {% endif %}
-                {% if feed_permissions.can_change_permissions %}
+                {% if 'access_data_streams' in feed_permissions %}
+                    <li{% if active_secondary_navigation == "data_streams" %} class="active"{% endif %}>
+                        <a href="{{ feed.data_streams_url }}">
+                            <span class="awe-th-list"></span>
+                            {% trans %}Parameters{% endtrans %}
+                        </a>
+                    </li>
+                {% endif %}
+                {% if 'access_settings' in feed_permissions %}
+                    {% if feed.has_settings %}
+                        <li{% if active_secondary_navigation == "settings" %} class="active"{% endif %}>
+                            <a href="{{ feed.settings_url }}">
+                                <span class="awe-cog"></span>
+                                {% trans %}Settings{% endtrans %}
+                            </a>
+                        </li>
+                    {% endif %}
+                {% endif %}
+                {% if 'access_permissions' in feed_permissions %}
                     <li{% if active_secondary_navigation == "permissions" %} class="active"{% endif %}>
                         <a href="{{ feed.permissions_url }}">
                             <span class="awe-user"></span>

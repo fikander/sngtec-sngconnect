@@ -61,8 +61,7 @@ def create_test_data():
         id=starting_id,
         feed=feed,
         user=user,
-        role_user=True,
-        can_change_permissions=True
+        role='OWNER_PLUS'
     )
     DBSession.add_all([feed_template, feed, feed_user])
     data_stream_templates = [
@@ -447,8 +446,7 @@ def create_test_data2():
         id=starting_id,
         feed=feed,
         user=user,
-        role_user=True,
-        can_change_permissions=True
+        role='OWNER_PLUS'
     )
     DBSession.add_all([feed_template, feed, feed_user])
     data_stream_templates = [

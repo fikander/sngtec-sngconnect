@@ -43,19 +43,23 @@
         </article>
     </div>
     <div class="row">
-        <article class="span6">
-            <h2><span class="awe-th-list"></span> {% trans %}Set value{% endtrans %}</h2>
-            <form action="" method="post" class="form">
-                {{ value_form.csrf_token }}
-                {{ horizontal_form_field(value_form.value) }}
-                <div class="form-actions">
-                    <button type="submit" name="submit_value" class="btn btn-primary">{% trans %}Set{% endtrans %}</button>
-                </div>
-            </form>
-        </article>
-        <article class="span6">
+        {% if 'change_settings' in feed_permissions %}
+            <article class="span6">
+                <h2><span class="awe-th-list"></span> {% trans %}Set value{% endtrans %}</h2>
+                <form action="" method="post" class="form">
+                    {{ value_form.csrf_token }}
+                    {{ horizontal_form_field(value_form.value) }}
+                    <div class="form-actions">
+                        <button type="submit" name="submit_value" class="btn btn-primary">{% trans %}Set{% endtrans %}</button>
+                    </div>
+                </form>
+            </article>
+            <article class="span6">
+        {% endif %}
             <h2><span class="awe-info-sign"></span> {% trans %}Notifications{% endtrans %}</h2>
-        </article>
+        {% if 'change_settings' in feed_permissions %}
+            </article>
+        {% endif %}
     </div>
     <h2><span class="awe-signal"></span> {% trans %}Chart{% endtrans %}</h2>
     {{ chart_controls(

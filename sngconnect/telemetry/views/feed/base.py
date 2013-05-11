@@ -17,11 +17,6 @@ class FeedViewBase(object):
             request.context,
             request
         )
-        can_change_all = has_permission(
-            'sngconnect.telemetry.change_all',
-            request.context,
-            request
-        )
         try:
             feed = DBSession.query(Feed).filter(
                 Feed.id == request.matchdict['feed_id']
@@ -37,13 +32,9 @@ class FeedViewBase(object):
             feed_user = None
             if not can_access_all:
                 raise httpexceptions.HTTPForbidden()
-            feed_permissions = {
-                'can_change_permissions': can_change_all,
-            }
+            feed_permissions = FeedUser.get_all_permissions()
         else:
-            feed_permissions = {
-                'can_change_permissions': feed_user.can_change_permissions,
-            }
+            feed_permissions = feed_user.get_permissions()
         self.request = request
         self.feed = feed
         try:

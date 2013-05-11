@@ -235,6 +235,8 @@ class FeedDashboardSetValue(FeedViewBase):
     def __call__(self):
         if not self.request.is_xhr:
             raise httpexceptions.HTTPBadRequest()
+        if 'change_settings' not in self.feed_permissions:
+            raise httpexceptions.HTTPUnauthorized()
         try:
             data_stream = DBSession.query(DataStream).join(
                 DataStreamTemplate

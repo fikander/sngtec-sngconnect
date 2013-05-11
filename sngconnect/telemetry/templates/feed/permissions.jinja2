@@ -16,8 +16,7 @@
                     <tr>
                         <th>{% trans %}Name [person]{% endtrans %}</th>
                         <th>{% trans %}E-mail{% endtrans %}</th>
-                        <th>{% trans %}Can access the device{% endtrans %}</th>
-                        <th>{% trans %}Can manage users{% endtrans %}</th>
+                        <th>{% trans %}Access{% endtrans %}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -25,20 +24,18 @@
                         <tr>
                             <td>{{ feed_user.user.name }}</td>
                             <td>{{ feed_user.user.email }}</td>
-                            <td><input type="checkbox" name="can_access-{{ feed_user.id }}" checked="true"
-                                {%- if feed_user.user.id == user.id %} disabled="true"
-                                {%- else %} name="can_change_permissions-{{ feed_user.id }}"
-                                {%- endif -%}
-                            ></td>
-                            <td><input type="checkbox"
-                                {%- if feed_user.can_change_permissions %} checked="true"{% endif -%}
-                                {%- if feed_user.user.id == user.id %} disabled="true"
-                                {%- else %} name="can_change_permissions-{{ feed_user.id }}"
-                                {%- endif -%}
-                            ></td>
+                            <td>
+                                <select {% if feed_user.user.id == user.id %}disabled="true"{% else %}name="role-{{ feed_user.id }}"{% endif %}>
+                                    <option value="">{% trans %}no access{% endtrans %}</option>
+                                    <option value="USER_STANDARD" {%- if feed_user.role == 'USER_STANDARD' %} selected{% endif %}>{% trans %}User{% endtrans %}</option>
+                                    {% if can_set_user_plus %}
+                                        <option value="USER_PLUS" {%- if feed_user.role == 'USER_PLUS' %} selected{% endif %}>{% trans %}User Plus{% endtrans %}</option>
+                                    {% endif %}
+                                </select>
+                            </td>
                         </tr>
                     {% else %}
-                        <tr><td colspan="4" class="no-data">{% trans %}no users yet{% endtrans %}</td></tr>
+                        <tr><td colspan="3" class="no-data">{% trans %}no users yet{% endtrans %}</td></tr>
                     {% endfor %}
                 </tbody>
             </table>
@@ -62,46 +59,36 @@
         </form>
     {% endif %}
     <h2 id="maintainers">{% trans %}Maintainers{% endtrans %}</h2>
-    <form action="{{ request.route_url("sngconnect.telemetry.feed_permissions.set_maintainer_permissions", feed_id=feed.id) }}" method="post" style="background: none;">
-        <table class="table">
-            <thead>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>{% trans %}Company{% endtrans %}</th>
+                <th>{% trans %}Name [person]{% endtrans %}</th>
+                <th>{% trans %}E-mail{% endtrans %}</th>
+                <th>{% trans %}Access{% endtrans %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for maintainer in feed_maintainers %}
                 <tr>
-                    <th>{% trans %}Company{% endtrans %}</th>
-                    <th>{% trans %}Name [person]{% endtrans %}</th>
-                    <th>{% trans %}E-mail{% endtrans %}</th>
-                    <th>{% trans %}Can access the device{% endtrans %}</th>
-                    <th>{% trans %}Can manage maintainers{% endtrans %}</th>
+                    <td>{% if maintainer.feed_user.user.company_name %}{{ maintainer.feed_user.user.company_name }}{% endif %}</td>
+                    <td>{{ maintainer.feed_user.user.name }}</td>
+                    <td>{{ maintainer.feed_user.user.email }}</td>
+                    <td>
+                        {% if maintainer.feed_user.user != user %}
+                            <form action="{{ revoke_maintainer_access_url }}" method="post" class="inline-form">
+                                {{ maintainer.revoke_access_form.csrf_token }}
+                                {{ maintainer.revoke_access_form.id }}
+                                <button type="submit" class="btn btn-danger">{% trans %}Revoke access{% endtrans %}</button>
+                            </form>
+                        {% endif %}
+                    </td>
                 </tr>
-            </thead>
-            <tbody>
-                {% for feed_user in feed_maintainers %}
-                    <tr>
-                        <td>{% if feed_user.user.company_name %}{{ feed_user.user.company_name }}{% endif %}</td>
-                        <td>{{ feed_user.user.name }}</td>
-                        <td>{{ feed_user.user.email }}</td>
-                        <td><input type="checkbox" checked="true"
-                            {%- if feed_user.user.id == user.id %} disabled="true"
-                            {%- else %} name="can_access-{{ feed_user.id }}"
-                            {%- endif -%}
-                        ></td>
-                        <td><input type="checkbox"
-                            {%- if feed_user.can_change_permissions %} checked="true"{% endif -%}
-                            {%- if feed_user.user.id == user.id %} disabled="true"
-                            {%- else %} name="can_change_permissions-{{ feed_user.id }}"
-                            {%- endif -%}
-                        ></td>
-                    </tr>
-                {% else %}
-                    <tr><td colspan="5" class="no-data">{% trans %}no maintainers yet{% endtrans %}</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <div style="text-align: right;">
-            <button type="submit" class="btn btn-primary">
-                <span class="awe-check"></span> {% trans %}Save permissions{% endtrans %}
-            </button>
-        </div>
-    </form>
+            {% else %}
+                <tr><td colspan="5" class="no-data">{% trans %}no maintainers yet{% endtrans %}</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
     <h3 id="add-maintainer">{% trans %}Add maintainer{% endtrans %}</h3>
     <form action="" method="post" class="form-horizontal">
         <fieldset>

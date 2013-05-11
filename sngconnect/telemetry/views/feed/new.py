@@ -48,16 +48,14 @@ def feeds_new(request):
             DBSession.add(feed)
             feed_user = FeedUser(
                 feed=feed,
-                role_user=True,
-                can_change_permissions=True
+                role='OWNER_BASIC'
             )
             if forced_user is None:
                 feed_user.user = create_form.get_owner()
                 feed_maintainer = FeedUser(
                     feed=feed,
                     user=user,
-                    role_maintainer=True,
-                    can_change_permissions=True
+                    role='MAINTAINER_PLUS'
                 )
                 DBSession.add(feed_maintainer)
             else:

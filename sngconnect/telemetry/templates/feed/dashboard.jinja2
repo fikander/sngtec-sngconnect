@@ -113,7 +113,9 @@
                             <thead>
                                 <th>{% trans %}Name{% endtrans %}</th>
                                 <th>{% trans %}Last known value{% endtrans %}</th>
-                                <th class="show-js">{% trans %}Set{% endtrans %}</th>
+                                {% if 'change_settings' in feed_permissions %}
+                                    <th class="show-js">{% trans %}Set{% endtrans %}</th>
+                                {% endif %}
                             </thead>
                             <tbody>
                                 {% for data_stream in settings %}
@@ -124,18 +126,20 @@
                                         {% else %}
                                             <td class="no-data">{% trans %}no data{% endtrans %}</td>
                                         {% endif %}
-                                        <td class="show-js nolink">
-                                            <form action="{{ data_stream.value_url }}" class="set-value-form" method="post" style="background: none; margin-bottom: 0;" class="form-inline">
-                                                {{ data_stream.value_form.csrf_token }}
-                                                <div style="height: 28px; margin: 0; padding: 0;" class="control-group">
-                                                    <span class="input-append">
-                                                        {{ data_stream.value_form.value(class="input-small") }}
-                                                        <button type="submit" class="btn">{% trans %}Set{% endtrans %}</button>
-                                                    </span>
-                                                    <span class="loading" style="{% if data_stream.requested_value == None %}display: none; {% endif %}margin: -2px 0 0 10px;"></span>
-                                                </div>
-                                            </form>
-                                        </td>
+                                        {% if 'change_settings' in feed_permissions %}
+                                            <td class="show-js nolink">
+                                                <form action="{{ data_stream.value_url }}" class="set-value-form" method="post" style="background: none; margin-bottom: 0;" class="form-inline">
+                                                    {{ data_stream.value_form.csrf_token }}
+                                                    <div style="height: 28px; margin: 0; padding: 0;" class="control-group">
+                                                        <span class="input-append">
+                                                            {{ data_stream.value_form.value(class="input-small") }}
+                                                            <button type="submit" class="btn">{% trans %}Set{% endtrans %}</button>
+                                                        </span>
+                                                        <span class="loading" style="{% if data_stream.requested_value == None %}display: none; {% endif %}margin: -2px 0 0 10px;"></span>
+                                                    </div>
+                                                </form>
+                                            </td>
+                                        {% endif %}
                                     </tr>
                                 {% endfor %}
                             </tbody>

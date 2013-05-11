@@ -29,7 +29,6 @@ class MessageService(ServiceBase):
                     FeedUser
                 ).filter(
                     FeedUser.feed == message.feed,
-                    FeedUser.role_user == True
                 ).all()
             else:
                 users = DBSession.query(User).all()

@@ -16,7 +16,6 @@ class RootFactory(DefaultRootFactory):
         (Allow, Authenticated, 'sngconnect.telemetry.access'),
         (Allow, Authenticated, 'sngconnect.telemetry.create_feed'),
         (Allow, Administrator, 'sngconnect.telemetry.access_all'),
-        (Allow, Administrator, 'sngconnect.telemetry.change_all'),
         (Allow, Authenticated, 'sngconnect.payments.access'),
         (Allow, Supplier,      'sngconnect.devices.access'),
         (Allow, Administrator, 'sngconnect.devices.access'),

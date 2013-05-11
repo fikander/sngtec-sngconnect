@@ -111,10 +111,10 @@ def generate_data(feed_count):
         )
         feed.regenerate_api_key()
         feed.regenerate_activation_code()
-        feed_user_user = FeedUser(role_user=True, can_change_permissions=True)
+        feed_user_user = FeedUser(role='OWNER_PLUS')
         feed.feed_users.append(feed_user_user)
         user.feed_users.append(feed_user_user)
-        feed_user_kid = FeedUser(role_user=True)
+        feed_user_kid = FeedUser(role='USER_PLUS')
         feed.feed_users.append(feed_user_kid)
         kid.feed_users.append(feed_user_kid)
         DBSession.add_all([
