@@ -5,8 +5,8 @@ from sngconnect.translation import _
 
 class BuyForm(SecureForm):
 
-    coins = fields.IntegerField(
-        _("Coins"),
+    tokens = fields.IntegerField(
+        _("Tokens"),
         validators=(
             validators.DataRequired(message=_("This field is required.")),
         )
@@ -16,15 +16,15 @@ class BuyForm(SecureForm):
         self._order_maximum = kwargs.pop('order_maximum')
         super(BuyForm, self).__init__(*args, **kwargs)
 
-    def validate_coins(self, field):
+    def validate_tokens(self, field):
         if field.data < 1:
             raise validators.ValidationError(
-                _("How many coins would you like to buy?")
+                _("How many tokens would you like to buy?")
             );
         if field.data > self._order_maximum:
             raise validators.ValidationError(
                 _(
-                    "You can only buy maximum of ${maximum} coins at once.",
+                    "You can only buy maximum of ${maximum} tokens at once.",
                     mapping={
                         'maximum': self._order_maximum,
                     }

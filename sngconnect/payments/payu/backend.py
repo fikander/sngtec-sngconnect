@@ -65,7 +65,7 @@ class PayUPaymentBackend(object):
                         e.MerchantPosId(self._pos_id),
                         e.SessionId(session.id),
                         e.OrderCreateDate(order.placed),
-                        e.OrderDescription(_("SNG:connect coins")),
+                        e.OrderDescription(_("SNG:connect tokens")),
                         e.OrderType('VIRTUAL'),
                         e.ShoppingCart(
                             e.GrandTotal(int(order.value_gross * 100)),
@@ -73,7 +73,7 @@ class PayUPaymentBackend(object):
                             e.ShoppingCartItems(
                                 e.ShoppingCartItem(
                                     e.Product(
-                                        e.Name(_("SNG:connect coin")),
+                                        e.Name(_("SNG:connect tokens")),
                                         e.UnitPrice(
                                             e.Net(int(order.price_net * 100)),
                                             e.Gross(int(order.price_gross * 100)),
@@ -81,7 +81,7 @@ class PayUPaymentBackend(object):
                                             e.CurrencyCode(self._currency_code),
                                         )
                                     ),
-                                    e.Quantity(order.coins)
+                                    e.Quantity(order.tokens)
                                 )
                             )
                         ),

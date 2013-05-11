@@ -3,17 +3,17 @@
 
 {% block main_content %}
     <div class="page-header">
-        <h1>{% trans %}Coins{% endtrans %}</h1>
+        <h1>{% trans %}Tokens{% endtrans %}</h1>
     </div>
     <div class="page-container">
-        <h2>{% trans coins=user.coins %}You have <strong>{{ coins }}</strong> coins. Need more?{% endtrans %}</h2>
+        <h2>{% trans tokens=user.tokens %}You have <strong>{{ tokens }}</strong> tokens. Need more?{% endtrans %}</h2>
         <div class="row">
             <div class="span6">
                 <table class="table">
                     <thead>
                         <tr>
-                            <th colspan="2">{% trans %}Amount of coins{% endtrans %}</th>
-                            <th colspan="2">{% trans %}Price per coin{% endtrans %}</th>
+                            <th colspan="2">{% trans %}Amount of tokens{% endtrans %}</th>
+                            <th colspan="2">{% trans %}Price per token{% endtrans %}</th>
                         </tr>
                         <tr>
                             <th>{% trans %}From{% endtrans %}</th>
@@ -23,7 +23,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for position in coin_prices %}
+                        {% for position in token_prices %}
                             <tr>
                                 <td>{{ position.minimum }}</td>
                                 <td>
@@ -43,7 +43,7 @@
             <div class="span6">
                 <form action="" method="post" class="form">
                     {{ buy_form.csrf_token }}
-                    {{ horizontal_form_field(buy_form.coins) }}
+                    {{ horizontal_form_field(buy_form.tokens) }}
                     <div class="form-actions">
                         <button type="submit" name="submit_value" class="btn btn-primary"><span class="awe-shopping-cart"></span> {% trans %}Buy{% endtrans %}</button>
                     </div>
@@ -57,7 +57,7 @@
     {{ super() }}
     <script>
         $(function(){
-            var input = $("input[name='coins']");
+            var input = $("input[name='tokens']");
             var help = input.parent().find(".help-inline");
             if (help.length < 1) {
                 help = $("<span class=\"help-inline\"></span>");
@@ -70,7 +70,7 @@
                 $.get(
                     {{ request.route_url('sngconnect.payments.calculate_price')|tojson }},
                     {
-                        coins: $(event.target).val()
+                        tokens: $(event.target).val()
                     },
                     function(data, textStatus, jqXHR) {
                         help.html(data);

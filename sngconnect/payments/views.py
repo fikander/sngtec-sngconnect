@@ -21,7 +21,7 @@ def index(request):
     order_maximum = int(
         request.registry['settings']['sngconnect.payments.order_maximum']
     )
-    coin_prices = _get_coin_prices(request.registry['settings'])
+    token_prices = _get_token_prices(request.registry['settings'])
     buy_form = forms.BuyForm(
         order_maximum=order_maximum,
         csrf_context=request
@@ -29,10 +29,10 @@ def index(request):
     if request.method == 'POST':
         buy_form.process(request.POST)
         if buy_form.validate():
-            coins = buy_form.coins.data
+            tokens = buy_form.tokens.data
             user_service = UserService(request.registry)
             user = user_service.get_user(authenticated_userid(request))
-            price = _get_price(coins, coin_prices)
+            price = _get_price(tokens, token_prices)
             order = Order(
                 status='PLACED',
                 placed=datetime.datetime.utcnow(),
@@ -44,13 +44,13 @@ def index(request):
                     'cookies': request.cookies.values(),
                     'accept_language': str(request.accept_language),
                 }),
-                coins=coins,
+                tokens=tokens,
                 price_net=price['price_net'],
                 price_tax=price['price_tax'],
                 price_gross=price['price_gross'],
-                value_net=price['price_net'] * coins,
-                value_tax=price['price_tax'] * coins,
-                value_gross=price['price_gross'] * coins
+                value_net=price['price_net'] * tokens,
+                value_tax=price['price_tax'] * tokens,
+                value_gross=price['price_gross'] * tokens
             )
             DBSession.add(order)
             payment_backend = PayUPaymentBackend(
@@ -62,7 +62,7 @@ def index(request):
             return httpexceptions.HTTPSeeOther(
             )
     return {
-        'coin_prices': coin_prices,
+        'token_prices': token_prices,
         'buy_form': buy_form,
     }
 
@@ -84,57 +84,57 @@ def calculate_price(request):
     if not request.is_xhr:
         raise httpexceptions.HTTPBadRequest()
     try:
-        coins = int(request.GET['coins'])
+        tokens = int(request.GET['tokens'])
     except (KeyError, ValueError):
-        coins = None
+        tokens = None
     else:
         order_maximum = int(
             request.registry['settings']['sngconnect.payments.order_maximum']
         )
-        if coins < 1 or coins > order_maximum:
-            coins = None
+        if tokens < 1 or tokens > order_maximum:
+            tokens = None
     price = None
     value = None
-    if coins is not None:
-        price = _get_price(coins, _get_coin_prices(request.registry['settings']))
+    if tokens is not None:
+        price = _get_price(tokens, _get_token_prices(request.registry['settings']))
         price = price['price_gross']
-        value = price * coins
+        value = price * tokens
     return {
         'price': price,
         'value': value,
     }
 
-def _get_coin_prices(settings):
-    SETTING_PREFIX = 'sngconnect.payments.coin_prices.'
-    coin_prices = []
+def _get_token_prices(settings):
+    SETTING_PREFIX = 'sngconnect.payments.token_prices.'
+    token_prices = []
     for name, value in settings.iteritems():
         if not name.startswith(SETTING_PREFIX):
             continue
-        coin_amount = int(name[len(SETTING_PREFIX):])
+        token_amount = int(name[len(SETTING_PREFIX):])
         price = decimal.Decimal(value)
-        coin_prices.append((coin_amount, price))
-    coin_prices = sorted(coin_prices, key=operator.itemgetter(0))
+        token_prices.append((token_amount, price))
+    token_prices = sorted(token_prices, key=operator.itemgetter(0))
     result = []
-    for i in range(len(coin_prices)):
-        net = coin_prices[i][1]
+    for i in range(len(token_prices)):
+        net = token_prices[i][1]
         tax, gross = _calculate_tax_and_gross(net, settings)
         result.append({
-            'minimum': coin_prices[i][0],
-            'maximum': coin_prices[i + 1][0] - 1 if i + 1 < len(coin_prices) else None,
+            'minimum': token_prices[i][0],
+            'maximum': token_prices[i + 1][0] - 1 if i + 1 < len(token_prices) else None,
             'price_net': net,
             'price_tax': tax,
             'price_gross': gross,
         })
     return result
 
-def _get_price(coins, coin_prices):
+def _get_price(tokens, token_prices):
     price = None
-    for position in coin_prices:
-        if coins < position['minimum']:
+    for position in token_prices:
+        if tokens < position['minimum']:
             break
         price = position
     if price is None:
-        raise ValueError("Invalid coin price configuration.")
+        raise ValueError("Invalid token price configuration.")
     return price
 
 def _calculate_tax_and_gross(net, settings):

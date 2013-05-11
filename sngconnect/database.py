@@ -75,7 +75,7 @@ class User(ModelBase):
         nullable=False
     )
 
-    coins = sql.Column(
+    tokens = sql.Column(
         sql.Integer,
         nullable=False,
         default=0
@@ -200,7 +200,7 @@ class Order(ModelBase):
         sql.UnicodeText,
         nullable=False
     )
-    coins = sql.Column(
+    tokens = sql.Column(
         sql.Integer,
         nullable=False
     )
