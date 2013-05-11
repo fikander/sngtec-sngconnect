@@ -8,6 +8,58 @@
 {% endblock %}
 
 {% block page_content %}
+    {% if plan_upgrade %}
+        <h2 id="users">{% trans %}Change your plan{% endtrans %}</h2>
+        <form action="" method="post" style="background: none;">
+            <input type="hidden" name="change_plan" value="1" />
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th></th>
+                        <th>{% trans %}Free{% endtrans %}</th>
+                        <th>{% trans %}User{% endtrans %}</th>
+                        <th>{% trans %}User Plus{% endtrans %}</th>
+                    </tr>
+                    <tr>
+                        <th>{% trans %}Setup fee{% endtrans %}</th>
+                        <td>&mdash;</td>
+                        <td>{{ plan_upgrade.activation_fee.OWNER_STANDARD }}</td>
+                        <td>{{ plan_upgrade.activation_fee.OWNER_PLUS }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans %}Monthly fee{% endtrans %}</th>
+                        <td>&mdash;</td>
+                        <td>{{ plan_upgrade.monthly_fee.OWNER_STANDARD }}</td>
+                        <td>{{ plan_upgrade.monthly_fee.OWNER_PLUS }}</td>
+                    </tr>
+                    <tr>
+                        <th></th>
+                        <td>
+                            {% if feed_user.role == 'OWNER_BASIC' %}
+                                {% trans %}your plan{% endtrans %}
+                            {% else %}
+                                <button type="submit" class="btn btn-primary" name="OWNER_BASIC">{% trans %}Switch{% endtrans %}</button>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if feed_user.role == 'OWNER_STANDARD' %}
+                                {% trans %}your plan{% endtrans %}
+                            {% else %}
+                                <button type="submit" class="btn btn-primary" name="OWNER_STANDARD">{% trans %}Switch{% endtrans %}</button>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if feed_user.role == 'OWNER_PLUS' %}
+                                {% trans %}your plan{% endtrans %}
+                            {% else %}
+                                <button type="submit" class="btn btn-primary" name="OWNER_PLUS">{% trans %}Switch{% endtrans %}</button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    {% endif %}
     {% if can_manage_users %}
         <h2 id="users">{% trans %}Users{% endtrans %}</h2>
         <form action="{{ request.route_url("sngconnect.telemetry.feed_permissions.set_user_permissions", feed_id=feed.id) }}" method="post" style="background: none;">
@@ -76,7 +128,7 @@
                     <td>{{ maintainer.feed_user.user.email }}</td>
                     <td>
                         {% if maintainer.feed_user.user != user %}
-                            <form action="{{ revoke_maintainer_access_url }}" method="post" class="inline-form">
+                            <form action="{{ revoke_maintainer_access_url }}" method="post" class="inline-form" style="background: none;">
                                 {{ maintainer.revoke_access_form.csrf_token }}
                                 {{ maintainer.revoke_access_form.id }}
                                 <button type="submit" class="btn btn-danger">{% trans %}Revoke access{% endtrans %}</button>

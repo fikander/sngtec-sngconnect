@@ -35,6 +35,13 @@ class FeedViewBase(object):
             feed_permissions = FeedUser.get_all_permissions()
         else:
             feed_permissions = feed_user.get_permissions()
+        if feed_user is not None and not feed_user.paid:
+            raise httpexceptions.HTTPSeeOther(
+                request.route_url(
+                    'sngconnect.telemetry.feed_inactive',
+                    feed_id=feed.id
+                )
+            )
         self.request = request
         self.feed = feed
         try:

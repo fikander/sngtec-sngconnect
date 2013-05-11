@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import datetime
+
 from sqlalchemy.orm import joinedload
 from pyramid.view import view_config
 from pyramid import httpexceptions
@@ -22,6 +24,7 @@ class FeedPermissions(FeedViewBase):
             raise httpexceptions.HTTPForbidden()
         self.can_manage_users = 'manage_users' in self.feed_permissions
         self.context.update({
+            'feed_user': self.feed_user,
             'can_manage_users': self.can_manage_users,
         })
 
@@ -32,6 +35,21 @@ class FeedPermissions(FeedViewBase):
         add_maintainer_form = forms.AddFeedMaintainerForm(
             csrf_context=self.request
         )
+        plan_upgrade = None
+        if self.feed_user.role_owner:
+            settings = self.request.registry['settings']
+            plan_upgrade = {
+                'activation_fee': {
+                    'OWNER_BASIC': 0,
+                    'OWNER_STANDARD': int(settings['sngconnect.prices.owner_standard.activation']),
+                    'OWNER_PLUS': int(settings['sngconnect.prices.owner_plus.activation']),
+                },
+                'monthly_fee': {
+                    'OWNER_BASIC': 0,
+                    'OWNER_STANDARD': int(settings['sngconnect.prices.owner_standard']),
+                    'OWNER_PLUS': int(settings['sngconnect.prices.owner_plus']),
+                },
+            }
         if self.request.method == 'POST':
             if 'submit_add_user' in self.request.POST:
                 if not self.can_manage_users:
@@ -100,12 +118,15 @@ class FeedPermissions(FeedViewBase):
                         })
                         if self.feed_user.role_maintainer:
                             role = 'MAINTAINER_STANDARD'
+                            paid = True
                         else:
                             role = 'MAINTAINER_PLUS'
+                            paid = False
                         feed_user = FeedUser(
                             user_id=user.id,
                             feed_id=self.feed.id,
-                            role=role
+                            role=role,
+                            paid=paid
                         )
                         DBSession.add(feed_user)
                         self.request.session.flash(
@@ -126,6 +147,44 @@ class FeedPermissions(FeedViewBase):
                         ),
                         queue='error'
                     )
+            elif 'change_plan' in self.request.POST:
+                if plan_upgrade is None:
+                    raise httpexceptions.HTTPBadRequest()
+                roles = (
+                    'OWNER_BASIC',
+                    'OWNER_STANDARD',
+                    'OWNER_PLUS',
+                )
+                role = None
+                for r in roles:
+                    if r in self.request.POST:
+                        role = r
+                        break
+                if role is None:
+                    raise httpexceptions.HTTPBadRequest()
+                activation_fee = plan_upgrade['activation_fee'][role]
+                if self.user.tokens >= activation_fee:
+                    if self.user.last_payment is None:
+                        self.user.last_payment = datetime.datetime.utcnow()
+                    self.user.tokens -= activation_fee
+                    DBSession.add(self.user)
+                    self.feed_user.change_role(role)
+                    DBSession.add(self.feed_user)
+                    self.request.session.flash(
+                        _("Your plan has been successfuly changed."),
+                        queue='success'
+                    )
+                else:
+                    self.request.session.flash(
+                        _("You don't have enough tokens for setup fee."),
+                        queue='error'
+                    )
+                return httpexceptions.HTTPFound(
+                    self.request.route_url(
+                        'sngconnect.telemetry.feed_permissions',
+                        feed_id=self.feed.id
+                    )
+                )
         query = DBSession.query(FeedUser).join(User).options(
             joinedload(FeedUser.user)
         ).filter(
@@ -144,8 +203,6 @@ class FeedPermissions(FeedViewBase):
                         csrf_context=self.request,
                     ),
                 })
-            else:
-                print "KASIAAAA", feed_user
         self.context.update({
             'feed_users': feed_users,
             'feed_maintainers': feed_maintainers,
@@ -156,6 +213,7 @@ class FeedPermissions(FeedViewBase):
                 feed_id=self.feed.id
             ),
             'can_set_user_plus': 'manage_users_plus' in self.feed_permissions,
+            'plan_upgrade': plan_upgrade,
         })
         return self.context
 

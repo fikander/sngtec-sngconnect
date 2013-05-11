@@ -17,6 +17,10 @@ ROUTES = (
         'feeds/{feed_id:\d+}'
     ),
     (
+        'sngconnect.telemetry.feed_inactive',
+        'feeds/{feed_id:\d+}/inactive'
+    ),
+    (
         'sngconnect.telemetry.feed_dashboard.set_value',
         'feeds/{feed_id:\d+}/set-value/{data_stream_template_id:\d+}'
     ),

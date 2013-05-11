@@ -1,0 +1,18 @@
+{% extends "sngconnect:templates/base.jinja2" %}
+{% from "sngconnect:templates/macros/horizontal_form_field.jinja2" import horizontal_form_field %}
+
+{% block body_main %}
+    <div class="content">
+        <div class="page-header">
+            {% block page_header %}
+                <h1>{% trans %}This device is currently inactive{% endtrans %}</h1>
+            {% endblock %}
+        </div>
+        <div class="page-container">
+            <p>{% trans price=price %}You need to pay <strong>{{ price }}</strong> tokens to access it.{% endtrans %}</p>
+            <form action="" method="post" style="background: none;">
+                <button type="submit" class="btn btn-primary">{% trans %}Pay{% endtrans %}</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

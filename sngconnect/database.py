@@ -81,6 +81,10 @@ class User(ModelBase):
         default=0
     )
 
+    last_payment = sql.Column(
+        sql.DateTime
+    )
+
     role_user = sql.Column(sql.Boolean, nullable=False, default=False)
     role_maintainer = sql.Column(sql.Boolean, nullable=False, default=False)
     role_supplier = sql.Column(sql.Boolean, nullable=False, default=False)
@@ -475,6 +479,11 @@ class FeedUser(ModelBase):
         ),
         nullable=False
     )
+    paid = sql.Column(
+        sql.Boolean,
+        nullable=False,
+        default=True
+    )
 
     user = orm.relationship(
         User,
@@ -576,9 +585,48 @@ class FeedUser(ModelBase):
             if self.role in roles
         ))
 
+    def change_role(self, role):
+        if role in ('OWNER_BASIC', 'OWNER_STANDARD'):
+            DBSession.query(FeedUser).filter(
+                FeedUser.feed_id == self.feed_id,
+                FeedUser.role == 'USER_PLUS'
+            ).update({
+                'role': 'USER_STANDARD',
+            })
+        self.role = role
+
     @classmethod
     def get_all_permissions(cls):
         return set(cls._permission_mapping.keys())
+
+    @classmethod
+    def update_payments(cls, registry):
+        settings = registry['settings']
+        prices = {
+            'OWNER_STANDARD': int(settings['sngconnect.prices.owner_standard.activation']),
+            'OWNER_PLUS': int(settings['sngconnect.prices.owner_plus.activation']),
+            'MAINTAINER_PLUS': int(settings['sngconnect.prices.owner_plus.activation']),
+        }
+        feed_users = DBSession.query(FeedUser).join(User).filter(
+            FeedUser.role.in_(
+                'OWNER_STANDARD',
+                'OWNER_PLUS',
+                'MAINTAINER_PLUS',
+            ),
+            sql.or_(
+                User.last_payment == None,
+                sql.cast(User.last_payment, sql.Date) ==
+                    datetime.datetime.utcnow().date()
+            )
+        )
+        for feed_user in feed_users:
+            price = prices[feed_user.role]
+            if feed_user.user.tokens < price:
+                feed_user.paid = False
+                DBSession.add(feed_user)
+            else:
+                feed_user.user.tokens -= price
+                DBSession.add(feed_user.user)
 
 class DataStreamTemplate(ModelBase):
 
