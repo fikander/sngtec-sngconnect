@@ -6,6 +6,7 @@ from sngconnect.services.base import ServiceBase
 from sngconnect.services.sms import SMSService
 from sngconnect.database import DBSession, User, FeedUser
 
+
 class NotificationService(ServiceBase):
 
     _user_severity_flag_email = {
@@ -42,7 +43,7 @@ class NotificationService(ServiceBase):
         feed_users = DBSession.query(FeedUser).join(User).options(
             joinedload(FeedUser.user)
         ).filter(
-            FeedUser.feed == self.feed
+            FeedUser.feed == feed
         )
         for feed_user in feed_users:
             permissions = feed_user.get_permissions()

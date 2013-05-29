@@ -196,9 +196,9 @@ class FeedChart(FeedCharts):
 
 class FeedChartDefinitionViewBase(FeedViewBase):
     def __init__(self, request):
+        super(FeedChartDefinitionViewBase, self).__init__(request)
         if 'access_charts' not in self.feed_permissions:
             raise httpexceptions.HTTPUnauthorized()
-        super(FeedChartDefinitionViewBase, self).__init__(request)
         try:
             self.chart_definition = DBSession.query(ChartDefinition).filter(
                 (ChartDefinition.id ==
