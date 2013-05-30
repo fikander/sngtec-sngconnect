@@ -20,11 +20,13 @@ from sngconnect.database import (User, FeedTemplate, Feed, DataStreamTemplate,
 from sngconnect.cassandra.data_streams import (Measurements, HourlyAggregates,
     DailyAggregates, MonthlyAggregates, LastDataPoints)
 
+
 def usage(argv):
     cmd = os.path.basename(argv[0])
     print('usage: %s <config_uri> <feed_count>\n'
           '(example: "%s development.ini 3")' % (cmd, cmd))
     sys.exit(1)
+
 
 def main(argv=sys.argv):
     if len(argv) != 3:
@@ -43,8 +45,10 @@ def main(argv=sys.argv):
     cassandra_connection_pool.initialize_connection_pool(settings)
     generate_data(feed_count)
 
+
 def generate_data(feed_count):
     user = User(
+        name='User',
         email='user@example.com',
         phone='+48123456789',
         activated=pytz.utc.localize(datetime.datetime.utcnow()),
@@ -53,6 +57,7 @@ def generate_data(feed_count):
     )
     user.set_password('user')
     kid = User(
+        name='Kid',
         email='kid@example.com',
         phone='+48123456789',
         activated=pytz.utc.localize(datetime.datetime.utcnow()),
@@ -61,6 +66,7 @@ def generate_data(feed_count):
     )
     kid.set_password('kid')
     maintainer = User(
+        name='Maintainer',
         email='maintainer@example.com',
         phone='+48123456789',
         activated=pytz.utc.localize(datetime.datetime.utcnow()),
@@ -69,6 +75,7 @@ def generate_data(feed_count):
     )
     maintainer.set_password('maintainer')
     supplier = User(
+        name='Supplier',
         email='supplier@example.com',
         phone='+48123456789',
         activated=pytz.utc.localize(datetime.datetime.utcnow()),
@@ -77,6 +84,7 @@ def generate_data(feed_count):
     )
     supplier.set_password('supplier')
     admin = User(
+        name='Admin',
         email='admin@example.com',
         phone='+48123456789',
         activated=pytz.utc.localize(datetime.datetime.utcnow()),
