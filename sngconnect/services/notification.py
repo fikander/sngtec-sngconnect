@@ -54,7 +54,7 @@ class NotificationService(ServiceBase):
 
     def _send_email(self, user, summary, message):
         mailer = self.registry.getUtility(IMailer)
-        if getattr(user, self._user_severity_flag_email[message.type]):
+        if getattr(user, self._user_severity_flag_email[message.message_type]):
             email = EmailMessage(
                 subject=summary,
                 sender=self.email_sender,
@@ -71,7 +71,7 @@ class NotificationService(ServiceBase):
 
     def _send_sms(self, user, summary, message):
         sms_service = self.get_service(SMSService)
-        if (getattr(user, self._user_severity_flag_sms[message.type])
+        if (getattr(user, self._user_severity_flag_sms[message.message_type])
                 and user.phone):
             sms_service.send_sms(
                 [user.phone],
