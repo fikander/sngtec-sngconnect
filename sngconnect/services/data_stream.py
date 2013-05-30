@@ -23,7 +23,7 @@ class DataStreamService(ServiceBase):
         })
         self.registry['scheduler'].add_date_job(
             DataStreamService.assert_requested_value,
-            datetime.datetime.utcnow() + self._requested_value_timeout,
+            datetime.datetime.now() + self._requested_value_timeout,
             [self.registry, data_stream.id]
         )
 
