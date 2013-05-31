@@ -197,8 +197,6 @@ class FeedChart(FeedCharts):
 class FeedChartDefinitionViewBase(FeedViewBase):
     def __init__(self, request):
         super(FeedChartDefinitionViewBase, self).__init__(request)
-        if 'access_charts' not in self.feed_permissions:
-            raise httpexceptions.HTTPUnauthorized()
         try:
             self.chart_definition = DBSession.query(ChartDefinition).filter(
                 (ChartDefinition.id ==
@@ -207,6 +205,11 @@ class FeedChartDefinitionViewBase(FeedViewBase):
             ).one()
         except database_exceptions.NoResultFound:
             raise httpexceptions.HTTPNotFound()
+        # charts on the dashboard are visible for evey user, so never block access
+        if (not self.chart_definition.show_on_dashboard and
+                'access_charts' not in self.feed_permissions):
+            raise httpexceptions.HTTPUnauthorized()
+
 
 class ChartDataMixin(object):
     def __call__(self):
