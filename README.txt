@@ -20,6 +20,8 @@ Getting Started
 
 - sng_create_testing_data /vagrant/development.ini
 
+- pserve test server runs via screen (use 'screen -r' to see output)
+
 Translation
 -----------
 
