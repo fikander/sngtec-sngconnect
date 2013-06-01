@@ -10,6 +10,7 @@ from sngconnect.services.notification import NotificationService
 from sngconnect.database import DBSession, Feed, Message
 from sngconnect.translation import _
 
+
 class FeedService(ServiceBase):
 
     _last_update_timeout = datetime.timedelta(days=1)
@@ -40,7 +41,7 @@ class FeedService(ServiceBase):
                             'feed_name': feed.name,
                             'last_update': last_update.isoformat(),
                         }
-                    )
+                    ).interpolate()
                 )
                 notification_service = NotificationService(registry)
                 with transaction.manager:
@@ -51,6 +52,6 @@ class FeedService(ServiceBase):
                             mapping={
                                 'feed_name': feed.name,
                             }
-                        ),
+                        ).interpolate(),
                         message
                     )

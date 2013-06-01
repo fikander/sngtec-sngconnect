@@ -1,3 +1,5 @@
+import logging
+
 from pyramid_mailer.interfaces import IMailer
 from pyramid_mailer.message import Message as EmailMessage
 from sqlalchemy.orm import joinedload
@@ -5,6 +7,8 @@ from sqlalchemy.orm import joinedload
 from sngconnect.services.base import ServiceBase
 from sngconnect.services.sms import SMSService
 from sngconnect.database import DBSession, User, FeedUser
+
+logger = logging.getLogger('sngconnect')
 
 
 class NotificationService(ServiceBase):
@@ -73,7 +77,10 @@ class NotificationService(ServiceBase):
         sms_service = self.get_service(SMSService)
         if (getattr(user, self._user_severity_flag_sms[message.message_type])
                 and user.phone):
-            sms_service.send_sms(
-                [user.phone],
-                summary
-            )
+            try:
+                sms_service.send_sms(
+                    [user.phone],
+                    summary
+                )
+            except sms_service.SendingError, e:
+                logger.error(str(e))

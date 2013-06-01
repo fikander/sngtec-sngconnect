@@ -3,6 +3,7 @@ import lxml.etree
 
 from sngconnect.services.base import ServiceBase
 
+
 class SMSService(ServiceBase):
 
     class SendingError(Exception):
@@ -24,7 +25,12 @@ class SMSService(ServiceBase):
             'numer': ','.join(recipients),
             'wiadomosc': unicode(message).encode('ascii', 'strict'),
         }
-        response = requests.post(self._api_url, request)
+        try:
+            response = requests.post(self._api_url, request)
+        except requests.ConnectionError, e:
+            raise self.SendingError(
+                "Error connecting to SMS server: {}.".format(str(e))
+            )
         if response.status_code != 200:
             raise self.SendingError(
                 "Server returned status code {}.".format(response.status_code)

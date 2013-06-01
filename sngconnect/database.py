@@ -930,7 +930,7 @@ class AlarmDefinition(ModelBase):
                         'actual_value': value,
                         'maximal_value': self.boundary,
                     }
-                )
+                ).interpolate()
         elif self.alarm_type == 'MINIMAL_VALUE':
             if value < self.boundary:
                 return _(
@@ -940,7 +940,7 @@ class AlarmDefinition(ModelBase):
                         'actual_value': value,
                         'minimal_value': self.boundary,
                     }
-                )
+                ).interpolate()
         else:
             raise RuntimeError("Unknown alarm type.")
         return None
