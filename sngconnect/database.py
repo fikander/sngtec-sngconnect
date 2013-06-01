@@ -586,6 +586,7 @@ class FeedUser(ModelBase):
         ))
 
     def change_role(self, role):
+        # downgrade roles of users of this feed (USER_XXX) to match owner's role
         if role in ('OWNER_BASIC', 'OWNER_STANDARD'):
             DBSession.query(FeedUser).filter(
                 FeedUser.feed_id == self.feed_id,
@@ -608,11 +609,11 @@ class FeedUser(ModelBase):
             'MAINTAINER_PLUS': int(settings['sngconnect.prices.owner_plus.activation']),
         }
         feed_users = DBSession.query(FeedUser).join(User).filter(
-            FeedUser.role.in_(
+            FeedUser.role.in_([
                 'OWNER_STANDARD',
                 'OWNER_PLUS',
                 'MAINTAINER_PLUS',
-            ),
+            ]),
             sql.or_(
                 User.last_payment == None,
                 sql.cast(User.last_payment, sql.Date) ==
