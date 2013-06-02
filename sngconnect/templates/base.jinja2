@@ -28,12 +28,14 @@
                         </button>
                         <a class="brand" href="{{ request.route_url("sngconnect.telemetry.dashboard") }}">SNG:connect</a>
                         <nav class="nav-collapse navigation">
-                            <ul class="nav active-arrows" role="navigation">
-                                <li><a href="{{ request.route_url("sngconnect.telemetry.dashboard") }}" title="{% trans %}Dashboard{% endtrans %}"><span class="awe-home"></span> {% trans %}Dashboard{% endtrans %}</a></li>
-                            </ul>
-                            <ul class="nav active-arrows" role="navigation">
-                                <li><a href="{{ request.route_url("sngconnect.payments.index") }}" title="{% trans %}Tokens{% endtrans %}"><span class="awe-money"></span> {% trans %}Tokens{% endtrans %}</a></li>
-                            </ul>
+                            {% if user %}
+                                <ul class="nav active-arrows" role="navigation">
+                                    <li><a href="{{ request.route_url("sngconnect.telemetry.dashboard") }}" title="{% trans %}Dashboard{% endtrans %}"><span class="awe-home"></span> {% trans %}Dashboard{% endtrans %}</a></li>
+                                </ul>
+                                <ul class="nav active-arrows" role="navigation">
+                                    <li><a href="{{ request.route_url("sngconnect.payments.index") }}" title="{% trans %}Tokens{% endtrans %}"><span class="awe-money"></span> {% trans %}Tokens{% endtrans %}</a></li>
+                                </ul>
+                            {% endif %}
                             {% if can_create_feed %}
                                 <ul class="nav active-arrows" role="navigation">
                                     <li><a href="{{ request.route_url("sngconnect.telemetry.feeds.new") }}" title="{% trans %}New device{% endtrans %}"><span class="awe-plus"></span> {% trans %}New device{% endtrans %}</a></li>
