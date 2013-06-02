@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  SNG:connect\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2013-02-10 09:57+0000\n"
+"POT-Creation-Date: 2013-06-01 12:35+0000\n"
 "PO-Revision-Date: 2013-01-22 15:50+0000\n"
 "Last-Translator: pdylewski <p.dylewski@synergiatech.pl>\n"
 "Language-Team: Polish "
@@ -21,115 +21,189 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.6\n"
 
-#: sngconnect/database.py:574 sngconnect/database.py:583
-#: sngconnect/devices/forms.py:246
+#: sngconnect/database.py:855 sngconnect/database.py:864
+#: sngconnect/devices/forms.py:272
 msgid "Linear"
 msgstr "Liniowy"
 
-#: sngconnect/database.py:576 sngconnect/database.py:585
-#: sngconnect/devices/forms.py:247
+#: sngconnect/database.py:857 sngconnect/database.py:866
+#: sngconnect/devices/forms.py:273
 msgid "Differential"
 msgstr ""
 
-#: sngconnect/database.py:645
+#: sngconnect/database.py:926
 msgid "Value (${actual_value}) is greater than maximal value (${maximal_value})."
 msgstr ""
 
-#: sngconnect/database.py:655
+#: sngconnect/database.py:936
 msgid "Value (${actual_value}) is less than minimal value (${minimal_value})."
 msgstr ""
 
-#: sngconnect/accounts/forms.py:12 sngconnect/accounts/forms.py:62
-#: sngconnect/telemetry/forms.py:93
+#: sngconnect/forms.py:64
+msgid "Not a valid decimal value"
+msgstr "Niepoprawna liczba."
+
+#: sngconnect/accounts/forms.py:13 sngconnect/accounts/forms.py:105
+#: sngconnect/telemetry/forms.py:58
+#: sngconnect/telemetry/templates/feed/permissions.jinja2:70
+#: sngconnect/telemetry/templates/feed/permissions.jinja2:119
 msgid "E-mail"
 msgstr "E-mail"
 
-#: sngconnect/accounts/forms.py:14 sngconnect/accounts/forms.py:22
-#: sngconnect/accounts/forms.py:32 sngconnect/accounts/forms.py:39
-#: sngconnect/accounts/forms.py:53 sngconnect/accounts/forms.py:64
-#: sngconnect/accounts/forms.py:88 sngconnect/announcements/forms.py:11
-#: sngconnect/appearance/forms.py:88 sngconnect/devices/forms.py:16
-#: sngconnect/devices/forms.py:23 sngconnect/devices/forms.py:30
-#: sngconnect/devices/forms.py:40 sngconnect/devices/forms.py:46
-#: sngconnect/devices/forms.py:53 sngconnect/devices/forms.py:60
-#: sngconnect/devices/forms.py:71 sngconnect/devices/forms.py:77
-#: sngconnect/devices/forms.py:100 sngconnect/devices/forms.py:118
-#: sngconnect/devices/forms.py:124 sngconnect/devices/forms.py:131
-#: sngconnect/devices/forms.py:145 sngconnect/devices/forms.py:159
-#: sngconnect/devices/forms.py:165 sngconnect/devices/forms.py:172
-#: sngconnect/devices/forms.py:179 sngconnect/devices/forms.py:228
-#: sngconnect/devices/forms.py:250 sngconnect/devices/forms.py:256
-#: sngconnect/devices/forms.py:265 sngconnect/devices/forms.py:304
-#: sngconnect/devices/forms.py:338 sngconnect/telemetry/forms.py:50
-#: sngconnect/telemetry/forms.py:95 sngconnect/telemetry/forms.py:124
-#: sngconnect/telemetry/forms.py:131 sngconnect/telemetry/forms.py:140
-#: sngconnect/telemetry/forms.py:179 sngconnect/telemetry/forms.py:218
-#: sngconnect/telemetry/forms.py:223 sngconnect/telemetry/forms.py:240
-#: sngconnect/telemetry/forms.py:297 sngconnect/telemetry/forms.py:317
-#: sngconnect/telemetry/forms.py:324 sngconnect/telemetry/forms.py:348
-#: sngconnect/telemetry/forms.py:368
+#: sngconnect/accounts/forms.py:15 sngconnect/accounts/forms.py:23
+#: sngconnect/accounts/forms.py:33 sngconnect/accounts/forms.py:40
+#: sngconnect/accounts/forms.py:54 sngconnect/accounts/forms.py:62
+#: sngconnect/accounts/forms.py:107 sngconnect/accounts/forms.py:131
+#: sngconnect/announcements/forms.py:11 sngconnect/appearance/forms.py:88
+#: sngconnect/devices/forms.py:16 sngconnect/devices/forms.py:23
+#: sngconnect/devices/forms.py:30 sngconnect/devices/forms.py:40
+#: sngconnect/devices/forms.py:46 sngconnect/devices/forms.py:53
+#: sngconnect/devices/forms.py:60 sngconnect/devices/forms.py:71
+#: sngconnect/devices/forms.py:77 sngconnect/devices/forms.py:100
+#: sngconnect/devices/forms.py:118 sngconnect/devices/forms.py:124
+#: sngconnect/devices/forms.py:131 sngconnect/devices/forms.py:145
+#: sngconnect/devices/forms.py:173 sngconnect/devices/forms.py:179
+#: sngconnect/devices/forms.py:186 sngconnect/devices/forms.py:193
+#: sngconnect/devices/forms.py:254 sngconnect/devices/forms.py:276
+#: sngconnect/devices/forms.py:282 sngconnect/devices/forms.py:291
+#: sngconnect/devices/forms.py:330 sngconnect/devices/forms.py:364
+#: sngconnect/payments/forms.py:11 sngconnect/telemetry/forms.py:15
+#: sngconnect/telemetry/forms.py:60 sngconnect/telemetry/forms.py:89
+#: sngconnect/telemetry/forms.py:96 sngconnect/telemetry/forms.py:105
+#: sngconnect/telemetry/forms.py:144 sngconnect/telemetry/forms.py:183
+#: sngconnect/telemetry/forms.py:188 sngconnect/telemetry/forms.py:205
+#: sngconnect/telemetry/forms.py:262 sngconnect/telemetry/forms.py:282
+#: sngconnect/telemetry/forms.py:289 sngconnect/telemetry/forms.py:313
+#: sngconnect/telemetry/forms.py:333 sngconnect/telemetry/forms.py:342
 msgid "This field is required."
 msgstr "To pole jest wymagane."
 
-#: sngconnect/accounts/forms.py:20 sngconnect/accounts/forms.py:30
+#: sngconnect/accounts/forms.py:21 sngconnect/accounts/forms.py:31
 msgid "Password"
 msgstr "Hasło"
 
-#: sngconnect/accounts/forms.py:37
+#: sngconnect/accounts/forms.py:38
 msgid "Repeat password"
 msgstr "Powtórz hasło"
 
-#: sngconnect/accounts/forms.py:48
+#: sngconnect/accounts/forms.py:49
 msgid "Phone number"
 msgstr "Numer telefonu"
 
-#: sngconnect/accounts/forms.py:76
-msgid "There is already an account registered with this e-mail address."
+#: sngconnect/accounts/forms.py:60
+#: sngconnect/telemetry/templates/feed/permissions.jinja2:69
+#: sngconnect/telemetry/templates/feed/permissions.jinja2:118
+#, fuzzy
+#| msgid "Save permissions"
+msgid "Name [person]"
+msgstr "Zapisz uprawnienia"
+
+#: sngconnect/accounts/forms.py:67
+msgid "Company name"
 msgstr ""
 
 #: sngconnect/accounts/forms.py:86
+msgid "Time zone"
+msgstr ""
+
+#: sngconnect/accounts/forms.py:92
+msgid "E-mail errors"
+msgstr ""
+
+#: sngconnect/accounts/forms.py:93
+msgid "E-mail warnings"
+msgstr ""
+
+#: sngconnect/accounts/forms.py:94
+#, fuzzy
+#| msgid "Information"
+msgid "E-mail information"
+msgstr "Informacje"
+
+#: sngconnect/accounts/forms.py:95
+#, fuzzy
+#| msgid "Add comment"
+msgid "E-mail comments"
+msgstr "Dodaj komentarz"
+
+#: sngconnect/accounts/forms.py:97
+msgid "SMS errors"
+msgstr ""
+
+#: sngconnect/accounts/forms.py:98
+msgid "SMS warnings"
+msgstr ""
+
+#: sngconnect/accounts/forms.py:99
+#, fuzzy
+#| msgid "Information"
+msgid "SMS information"
+msgstr "Informacje"
+
+#: sngconnect/accounts/forms.py:100
+#, fuzzy
+#| msgid "Add comment"
+msgid "SMS comments"
+msgstr "Dodaj komentarz"
+
+#: sngconnect/accounts/forms.py:119
+msgid "There is already an account registered with this e-mail address."
+msgstr ""
+
+#: sngconnect/accounts/forms.py:129
 msgid "Phone activation code"
 msgstr "Telefoniczny kod aktywujący"
 
-#: sngconnect/accounts/views.py:35 sngconnect/accounts/views.py:54
+#: sngconnect/accounts/views.py:36 sngconnect/accounts/views.py:55
 msgid "Invalid credentials."
 msgstr ""
 
-#: sngconnect/accounts/views.py:41
+#: sngconnect/accounts/views.py:42
 msgid ""
 "This account is currently inactive. Please follow the instructions we "
 "sent you on your e-mail address."
 msgstr ""
 
-#: sngconnect/accounts/views.py:101
+#: sngconnect/accounts/views.py:109
 msgid "Activate your account at SNG Connect"
 msgstr "Aktywuj swoje konto na SNG:connect"
 
-#: sngconnect/accounts/views.py:143
+#: sngconnect/accounts/views.py:124
+msgid "Your SNG:connect confirmation code is: ${code}"
+msgstr ""
+
+#: sngconnect/accounts/views.py:160
 msgid "The activation code you entered is invalid."
 msgstr ""
 
-#: sngconnect/accounts/views.py:179
+#: sngconnect/accounts/views.py:200
 msgid "Your account data has been successfuly changed."
 msgstr ""
 
-#: sngconnect/accounts/views.py:191
+#: sngconnect/accounts/views.py:212
+#, fuzzy
+#| msgid "Your password has been successfuly changed."
+msgid "Your notification settings have been successfuly changed."
+msgstr "Twóje hasło zostało zmienione. "
+
+#: sngconnect/accounts/views.py:227
 msgid "Your password has been successfuly changed."
 msgstr "Twóje hasło zostało zmienione. "
 
-#: sngconnect/accounts/views.py:198 sngconnect/announcements/views.py:38
+#: sngconnect/accounts/views.py:234 sngconnect/announcements/views.py:38
 #: sngconnect/appearance/views.py:56 sngconnect/appearance/views.py:91
-#: sngconnect/devices/views.py:37 sngconnect/devices/views.py:178
-#: sngconnect/devices/views.py:202 sngconnect/devices/views.py:236
-#: sngconnect/devices/views.py:299 sngconnect/devices/views.py:483
-#: sngconnect/devices/views.py:611 sngconnect/telemetry/views/feed.py:100
-#: sngconnect/telemetry/views/feed.py:991
-#: sngconnect/telemetry/views/feed.py:1022
-#: sngconnect/telemetry/views/feed.py:1257
-#: sngconnect/telemetry/views/feed.py:1288
-#: sngconnect/telemetry/views/feed.py:1435
-#: sngconnect/telemetry/views/feed.py:1481
-#: sngconnect/telemetry/views/feed.py:1665
+#: sngconnect/devices/views.py:38 sngconnect/devices/views.py:182
+#: sngconnect/devices/views.py:206 sngconnect/devices/views.py:240
+#: sngconnect/devices/views.py:303 sngconnect/devices/views.py:490
+#: sngconnect/devices/views.py:618
+#: sngconnect/telemetry/views/feed/data_streams.py:228
+#: sngconnect/telemetry/views/feed/data_streams.py:259
+#: sngconnect/telemetry/views/feed/data_streams.py:495
+#: sngconnect/telemetry/views/feed/data_streams.py:526
+#: sngconnect/telemetry/views/feed/history.py:49
+#: sngconnect/telemetry/views/feed/new.py:76
+#: sngconnect/telemetry/views/feed/permissions.py:92
+#: sngconnect/telemetry/views/feed/permissions.py:144
 msgid ""
 "There were some problems with your request. Please check the form for "
 "error messages."
@@ -137,7 +211,7 @@ msgstr ""
 
 #: sngconnect/accounts/templates/activate.jinja2:9
 #: sngconnect/accounts/templates/sign_up.jinja2:9
-#: sngconnect/accounts/templates/sign_up.jinja2:27
+#: sngconnect/accounts/templates/sign_up.jinja2:29
 msgid "Sign up"
 msgstr ""
 
@@ -155,7 +229,7 @@ msgid "Activate"
 msgstr "Aktywny"
 
 #: sngconnect/accounts/templates/settings.jinja2:9
-#: sngconnect/templates/base.jinja2:64
+#: sngconnect/templates/base.jinja2:67
 msgid "Account settings"
 msgstr "Ustawienia konta"
 
@@ -163,12 +237,22 @@ msgstr "Ustawienia konta"
 msgid "Change account data"
 msgstr ""
 
-#: sngconnect/accounts/templates/settings.jinja2:19
+#: sngconnect/accounts/templates/settings.jinja2:22
 msgid "Save account data"
 msgstr "Zapisz dane konta"
 
-#: sngconnect/accounts/templates/settings.jinja2:24
-#: sngconnect/accounts/templates/settings.jinja2:32
+#: sngconnect/accounts/templates/settings.jinja2:27
+msgid "Change notification settings"
+msgstr ""
+
+#: sngconnect/accounts/templates/settings.jinja2:41
+#, fuzzy
+#| msgid "Notifications"
+msgid "Save notification settings"
+msgstr "Powiadomienia"
+
+#: sngconnect/accounts/templates/settings.jinja2:46
+#: sngconnect/accounts/templates/settings.jinja2:54
 msgid "Change password"
 msgstr "Zmień hasło"
 
@@ -198,15 +282,15 @@ msgid ""
 "in here</a>"
 msgstr ""
 
-#: sngconnect/accounts/templates/sign_up.jinja2:29
+#: sngconnect/accounts/templates/sign_up.jinja2:31
 msgid "Already have an account?"
 msgstr ""
 
-#: sngconnect/accounts/templates/sign_up.jinja2:30
+#: sngconnect/accounts/templates/sign_up.jinja2:32
 msgid "Sign in here"
 msgstr ""
 
-#: sngconnect/announcements/forms.py:9 sngconnect/telemetry/forms.py:238
+#: sngconnect/announcements/forms.py:9 sngconnect/telemetry/forms.py:203
 msgid "Content"
 msgstr "Zawartość"
 
@@ -215,7 +299,7 @@ msgid "Announcement has been successfuly sent."
 msgstr ""
 
 #: sngconnect/announcements/templates/announcements.jinja2:7
-#: sngconnect/templates/base.jinja2:51
+#: sngconnect/templates/base.jinja2:54
 msgid "Announcements"
 msgstr ""
 
@@ -235,12 +319,12 @@ msgstr ""
 msgid "Stylesheet"
 msgstr ""
 
-#: sngconnect/appearance/forms.py:29 sngconnect/devices/forms.py:359
+#: sngconnect/appearance/forms.py:29 sngconnect/devices/forms.py:385
 msgid "Image file"
 msgstr ""
 
 #: sngconnect/appearance/forms.py:30 sngconnect/appearance/forms.py:67
-#: sngconnect/devices/forms.py:368
+#: sngconnect/devices/forms.py:394
 msgid "Only PNG and JPG formats are allowed."
 msgstr ""
 
@@ -264,7 +348,7 @@ msgstr ""
 msgid "File with this filename already exists on the server."
 msgstr ""
 
-#: sngconnect/appearance/forms.py:73 sngconnect/devices/forms.py:374
+#: sngconnect/appearance/forms.py:73 sngconnect/devices/forms.py:400
 msgid "Maximal file size is restricted to 512 KB."
 msgstr ""
 
@@ -281,7 +365,7 @@ msgid "File has been succesfuly deleted."
 msgstr ""
 
 #: sngconnect/appearance/templates/appearance.jinja2:19
-#: sngconnect/templates/base.jinja2:46
+#: sngconnect/templates/base.jinja2:49
 msgid "Appearance"
 msgstr ""
 
@@ -291,7 +375,7 @@ msgstr ""
 
 #: sngconnect/appearance/templates/appearance.jinja2:41
 #: sngconnect/devices/templates/chart_definition.jinja2:24
-#: sngconnect/devices/templates/data_stream_template.jinja2:30
+#: sngconnect/devices/templates/data_stream_template.jinja2:32
 #: sngconnect/devices/templates/feed_template.jinja2:26
 #: sngconnect/telemetry/templates/feed/charts.jinja2:81
 msgid "Save"
@@ -315,7 +399,7 @@ msgstr "Ostatnia modyfikacja"
 
 #: sngconnect/appearance/templates/appearance.jinja2:69
 #: sngconnect/devices/templates/feed_template.jinja2:66
-#: sngconnect/devices/templates/feed_template.jinja2:128
+#: sngconnect/devices/templates/feed_template.jinja2:130
 #: sngconnect/devices/templates/feed_templates.jinja2:27
 #: sngconnect/telemetry/templates/feed/charts.jinja2:27
 msgid "Delete"
@@ -334,15 +418,15 @@ msgid "Upload"
 msgstr ""
 
 #: sngconnect/devices/forms.py:14 sngconnect/devices/forms.py:129
-#: sngconnect/devices/forms.py:254
+#: sngconnect/devices/forms.py:280
 #: sngconnect/devices/templates/feed_template.jinja2:34
-#: sngconnect/devices/templates/feed_template.jinja2:97
+#: sngconnect/devices/templates/feed_template.jinja2:99
 #: sngconnect/devices/templates/feed_templates.jinja2:13
-#: sngconnect/telemetry/forms.py:129 sngconnect/telemetry/forms.py:295
+#: sngconnect/telemetry/forms.py:94 sngconnect/telemetry/forms.py:260
 #: sngconnect/telemetry/templates/dashboard.jinja2:33
 #: sngconnect/telemetry/templates/feed/dashboard.jinja2:87
 #: sngconnect/telemetry/templates/feed/dashboard.jinja2:114
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:181
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:185
 #: sngconnect/telemetry/templates/feed/data_streams.jinja2:13
 #: sngconnect/telemetry/templates/feed/settings.jinja2:13
 msgid "Name"
@@ -405,9 +489,9 @@ msgstr ""
 msgid "Label"
 msgstr "Etykieta"
 
-#: sngconnect/devices/forms.py:136 sngconnect/telemetry/forms.py:302
-#: sngconnect/telemetry/templates/feed/data_stream.jinja2:77
-#: sngconnect/telemetry/templates/feed/setting.jinja2:39
+#: sngconnect/devices/forms.py:136 sngconnect/telemetry/forms.py:267
+#: sngconnect/telemetry/templates/feed/data_stream.jinja2:79
+#: sngconnect/telemetry/templates/feed/setting.jinja2:41
 msgid "Description"
 msgstr "Opis"
 
@@ -421,127 +505,141 @@ msgid "Writable"
 msgstr ""
 
 #: sngconnect/devices/forms.py:153
+msgid "Default minimum"
+msgstr ""
+
+#: sngconnect/devices/forms.py:160
+msgid "Default maximum"
+msgstr ""
+
+#: sngconnect/devices/forms.py:167
 msgid "Modbus register type"
 msgstr ""
 
-#: sngconnect/devices/forms.py:155
+#: sngconnect/devices/forms.py:169
 msgid "Holding register"
 msgstr ""
 
-#: sngconnect/devices/forms.py:156
+#: sngconnect/devices/forms.py:170
 msgid "Input register"
 msgstr ""
 
-#: sngconnect/devices/forms.py:163
+#: sngconnect/devices/forms.py:177
 msgid "Modbus slave"
 msgstr ""
 
-#: sngconnect/devices/forms.py:170
+#: sngconnect/devices/forms.py:184
 msgid "Modbus address"
 msgstr ""
 
-#: sngconnect/devices/forms.py:177
+#: sngconnect/devices/forms.py:191
 msgid "Modbus count"
 msgstr ""
 
-#: sngconnect/devices/forms.py:185 sngconnect/devices/forms.py:269
+#: sngconnect/devices/forms.py:199 sngconnect/devices/forms.py:295
 #: sngconnect/devices/templates/feed_template.jinja2:37
-#: sngconnect/devices/templates/feed_template.jinja2:100
+#: sngconnect/devices/templates/feed_template.jinja2:102
 msgid "Show on dashboard"
 msgstr "Pokaż na pulpicie"
 
-#: sngconnect/devices/forms.py:208
+#: sngconnect/devices/forms.py:219
+#, fuzzy
+#| msgid "Maximum must be greater than or equal to the minimum."
+msgid "Default maximum must be greater than or equal to the default minimum."
+msgstr "Maksimum musi być większe/równe minimum"
+
+#: sngconnect/devices/forms.py:234
 msgid "There is already parameter template having this label."
 msgstr ""
 
-#: sngconnect/devices/forms.py:220
+#: sngconnect/devices/forms.py:246
 msgid "There is already parameter template having this name."
 msgstr ""
 
-#: sngconnect/devices/forms.py:244
-#: sngconnect/devices/templates/feed_template.jinja2:98
+#: sngconnect/devices/forms.py:270
+#: sngconnect/devices/templates/feed_template.jinja2:100
 msgid "Type"
 msgstr "Typ"
 
-#: sngconnect/devices/forms.py:261 sngconnect/telemetry/forms.py:136
+#: sngconnect/devices/forms.py:287 sngconnect/telemetry/forms.py:101
 msgid "Select up to three parameters"
 msgstr "Wybierz do 3 parametrów"
 
-#: sngconnect/devices/forms.py:296 sngconnect/devices/forms.py:330
-#: sngconnect/telemetry/forms.py:171 sngconnect/telemetry/forms.py:208
+#: sngconnect/devices/forms.py:322 sngconnect/devices/forms.py:356
+#: sngconnect/telemetry/forms.py:136 sngconnect/telemetry/forms.py:173
 msgid "This chart name is already taken."
 msgstr "Ta nazwa wykresu jest już używana"
 
-#: sngconnect/devices/forms.py:360
+#: sngconnect/devices/forms.py:386
 msgid "Only PNG and JPG formats are allowed. Leave empty to delete current image."
 msgstr ""
 
-#: sngconnect/devices/views.py:29
+#: sngconnect/devices/views.py:30
 msgid "Device template has been successfuly added."
 msgstr ""
 
-#: sngconnect/devices/views.py:97
+#: sngconnect/devices/views.py:98
 msgid ""
 "Device template cannot be deleted as there are already devices based on "
 "it. Contact the system support for further information."
 msgstr ""
 
-#: sngconnect/devices/views.py:106
+#: sngconnect/devices/views.py:107
 msgid ""
 "Device template cannot be deleted as it has parameter templates assigned "
 "to it. Contact the system support for further information."
 msgstr ""
 
-#: sngconnect/devices/views.py:116
+#: sngconnect/devices/views.py:117
 msgid "Device template has been successfuly deleted."
 msgstr ""
 
-#: sngconnect/devices/views.py:121 sngconnect/devices/views.py:429
-#: sngconnect/devices/views.py:542
+#: sngconnect/devices/views.py:122 sngconnect/devices/views.py:435
+#: sngconnect/devices/views.py:549
 msgid "There were some problems with your request. Contact the system support."
 msgstr ""
 
-#: sngconnect/devices/views.py:169
+#: sngconnect/devices/views.py:171
 msgid "Device template has been successfuly saved."
 msgstr ""
 
-#: sngconnect/devices/views.py:191
+#: sngconnect/devices/views.py:195
 msgid "Parameter template has been successfuly added."
 msgstr ""
 
-#: sngconnect/devices/views.py:225
+#: sngconnect/devices/views.py:229
 msgid "Chart has been successfuly added."
 msgstr ""
 
-#: sngconnect/devices/views.py:249
+#: sngconnect/devices/views.py:253
 msgid "Image has been succesfuly removed."
 msgstr ""
 
-#: sngconnect/devices/views.py:294
+#: sngconnect/devices/views.py:298
 msgid "New image has been succesfuly set."
 msgstr ""
 
-#: sngconnect/devices/views.py:415
+#: sngconnect/devices/views.py:421
 msgid "Parameter template has been successfuly deleted."
 msgstr ""
 
-#: sngconnect/devices/views.py:420
+#: sngconnect/devices/views.py:426
 msgid ""
 "Parameter template cannot be deleted as there are already parameters "
 "based on it. Contact the system support for further information."
 msgstr ""
 
-#: sngconnect/devices/views.py:471 sngconnect/devices/views.py:599
+#: sngconnect/devices/views.py:478 sngconnect/devices/views.py:606
 msgid "Parameter template has been successfuly saved."
 msgstr ""
 
-#: sngconnect/devices/views.py:537
+#: sngconnect/devices/views.py:544
 msgid "Chart has been successfuly deleted."
 msgstr ""
 
 #: sngconnect/devices/templates/base.jinja2:4
 #: sngconnect/devices/templates/feed_templates.jinja2:6
-#: sngconnect/templates/base.jinja2:41
+#: sngconnect/templates/base.jinja2:44
 msgid "Device templates"
 msgstr ""
 
@@ -550,41 +648,41 @@ msgid "Parameter templates"
 msgstr ""
 
 #: sngconnect/devices/templates/feed_template.jinja2:33
-#: sngconnect/devices/templates/feed_template.jinja2:96
+#: sngconnect/devices/templates/feed_template.jinja2:98
 #: sngconnect/devices/templates/feed_templates.jinja2:12
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:177
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:181
 msgid "ID"
 msgstr "ID"
 
 #: sngconnect/devices/templates/feed_template.jinja2:74
-#: sngconnect/devices/templates/feed_template.jinja2:89
+#: sngconnect/devices/templates/feed_template.jinja2:91
 msgid "Add parameter template"
 msgstr ""
 
-#: sngconnect/devices/templates/feed_template.jinja2:92
-#: sngconnect/telemetry/templates/feed/base.jinja2:24
+#: sngconnect/devices/templates/feed_template.jinja2:94
+#: sngconnect/telemetry/templates/feed/base.jinja2:25
 #: sngconnect/telemetry/templates/feed/charts.jinja2:7
 msgid "Charts"
 msgstr "Wykresy"
 
-#: sngconnect/devices/templates/feed_template.jinja2:99
-#: sngconnect/telemetry/templates/feed/base.jinja2:30
+#: sngconnect/devices/templates/feed_template.jinja2:101
+#: sngconnect/telemetry/templates/feed/base.jinja2:33
 #: sngconnect/telemetry/templates/feed/dashboard.jinja2:84
 #: sngconnect/telemetry/templates/feed/data_streams.jinja2:6
 msgid "Parameters"
 msgstr "Parametry"
 
-#: sngconnect/devices/templates/feed_template.jinja2:136
-#: sngconnect/devices/templates/feed_template.jinja2:144
+#: sngconnect/devices/templates/feed_template.jinja2:138
+#: sngconnect/devices/templates/feed_template.jinja2:146
 msgid "Add chart"
 msgstr "Dodaj wykres"
 
-#: sngconnect/devices/templates/feed_template.jinja2:147
-#: sngconnect/devices/templates/feed_template.jinja2:162
+#: sngconnect/devices/templates/feed_template.jinja2:149
+#: sngconnect/devices/templates/feed_template.jinja2:164
 msgid "Change image"
 msgstr "Zmień obraz"
 
-#: sngconnect/devices/templates/feed_template.jinja2:152
+#: sngconnect/devices/templates/feed_template.jinja2:154
 msgid "Current image"
 msgstr ""
 
@@ -635,81 +733,150 @@ msgid ""
 "support at <a href=\"mailto:%(email)s\">%(email)s</a>."
 msgstr ""
 
-#: sngconnect/telemetry/forms.py:39
-msgid "Not a valid decimal value"
-msgstr "Niepoprawna liczba."
+#: sngconnect/payments/forms.py:9 sngconnect/payments/templates/base.jinja2:4
+#: sngconnect/payments/templates/index.jinja2:6
+#: sngconnect/templates/base.jinja2:35
+msgid "Tokens"
+msgstr ""
 
-#: sngconnect/telemetry/forms.py:47
-#: sngconnect/telemetry/templates/feed/data_stream.jinja2:153
-#: sngconnect/telemetry/templates/feed/setting.jinja2:113
+#: sngconnect/payments/forms.py:22
+msgid "How many tokens would you like to buy?"
+msgstr ""
+
+#: sngconnect/payments/forms.py:26
+msgid "You can only buy maximum of ${maximum} tokens at once."
+msgstr ""
+
+#: sngconnect/payments/payu/backend.py:68
+#: sngconnect/payments/payu/backend.py:76
+msgid "SNG:connect tokens"
+msgstr ""
+
+#: sngconnect/payments/templates/confirmation.jinja2:5
+msgid "You're order has been confirmed"
+msgstr ""
+
+#: sngconnect/payments/templates/confirmation.jinja2:8
+msgid ""
+"You will receive your tokens as and when we receive a confirmation of "
+"your payments (usually several minutes)."
+msgstr ""
+
+#: sngconnect/payments/templates/index.jinja2:9
+#, python-format
+msgid "You have <strong>%(tokens)s</strong> tokens. Need more?"
+msgstr ""
+
+#: sngconnect/payments/templates/index.jinja2:15
+msgid "Amount of tokens"
+msgstr ""
+
+#: sngconnect/payments/templates/index.jinja2:16
+msgid "Price per token"
+msgstr ""
+
+#: sngconnect/payments/templates/index.jinja2:19
+#: sngconnect/telemetry/templates/feed/macros/chart_controls.jinja2:6
+msgid "From"
+msgstr "Od"
+
+#: sngconnect/payments/templates/index.jinja2:20
+#, fuzzy
+#| msgid "to"
+msgid "To"
+msgstr "do"
+
+#: sngconnect/payments/templates/index.jinja2:21
+#, fuzzy
+#| msgid "Set"
+msgid "Net"
+msgstr "Ustaw"
+
+#: sngconnect/payments/templates/index.jinja2:22
+msgid "Gross"
+msgstr ""
+
+#: sngconnect/payments/templates/index.jinja2:48
+msgid "Buy"
+msgstr ""
+
+#: sngconnect/services/data_stream.py:55
+msgid "${feed_name} did not respond to the request."
+msgstr ""
+
+#: sngconnect/services/data_stream.py:66
+msgid "Unable to set parameter ${parameter_name}."
+msgstr ""
+
+#: sngconnect/services/feed.py:47
+msgid "${feed_name} was last updated on ${last_update}."
+msgstr ""
+
+#: sngconnect/services/feed.py:53
+msgid "${feed_name} hasn't been updated in a while."
+msgstr ""
+
+#: sngconnect/telemetry/forms.py:12
 #: sngconnect/telemetry/templates/feed/settings.jinja2:14
 msgid "Value"
 msgstr "Wartość"
 
-#: sngconnect/telemetry/forms.py:62
-#: sngconnect/telemetry/templates/feed/data_stream.jinja2:227
-#: sngconnect/telemetry/templates/feed/data_stream.jinja2:301
-#: sngconnect/telemetry/templates/feed/setting.jinja2:185
-#: sngconnect/telemetry/templates/feed/setting.jinja2:257
+#: sngconnect/telemetry/forms.py:27
 msgid "Minimum"
 msgstr "Minimum"
 
-#: sngconnect/telemetry/forms.py:69
-#: sngconnect/telemetry/templates/feed/data_stream.jinja2:203
-#: sngconnect/telemetry/templates/feed/data_stream.jinja2:277
-#: sngconnect/telemetry/templates/feed/setting.jinja2:161
-#: sngconnect/telemetry/templates/feed/setting.jinja2:233
+#: sngconnect/telemetry/forms.py:34
 msgid "Maximum"
 msgstr "Maksimum"
 
-#: sngconnect/telemetry/forms.py:87
+#: sngconnect/telemetry/forms.py:52
 msgid "Maximum must be greater than or equal to the minimum."
 msgstr "Maksimum musi być większe/równe minimum"
 
-#: sngconnect/telemetry/forms.py:111 sngconnect/telemetry/forms.py:357
+#: sngconnect/telemetry/forms.py:76 sngconnect/telemetry/forms.py:322
 msgid "There is no active user having this e-mail address."
 msgstr ""
 
-#: sngconnect/telemetry/forms.py:232
-#: sngconnect/telemetry/templates/feed/macros/render_chart.jinja2:227
+#: sngconnect/telemetry/forms.py:197
+#: sngconnect/telemetry/templates/feed/macros/render_chart.jinja2:243
 msgid "End date must be greater than start date."
 msgstr ""
 
-#: sngconnect/telemetry/forms.py:248
+#: sngconnect/telemetry/forms.py:213
 #: sngconnect/telemetry/templates/feed/dashboard.jinja2:40
 msgid "Parameter"
 msgstr "Parametr"
 
-#: sngconnect/telemetry/forms.py:253
+#: sngconnect/telemetry/forms.py:218
 msgid "Author"
 msgstr "Autor"
 
-#: sngconnect/telemetry/forms.py:263 sngconnect/telemetry/forms.py:269
+#: sngconnect/telemetry/forms.py:228 sngconnect/telemetry/forms.py:234
 msgid "All"
 msgstr "Wszystkie"
 
-#: sngconnect/telemetry/forms.py:264
+#: sngconnect/telemetry/forms.py:229
 msgid "None"
 msgstr "Brak"
 
-#: sngconnect/telemetry/forms.py:284
+#: sngconnect/telemetry/forms.py:249
 msgid "Device type"
 msgstr "Typ urządzenia"
 
-#: sngconnect/telemetry/forms.py:289
+#: sngconnect/telemetry/forms.py:254
 msgid "Owner's e-mail"
 msgstr ""
 
-#: sngconnect/telemetry/forms.py:308
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:197
+#: sngconnect/telemetry/forms.py:273
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:201
 msgid "Address"
 msgstr "Adres"
 
-#: sngconnect/telemetry/forms.py:314
+#: sngconnect/telemetry/forms.py:279
 msgid "Latitude"
 msgstr "Szerokość"
 
-#: sngconnect/telemetry/forms.py:321
+#: sngconnect/telemetry/forms.py:286
 msgid "Longitude"
 msgstr ""
 
@@ -741,73 +908,31 @@ msgid "Device"
 msgstr "Urządzenie"
 
 #: sngconnect/telemetry/templates/feed/base.jinja2:15
-#: sngconnect/templates/base.jinja2:32 sngconnect/templates/base.jinja2:83
+#: sngconnect/templates/base.jinja2:32 sngconnect/templates/base.jinja2:86
 msgid "Dashboard"
 msgstr "Pulpit"
 
-#: sngconnect/telemetry/templates/feed/base.jinja2:37
+#: sngconnect/telemetry/templates/feed/base.jinja2:42
 #: sngconnect/telemetry/templates/feed/dashboard.jinja2:111
 #: sngconnect/telemetry/templates/feed/settings.jinja2:6
 msgid "Settings"
 msgstr "Ustawienia"
 
-#: sngconnect/telemetry/templates/feed/base.jinja2:45
+#: sngconnect/telemetry/templates/feed/base.jinja2:51
 #: sngconnect/telemetry/templates/feed/permissions.jinja2:7
 msgid "Permissions"
 msgstr "Uprawnienia"
 
-#: sngconnect/telemetry/templates/feed/base.jinja2:52
+#: sngconnect/telemetry/templates/feed/base.jinja2:58
 #: sngconnect/telemetry/templates/feed/history.jinja2:8
 msgid "History"
 msgstr "Historia"
 
-#: sngconnect/telemetry/templates/feed/chart.jinja2:6
-#: sngconnect/telemetry/templates/feed/data_stream.jinja2:98
-#: sngconnect/telemetry/templates/feed/setting.jinja2:59
+#: sngconnect/telemetry/templates/feed/chart.jinja2:7
+#: sngconnect/telemetry/templates/feed/data_stream.jinja2:99
+#: sngconnect/telemetry/templates/feed/setting.jinja2:64
 msgid "Chart"
 msgstr "Wykres"
-
-#: sngconnect/telemetry/templates/feed/chart.jinja2:11
-msgid "From"
-msgstr "Od"
-
-#: sngconnect/telemetry/templates/feed/chart.jinja2:16
-msgid "to"
-msgstr "do"
-
-#: sngconnect/telemetry/templates/feed/chart.jinja2:21
-msgid "Set range"
-msgstr ""
-
-#: sngconnect/telemetry/templates/feed/chart.jinja2:24
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:150
-msgid "Last"
-msgstr "Ostatnia"
-
-#: sngconnect/telemetry/templates/feed/chart.jinja2:26
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:152
-msgid "hour"
-msgstr "godzina"
-
-#: sngconnect/telemetry/templates/feed/chart.jinja2:27
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:153
-msgid "24 hours"
-msgstr "24 godz."
-
-#: sngconnect/telemetry/templates/feed/chart.jinja2:28
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:154
-msgid "7 days"
-msgstr "7 dni"
-
-#: sngconnect/telemetry/templates/feed/chart.jinja2:29
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:155
-msgid "30 days"
-msgstr "30 dni"
-
-#: sngconnect/telemetry/templates/feed/chart.jinja2:30
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:156
-msgid "1 year"
-msgstr "1 rok"
 
 #: sngconnect/telemetry/templates/feed/charts.jinja2:11
 msgid "Chart definitions"
@@ -925,144 +1050,152 @@ msgstr "Dzisiejsze minimum/maksimum"
 
 #: sngconnect/telemetry/templates/feed/dashboard.jinja2:98
 #: sngconnect/telemetry/templates/feed/dashboard.jinja2:103
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:125
-#: sngconnect/telemetry/templates/feed/data_stream.jinja2:22
-#: sngconnect/telemetry/templates/feed/data_stream.jinja2:50
-#: sngconnect/telemetry/templates/feed/data_stream.jinja2:60
-#: sngconnect/telemetry/templates/feed/data_stream.jinja2:70
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:127
+#: sngconnect/telemetry/templates/feed/data_stream.jinja2:24
+#: sngconnect/telemetry/templates/feed/data_stream.jinja2:52
+#: sngconnect/telemetry/templates/feed/data_stream.jinja2:62
+#: sngconnect/telemetry/templates/feed/data_stream.jinja2:72
 #: sngconnect/telemetry/templates/feed/data_streams.jinja2:24
 #: sngconnect/telemetry/templates/feed/data_streams.jinja2:29
-#: sngconnect/telemetry/templates/feed/setting.jinja2:29
+#: sngconnect/telemetry/templates/feed/setting.jinja2:31
 #: sngconnect/telemetry/templates/feed/settings.jinja2:25
 msgid "no data"
 msgstr "brak danych"
 
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:116
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:133
-#: sngconnect/telemetry/templates/feed/data_stream.jinja2:89
-#: sngconnect/telemetry/templates/feed/setting.jinja2:50
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:117
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:136
+#: sngconnect/telemetry/templates/feed/data_stream.jinja2:91
+#: sngconnect/telemetry/templates/feed/setting.jinja2:53
 msgid "Set"
 msgstr "Ustaw"
 
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:147
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:151
 msgid "Important charts"
 msgstr "Ważne wykresy"
 
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:166
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:154
+#: sngconnect/telemetry/templates/feed/macros/chart_controls.jinja2:19
+msgid "Last"
+msgstr "Ostatnia"
+
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:156
+#: sngconnect/telemetry/templates/feed/macros/chart_controls.jinja2:21
+msgid "hour"
+msgstr "godzina"
+
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:157
+#: sngconnect/telemetry/templates/feed/macros/chart_controls.jinja2:22
+msgid "24 hours"
+msgstr "24 godz."
+
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:158
+#: sngconnect/telemetry/templates/feed/macros/chart_controls.jinja2:23
+msgid "7 days"
+msgstr "7 dni"
+
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:159
+#: sngconnect/telemetry/templates/feed/macros/chart_controls.jinja2:24
+msgid "30 days"
+msgstr "30 dni"
+
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:160
+#: sngconnect/telemetry/templates/feed/macros/chart_controls.jinja2:25
+msgid "1 year"
+msgstr "1 rok"
+
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:170
 msgid "Information"
 msgstr "Informacje"
 
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:185
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:189
 msgid "Added to the application"
 msgstr ""
 
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:192
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:196
 msgid "Location"
 msgstr "Lokalizacja"
 
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:201
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:205
 msgid "GPS Coordinates"
 msgstr "Koordynaty GPS"
 
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:216
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:220
 msgid "Last update:"
 msgstr "Ostatnia aktualizacja:"
 
-#: sngconnect/telemetry/templates/feed/dashboard.jinja2:255
+#: sngconnect/telemetry/templates/feed/dashboard.jinja2:259
 msgid "Change requested. Refresh the page to see when the value changes."
 msgstr ""
 
-#: sngconnect/telemetry/templates/feed/data_stream.jinja2:14
-#: sngconnect/telemetry/templates/feed/setting.jinja2:14
+#: sngconnect/telemetry/templates/feed/data_stream.jinja2:16
+#: sngconnect/telemetry/templates/feed/setting.jinja2:16
 msgid "Values"
 msgstr "Wartości"
 
-#: sngconnect/telemetry/templates/feed/data_stream.jinja2:18
-#: sngconnect/telemetry/templates/feed/setting.jinja2:19
-#: sngconnect/telemetry/templates/feed/setting.jinja2:28
+#: sngconnect/telemetry/templates/feed/data_stream.jinja2:20
+#: sngconnect/telemetry/templates/feed/setting.jinja2:21
+#: sngconnect/telemetry/templates/feed/setting.jinja2:30
 msgid "Current value"
 msgstr "Aktualna wartość"
 
-#: sngconnect/telemetry/templates/feed/data_stream.jinja2:27
+#: sngconnect/telemetry/templates/feed/data_stream.jinja2:29
 msgid "Last update"
 msgstr "Ostatnia aktualizacja"
 
-#: sngconnect/telemetry/templates/feed/data_stream.jinja2:36
+#: sngconnect/telemetry/templates/feed/data_stream.jinja2:38
 msgid "Period"
 msgstr "Okres"
 
-#: sngconnect/telemetry/templates/feed/data_stream.jinja2:37
+#: sngconnect/telemetry/templates/feed/data_stream.jinja2:39
 msgid "Minimal value"
 msgstr "Wartość minimalna"
 
-#: sngconnect/telemetry/templates/feed/data_stream.jinja2:38
+#: sngconnect/telemetry/templates/feed/data_stream.jinja2:40
 msgid "Mean value"
 msgstr "Wartość średnia"
 
-#: sngconnect/telemetry/templates/feed/data_stream.jinja2:39
+#: sngconnect/telemetry/templates/feed/data_stream.jinja2:41
 msgid "Maximal value"
 msgstr "Wartość maksymalna "
 
-#: sngconnect/telemetry/templates/feed/data_stream.jinja2:44
+#: sngconnect/telemetry/templates/feed/data_stream.jinja2:46
 msgid "This hour"
 msgstr "Godzina"
 
-#: sngconnect/telemetry/templates/feed/data_stream.jinja2:54
+#: sngconnect/telemetry/templates/feed/data_stream.jinja2:56
 msgid "Today"
 msgstr "Dzień"
 
-#: sngconnect/telemetry/templates/feed/data_stream.jinja2:64
+#: sngconnect/telemetry/templates/feed/data_stream.jinja2:66
 msgid "This month"
 msgstr "Miesiąc"
 
-#: sngconnect/telemetry/templates/feed/data_stream.jinja2:83
+#: sngconnect/telemetry/templates/feed/data_stream.jinja2:85
 msgid "Allowed values"
 msgstr "Dozwolone wartości"
 
-#: sngconnect/telemetry/templates/feed/data_stream.jinja2:94
-#: sngconnect/telemetry/templates/feed/setting.jinja2:55
+#: sngconnect/telemetry/templates/feed/data_stream.jinja2:96
+#: sngconnect/telemetry/templates/feed/setting.jinja2:59
 msgid "Notifications"
 msgstr "Powiadomienia"
 
-#: sngconnect/telemetry/templates/feed/data_stream.jinja2:103
+#: sngconnect/telemetry/templates/feed/data_stream.jinja2:107
 #: sngconnect/telemetry/templates/feed/history.jinja2:12
-#: sngconnect/telemetry/templates/feed/setting.jinja2:64
+#: sngconnect/telemetry/templates/feed/setting.jinja2:72
 msgid "Add comment"
 msgstr "Dodaj komentarz"
 
-#: sngconnect/telemetry/templates/feed/data_stream.jinja2:108
+#: sngconnect/telemetry/templates/feed/data_stream.jinja2:112
 #: sngconnect/telemetry/templates/feed/history.jinja2:17
-#: sngconnect/telemetry/templates/feed/setting.jinja2:69
+#: sngconnect/telemetry/templates/feed/setting.jinja2:77
 msgid "Add"
 msgstr "Dodaj"
 
-#: sngconnect/telemetry/templates/feed/data_stream.jinja2:111
+#: sngconnect/telemetry/templates/feed/data_stream.jinja2:115
 #: sngconnect/telemetry/templates/feed/history.jinja2:20
-#: sngconnect/telemetry/templates/feed/setting.jinja2:72
+#: sngconnect/telemetry/templates/feed/setting.jinja2:80
 msgid "Browse history"
 msgstr "Historia"
-
-#: sngconnect/telemetry/templates/feed/data_stream.jinja2:125
-#: sngconnect/telemetry/templates/feed/setting.jinja2:85
-msgid "Last day"
-msgstr "Dzień"
-
-#: sngconnect/telemetry/templates/feed/data_stream.jinja2:175
-#: sngconnect/telemetry/templates/feed/setting.jinja2:133
-msgid "Last week"
-msgstr "Ostatni tydzień"
-
-#: sngconnect/telemetry/templates/feed/data_stream.jinja2:215
-#: sngconnect/telemetry/templates/feed/data_stream.jinja2:289
-#: sngconnect/telemetry/templates/feed/setting.jinja2:173
-#: sngconnect/telemetry/templates/feed/setting.jinja2:245
-msgid "Mean"
-msgstr ""
-
-#: sngconnect/telemetry/templates/feed/data_stream.jinja2:249
-#: sngconnect/telemetry/templates/feed/setting.jinja2:205
-msgid "Last year"
-msgstr "Ostatni rok"
 
 #: sngconnect/telemetry/templates/feed/data_streams.jinja2:10
 msgid "Current parameter values"
@@ -1072,9 +1205,22 @@ msgstr "Aktualna wartość parametru"
 msgid "Filter"
 msgstr "Filtr"
 
+#: sngconnect/telemetry/templates/feed/inactive.jinja2:8
+msgid "This device is currently inactive"
+msgstr ""
+
+#: sngconnect/telemetry/templates/feed/inactive.jinja2:12
+#, python-format
+msgid "You need to pay <strong>%(price)s</strong> tokens to access it."
+msgstr ""
+
+#: sngconnect/telemetry/templates/feed/inactive.jinja2:14
+msgid "Pay"
+msgstr ""
+
 #: sngconnect/telemetry/templates/feed/new.jinja2:6
 #: sngconnect/telemetry/templates/feed/new.jinja2:13
-#: sngconnect/templates/base.jinja2:36
+#: sngconnect/templates/base.jinja2:39
 msgid "New device"
 msgstr "Nowe urządzenie"
 
@@ -1083,64 +1229,99 @@ msgid "Add device"
 msgstr "Dodaj urządzenie"
 
 #: sngconnect/telemetry/templates/feed/permissions.jinja2:12
-msgid "Users"
-msgstr "Użytkownicy"
-
-#: sngconnect/telemetry/templates/feed/permissions.jinja2:17
-msgid "User"
-msgstr "Użytkownik"
-
-#: sngconnect/telemetry/templates/feed/permissions.jinja2:18
-#: sngconnect/telemetry/templates/feed/permissions.jinja2:67
-msgid "Can access the device"
+msgid "Change your plan"
 msgstr ""
 
 #: sngconnect/telemetry/templates/feed/permissions.jinja2:19
-msgid "Can manage users"
-msgstr "Może zarządzać użytkownikami"
+#, fuzzy
+#| msgid "Create"
+msgid "Free"
+msgstr "Utwórz"
 
-#: sngconnect/telemetry/templates/feed/permissions.jinja2:38
+#: sngconnect/telemetry/templates/feed/permissions.jinja2:20
+#: sngconnect/telemetry/templates/feed/permissions.jinja2:82
+msgid "User"
+msgstr "Użytkownik"
+
+#: sngconnect/telemetry/templates/feed/permissions.jinja2:21
+#: sngconnect/telemetry/templates/feed/permissions.jinja2:84
+msgid "User Plus"
+msgstr ""
+
+#: sngconnect/telemetry/templates/feed/permissions.jinja2:24
+msgid "Setup fee"
+msgstr ""
+
+#: sngconnect/telemetry/templates/feed/permissions.jinja2:30
+msgid "Monthly fee"
+msgstr ""
+
+#: sngconnect/telemetry/templates/feed/permissions.jinja2:39
+#: sngconnect/telemetry/templates/feed/permissions.jinja2:46
+#: sngconnect/telemetry/templates/feed/permissions.jinja2:53
+msgid "your plan"
+msgstr ""
+
+#: sngconnect/telemetry/templates/feed/permissions.jinja2:41
+#: sngconnect/telemetry/templates/feed/permissions.jinja2:48
+#: sngconnect/telemetry/templates/feed/permissions.jinja2:55
+msgid "Switch"
+msgstr ""
+
+#: sngconnect/telemetry/templates/feed/permissions.jinja2:64
+msgid "Users"
+msgstr "Użytkownicy"
+
+#: sngconnect/telemetry/templates/feed/permissions.jinja2:71
+#: sngconnect/telemetry/templates/feed/permissions.jinja2:120
+msgid "Access"
+msgstr ""
+
+#: sngconnect/telemetry/templates/feed/permissions.jinja2:81
+msgid "no access"
+msgstr ""
+
+#: sngconnect/telemetry/templates/feed/permissions.jinja2:90
 msgid "no users yet"
 msgstr "aktualnie brak użytkowników"
 
-#: sngconnect/telemetry/templates/feed/permissions.jinja2:44
-#: sngconnect/telemetry/templates/feed/permissions.jinja2:93
+#: sngconnect/telemetry/templates/feed/permissions.jinja2:96
 msgid "Save permissions"
 msgstr "Zapisz uprawnienia"
 
-#: sngconnect/telemetry/templates/feed/permissions.jinja2:48
-#: sngconnect/telemetry/templates/feed/permissions.jinja2:55
+#: sngconnect/telemetry/templates/feed/permissions.jinja2:100
+#: sngconnect/telemetry/templates/feed/permissions.jinja2:107
 msgid "Add user"
 msgstr "Dodaj użytkownika"
 
-#: sngconnect/telemetry/templates/feed/permissions.jinja2:61
+#: sngconnect/telemetry/templates/feed/permissions.jinja2:113
 msgid "Maintainers"
 msgstr "Instalatorzy"
 
-#: sngconnect/telemetry/templates/feed/permissions.jinja2:66
-msgid "Maintainer"
-msgstr "Instalator"
-
-#: sngconnect/telemetry/templates/feed/permissions.jinja2:68
-msgid "Can manage maintainers"
+#: sngconnect/telemetry/templates/feed/permissions.jinja2:117
+msgid "Company"
 msgstr ""
 
-#: sngconnect/telemetry/templates/feed/permissions.jinja2:87
+#: sngconnect/telemetry/templates/feed/permissions.jinja2:134
+msgid "Revoke access"
+msgstr ""
+
+#: sngconnect/telemetry/templates/feed/permissions.jinja2:140
 msgid "no maintainers yet"
 msgstr "Aktualnie brak instalatorów"
 
-#: sngconnect/telemetry/templates/feed/permissions.jinja2:97
-#: sngconnect/telemetry/templates/feed/permissions.jinja2:104
+#: sngconnect/telemetry/templates/feed/permissions.jinja2:144
+#: sngconnect/telemetry/templates/feed/permissions.jinja2:151
 msgid "Add maintainer"
 msgstr "Dodaj instalatora"
 
-#: sngconnect/telemetry/templates/feed/setting.jinja2:23
-#: sngconnect/telemetry/templates/feed/setting.jinja2:32
+#: sngconnect/telemetry/templates/feed/setting.jinja2:25
+#: sngconnect/telemetry/templates/feed/setting.jinja2:34
 #: sngconnect/telemetry/templates/feed/settings.jinja2:15
 msgid "Last change"
 msgstr "Ostatnia zmiana"
 
-#: sngconnect/telemetry/templates/feed/setting.jinja2:45
+#: sngconnect/telemetry/templates/feed/setting.jinja2:48
 msgid "Set value"
 msgstr "Ustaw wartość"
 
@@ -1152,64 +1333,94 @@ msgstr "Aktualnie ustawiona wartość"
 msgid "This device has no settings."
 msgstr ""
 
+#: sngconnect/telemetry/templates/feed/macros/chart_controls.jinja2:11
+msgid "to"
+msgstr "do"
+
+#: sngconnect/telemetry/templates/feed/macros/chart_controls.jinja2:16
+msgid "Set range"
+msgstr ""
+
 #: sngconnect/telemetry/views/confirm_message.py:31
 msgid "Message successfully confirmed."
 msgstr ""
 
-#: sngconnect/telemetry/views/feed.py:89
+#: sngconnect/telemetry/views/feed/data_streams.py:216
+msgid "Parameter allowed values have been successfuly saved."
+msgstr ""
+
+#: sngconnect/telemetry/views/feed/data_streams.py:247
+#: sngconnect/telemetry/views/feed/data_streams.py:514
+#: sngconnect/telemetry/views/feed/history.py:38
+msgid "Your comment has been successfuly saved."
+msgstr "Twoja wiadomość została zapisana. "
+
+#: sngconnect/telemetry/views/feed/data_streams.py:483
+msgid "Setting value has been successfuly saved."
+msgstr ""
+
+#: sngconnect/telemetry/views/feed/inactive.py:60
+#, fuzzy
+#| msgid "User has been successfuly added."
+msgid "The feed has been successfuly activated."
+msgstr "Użytkownik został dodany. "
+
+#: sngconnect/telemetry/views/feed/inactive.py:71
+#: sngconnect/telemetry/views/feed/permissions.py:179
+msgid "You don't have enough tokens for setup fee."
+msgstr ""
+
+#: sngconnect/telemetry/views/feed/new.py:65
 msgid ""
 "New device has been added. Go to the device dashboard to obtain the "
 "activation code."
 msgstr ""
 
-#: sngconnect/telemetry/views/feed.py:979
-msgid "Parameter allowed values have been successfuly saved."
-msgstr ""
-
-#: sngconnect/telemetry/views/feed.py:1010
-#: sngconnect/telemetry/views/feed.py:1276
-#: sngconnect/telemetry/views/feed.py:1654
-msgid "Your comment has been successfuly saved."
-msgstr "Twoja wiadomość została zapisana. "
-
-#: sngconnect/telemetry/views/feed.py:1245
-msgid "Setting value has been successfuly saved."
-msgstr ""
-
-#: sngconnect/telemetry/views/feed.py:1409
+#: sngconnect/telemetry/views/feed/permissions.py:66
 msgid "This user already has access to this device."
 msgstr ""
 
-#: sngconnect/telemetry/views/feed.py:1424
+#: sngconnect/telemetry/views/feed/permissions.py:81
 msgid "User has been successfuly added."
 msgstr "Użytkownik został dodany. "
 
-#: sngconnect/telemetry/views/feed.py:1452
+#: sngconnect/telemetry/views/feed/permissions.py:108
 msgid "This maintainer already has access to this device."
 msgstr ""
 
-#: sngconnect/telemetry/views/feed.py:1470
+#: sngconnect/telemetry/views/feed/permissions.py:133
 msgid "Maintainer has been successfuly added."
 msgstr ""
 
-#: sngconnect/telemetry/views/feed.py:1559
-#: sngconnect/telemetry/views/feed.py:1622
+#: sngconnect/telemetry/views/feed/permissions.py:174
+#, fuzzy
+#| msgid "Your password has been successfuly changed."
+msgid "Your plan has been successfuly changed."
+msgstr "Twóje hasło zostało zmienione. "
+
+#: sngconnect/telemetry/views/feed/permissions.py:258
 msgid "User permissions have been successfuly saved."
 msgstr "Uprawnienia użytkownika zostały zapisane."
 
-#: sngconnect/templates/base.jinja2:69
+#: sngconnect/telemetry/views/feed/permissions.py:286
+#, fuzzy
+#| msgid "User permissions have been successfuly saved."
+msgid "Maintainer access has have been successfuly revoked."
+msgstr "Uprawnienia użytkownika zostały zapisane."
+
+#: sngconnect/templates/base.jinja2:72
 msgid "Sign out"
 msgstr "Wyloguj"
 
-#: sngconnect/templates/base.jinja2:105
+#: sngconnect/templates/base.jinja2:108
 msgid "Help"
 msgstr "Pomoc"
 
-#: sngconnect/templates/base.jinja2:106
+#: sngconnect/templates/base.jinja2:109
 msgid "Contact"
 msgstr "Kontakt"
 
-#: sngconnect/templates/base.jinja2:107
+#: sngconnect/templates/base.jinja2:110
 msgid "Terms of Service"
 msgstr ""
 
@@ -1228,3 +1439,28 @@ msgstr "Potwierdź"
 #: sngconnect/templates/macros/message_table.jinja2:41
 msgid "No messages yet."
 msgstr "Aktualnie brak wiadomości"
+
+#~ msgid "Last day"
+#~ msgstr "Dzień"
+
+#~ msgid "Last week"
+#~ msgstr "Ostatni tydzień"
+
+#~ msgid "Mean"
+#~ msgstr ""
+
+#~ msgid "Last year"
+#~ msgstr "Ostatni rok"
+
+#~ msgid "Can access the device"
+#~ msgstr ""
+
+#~ msgid "Can manage users"
+#~ msgstr "Może zarządzać użytkownikami"
+
+#~ msgid "Maintainer"
+#~ msgstr "Instalator"
+
+#~ msgid "Can manage maintainers"
+#~ msgstr ""
+
