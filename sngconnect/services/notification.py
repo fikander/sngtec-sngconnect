@@ -2,11 +2,12 @@ import logging
 
 from pyramid_mailer.interfaces import IMailer
 from pyramid_mailer.message import Message as EmailMessage
+from pyramid_mailer.exceptions import InvalidMessage
 from sqlalchemy.orm import joinedload
 
 from sngconnect.services.base import ServiceBase
 from sngconnect.services.sms import SMSService
-from sngconnect.database import DBSession, User, FeedUser, Message
+from sngconnect.database import DBSession, User, FeedUser
 
 logger = logging.getLogger('sngconnect')
 
@@ -57,9 +58,8 @@ class NotificationService(ServiceBase):
                 self._send_sms(feed_user.user, summary, message)
 
     def _send_email(self, user, summary, message):
-        assert isinstance(message, Message), "%r should be a Message" % message
-        mailer = self.registry.getUtility(IMailer)
         if getattr(user, self._user_severity_flag_email[message.message_type]):
+            mailer = self.registry.getUtility(IMailer)
             email = EmailMessage(
                 subject=summary,
                 sender=self.email_sender,
@@ -75,10 +75,9 @@ class NotificationService(ServiceBase):
             mailer.send(email)
 
     def _send_sms(self, user, summary, message):
-        assert isinstance(message, Message), "%r should be a Message" % message
-        sms_service = self.get_service(SMSService)
         if (getattr(user, self._user_severity_flag_sms[message.message_type])
                 and user.phone):
+            sms_service = self.get_service(SMSService)
             try:
                 sms_service.send_sms(
                     [user.phone],
