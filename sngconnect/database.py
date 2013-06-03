@@ -1002,7 +1002,12 @@ class Message(ModelBase):
     )
 
     def __repr__(self):
-        return '<Message(id=%s)>' % self.id
+        return '<Message(id=%s, type=%s, feed_id=%s, data_stream_id=%s, author_id=%s)>' % (
+            self.id,
+            self.message_type,
+            self.feed_id,
+            self.data_stream_id,
+            self.author_id)
 
     @property
     def send_notifications(self):
