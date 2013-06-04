@@ -2,15 +2,13 @@ import logging
 
 from pyramid_mailer.interfaces import IMailer
 from pyramid_mailer.message import Message as EmailMessage
-from pyramid_mailer.exceptions import InvalidMessage
 from sqlalchemy.orm import joinedload
 
 from sngconnect.services.base import ServiceBase
 from sngconnect.services.sms import SMSService
 from sngconnect.database import DBSession, User, FeedUser
 
-logger = logging.getLogger('sngconnect')
-
+logger = logging.getLogger(__name__)
 
 class NotificationService(ServiceBase):
 
@@ -41,8 +39,18 @@ class NotificationService(ServiceBase):
     def notify_all(self, summary, message):
         users = DBSession.query(User).all()
         for user in users:
-            self._send_email(user, summary, message)
-            self._send_sms(user, summary, message)
+            try:
+                self._send_email(user, summary, message)
+            except:
+                logger.exception(
+                    "Unhandled exception while sending e-mail message."
+                )
+            try:
+                self._send_sms(user, summary, message)
+            except:
+                logger.exception(
+                    "Unhandled exception while sending SMS message."
+                )
 
     def notify_feed_users(self, feed, summary, message):
         feed_users = DBSession.query(FeedUser).join(User).options(
