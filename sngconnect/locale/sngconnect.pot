@@ -90,7 +90,7 @@ msgstr ""
 #: sngconnect/telemetry/templates/feed/permissions.jinja2:69
 #: sngconnect/telemetry/templates/feed/permissions.jinja2:118
 msgid "Name [person]"
-msgstr ""
+msgstr "Name"
 
 #: sngconnect/accounts/forms.py:67
 msgid "Company name"
@@ -729,7 +729,7 @@ msgid "SNG:connect tokens"
 msgstr ""
 
 #: sngconnect/payments/templates/confirmation.jinja2:5
-msgid "You're order has been confirmed"
+msgid "Your order has been confirmed"
 msgstr ""
 
 #: sngconnect/payments/templates/confirmation.jinja2:8
