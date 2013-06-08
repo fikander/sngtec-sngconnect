@@ -4,7 +4,7 @@ from sngconnect.cassandra.confirmations import Confirmations
 from sngconnect.services.base import ServiceBase
 from sngconnect.services.notification import NotificationService
 from sngconnect.database import (DBSession, Message, User, FeedUser,
-                                 DataStream, DataStreamTemplate)
+    DataStream, DataStreamTemplate)
 
 
 class MessageService(ServiceBase):
@@ -76,7 +76,7 @@ class MessageService(ServiceBase):
         self.confirmations.set_confirmed(user.id, [message.id])
 
     def get_feed_messages(self, feed, data_stream_template_id=None,
-                          author_id=None):
+            author_id=None):
         query = DBSession.query(Message).filter(
             Message.feed == feed
         )

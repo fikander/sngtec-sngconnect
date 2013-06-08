@@ -2,15 +2,13 @@ import logging
 
 from pyramid_mailer.interfaces import IMailer
 from pyramid_mailer.message import Message as EmailMessage
-from pyramid_mailer.exceptions import InvalidMessage
 from sqlalchemy.orm import joinedload
 
 from sngconnect.services.base import ServiceBase
 from sngconnect.services.sms import SMSService
-from sngconnect.database import DBSession, User, FeedUser, Message
+from sngconnect.database import DBSession, User, FeedUser
 
-logger = logging.getLogger('sngconnect')
-
+logger = logging.getLogger(__name__)
 
 class NotificationService(ServiceBase):
 
@@ -41,8 +39,18 @@ class NotificationService(ServiceBase):
     def notify_all(self, summary, message):
         users = DBSession.query(User).all()
         for user in users:
-            self._send_email(user, summary, message)
-            self._send_sms(user, summary, message)
+            try:
+                self._send_email(user, summary, message)
+            except:
+                logger.exception(
+                    "Unhandled exception while sending e-mail message."
+                )
+            try:
+                self._send_sms(user, summary, message)
+            except:
+                logger.exception(
+                    "Unhandled exception while sending SMS message."
+                )
 
     def notify_feed_users(self, feed, summary, message):
         feed_users = DBSession.query(FeedUser).join(User).options(
@@ -58,7 +66,6 @@ class NotificationService(ServiceBase):
                 self._send_sms(feed_user.user, summary, message)
 
     def _send_email(self, user, summary, message):
-        assert isinstance(message, Message), "%r should be a Message" % message
         if getattr(user, self._user_severity_flag_email[message.message_type]):
             mailer = self.registry.getUtility(IMailer)
             email = EmailMessage(
@@ -73,14 +80,9 @@ class NotificationService(ServiceBase):
                     message=message
                 )
             )
-            try:
-                email.validate()
-            except InvalidMessage, e:
-                logger.error("Message \"%s\": %s" % (message, str(e)))
             mailer.send(email)
 
     def _send_sms(self, user, summary, message):
-        assert isinstance(message, Message), "%r should be a Message" % message
         if (getattr(user, self._user_severity_flag_sms[message.message_type])
                 and user.phone):
             sms_service = self.get_service(SMSService)
