@@ -163,15 +163,15 @@ msgid "The activation code you entered is invalid."
 msgstr ""
 
 #: sngconnect/accounts/views.py:200
-msgid "Your account data has been successfuly changed."
+msgid "Your account data has been successfully changed."
 msgstr ""
 
 #: sngconnect/accounts/views.py:212
-msgid "Your notification settings have been successfuly changed."
+msgid "Your notification settings have been successfully changed."
 msgstr ""
 
 #: sngconnect/accounts/views.py:227
-msgid "Your password has been successfuly changed."
+msgid "Your password has been successfully changed."
 msgstr ""
 
 #: sngconnect/accounts/views.py:234 sngconnect/announcements/views.py:38
@@ -200,7 +200,7 @@ msgid "Sign up"
 msgstr ""
 
 #: sngconnect/accounts/templates/activate.jinja2:13
-msgid "Your account has been successfuly activated!"
+msgid "Your account has been successfully activated!"
 msgstr ""
 
 #: sngconnect/accounts/templates/activate.jinja2:14
@@ -275,7 +275,7 @@ msgid "Content"
 msgstr ""
 
 #: sngconnect/announcements/views.py:30
-msgid "Announcement has been successfuly sent."
+msgid "Announcement has been successfully sent."
 msgstr ""
 
 #: sngconnect/announcements/templates/announcements.jinja2:7
@@ -553,7 +553,7 @@ msgid "Only PNG and JPG formats are allowed. Leave empty to delete current image
 msgstr ""
 
 #: sngconnect/devices/views.py:30
-msgid "Device template has been successfuly added."
+msgid "Device template has been successfully added."
 msgstr ""
 
 #: sngconnect/devices/views.py:98
@@ -569,7 +569,7 @@ msgid ""
 msgstr ""
 
 #: sngconnect/devices/views.py:117
-msgid "Device template has been successfuly deleted."
+msgid "Device template has been successfully deleted."
 msgstr ""
 
 #: sngconnect/devices/views.py:122 sngconnect/devices/views.py:435
@@ -578,15 +578,15 @@ msgid "There were some problems with your request. Contact the system support."
 msgstr ""
 
 #: sngconnect/devices/views.py:171
-msgid "Device template has been successfuly saved."
+msgid "Device template has been successfully saved."
 msgstr ""
 
 #: sngconnect/devices/views.py:195
-msgid "Parameter template has been successfuly added."
+msgid "Parameter template has been successfully added."
 msgstr ""
 
 #: sngconnect/devices/views.py:229
-msgid "Chart has been successfuly added."
+msgid "Chart has been successfully added."
 msgstr ""
 
 #: sngconnect/devices/views.py:253
@@ -598,7 +598,7 @@ msgid "New image has been succesfuly set."
 msgstr ""
 
 #: sngconnect/devices/views.py:421
-msgid "Parameter template has been successfuly deleted."
+msgid "Parameter template has been successfully deleted."
 msgstr ""
 
 #: sngconnect/devices/views.py:426
@@ -608,11 +608,11 @@ msgid ""
 msgstr ""
 
 #: sngconnect/devices/views.py:478 sngconnect/devices/views.py:606
-msgid "Parameter template has been successfuly saved."
+msgid "Parameter template has been successfully saved."
 msgstr ""
 
 #: sngconnect/devices/views.py:544
-msgid "Chart has been successfuly deleted."
+msgid "Chart has been successfully deleted."
 msgstr ""
 
 #: sngconnect/devices/templates/base.jinja2:4
@@ -1316,21 +1316,21 @@ msgid "Message successfully confirmed."
 msgstr ""
 
 #: sngconnect/telemetry/views/feed/data_streams.py:216
-msgid "Parameter allowed values have been successfuly saved."
+msgid "Parameter allowed values have been successfully saved."
 msgstr ""
 
 #: sngconnect/telemetry/views/feed/data_streams.py:247
 #: sngconnect/telemetry/views/feed/data_streams.py:514
 #: sngconnect/telemetry/views/feed/history.py:38
-msgid "Your comment has been successfuly saved."
+msgid "Your comment has been successfully saved."
 msgstr ""
 
 #: sngconnect/telemetry/views/feed/data_streams.py:483
-msgid "Setting value has been successfuly saved."
+msgid "Setting value has been successfully saved."
 msgstr ""
 
 #: sngconnect/telemetry/views/feed/inactive.py:60
-msgid "The feed has been successfuly activated."
+msgid "The feed has been successfully activated."
 msgstr ""
 
 #: sngconnect/telemetry/views/feed/inactive.py:71
@@ -1349,7 +1349,7 @@ msgid "This user already has access to this device."
 msgstr ""
 
 #: sngconnect/telemetry/views/feed/permissions.py:81
-msgid "User has been successfuly added."
+msgid "User has been successfully added."
 msgstr ""
 
 #: sngconnect/telemetry/views/feed/permissions.py:108
@@ -1357,19 +1357,19 @@ msgid "This maintainer already has access to this device."
 msgstr ""
 
 #: sngconnect/telemetry/views/feed/permissions.py:133
-msgid "Maintainer has been successfuly added."
+msgid "Maintainer has been successfully added."
 msgstr ""
 
 #: sngconnect/telemetry/views/feed/permissions.py:174
-msgid "Your plan has been successfuly changed."
+msgid "Your plan has been successfully changed."
 msgstr ""
 
 #: sngconnect/telemetry/views/feed/permissions.py:258
-msgid "User permissions have been successfuly saved."
+msgid "User permissions have been successfully saved."
 msgstr ""
 
 #: sngconnect/telemetry/views/feed/permissions.py:286
-msgid "Maintainer access has have been successfuly revoked."
+msgid "Maintainer access has have been successfully revoked."
 msgstr ""
 
 #: sngconnect/templates/base.jinja2:72

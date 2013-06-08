@@ -9,6 +9,7 @@ from sngconnect.announcements import forms
 from sngconnect.services.message import MessageService
 from sngconnect.database import Message
 
+
 @view_config(
     route_name='sngconnect.announcements.announcements',
     renderer='sngconnect.announcements:templates/announcements.jinja2',
@@ -27,7 +28,7 @@ def announcements(request):
             announcement_form.populate_obj(message)
             message_service.create_message(message)
             request.session.flash(
-                _("Announcement has been successfuly sent."),
+                _("Announcement has been successfully sent."),
                 queue='success'
             )
             return httpexceptions.HTTPFound(
