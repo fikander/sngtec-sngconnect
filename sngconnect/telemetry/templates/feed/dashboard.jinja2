@@ -10,6 +10,11 @@
             width: 100%;
             height: 300px;
         }
+        .gauge {
+            width: 100px;
+            height: 80px;
+            float: left;
+        }
     </style>
 {% endblock %}
 
@@ -76,75 +81,81 @@
                 {% if settings or parameters %}
                     <h2><span class="awe-eye-open"></span> {% trans %}Important parameters and settings{% endtrans %}</h2>
                 {% endif %}
-                {% if feed.image_url %}
-                    <img src="{{ feed.image_url }}" style="float: left; margin-right: 20px;">
-                {% endif %}
-                <div style="float: left;">
-                    {% if parameters %}
-                        <h3>{% trans %}Parameters{% endtrans %}</h2>
-                        <table class="table table-values" data-provides="rowlink">
-                            <thead>
-                                <th>{% trans %}Name{% endtrans %}</th>
-                                <th>{% trans %}Last known value{% endtrans %}</th>
-                                <th>{% trans %}Today minimum/maximum{% endtrans %}</th>
-                            </thead>
-                            <tbody>
-                                {% for data_stream in parameters %}
-                                    <tr>
-                                        <td><a href="{{ data_stream.url }}">{{ data_stream.name }}</a></td>
-                                        {% if data_stream.last_value %}
-                                            <td><span class="current-value">{{ data_stream.last_value.value|format_decimal }} <span class="unit">{{ data_stream.measurement_unit }}</span></span></td>
-                                        {% else %}
-                                            <td class="no-data">{% trans %}no data{% endtrans %}</td>
-                                        {% endif %}
-                                        {% if data_stream.today %}
-                                            <td><span class="current-value">{{ data_stream.today.minimum|format_decimal }} / {{ data_stream.today.maximum|format_decimal }} <span class="unit">{{ data_stream.measurement_unit }}</span></span></td>
-                                        {% else %}
-                                            <td class="no-data">{% trans %}no data{% endtrans %}</td>
-                                        {% endif %}
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    {% endif %}
-                    {% if settings %}
-                        <h3>{% trans %}Settings{% endtrans %}</h2>
-                        <table class="table table-values" data-provides="rowlink">
-                            <thead>
-                                <th>{% trans %}Name{% endtrans %}</th>
-                                <th>{% trans %}Last known value{% endtrans %}</th>
-                                {% if 'change_settings' in feed_permissions %}
-                                    <th class="show-js">{% trans %}Set{% endtrans %}</th>
-                                {% endif %}
-                            </thead>
-                            <tbody>
-                                {% for data_stream in settings %}
-                                    <tr>
-                                        <td><a href="{{ data_stream.url }}">{{ data_stream.name }}</a></td>
-                                        {% if data_stream.last_value %}
-                                            <td><span class="current-value">{{ data_stream.last_value.value|format_decimal }} <span class="unit">{{ data_stream.measurement_unit }}</span></span></td>
-                                        {% else %}
-                                            <td class="no-data">{% trans %}no data{% endtrans %}</td>
-                                        {% endif %}
-                                        {% if 'change_settings' in feed_permissions %}
-                                            <td class="show-js nolink">
-                                                <form action="{{ data_stream.value_url }}" class="set-value-form" method="post" style="background: none; margin-bottom: 0;" class="form-inline">
-                                                    {{ data_stream.value_form.csrf_token }}
-                                                    <div style="height: 28px; margin: 0; padding: 0;" class="control-group">
-                                                        <span class="input-append">
-                                                            {{ data_stream.value_form.value(class="input-small") }}
-                                                            <button type="submit" class="btn">{% trans %}Set{% endtrans %}</button>
-                                                        </span>
-                                                        <span class="loading" style="{% if data_stream.requested_value == None %}display: none; {% endif %}margin: -2px 0 0 10px;"></span>
-                                                    </div>
-                                                </form>
-                                            </td>
-                                        {% endif %}
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    {% endif %}
+                <div class="row">
+                    <div id="gauges" class="span6">
+                        {% if feed.dashboard_layout == 'IMAGE' %}
+                            {% if feed.image_url %}
+                                <img src="{{ feed.image_url }}" style="float: left; margin-right: 20px;">
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                    <div class="span6">
+                        {% if parameters %}
+                            <h3>{% trans %}Parameters{% endtrans %}</h2>
+                            <table class="table table-values" data-provides="rowlink">
+                                <thead>
+                                    <th>{% trans %}Name{% endtrans %}</th>
+                                    <th>{% trans %}Last known value{% endtrans %}</th>
+                                    <th>{% trans %}Today minimum/maximum{% endtrans %}</th>
+                                </thead>
+                                <tbody>
+                                    {% for data_stream in parameters %}
+                                        <tr>
+                                            <td><a href="{{ data_stream.url }}">{{ data_stream.name }}</a></td>
+                                            {% if data_stream.last_value %}
+                                                <td><span class="current-value">{{ data_stream.last_value.value|format_decimal }} <span class="unit">{{ data_stream.measurement_unit }}</span></span></td>
+                                            {% else %}
+                                                <td class="no-data">{% trans %}no data{% endtrans %}</td>
+                                            {% endif %}
+                                            {% if data_stream.today %}
+                                                <td><span class="current-value">{{ data_stream.today.minimum|format_decimal }} / {{ data_stream.today.maximum|format_decimal }} <span class="unit">{{ data_stream.measurement_unit }}</span></span></td>
+                                            {% else %}
+                                                <td class="no-data">{% trans %}no data{% endtrans %}</td>
+                                            {% endif %}
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        {% endif %}
+                        {% if settings %}
+                            <h3>{% trans %}Settings{% endtrans %}</h2>
+                            <table class="table table-values" data-provides="rowlink">
+                                <thead>
+                                    <th>{% trans %}Name{% endtrans %}</th>
+                                    <th>{% trans %}Last known value{% endtrans %}</th>
+                                    {% if 'change_settings' in feed_permissions %}
+                                        <th class="show-js">{% trans %}Set{% endtrans %}</th>
+                                    {% endif %}
+                                </thead>
+                                <tbody>
+                                    {% for data_stream in settings %}
+                                        <tr>
+                                            <td><a href="{{ data_stream.url }}">{{ data_stream.name }}</a></td>
+                                            {% if data_stream.last_value %}
+                                                <td><span class="current-value">{{ data_stream.last_value.value|format_decimal }} <span class="unit">{{ data_stream.measurement_unit }}</span></span></td>
+                                            {% else %}
+                                                <td class="no-data">{% trans %}no data{% endtrans %}</td>
+                                            {% endif %}
+                                            {% if 'change_settings' in feed_permissions %}
+                                                <td class="show-js nolink">
+                                                    <form action="{{ data_stream.value_url }}" class="set-value-form" method="post" style="background: none; margin-bottom: 0;" class="form-inline">
+                                                        {{ data_stream.value_form.csrf_token }}
+                                                        <div style="height: 28px; margin: 0; padding: 0;" class="control-group">
+                                                            <span class="input-append">
+                                                                {{ data_stream.value_form.value(class="input-small") }}
+                                                                <button type="submit" class="btn">{% trans %}Set{% endtrans %}</button>
+                                                            </span>
+                                                            <span class="loading" style="{% if data_stream.requested_value == None %}display: none; {% endif %}margin: -2px 0 0 10px;"></span>
+                                                        </div>
+                                                    </form>
+                                                </td>
+                                            {% endif %}
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        {% endif %}
+                    </div>
                 </div>
                 <div style="clear: both;"></div>
                 {% if charts %}
@@ -280,4 +291,58 @@
             24 * 7
         ) }}
     {% endfor %}
+    {% if feed.dashboard_layout == 'GAUGES' %}
+        <script>
+            $(function(){
+                var gaugeCount = 0;
+
+                {# Here configure number and size of gauges displayed on top of dashboard #}
+                var gaugeMaxCount = 5;
+                var gaugeScales = [1, 0.5, 0.5, 0.5, 0.5];
+
+                function addGauge(id, value, min, max, title, label) {
+                    if (gaugeCount == gaugeMaxCount)
+                        return;
+                    // create new gauge element
+                    $('#gauges').append('<div id="'+id+'" class="gauge"></div>');
+                    var gaugeElem = $('#'+id);
+                    // scale new gauge
+                    var scale = gaugeScales[gaugeCount];
+                    var gaugesWidth = $('#gauges').width();
+                    var gaugeRatio = gaugeElem.width() / gaugeElem.height();
+                    gaugeElem.width(gaugesWidth * scale);
+                    gaugeElem.height(gaugesWidth * scale / gaugeRatio);
+                    var gauge = new JustGage({
+                      id: id, 
+                      value: value, 
+                      min: min,
+                      max: max,
+                      title: title,
+                      label: label
+                    });
+                    gaugeCount++;
+                }
+
+                {% for data_stream in parameters %}
+                    {% if data_stream.default_minimum is not none and data_stream.default_maximum is not none %}
+                        addGauge('gauge{{ loop.index }}',
+                            {% if data_stream.last_value %}
+                                {{ data_stream.last_value.value }},
+                                {{ data_stream.default_minimum }},
+                                {{ data_stream.default_maximum }},
+                                '{{ data_stream.name }}',
+                                '{{ data_stream.measurement_unit }}'
+                            {% else %}
+                                {{ data_stream.default_minimum }},
+                                {{ data_stream.default_minimum }},
+                                {{ data_stream.default_maximum }},
+                                '{{ data_stream.name }}',
+                                '{% trans %}no data{% endtrans %}'
+                            {% endif %}
+                        );
+                    {% endif %}
+                {% endfor %}
+            });
+        </script>
+    {% endif %}
 {% endblock %}

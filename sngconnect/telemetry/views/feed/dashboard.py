@@ -19,6 +19,7 @@ from sngconnect.cassandra import data_streams as data_streams_store
 from sngconnect.telemetry import forms
 from sngconnect.telemetry.views.feed.base import FeedViewBase
 
+
 @view_config(
     route_name='sngconnect.telemetry.feed_dashboard',
     request_method='GET',
@@ -68,6 +69,8 @@ class FeedDashboard(FeedViewBase):
             DataStream.feed == self.feed,
             DataStreamTemplate.show_on_dashboard == True
         ).order_by(
+            DataStreamTemplate.sort_order
+        ).order_by(
             DataStreamTemplate.name
         )
         last_data_points = (
@@ -100,6 +103,8 @@ class FeedDashboard(FeedViewBase):
                 ),
                 'last_value': last_value,
                 'writable': data_stream.writable,
+                'default_minimum': data_stream.default_minimum,
+                'default_maximum': data_stream.default_maximum,
             }
             if data_stream.writable:
                 data_stream_serialized.update({
@@ -224,6 +229,7 @@ class FeedDashboard(FeedViewBase):
             ],
         })
         return self.context
+
 
 @view_config(
     route_name='sngconnect.telemetry.feed_dashboard.set_value',

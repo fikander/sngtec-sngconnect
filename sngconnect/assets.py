@@ -10,6 +10,8 @@ ASSET_BUNDLES = {
         output='compressed/base.css'
     ),
     'base_js': Bundle(
+        'justgage/js/raphael.2.1.0.js',
+        'justgage/js/justgage.1.0.1.js',
         'wuxia/js/libs/jquery.js',
         'wuxia/js/libs/modernizr.js',
         'wuxia/js/libs/selectivizr.js',
