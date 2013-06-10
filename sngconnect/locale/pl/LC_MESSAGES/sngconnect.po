@@ -741,7 +741,7 @@ msgstr "Powrót do pulpitu"
 
 #: sngconnect/errors/templates/not_found.jinja2:9
 msgid "Page not found..."
-msgstr "Nie znaleźliźmy takie strony..."
+msgstr "Nie znaleźliśmy takiej strony..."
 
 #: sngconnect/errors/templates/not_found.jinja2:10
 #, python-format
