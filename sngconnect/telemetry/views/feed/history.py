@@ -13,6 +13,7 @@ from sngconnect.services.user import UserService
 from sngconnect.telemetry import forms
 from sngconnect.telemetry.views.feed.base import FeedViewBase
 
+
 @view_config(
     route_name='sngconnect.telemetry.feed_history',
     renderer='sngconnect.telemetry:templates/feed/history.jinja2',
@@ -35,7 +36,7 @@ class FeedHistory(FeedViewBase):
                 comment_form.populate_obj(message)
                 message_service.create_message(message)
                 self.request.session.flash(
-                    _("Your comment has been successfuly saved."),
+                    _("Your comment has been successfully saved."),
                     queue='success'
                 )
                 return httpexceptions.HTTPFound(

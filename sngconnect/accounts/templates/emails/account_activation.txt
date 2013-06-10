@@ -1,4 +1,4 @@
-{% trans %}You have successfuly signed up for SNG Connect account.{% endtrans %}
+{% trans %}You have successfully signed up for SNG Connect account.{% endtrans %}
 
 {% trans %}To activate your account use the link below:{% endtrans %}
 

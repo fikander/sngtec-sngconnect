@@ -21,11 +21,13 @@ DBSession = orm.scoped_session(
 
 ModelBase = declarative_base()
 
+
 def generate_random_string(length):
     return ''.join([
         random.choice(string.ascii_letters + string.digits)
         for n in xrange(length)
     ])
+
 
 class User(ModelBase):
 
@@ -164,6 +166,7 @@ class User(ModelBase):
             return None
         return user.roles
 
+
 class Order(ModelBase):
 
     __tablename__ = 'sngconnect_orders'
@@ -238,6 +241,7 @@ class Order(ModelBase):
         backref=orm.backref('orders')
     )
 
+
 class PayUSession(ModelBase):
 
     __tablename__ = 'sngconnect_payu_sessions'
@@ -270,6 +274,7 @@ class PayUSession(ModelBase):
         backref=orm.backref('payu_sessions')
     )
 
+
 class FeedTemplate(ModelBase):
 
     __tablename__ = 'sngconnect_feed_templates'
@@ -284,11 +289,18 @@ class FeedTemplate(ModelBase):
         unique=True,
         doc="Name identifying template feed."
     )
+    dashboard_layout = sql.Column(
+        sql.Enum(
+            'IMAGE',
+            'GAUGES',
+            name='FEED_TEMPLATE_DASHBOARD_LAYOUT_TYPE'
+        ),
+        nullable=False
+    )
     image = sql.Column(
         sql.String(length=50),
         nullable=True
     )
-
     modbus_bandwidth = sql.Column(
         sql.Integer,
         nullable=False
@@ -347,6 +359,7 @@ class FeedTemplate(ModelBase):
         if path is None:
             return None
         return request.static_url(path)
+
 
 class Feed(ModelBase):
 
@@ -441,6 +454,7 @@ class Feed(ModelBase):
             return True
         else:
             return False
+
 
 class FeedUser(ModelBase):
 
@@ -629,6 +643,7 @@ class FeedUser(ModelBase):
                 feed_user.user.tokens -= price
                 DBSession.add(feed_user.user)
 
+
 class DataStreamTemplate(ModelBase):
 
     __tablename__ = 'sngconnect_data_stream_templates'
@@ -677,6 +692,12 @@ class DataStreamTemplate(ModelBase):
         default=False
     )
 
+    sort_order = sql.Column(
+        sql.Integer,
+        nullable=False,
+        default=0
+    )
+
     default_minimum = sql.Column(
         sql.Numeric(precision=50, scale=25)
     )
@@ -709,6 +730,7 @@ class DataStreamTemplate(ModelBase):
         FeedTemplate,
         backref=orm.backref('data_stream_templates')
     )
+
 
 class DataStream(ModelBase):
 
@@ -776,6 +798,14 @@ class DataStream(ModelBase):
     def writable(self):
         return self.template.writable
 
+    @property
+    def default_minimum(self):
+        return self.template.default_minimum
+
+    @property
+    def default_maximum(self):
+        return self.template.default_maximum
+
 chart_definitions_data_stream_templates = sql.Table(
     'sngconnect_chart_definitions_data_stream_templates',
     ModelBase.metadata,
@@ -794,6 +824,7 @@ chart_definitions_data_stream_templates = sql.Table(
         'data_stream_template_id'
     )
 )
+
 
 class ChartDefinition(ModelBase):
 
@@ -873,6 +904,7 @@ class ChartDefinition(ModelBase):
     def __repr__(self):
         return '<ChartDefinition(id=%s)>' % str(self.id)
 
+
 class AlarmDefinition(ModelBase):
 
     __tablename__ = 'sngconnect_alarm_definitions'
@@ -944,6 +976,7 @@ class AlarmDefinition(ModelBase):
         else:
             raise RuntimeError("Unknown alarm type.")
         return None
+
 
 class Message(ModelBase):
 
@@ -1027,6 +1060,7 @@ class Message(ModelBase):
         else:
             return False
 
+
 class LogRequest(ModelBase):
 
     __tablename__ = 'sngconnect_log_requests'
@@ -1077,6 +1111,7 @@ class LogRequest(ModelBase):
 
     def regenerate_hash(self):
         self.hash = generate_random_string(50)
+
 
 class Command(ModelBase):
 

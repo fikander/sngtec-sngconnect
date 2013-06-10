@@ -13,6 +13,7 @@ from sngconnect.database import (DBSession, FeedTemplate, DataStreamTemplate,
     Feed, DataStream, ChartDefinition)
 from sngconnect.devices import forms
 
+
 @view_config(
     route_name='sngconnect.devices.feed_templates',
     renderer='sngconnect.devices:templates/feed_templates.jinja2',
@@ -27,7 +28,7 @@ def feed_templates(request):
             feed_template_form.populate_obj(feed_template)
             DBSession.add(feed_template)
             request.session.flash(
-                _("Device template has been successfuly added."),
+                _("Device template has been successfully added."),
                 queue='success'
             )
             return httpexceptions.HTTPFound(
@@ -66,6 +67,7 @@ def feed_templates(request):
             for feed_template in feed_templates
         ]
     }
+
 
 @view_config(
     route_name='sngconnect.devices.feed_template_delete',
@@ -114,7 +116,7 @@ def feed_template_delete(request):
         else:
             DBSession.delete(feed_template)
             request.session.flash(
-                _("Device template has been successfuly deleted."),
+                _("Device template has been successfully deleted."),
                 queue='success'
             )
     else:
@@ -128,6 +130,7 @@ def feed_template_delete(request):
     return httpexceptions.HTTPFound(
         request.route_url('sngconnect.devices.feed_templates')
     )
+
 
 @view_config(
     route_name='sngconnect.devices.feed_template',
@@ -168,7 +171,7 @@ def feed_template(request):
                 feed_template_form.populate_obj(feed_template)
                 DBSession.add(feed_template)
                 request.session.flash(
-                    _("Device template has been successfuly saved."),
+                    _("Device template has been successfully saved."),
                     queue='success'
                 )
                 return httpexceptions.HTTPFound(
@@ -192,7 +195,7 @@ def feed_template(request):
                 data_stream_template_form.populate_obj(data_stream_template)
                 DBSession.add(data_stream_template)
                 request.session.flash(
-                    _("Parameter template has been successfuly added."),
+                    _("Parameter template has been successfully added."),
                     queue='success'
                 )
                 return httpexceptions.HTTPFound(
@@ -226,7 +229,7 @@ def feed_template(request):
                     )
                 DBSession.add(chart_definition)
                 request.session.flash(
-                    _("Chart has been successfuly added."),
+                    _("Chart has been successfully added."),
                     queue='success'
                 )
                 return httpexceptions.HTTPFound(
@@ -387,6 +390,7 @@ def feed_template(request):
         }
     }
 
+
 @view_config(
     route_name='sngconnect.devices.data_stream_template_delete',
     request_method='POST',
@@ -418,7 +422,7 @@ def data_stream_template_delete(request):
         if dependent_count == 0:
             DBSession.delete(data_stream_template)
             request.session.flash(
-                _("Parameter template has been successfuly deleted."),
+                _("Parameter template has been successfully deleted."),
                 queue='success'
             )
         else:
@@ -444,6 +448,7 @@ def data_stream_template_delete(request):
             feed_template_id=feed_template.id
         )
     )
+
 
 @view_config(
     route_name='sngconnect.devices.data_stream_template',
@@ -475,7 +480,7 @@ def data_stream_template(request):
             data_stream_template_form.populate_obj(data_stream_template)
             DBSession.add(data_stream_template)
             request.session.flash(
-                _("Parameter template has been successfuly saved."),
+                _("Parameter template has been successfully saved."),
                 queue='success'
             )
             return httpexceptions.HTTPFound(
@@ -514,6 +519,7 @@ def data_stream_template(request):
         },
     }
 
+
 @view_config(
     route_name='sngconnect.devices.chart_definition_delete',
     request_method='POST',
@@ -541,7 +547,7 @@ def chart_definition_delete(request):
     if delete_form.validate():
         DBSession.delete(chart_definition)
         request.session.flash(
-            _("Chart has been successfuly deleted."),
+            _("Chart has been successfully deleted."),
             queue='success'
         )
     else:
@@ -558,6 +564,7 @@ def chart_definition_delete(request):
             feed_template_id=feed_template.id
         )
     )
+
 
 @view_config(
     route_name='sngconnect.devices.chart_definition',
@@ -603,7 +610,7 @@ def chart_definition(request):
                 )
             DBSession.add(chart_definition)
             request.session.flash(
-                _("Parameter template has been successfuly saved."),
+                _("Parameter template has been successfully saved."),
                 queue='success'
             )
             return httpexceptions.HTTPFound(

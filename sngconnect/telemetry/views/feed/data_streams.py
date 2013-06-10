@@ -20,6 +20,7 @@ from sngconnect.telemetry import forms
 from sngconnect.telemetry.views.feed.base import FeedViewBase
 from sngconnect.telemetry.views.feed.charts import ChartDataMixin
 
+
 @view_config(
     route_name='sngconnect.telemetry.feed_data_streams',
     request_method='GET',
@@ -81,6 +82,7 @@ class FeedDataStreams(FeedViewBase):
         })
         return self.context
 
+
 class FeedDataStreamViewBase(FeedViewBase):
 
     _data_stream_writable = None
@@ -102,6 +104,7 @@ class FeedDataStreamViewBase(FeedViewBase):
             self.data_stream = query.one()
         except database_exceptions.NoResultFound:
             raise httpexceptions.HTTPBadRequest()
+
 
 @view_config(
     route_name='sngconnect.telemetry.feed_data_stream',
@@ -213,7 +216,7 @@ class FeedDataStream(FeedDataStreamViewBase):
                             alarms_off
                         )
                     self.request.session.flash(
-                        _("Parameter allowed values have been successfuly saved."),
+                        _("Parameter allowed values have been successfully saved."),
                         queue='success'
                     )
                     return httpexceptions.HTTPFound(
@@ -244,7 +247,7 @@ class FeedDataStream(FeedDataStreamViewBase):
                     comment_form.populate_obj(message)
                     message_service.create_message(message)
                     self.request.session.flash(
-                        _("Your comment has been successfuly saved."),
+                        _("Your comment has been successfully saved."),
                         queue='success'
                     )
                     return httpexceptions.HTTPFound(
@@ -378,6 +381,7 @@ class FeedDataStream(FeedDataStreamViewBase):
         })
         return self.context
 
+
 @view_config(
     route_name='sngconnect.telemetry.feed_data_stream.chart_data',
     request_method='GET',
@@ -391,6 +395,7 @@ class FeedDataStreamChartData(ChartDataMixin, FeedDataStreamViewBase):
             self.data_stream.template
         ]
         self.chart_type = 'LINEAR'
+
 
 @view_config(
     route_name='sngconnect.telemetry.feed_settings',
@@ -441,6 +446,7 @@ class FeedSettings(FeedDataStreams):
         })
         return self.context
 
+
 @view_config(
     route_name='sngconnect.telemetry.feed_setting',
     renderer='sngconnect.telemetry:templates/feed/setting.jinja2',
@@ -480,7 +486,7 @@ class FeedSetting(FeedDataStreamViewBase):
                         value_form.value.data
                     )
                     self.request.session.flash(
-                        _("Setting value has been successfuly saved."),
+                        _("Setting value has been successfully saved."),
                         queue='success'
                     )
                     return httpexceptions.HTTPFound(
@@ -511,7 +517,7 @@ class FeedSetting(FeedDataStreamViewBase):
                     comment_form.populate_obj(message)
                     message_service.create_message(message)
                     self.request.session.flash(
-                        _("Your comment has been successfuly saved."),
+                        _("Your comment has been successfully saved."),
                         queue='success'
                     )
                     return httpexceptions.HTTPFound(

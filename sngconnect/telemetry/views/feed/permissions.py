@@ -11,6 +11,7 @@ from sngconnect.database import DBSession, FeedUser, User
 from sngconnect.telemetry import forms
 from sngconnect.telemetry.views.feed.base import FeedViewBase
 
+
 @view_config(
     route_name='sngconnect.telemetry.feed_permissions',
     renderer='sngconnect.telemetry:templates/feed/permissions.jinja2',
@@ -78,7 +79,7 @@ class FeedPermissions(FeedViewBase):
                         )
                         DBSession.add(feed_user)
                         self.request.session.flash(
-                            _("User has been successfuly added."),
+                            _("User has been successfully added."),
                             queue='success'
                         )
                         return httpexceptions.HTTPFound(
@@ -130,7 +131,7 @@ class FeedPermissions(FeedViewBase):
                         )
                         DBSession.add(feed_user)
                         self.request.session.flash(
-                            _("Maintainer has been successfuly added."),
+                            _("Maintainer has been successfully added."),
                             queue='success'
                         )
                         return httpexceptions.HTTPFound(
@@ -171,7 +172,7 @@ class FeedPermissions(FeedViewBase):
                     self.feed_user.change_role(role)
                     DBSession.add(self.feed_user)
                     self.request.session.flash(
-                        _("Your plan has been successfuly changed."),
+                        _("Your plan has been successfully changed."),
                         queue='success'
                     )
                 else:
@@ -255,7 +256,7 @@ class FeedPermissions(FeedViewBase):
                 'role': role
             }, synchronize_session=False)
         self.request.session.flash(
-            _("User permissions have been successfuly saved."),
+            _("User permissions have been successfully saved."),
             queue='success'
         )
         return httpexceptions.HTTPFound(
@@ -283,7 +284,7 @@ class FeedPermissions(FeedViewBase):
             FeedUser.user_id != self.user_id
         ).delete(synchronize_session=False)
         self.request.session.flash(
-            _("Maintainer access has have been successfuly revoked."),
+            _("Maintainer access has have been successfully revoked."),
             queue='success'
         )
         return httpexceptions.HTTPFound(

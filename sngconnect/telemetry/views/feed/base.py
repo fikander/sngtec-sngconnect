@@ -68,6 +68,7 @@ class FeedViewBase(object):
             'feed': {
                 'id': feed.id,
                 'name': feed.name,
+                'dashboard_layout': feed.template.dashboard_layout,
                 'description': feed.description,
                 'address': feed.address,
                 'latitude': feed.latitude,

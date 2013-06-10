@@ -8,6 +8,7 @@ from sngconnect.translation import _
 from sngconnect.database import (DBSession, FeedTemplate, DataStreamTemplate,
     ChartDefinition)
 
+
 class UpdateFeedTemplateForm(SecureForm):
 
     name = fields.TextField(
@@ -15,6 +16,16 @@ class UpdateFeedTemplateForm(SecureForm):
         validators=(
             validators.DataRequired(message=_("This field is required.")),
             validators.Length(max=200),
+        )
+    )
+    dashboard_layout = fields.SelectField(
+        _("Dashboard layout"),
+        choices=[
+            ('IMAGE', _("Static image")),
+            ('GAUGES', _("Gauges")),
+        ],
+        validators=(
+            validators.DataRequired(message=_("This field is required.")),
         )
     )
     modbus_bandwidth = fields.IntegerField(
@@ -79,6 +90,7 @@ class UpdateFeedTemplateForm(SecureForm):
         )
     )
 
+
 class AddFeedTemplateForm(UpdateFeedTemplateForm):
 
     def validate_name(self, field):
@@ -91,6 +103,7 @@ class AddFeedTemplateForm(UpdateFeedTemplateForm):
             raise validators.ValidationError(
                 _("There is already device template having this name.")
             )
+
 
 class DeleteFeedTemplateForm(SecureForm):
 
@@ -109,6 +122,7 @@ class DeleteFeedTemplateForm(SecureForm):
     def validate_feed_template_id(self, field):
         if field.data != self._feed_template_id:
             raise validators.ValidationError()
+
 
 class UpdateDataStreamTemplateForm(SecureForm):
 
@@ -130,6 +144,13 @@ class UpdateDataStreamTemplateForm(SecureForm):
         validators=(
             validators.DataRequired(message=_("This field is required.")),
             validators.Length(max=200),
+        )
+    )
+    sort_order = fields.IntegerField(
+        _("Sort order"),
+        validators=(
+            validators.DataRequired(message=_("This field is required.")),
+            validators.NumberRange(min=0),
         )
     )
     description = fields.TextAreaField(
@@ -194,7 +215,6 @@ class UpdateDataStreamTemplateForm(SecureForm):
             validators.NumberRange(min=0),
         )
     )
-
     show_on_dashboard = fields.BooleanField(
         _("Show on dashboard")
     )
@@ -219,6 +239,7 @@ class UpdateDataStreamTemplateForm(SecureForm):
                 _("Default maximum must be greater than or equal to the"
                   " default minimum.")
             )
+
 
 class AddDataStreamTemplateForm(UpdateDataStreamTemplateForm):
 
@@ -246,6 +267,7 @@ class AddDataStreamTemplateForm(UpdateDataStreamTemplateForm):
                 _("There is already parameter template having this name.")
             )
 
+
 class DeleteDataStreamTemplateForm(SecureForm):
 
     data_stream_template_id = fields.IntegerField(
@@ -263,6 +285,7 @@ class DeleteDataStreamTemplateForm(SecureForm):
     def validate_data_stream_template_id(self, field):
         if field.data != self._data_stream_template_id:
             raise validators.ValidationError()
+
 
 class AddChartDefinitionForm(SecureForm):
 
@@ -322,6 +345,7 @@ class AddChartDefinitionForm(SecureForm):
                 _("This chart name is already taken.")
             )
 
+
 class UpdateChartDefinitionForm(AddChartDefinitionForm):
 
     id = fields.IntegerField(
@@ -356,6 +380,7 @@ class UpdateChartDefinitionForm(AddChartDefinitionForm):
                 _("This chart name is already taken.")
             )
 
+
 class DeleteChartDefinitionForm(SecureForm):
 
     chart_definition_id = fields.IntegerField(
@@ -373,6 +398,7 @@ class DeleteChartDefinitionForm(SecureForm):
     def validate_chart_definition_id(self, field):
         if field.data != self._chart_definition_id:
             raise validators.ValidationError()
+
 
 class ChangeFeedTemplateImageForm(SecureForm):
 

@@ -11,13 +11,15 @@ from pyramid.paster import get_appsettings, setup_logging
 
 from sngconnect.database import DBSession
 from sngconnect.database import (User, FeedTemplate, Feed, DataStreamTemplate,
-    DataStream, FeedUser)
+                                 DataStream, FeedUser)
+
 
 def usage(argv):
     cmd = os.path.basename(argv[0])
     print('usage: %s <config_uri>\n'
           '(example: "%s development.ini")' % (cmd, cmd))
     sys.exit(1)
+
 
 def main(argv=sys.argv):
     if len(argv) != 2:
@@ -29,6 +31,7 @@ def main(argv=sys.argv):
     DBSession.configure(bind=database_engine)
     create_test_data()
     create_test_data2()
+
 
 def create_test_data():
     starting_id = 100000
@@ -47,7 +50,7 @@ def create_test_data():
     feed = Feed(
         id=starting_id,
         template=feed_template,
-        name=u"Licznik prądu w biurze Synergii",
+        name=u"Licznik energii Saia-Burgess ALE3",
         description=u"Licznik prądu w biurze Synergii w Warszawie",
         address=u"ul. Bysławska 82 lok. 312\n04-993 Warszawa",
         latitude=52.158427,
@@ -75,7 +78,10 @@ def create_test_data():
             modbus_register_type='HOLDING',
             modbus_slave=1,
             modbus_address=27,
-            modbus_count=2
+            modbus_count=2,
+            show_on_dashboard=True,
+            default_minimum=0,
+            default_maximum=100,
         ),
         DataStreamTemplate(
             id=starting_id + 1,
@@ -87,7 +93,10 @@ def create_test_data():
             modbus_register_type='HOLDING',
             modbus_slave=1,
             modbus_address=31,
-            modbus_count=2
+            modbus_count=2,
+            show_on_dashboard=True,
+            default_minimum=0,
+            default_maximum=100,
         ),
         DataStreamTemplate(
             id=starting_id + 2,
@@ -147,7 +156,10 @@ def create_test_data():
             modbus_register_type='HOLDING',
             modbus_slave=1,
             modbus_address=37,
-            modbus_count=1
+            modbus_count=1,
+            show_on_dashboard=True,
+            default_minimum=0,
+            default_maximum=100,
         ),
         DataStreamTemplate(
             id=starting_id + 7,
@@ -195,7 +207,10 @@ def create_test_data():
             modbus_register_type='HOLDING',
             modbus_slave=1,
             modbus_address=50,
-            modbus_count=1
+            modbus_count=1,
+            show_on_dashboard=True,
+            default_minimum=0,
+            default_maximum=100,
         ),
         DataStreamTemplate(
             id=starting_id + 11,
@@ -243,7 +258,10 @@ def create_test_data():
             modbus_register_type='HOLDING',
             modbus_slave=1,
             modbus_address=42,
-            modbus_count=1
+            modbus_count=1,
+            show_on_dashboard=True,
+            default_minimum=0,
+            default_maximum=100,
         ),
         DataStreamTemplate(
             id=starting_id + 15,
@@ -303,7 +321,10 @@ def create_test_data():
             modbus_register_type='HOLDING',
             modbus_slave=1,
             modbus_address=47,
-            modbus_count=1
+            modbus_count=1,
+            show_on_dashboard=True,
+            default_minimum=0,
+            default_maximum=100,
         ),
         DataStreamTemplate(
             id=starting_id + 20,
@@ -339,7 +360,10 @@ def create_test_data():
             modbus_register_type='HOLDING',
             modbus_slave=1,
             modbus_address=29,
-            modbus_count=2
+            modbus_count=2,
+            show_on_dashboard=True,
+            default_minimum=0,
+            default_maximum=100,
         ),
         DataStreamTemplate(
             id=starting_id + 23,
@@ -351,7 +375,10 @@ def create_test_data():
             modbus_register_type='HOLDING',
             modbus_slave=1,
             modbus_address=33,
-            modbus_count=2
+            modbus_count=2,
+            show_on_dashboard=True,
+            default_minimum=0,
+            default_maximum=100,
         ),
         DataStreamTemplate(
             id=starting_id + 24,
@@ -414,6 +441,7 @@ def create_test_data():
         )
         id += 1
     transaction.commit()
+
 
 def create_test_data2():
     starting_id = 200000

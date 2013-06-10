@@ -8,6 +8,7 @@ from pyramid.security import authenticated_userid
 from sngconnect.translation import _
 from sngconnect.database import DBSession, Feed, FeedUser, User
 
+
 @view_config(
     route_name='sngconnect.telemetry.feed_inactive',
     renderer='sngconnect.telemetry:templates/feed/inactive.jinja2',
@@ -57,7 +58,7 @@ def inactive(request):
             feed_user.paid = True
             DBSession.add(feed_user)
             request.session.flash(
-                _("The feed has been successfuly activated."),
+                _("The feed has been successfully activated."),
                 queue='success'
             )
             return httpexceptions.HTTPSeeOther(

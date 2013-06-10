@@ -13,6 +13,7 @@ from sngconnect.database import DBSession, User
 from sngconnect.services.sms import SMSService
 from sngconnect.accounts import forms
 
+
 @view_config(
     route_name='sngconnect.accounts.sign_in',
     renderer='sngconnect.accounts:templates/sign_in.jinja2',
@@ -59,6 +60,7 @@ def sing_in(request):
         'sign_in_form': sign_in_form,
     }
 
+
 @view_config(
     route_name='sngconnect.accounts.sign_out',
     request_method='POST',
@@ -77,6 +79,7 @@ def sing_out(request):
         request.route_url('sngconnect.accounts.sign_in'),
         headers=headers
     )
+
 
 @view_config(
     route_name='sngconnect.accounts.sign_up',
@@ -134,6 +137,7 @@ def sing_up(request):
         'successful_submission': successful_submission,
     }
 
+
 @view_config(
     route_name='sngconnect.accounts.activate',
     renderer='sngconnect.accounts:templates/activate.jinja2',
@@ -172,6 +176,7 @@ def activate(request):
         'successful_activation': successful_activation,
     }
 
+
 @view_config(
     route_name='sngconnect.accounts.settings',
     renderer='sngconnect.accounts:templates/settings.jinja2',
@@ -197,7 +202,7 @@ def settings(request):
                 change_account_data_form.populate_obj(user)
                 DBSession.add(user)
                 request.session.flash(
-                    _("Your account data has been successfuly changed."),
+                    _("Your account data has been successfully changed."),
                     queue='success'
                 )
                 return httpexceptions.HTTPFound(
@@ -210,7 +215,7 @@ def settings(request):
                 DBSession.add(user)
                 request.session.flash(
                     _(
-                        "Your notification settings have been successfuly"
+                        "Your notification settings have been successfully"
                         " changed."
                     ),
                     queue='success'
@@ -224,7 +229,7 @@ def settings(request):
                 user.set_password(change_password_form.password.data)
                 DBSession.add(user)
                 request.session.flash(
-                    _("Your password has been successfuly changed."),
+                    _("Your password has been successfully changed."),
                     queue='success'
                 )
                 return httpexceptions.HTTPFound(
