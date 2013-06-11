@@ -77,23 +77,9 @@
         </article>
         <article class="span6">
             <h2><span class="awe-info-sign"></span> {% trans %}Description{% endtrans %}</h2>
-            <p>{{ data_stream.description }}</p>
-        </article>
-    </div>
-    <div class="row">
-        <article class="span6">
-            <h2><span class="awe-th-list"></span> {% trans %}Allowed values{% endtrans %}</h2>
-            <form action="" method="post" class="form">
-                {{ value_bounds_form.csrf_token }}
-                {{ horizontal_form_field(value_bounds_form.minimum) }}
-                {{ horizontal_form_field(value_bounds_form.maximum) }}
-                <div class="form-actions">
-                    <button type="submit" name="submit_value_bounds" class="btn btn-primary">{% trans %}Set{% endtrans %}</button>
-                </div>
-            </form>
-        </article>
-        <article class="span6">
-            <h2><span class="awe-info-sign"></span> {% trans %}Notifications{% endtrans %}</h2>
+            <div class="well">
+                <p>{{ data_stream.description|safe }}</p>
+            </div>
         </article>
     </div>
     <h2><span class="awe-signal"></span> {% trans %}Chart{% endtrans %}</h2>
@@ -104,6 +90,41 @@
         'set-range-button',
         'set-last-range'
     ) }}
+    <h2><span class="awe-info-sign"></span> {% trans %}Allowed values{% endtrans %}</h2>
+    <div class="row">
+        <article class="span6">
+            <form action="" method="post" class="form">
+                {{ value_bounds_form.csrf_token }}
+                {{ horizontal_form_field(value_bounds_form.minimum) }}
+                {{ horizontal_form_field(value_bounds_form.maximum) }}
+                <div class="form-actions">
+                    <button type="submit" name="submit_value_bounds" class="btn btn-primary">{% trans %}Set{% endtrans %}</button>
+                </div>
+            </form>
+        </article>
+        <article class="span6">
+            <div class="well">
+                <p>
+                    {% trans %}You can get e-mail of SMS notifications whenever current value exceeds specified range.{% endtrans %}
+                </p>
+                <p>
+                    {% trans %}Change your notification settings in{% endtrans %}
+                    <a href="{{ request.route_url("sngconnect.accounts.settings") }}"><span class="awe-cogs"></span> {% trans %}Account settings{% endtrans %}</a>
+                </p>
+                <p>
+                    {% if value_bounds_form.minimum.data or value_bounds_form.maximum.data %}
+                        {% trans %}You will get notification whenever this parameter is{% endtrans%}
+                        <ul>
+                            <li>{% trans %}lower than{% endtrans %} <span class="current-value">{{ value_bounds_form.minimum.data|float() }}</span> {{ data_stream.measurement_unit }}</li>
+                            <li>{% trans %}or higher than{% endtrans %} <span class="current-value">{{ value_bounds_form.maximum.data|float }}</span> {{ data_stream.measurement_unit }}</li>
+                        </ul>
+                    {% else %}
+                        {% trans %}You haven't specified allowed range - notifications will not be sent.{% endtrans %}
+                    {% endif %}
+                </p>
+            </div>
+        </article>
+    </div>
     <h2><span class="awe-comment"></span> {% trans %}Add comment{% endtrans %}</h2>
     <form action="" method="post">
         {{ comment_form.csrf_token }}

@@ -9248,7 +9248,7 @@ abbr[title] {
   margin: 0px 0 0;
   background-image: url("../img/sngconnect_logo_with_text_white_160x45.png");
   background-repeat: no-repeat;
-  width: 169px;
+  width: 161px;
   height: 45px;
   font: 0/0 a;
   color: transparent;
@@ -12218,6 +12218,9 @@ div.jGrowl div.inverse a:hover {
 .table-values td {
   text-align: center;
   vertical-align: middle;
+}
+.table-messages > thead > tr > th:first-child {
+  width: 150px;
 }
 .current-value {
   color: #525252;

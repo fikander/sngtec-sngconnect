@@ -125,16 +125,20 @@ class FeedDataStream(FeedDataStreamViewBase):
             AlarmDefinition.alarm_type == 'MINIMAL_VALUE'
         ).value('boundary')
         if minimal_value is None:
-            minimal_value = self.data_stream.template.default_minimum
+            default_minimal_value = self.data_stream.template.default_minimum
+        else:
+            default_minimal_value = minimal_value
         maximal_value = DBSession.query(AlarmDefinition).filter(
             AlarmDefinition.data_stream == self.data_stream,
             AlarmDefinition.alarm_type == 'MAXIMAL_VALUE'
         ).value('boundary')
         if maximal_value is None:
-            maximal_value = self.data_stream.template.default_maximum
+            default_maximal_value = self.data_stream.template.default_maximum
+        else:
+            default_maximal_value = maximal_value
         value_bounds_form = forms.ValueBoundsForm(
-            minimum=minimal_value,
-            maximum=maximal_value,
+            minimum=default_minimal_value,
+            maximum=default_maximal_value,
             locale=get_locale_name(self.request),
             csrf_context=self.request
         )
