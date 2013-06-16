@@ -13,8 +13,10 @@ from sngconnect.tests.cassandra import CassandraTestMixin
 
 TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 
+
 def _utc_datetime(*datetime_tuple):
     return pytz.utc.localize(datetime.datetime(*datetime_tuple))
+
 
 def _get_test_data_points():
     reader = csv.reader(
@@ -28,6 +30,7 @@ def _get_test_data_points():
         for date_iso, value in reader
     )
 
+
 def _dp(datetime_tuple, decimal_string):
     """Takes care of data point types."""
     return (
@@ -35,12 +38,14 @@ def _dp(datetime_tuple, decimal_string):
         decimal_string
     )
 
+
 def _dpa(datetime_tuple, aggregate_mapping):
     """Takes care of data point aggregate types."""
     return (
         _utc_datetime(*datetime_tuple),
         aggregate_mapping
     )
+
 
 class TestMeasurementDays(CassandraTestMixin, unittest.TestCase):
 
@@ -111,6 +116,7 @@ class TestMeasurementDays(CassandraTestMixin, unittest.TestCase):
             []
         )
 
+
 class TestHourlyAggregates(CassandraTestMixin, unittest.TestCase):
 
     def setUp(self):
@@ -178,6 +184,7 @@ class TestHourlyAggregates(CassandraTestMixin, unittest.TestCase):
         )
         aggregates = self.hourly_aggregates.get_data_points(data_stream_id + 2)
         self.assertAggregatesEqual(aggregates, [])
+
 
 class TestDailyAggregates(CassandraTestMixin, unittest.TestCase):
 
@@ -251,6 +258,7 @@ class TestDailyAggregates(CassandraTestMixin, unittest.TestCase):
         aggregates = self.daily_aggregates.get_data_points(data_stream_id + 2)
         self.assertAggregatesEqual(aggregates, [])
 
+
 class TestMonthlyAggregates(CassandraTestMixin, unittest.TestCase):
 
     def setUp(self):
@@ -321,6 +329,7 @@ class TestMonthlyAggregates(CassandraTestMixin, unittest.TestCase):
         aggregates = self.monthly_aggregates.get_data_points(data_stream_id + 2)
         self.assertAggregatesEqual(aggregates, [])
 
+
 class TestMeasurements(CassandraTestMixin, unittest.TestCase):
 
     def setUp(self):
@@ -387,6 +396,25 @@ class TestMeasurements(CassandraTestMixin, unittest.TestCase):
             []
         )
 
+    def test_remove_data_point(self):
+        data_stream_id = 1253353566
+        dt = pytz.utc.localize(datetime.datetime(2013, 6, 16, 16, 16, 16, 0))
+        self.measurements.insert_data_points(
+            data_stream_id,
+            [(dt, 999)]
+        )
+        self.assertSequenceEqual(
+            self.measurements.get_data_points(
+                data_stream_id, start_date=dt, end_date=dt),
+            [(dt, '999')]
+        )
+        self.measurements.remove_data_point(data_stream_id, dt)
+        self.assertSequenceEqual(
+            self.measurements.get_data_points(
+                data_stream_id, start_date=dt, end_date=dt),
+            []
+        )
+
     def test_timezone_support(self):
         data_stream_id = 1253353566
         self.measurements.insert_data_points(
@@ -437,6 +465,7 @@ class TestMeasurements(CassandraTestMixin, unittest.TestCase):
                 (_utc_datetime(2012, 9, 2, 10, 59, 59, 999999), '0.1'),
             )
         )
+
 
 class TestLastDataPoints(CassandraTestMixin, unittest.TestCase):
 

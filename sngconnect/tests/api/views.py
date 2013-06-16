@@ -45,7 +45,8 @@ class TestFeedDataStreamPut(ApiTestMixin, unittest.TestCase):
             modbus_stop_bits=1,
             modbus_timeout=5,
             modbus_endianness='BIG',
-            modbus_polling_interval=120
+            modbus_polling_interval=120,
+            dashboard_layout='IMAGE',
         )
         feed = Feed(
             id=1,
@@ -313,7 +314,8 @@ class TestFeedGet(ApiTestMixin, unittest.TestCase):
             modbus_stop_bits=1,
             modbus_timeout=5,
             modbus_endianness='BIG',
-            modbus_polling_interval=120
+            modbus_polling_interval=120,
+            dashboard_layout='IMAGE',
         )
         feed = Feed(
             id=1,
@@ -455,7 +457,8 @@ class TestUploadLog(ApiTestMixin, unittest.TestCase):
             modbus_stop_bits=1,
             modbus_timeout=5,
             modbus_endianness='BIG',
-            modbus_polling_interval=120
+            modbus_polling_interval=120,
+            dashboard_layout='IMAGE',
         )
         feed = Feed(
             id=1,
@@ -547,7 +550,8 @@ class TestEvents(ApiTestMixin, unittest.TestCase):
             modbus_stop_bits=1,
             modbus_timeout=5,
             modbus_endianness='BIG',
-            modbus_polling_interval=120
+            modbus_polling_interval=120,
+            dashboard_layout='IMAGE',
         )
         feed = Feed(
             id=1,
@@ -627,7 +631,8 @@ class TestCommands(ApiTestMixin, unittest.TestCase):
             modbus_stop_bits=1,
             modbus_timeout=5,
             modbus_endianness='BIG',
-            modbus_polling_interval=120
+            modbus_polling_interval=120,
+            dashboard_layout='IMAGE',
         )
         feed = Feed(
             id=1,
@@ -707,7 +712,8 @@ class TestFeedConfiguration(ApiTestMixin, unittest.TestCase):
             modbus_stop_bits=1,
             modbus_timeout=5,
             modbus_endianness='BIG',
-            modbus_polling_interval=120
+            modbus_polling_interval=120,
+            dashboard_layout='IMAGE',
         )
         feed = Feed(
             id=1,
@@ -825,7 +831,8 @@ class TestActivate(ApiTestMixin, unittest.TestCase):
             modbus_stop_bits=1,
             modbus_timeout=5,
             modbus_endianness='BIG',
-            modbus_polling_interval=120
+            modbus_polling_interval=120,
+            dashboard_layout='IMAGE',
         )
         feed = Feed(
             id=1,
@@ -887,7 +894,7 @@ class TestActivate(ApiTestMixin, unittest.TestCase):
                 Feed.id == 1
             ).update({
                 'activation_code_regenerated': (
-                    datetime.datetime.utcnow() - datetime.timedelta(days=300)
+                    pytz.utc.localize(datetime.datetime.utcnow() - datetime.timedelta(days=300))
                 )
             })
         request = self.get_request(
