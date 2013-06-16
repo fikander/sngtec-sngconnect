@@ -11,9 +11,11 @@ from sngconnect.cassandra.column_family_proxy import ColumnFamilyProxy
 from sngconnect.cassandra.time_series import TimeSeries, TimeSeriesDateIndex
 from sngconnect.cassandra.types import RealType, MicrosecondTimestampType
 
+
 class MeasurementDays(TimeSeriesDateIndex):
 
     _column_family_name = 'MeasurementDays'
+
 
 class Measurements(TimeSeries):
 
@@ -42,6 +44,16 @@ class Measurements(TimeSeries):
             microsecond=0
         )
         return super(Measurements, self).get_row_key(data_stream_id, date)
+
+    def remove_data_point(self, data_stream_id, date):
+        kwargs = {
+            'columns': [date]
+        }
+        return self.column_family.remove(
+            self.get_row_key(data_stream_id, date),
+            **kwargs
+        )
+
 
 class AggregatesStore(TimeSeries):
 
@@ -96,7 +108,7 @@ class AggregatesStore(TimeSeries):
             end_date=end_date
         )
         keys = set((self.get_row_key(data_stream_id, date) for date in dates))
-        values_sum = numpy.float64(0);
+        values_sum = numpy.float64(0)
         values_count = numpy.float64(0)
         values_minimum = None
         values_maximum = None
@@ -120,10 +132,10 @@ class AggregatesStore(TimeSeries):
                 result,
                 dtype=numpy.float64
             )
-            local_minimum = aggregates[:,0].min()
-            local_maximum = aggregates[:,1].max()
-            values_count += aggregates[:,2].sum()
-            values_sum += aggregates[:,3].sum()
+            local_minimum = aggregates[:, 0].min()
+            local_maximum = aggregates[:, 1].max()
+            values_count += aggregates[:, 2].sum()
+            values_sum += aggregates[:, 3].sum()
             if values_minimum is None:
                 values_minimum = local_minimum
             else:
@@ -168,6 +180,7 @@ class AggregatesStore(TimeSeries):
     def get_data_source(self):
         raise NotImplementedError
 
+
 class HourlyAggregates(AggregatesStore):
 
     _column_family_name = 'HourlyAggregates'
@@ -198,6 +211,7 @@ class HourlyAggregates(AggregatesStore):
     def get_data_source(self):
         return Measurements()
 
+
 class DailyAggregates(AggregatesStore):
 
     _column_family_name = 'DailyAggregates'
@@ -225,6 +239,7 @@ class DailyAggregates(AggregatesStore):
 
     def get_data_source(self):
         return HourlyAggregates()
+
 
 class MonthlyAggregates(AggregatesStore):
 
@@ -258,6 +273,7 @@ class MonthlyAggregates(AggregatesStore):
 
     def get_data_source(self):
         return DailyAggregates()
+
 
 class LastDataPoints(ColumnFamilyProxy):
 

@@ -1,5 +1,7 @@
 from webassets import Bundle
 
+# TODO: add 'less' as 1st filter (once puppet system config is fixed)
+#       use 'wuxia/less/style.less' instead of 'wuxia/css/sngconnect.css'
 CSS_FILTERS = ('cssrewrite', 'yui_css',)
 JS_FILTERS = 'yui_js'
 

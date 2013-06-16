@@ -262,7 +262,7 @@ msgstr "Zaloguj się"
 
 #: sngconnect/accounts/templates/sign_in.jinja2:19
 msgid "Sign up for a free account."
-msgstr "Zapisz się za darmo"
+msgstr "Zapisz się za darmo."
 
 #: sngconnect/accounts/templates/sign_up.jinja2:13
 msgid "You have successfully signed up!"
@@ -272,7 +272,7 @@ msgstr ""
 msgid ""
 "Follow the instructions in the e-mail we sent you to activate your "
 "account."
-msgstr "Postępuj zgodnie z instrukcjami w e-mailu aktywacyjnym, którywysłaliśmy."
+msgstr "Postępuj zgodnie z instrukcjami w e-mailu aktywacyjnym, który wysłaliśmy."
 
 #: sngconnect/accounts/templates/sign_up.jinja2:15
 #, python-format
@@ -289,7 +289,7 @@ msgstr "Masz już konto?"
 
 #: sngconnect/accounts/templates/sign_up.jinja2:32
 msgid "Sign in here"
-msgstr "Zapisz się"
+msgstr "Zaloguj się"
 
 #: sngconnect/announcements/forms.py:9 sngconnect/telemetry/forms.py:203
 msgid "Content"
@@ -1200,8 +1200,8 @@ msgid ""
 "You can get e-mail of SMS notifications whenever current value exceeds "
 "specified range."
 msgstr ""
-"Możesz dostawać powiadomienia za pomocą e-mail lub SMS jeśli "
-"wartości przekroczą dopuszczalny zakres."
+"Możesz dostawać powiadomienia za pomocą e-mail lub SMS jeśli wartości "
+"przekroczą dopuszczalny zakres."
 
 #: sngconnect/telemetry/templates/feed/data_stream.jinja2:111
 msgid "Change your notification settings in"
@@ -1486,9 +1486,4 @@ msgstr "Potwierdź"
 #: sngconnect/templates/macros/message_table.jinja2:41
 msgid "No messages yet."
 msgstr "Aktualnie brak wiadomości"
-
-#~ msgid ""
-#~ "You can get e-mail of SMS notifications whenever\n"
-#~ "                    current value exceeds specified range."
-#~ msgstr ""
 

@@ -35,6 +35,7 @@ requires = [
     'zope.sqlalchemy',
     'repoze.sendmail',
     'waitress',
+    'nose',
 ]
 
 setup(
