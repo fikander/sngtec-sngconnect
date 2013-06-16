@@ -49,6 +49,19 @@ class sngconnect {
         }
     }
 
+    class lessc {
+        package { 'nodejs':
+            ensure => present,
+        }
+        package { 'npm':
+            ensure => present,
+        }
+        exec { 'install-lessc':
+            command   => '/usr/bin/npm install less',
+            logoutput => 'on_failure',
+        }
+    }
+
     class python {
         package { 'python':
             ensure => present,
@@ -212,5 +225,7 @@ class sngconnect {
     include postgresql
     include cassandra
     include virtualenv
+    #TODO: debian package for nodejs too old at the moment, has to be 0.8+
+    #include lessc
     include setup-application
 }

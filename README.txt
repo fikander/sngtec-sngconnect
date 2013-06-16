@@ -10,6 +10,8 @@ Getting Started
 
 - vagrant up
 
+- Optional to update vagrant installation (e.g. after puppet changes): vagrant provision
+
 - Application is now available on localhost:8080
 
 - vagrant ssh
