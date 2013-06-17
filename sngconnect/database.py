@@ -618,9 +618,9 @@ class FeedUser(ModelBase):
     def update_payments(cls, registry):
         settings = registry['settings']
         prices = {
-            'OWNER_STANDARD': int(settings['sngconnect.prices.owner_standard.activation']),
-            'OWNER_PLUS': int(settings['sngconnect.prices.owner_plus.activation']),
-            'MAINTAINER_PLUS': int(settings['sngconnect.prices.owner_plus.activation']),
+            'OWNER_STANDARD': int(settings['sngconnect.prices.owner_standard']),
+            'OWNER_PLUS': int(settings['sngconnect.prices.owner_plus']),
+            'MAINTAINER_PLUS': int(settings['sngconnect.prices.owner_plus']),
         }
         feed_users = DBSession.query(FeedUser).join(User).filter(
             FeedUser.role.in_([
