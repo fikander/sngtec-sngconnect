@@ -256,9 +256,6 @@ class ChartDataMixin(object):
             data_store = data_streams_store.HourlyAggregates()
         else:
             data_store = data_streams_store.DailyAggregates()
-        timezone = self.user.timezone
-        if timezone is None:
-            timezone = self.request.registry['default_timezone']
         for data_stream_id in map(lambda x: x.id, data_stream_ids):
             data_points = data_store.get_data_points(
                 data_stream_id,
@@ -304,10 +301,6 @@ class ChartDataMixin(object):
                     except IndexError:
                         break
                 data_points = differential_data_points
-            data_points = [
-                (date.astimezone(timezone), value)
-                for date, value in data_points
-            ]
             series_appstruct.append(
                 data_points
             )
