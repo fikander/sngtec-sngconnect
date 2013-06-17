@@ -1,5 +1,7 @@
 import os
+import datetime
 
+import pytz
 from babel.core import Locale
 from babel.support import Format
 from pyramid import events, security
@@ -39,10 +41,17 @@ def add_user(event):
         timezone = event['user'].timezone
     if timezone is None:
         timezone = event['request'].registry['default_timezone']
-    event['format'] = Format(
-        Locale(get_locale_name(event['request'])),
-        timezone
-    )
+    event.update({
+        'timezone_offset': int(
+            pytz.utc.localize(
+                datetime.datetime.utcnow()
+            ).astimezone(timezone).utcoffset().total_seconds() * 1000
+        ),
+        'format': Format(
+            Locale(get_locale_name(event['request'])),
+            timezone
+        )
+    })
 
 @events.subscriber(events.BeforeRender)
 def add_permissions(event):

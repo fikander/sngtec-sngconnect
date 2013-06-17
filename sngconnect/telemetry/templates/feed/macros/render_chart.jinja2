@@ -45,7 +45,7 @@
                         data = data.map(function(a){
                             return a.map(function(b){
                                 return [
-                                    Date.parse(b[0]),
+                                    Date.parse(b[0]) - {{ timezone_offset|tojson }},
                                     parseFloat(b[1])
                                 ];
                             });
@@ -77,7 +77,7 @@
                     last: chart.currentDataParameters.last
                 };
                 if (start !== null) {
-                    parameters.start = (new Date(start)).toISOString();
+                    parameters.start = (new Date(start + {{ timezone_offset|tojson }})).toISOString();
                 }
                 $.getJSON(
                     {{ rendering_data.data_url|tojson }},
