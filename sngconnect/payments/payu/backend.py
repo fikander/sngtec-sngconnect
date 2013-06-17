@@ -121,7 +121,7 @@ class PayUPaymentBackend(object):
             namespaces={
                 'o': NAMESPACE,
             }
-        )[0]
+        )[0].text
         if status_code != 'OPENPAYU_SUCCESS':
             raise self.Error("Bad response status: %s" % status_code)
 

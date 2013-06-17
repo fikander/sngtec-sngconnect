@@ -25,11 +25,11 @@ def notify(request):
         referenced_request_id = request_document.xpath(
             '/o:OpenPayU/o:OrderDomainRequest/o:RefReqId',
             namespaces={'o': NAMESPACE,}
-        )[0]
+        )[0].text
         session_id = request_document.xpath(
             '/o:OpenPayU/o:OrderDomainRequest/o:SessionId',
             namespaces={'o': NAMESPACE,}
-        )[0]
+        )[0].text
     except IndexError:
         raise httpexceptions.HTTPNotFound("Payment session not found.")
     session = DBSession.query(PayUSession).filter(
@@ -39,7 +39,15 @@ def notify(request):
     if session is None:
         raise httpexceptions.HTTPNotFound("Payment session not found.")
 
-    # TODO doc stat payu
+    status = int(request_document.xpath(
+        '/o:OpenPayU/o:OrderDomainRequest/o:OrderNotifyRequest/o:PaymentStatus',
+        namespaces={'o': NAMESPACE,}
+    )[0].text)
+    if status == 2:
+        session.status = 'CANCELED'
+    elif status == 99:
+        session.status = 'REALIZED'
+    DBSession.add(session)
 
     response_id = uuid.uuid4().hex
     e = ElementMaker(
