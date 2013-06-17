@@ -305,7 +305,7 @@ class ChartDataMixin(object):
                         break
                 data_points = differential_data_points
             data_points = [
-                (date.astimezone(timezone).replace(tzinfo=None), value)
+                (date.astimezone(timezone), value)
                 for date, value in data_points
             ]
             series_appstruct.append(
