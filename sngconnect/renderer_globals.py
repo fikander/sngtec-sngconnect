@@ -45,7 +45,7 @@ def add_user(event):
         'timezone_offset': int(
             pytz.utc.localize(
                 datetime.datetime.utcnow()
-            ).astimezone(timezone).utcoffset().total_seconds() * 1000
+            ).astimezone(timezone).utcoffset().seconds * 1000
         ),
         'format': Format(
             Locale(get_locale_name(event['request'])),
