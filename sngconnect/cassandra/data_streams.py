@@ -14,10 +14,37 @@ from sngconnect.cassandra.types import RealType, MicrosecondTimestampType
 
 class MeasurementDays(TimeSeriesDateIndex):
 
+    """Indexes days which have some measurements
+
+    column family MeasurementDays(TimeSeriesDateIndex) row:
+    for every datastream columns contain days where measurements exist
+    __________________________________________________________________________
+                                         ||  day       |  day       |  ...  ||
+                                         ||------------|------------|       ||
+    data_stream.id                       ||     -      |     -      |  ...  ||
+                                         ||------------|------------|       ||
+                                         ||            |            |  ...  ||
+    __________________________________________________________________________
+    """
+
     _column_family_name = 'MeasurementDays'
 
 
 class Measurements(TimeSeries):
+
+    """Contains measurement samples.
+
+    Column family Measurements(TimeSeries) row:
+    Single row contains columns representing all samples for a datastream
+    for 1 day
+    __________________________________________________________________________
+                                         ||  datetime  |  datetime  |  ...  ||
+                                         ||------------|------------|       ||
+    data_stream.id, date(y-m-d-0-0-0)    ||   value    |   value    |  ...  ||
+                                         ||------------|------------|       ||
+                                         ||            |            |  ...  ||
+    __________________________________________________________________________
+    """
 
     _column_family_name = 'Measurements'
     _date_index_class = MeasurementDays
@@ -183,6 +210,20 @@ class AggregatesStore(TimeSeries):
 
 class HourlyAggregates(AggregatesStore):
 
+    """Contains sum, count, min, max values for every hour for each data stream.
+
+    Column family HourlyAggregates(AggregateStore(TimeSeries)) row:
+    1 row per datastream per day, 1 supercolumn per hour on that day,
+    columns within supercolumn for: sum, count, min, max
+    _____________________________________________________________________
+                                         ||    y-m-d-H-0-0   |    ...  ||
+                                         ||==================|=========||
+    data_stream.id, date(y-m-d-0-0-0)    ||sum|count|min|max |    ...  ||
+                                         ||---|-----|---|----|---------||
+                                         ||val| val |val|val |    ...  ||
+    _____________________________________________________________________
+    """
+
     _column_family_name = 'HourlyAggregates'
 
     def get_row_key(self, data_stream_id, date):
@@ -214,6 +255,11 @@ class HourlyAggregates(AggregatesStore):
 
 class DailyAggregates(AggregatesStore):
 
+    """Contains sum, count, min, max values for every day for each data stream.
+
+    1 row per month (y-m-1-0-0-0), 1 supercolumn per day
+    """
+
     _column_family_name = 'DailyAggregates'
 
     def get_row_key(self, data_stream_id, date):
@@ -242,6 +288,11 @@ class DailyAggregates(AggregatesStore):
 
 
 class MonthlyAggregates(AggregatesStore):
+
+    """Contains sum, count, min, max values for every month for each data stream.
+
+    1 row per year (y-1-1-0-0-0), 1 supercolumn per month
+    """
 
     _column_family_name = 'MonthlyAggregates'
 
@@ -277,6 +328,19 @@ class MonthlyAggregates(AggregatesStore):
 
 class LastDataPoints(ColumnFamilyProxy):
 
+    """Last values for data streams with their timestamps.
+
+    Column family LastDataPoints(ColumnFamilyProxy) row:
+    Row = feed. There's single column per data stream.
+    value=last value, timestamp=timestamp when data has been recorded
+    ______________________________________________________________________________
+                                         ||data_stream.id|data_stream.id|  ...  ||
+                                         ||--------------|--------------|       ||
+    feed.id                              ||    value     |    value     |  ...  ||
+                                         ||--------------|--------------|       ||
+                                         ||  timestamp   |  timestamp   |  ...  ||
+    ______________________________________________________________________________
+    """
     _column_family_name = 'LastDataPoints'
 
     @classmethod
