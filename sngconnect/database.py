@@ -3,6 +3,7 @@ import decimal
 import datetime
 import random
 import string
+import calendar
 
 import pytz
 import bcrypt
@@ -622,6 +623,37 @@ class FeedUser(ModelBase):
             'OWNER_PLUS': int(settings['sngconnect.prices.owner_plus']),
             'MAINTAINER_PLUS': int(settings['sngconnect.prices.owner_plus']),
         }
+        today = datetime.datetime.utcnow().date()
+        if today.month == 1:
+            previous_year = today.year - 1
+            previous_month = 12
+        else:
+            previous_year = today.year
+            previous_month = today.month - 1
+        last_month_day = calendar.monthrange(today.year, today.month)[1]
+        previous_last_month_day = calendar.monthrange(
+            previous_year,
+            previous_month
+        )[1]
+        end_of_previous_month = datetime.date(
+            previous_year,
+            previous_month,
+            previous_last_month_day
+        )
+        if today.day == last_month_day:
+            date_range = (
+                datetime.date(
+                    previous_year,
+                    previous_month,
+                    min((today.day, previous_last_month_day))
+                ),
+                end_of_previous_month
+            )
+        else:
+            date_range = (
+                end_of_previous_month,
+                end_of_previous_month
+            )
         feed_users = DBSession.query(FeedUser).join(User).filter(
             FeedUser.role.in_([
                 'OWNER_STANDARD',
@@ -630,8 +662,10 @@ class FeedUser(ModelBase):
             ]),
             sql.or_(
                 User.last_payment == None,
-                sql.cast(User.last_payment, sql.Date) ==
-                    datetime.datetime.utcnow().date()
+                sql.and_(
+                    sql.cast(User.last_payment, sql.Date) >= date_range[0],
+                    sql.cast(User.last_payment, sql.Date) <= date_range[1]
+                )
             )
         )
         for feed_user in feed_users:
@@ -642,6 +676,8 @@ class FeedUser(ModelBase):
             else:
                 feed_user.user.tokens -= price
                 DBSession.add(feed_user.user)
+                feed_user.last_payment = datetime.datetime.utcnow()
+                DBSession.add(feed_user)
 
 
 class DataStreamTemplate(ModelBase):
