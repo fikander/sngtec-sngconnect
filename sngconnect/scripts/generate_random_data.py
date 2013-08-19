@@ -37,65 +37,45 @@ def main(argv=sys.argv):
     settings = get_appsettings(config_uri)
     database_engine = sqlalchemy.engine_from_config(settings, 'database.')
     DBSession.configure(bind=database_engine)
-    DBSession.query(Feed).delete()
-    DBSession.query(DataStream).delete()
-    transaction.commit()
     cassandra.drop_keyspace(settings)
     cassandra.initialize_keyspace(settings)
     cassandra_connection_pool.initialize_connection_pool(settings)
-    generate_data(feed_count)
+    generate_data(feed_count, 1, 30, 300)
 
 
-def generate_data(feed_count):
-    user = User(
-        name='User',
-        email='user@example.com',
-        phone='+48123456789',
-        activated=pytz.utc.localize(datetime.datetime.utcnow()),
-        role_user=True,
-        timezone_tzname='Europe/Warsaw'
-    )
-    user.set_password('user')
-    kid = User(
-        name='Kid',
-        email='kid@example.com',
-        phone='+48123456789',
-        activated=pytz.utc.localize(datetime.datetime.utcnow()),
-        role_user=True,
-        timezone_tzname='Europe/Warsaw'
-    )
-    kid.set_password('kid')
-    maintainer = User(
-        name='Maintainer',
-        email='maintainer@example.com',
-        phone='+48123456789',
-        activated=pytz.utc.localize(datetime.datetime.utcnow()),
-        role_maintainer=True,
-        timezone_tzname='Europe/Warsaw'
-    )
-    maintainer.set_password('maintainer')
-    supplier = User(
-        name='Supplier',
-        email='supplier@example.com',
-        phone='+48123456789',
-        activated=pytz.utc.localize(datetime.datetime.utcnow()),
-        role_supplier=True,
-        timezone_tzname='Europe/Warsaw'
-    )
-    supplier.set_password('supplier')
-    admin = User(
-        name='Admin',
-        email='admin@example.com',
-        phone='+48123456789',
-        activated=pytz.utc.localize(datetime.datetime.utcnow()),
-        role_administrator=True,
-        timezone_tzname='Europe/Warsaw'
-    )
-    admin.set_password('admin')
-    DBSession.add_all([user, maintainer, supplier, admin])
+def generate_data(feed_count, data_streams_count=4, days=30, resolution_seconds=300):
+    starting_id = 1000000
+
     for i in range(1, feed_count + 1):
+
+        for j in range(1, data_streams_count + 1):
+            DBSession.query(DataStream).filter(
+                DataStream.id == starting_id+j*i
+            ).delete()
+            DBSession.query(DataStreamTemplate).filter(
+                DataStreamTemplate.id == starting_id+j*i
+            ).delete()
+
+        DBSession.query(ChartDefinition).filter(
+            ChartDefinition.feed_template_id == starting_id+1
+        ).delete()
+        DBSession.query(FeedUser).filter(
+            FeedUser.feed_id == starting_id+i
+        ).delete()
+        DBSession.query(Feed).filter(
+            Feed.id == starting_id+i
+        ).delete()
+        DBSession.query(FeedTemplate).filter(
+            FeedTemplate.id == starting_id+i
+        ).delete()
+
+        user = DBSession.query(User).filter(User.email == 'user@example.com').one()
+        #kid = DBSession.query(User).filter(User.email == 'kid@example.com').one()
+
         feed_template = FeedTemplate(
-            name=u"Feed template %d" % i,
+            id=starting_id + i,
+            name=u"[TEST] Feed template %d" % i,
+            dashboard_layout="GAUGES",
             modbus_bandwidth=9600,
             modbus_port='/dev/ttyS0',
             modbus_parity='EVEN',
@@ -106,8 +86,9 @@ def generate_data(feed_count):
             modbus_polling_interval=120
         )
         feed = Feed(
+            id=starting_id + i,
             template=feed_template,
-            name=u"Feed %d" % i,
+            name=u"[TEST] Feed %d" % i,
             description=u"Opis instalacji wprowadzony przez instalatora. Moze"
                         u" zawierac np. jakies notatki.",
             address=u"1600 Ampitheater Pkwy., Mountain View, CA",
@@ -119,20 +100,23 @@ def generate_data(feed_count):
         )
         feed.regenerate_api_key()
         feed.regenerate_activation_code()
+
         feed_user_user = FeedUser(role='OWNER_PLUS')
         feed.feed_users.append(feed_user_user)
         user.feed_users.append(feed_user_user)
-        feed_user_kid = FeedUser(role='USER_PLUS')
-        feed.feed_users.append(feed_user_kid)
-        kid.feed_users.append(feed_user_kid)
+
+        #feed_user_kid = FeedUser(role='USER_PLUS')
+        #kid.feed_users.append(feed_user_kid)
+        #feed.feed_users.append(feed_user_kid)
         DBSession.add_all([
             feed_template,
             feed,
             feed_user_user,
-            feed_user_kid,
+            #feed_user_kid,
         ])
-        for j in range(1, 4):
+        for j in range(1, data_streams_count + 1):
             data_stream_template = DataStreamTemplate(
+                id=starting_id + j * i,
                 feed_template=feed_template,
                 label=('data_stream_%d' % j),
                 name=u"DataStream %d" % j,
@@ -155,11 +139,13 @@ def generate_data(feed_count):
                 modbus_count=random.choice([1, 2])
             )
             data_stream = DataStream(
+                id=starting_id + j * i,
                 template=data_stream_template,
                 feed=feed
             )
             DBSession.add_all([data_stream_template, data_stream])
     transaction.commit()
+
     feed_templates = DBSession.query(FeedTemplate).all()
     for feed_template in feed_templates:
         for i in range(1, 4):
@@ -175,6 +161,7 @@ def generate_data(feed_count):
             )
             DBSession.add(chart_definition)
     transaction.commit()
+
     data_streams = DBSession.query(DataStream).all()
     measurements = Measurements()
     i = 1
@@ -185,7 +172,7 @@ def generate_data(feed_count):
         data_points = []
         start = (
             pytz.utc.localize(datetime.datetime.utcnow())
-            - datetime.timedelta(days=30)
+            - datetime.timedelta(days=days)
         )
         end = pytz.utc.localize(datetime.datetime.utcnow())
         last_value = numpy.float64(2000)
@@ -193,7 +180,7 @@ def generate_data(feed_count):
         print "Generating..."
         j = 0
         while start < end:
-            end -= datetime.timedelta(seconds=30)
+            end -= datetime.timedelta(seconds=resolution_seconds)
             dates.append(end)
             last_value = numpy.float64(
                 (
@@ -226,3 +213,6 @@ def generate_data(feed_count):
         MonthlyAggregates().recalculate_aggregates(data_stream.id, dates)
         print "Updating last values..."
         LastDataPoints().update(data_stream.feed.id, data_stream.id)
+
+if __name__ == '__main__':
+    sys.exit(main())

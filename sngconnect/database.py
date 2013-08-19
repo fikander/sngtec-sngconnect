@@ -4,11 +4,13 @@ import datetime
 import random
 import string
 import calendar
+import re
 
 import pytz
 import bcrypt
 import sqlalchemy as sql
 from sqlalchemy import orm
+from sqlalchemy.orm import validates
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import exc as database_exceptions
 from zope.sqlalchemy import ZopeTransactionExtension
@@ -42,6 +44,7 @@ class User(ModelBase):
         sql.Unicode(length=200),
         nullable=False,
         index=True,
+        unique=True,
         doc="E-mail address used as a sign in credential and to send alerts"
             " and notifications."
     )
@@ -131,9 +134,16 @@ class User(ModelBase):
         if self.phone_activation_code is None:
             self.regenerate_phone_activation_code()
 
+    @validates('email')
+    def validate_address(self, key, email):
+        if not re.match(
+            r"^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$",
+            email
+        ):
+            raise AssertionError("Incorrect email address")
+        return email.lower()
+
     def __setattr__(self, name, value):
-        if name == 'email':
-            value = value.lower()
         super(User, self).__setattr__(name, value)
 
     def set_password(self, new_password):

@@ -65,6 +65,8 @@ setup(
     sng_initialize_database = sngconnect.scripts.initialize_database:main
     sng_initialize_cassandra = sngconnect.scripts.initialize_cassandra:main
     sng_generate_random_data = sngconnect.scripts.generate_random_data:main
-    sng_create_testing_data = sngconnect.scripts.create_testing_data:main
+    sng_create_test_data = sngconnect.scripts.create_test_data:main
+    sng_create_test_users = sngconnect.scripts.create_test_users:main
+    sng_user = sngconnect.scripts.user:main
     """,
 )

@@ -38,6 +38,7 @@ def create_test_data():
     feed_template = FeedTemplate(
         id=starting_id,
         name=u"Licznik prądu",
+        dashboard_layout="GAUGES",
         modbus_bandwidth=9600,
         modbus_port='/dev/ttyS0',
         modbus_parity='EVEN',
@@ -448,6 +449,7 @@ def create_test_data2():
     feed_template = FeedTemplate(
         id=starting_id,
         name=u"NIBE Modbus 40",
+        dashboard_layout="GAUGES",
         modbus_bandwidth=9600,
         modbus_port='/dev/ttyS0',
         modbus_parity='EVEN',
@@ -599,3 +601,6 @@ def create_test_data2():
         )
         i += 1
     transaction.commit()
+
+if __name__ == '__main__':
+    sys.exit(main())

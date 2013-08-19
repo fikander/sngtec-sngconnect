@@ -6,37 +6,56 @@ Getting Started
 
 - Install Vagrant - http://www.vagrantup.com
 
-- cd <directory containing this file>
+   $ cd <directory containing this file>
+   $ vagrant up
 
-- vagrant up
+- Optional to update vagrant installation (e.g. after puppet changes):
 
-- Optional to update vagrant installation (e.g. after puppet changes): vagrant provision
+   $ vagrant provision
 
 - Application is now available on localhost:8080
 
-- vagrant ssh
-
-- . environment/bin/activate
-
-- sng_generate_random_data /vagrant/development.ini 1
-
-- sng_create_testing_data /vagrant/development.ini
+   $ vagrant ssh
+   $ . environment/bin/activate
+   $ sng_create_test_users /vagrant/development.ini
+   $ sng_generate_random_data /vagrant/development.ini 1
+   $ sng_create_test_data /vagrant/development.ini
 
 - pserve test server runs via screen (use 'screen -r' to see output)
+
+   $ screen -r
+
+- Optional to update test scripts (sng_*)
+
+   $ python ./setup.py install
 
 Translation
 -----------
 
-- cd <directory containing this file>
+   $ cd <directory containing this file>
+   $ vagrant ssh
+   $ . environment/bin/activate
+   $ cd /vagrant
+   $ python setup.py extract_messages
+   $ python setup.py update_catalog
+   $ python setup.py compile_catalog
 
-- vagrant ssh
+FAQ
+---
 
-- . environment/bin/activate
+1. How to wipe out Postgres sngconnect database:
 
-- cd /vagrant
+- ssh to vagrant
 
-- python setup.py extract_messages
+   $ vagrant ssh
 
-- python setup.py update_catalog
+- kill all active postgres processes with connections
+- launch CLI as postgres and drop database
 
-- python setup.py compile_catalog
+   $ sudo -u postgres psql
+   postgres=# \l
+   postgres=# DROP DATABASE sngconnect;
+
+- puppet can create new database, so exist vagrant SSH and run puppet:
+
+   $ vagrant provision

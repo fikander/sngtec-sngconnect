@@ -6,11 +6,13 @@ from pyramid.paster import get_appsettings, setup_logging
 
 from sngconnect.database import DBSession, ModelBase
 
+
 def usage(argv):
     cmd = os.path.basename(argv[0])
     print('usage: %s <config_uri>\n'
           '(example: "%s development.ini")' % (cmd, cmd))
     sys.exit(1)
+
 
 def main(argv=sys.argv):
     if len(argv) != 2:
@@ -21,3 +23,6 @@ def main(argv=sys.argv):
     engine = engine_from_config(settings, 'database.')
     DBSession.configure(bind=engine)
     ModelBase.metadata.create_all(engine)
+
+if __name__ == '__main__':
+    sys.exit(main())
