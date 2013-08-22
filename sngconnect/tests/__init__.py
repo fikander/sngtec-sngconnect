@@ -15,7 +15,8 @@ class TestMixin(object):
             level=logging.WARNING
         )
         self.settings = {
-            'database.url': 'sqlite://',
+            #'database.url': 'sqlite://',
+            'database.url': 'postgresql+psycopg2://sngconnect:sngconnect@localhost/sngconnect_testing',
             'cassandra.servers': 'localhost:9160',
             'cassandra.keyspace': '__sngconnect_testing',
             'mail.sender': 'test@example.com',
@@ -31,6 +32,7 @@ class TestMixin(object):
             self.settings,
             self.config
         )
+        ModelBase.metadata.drop_all(bind=self.config.registry['database_engine'])
         ModelBase.metadata.create_all(self.config.registry['database_engine'])
 
     def tearDown(self):

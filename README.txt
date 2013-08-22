@@ -21,6 +21,18 @@ Getting Started
    $ sng_generate_random_data /vagrant/development.ini 1
    $ sng_create_test_data /vagrant/development.ini
 
+- Run tests
+
+   # recommended:
+   $ ./test.sh --tests sngconnect.tests
+
+   # all tests via setup.py:
+   $ python ./setup.py test
+
+   # single test using nosetests:
+   $ python ./setup.py nosetests --tests sngconnect.tests.api.views:TestActivate.test_invalid_ids
+   $ nosetests --tests sngconnect.tests.api.views:TestActivate.test_invalid_ids
+
 - pserve test server runs via screen (use 'screen -r' to see output)
 
    $ screen -r
