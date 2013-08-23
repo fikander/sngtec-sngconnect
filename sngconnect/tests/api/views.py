@@ -141,7 +141,7 @@ class TestFeedDataStreamPut(ApiTestMixin, unittest.TestCase):
         )
 
     def test_invalid_data_structure(self):
-        request = self.get_request(1, 'data_stream', json_body={'foobar':[]})
+        request = self.get_request(1, 'data_stream', json_body={'foobar': []})
         self.assertRaises(
             httpexceptions.HTTPBadRequest,
             views.feed_data_stream,
