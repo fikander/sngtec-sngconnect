@@ -1,5 +1,6 @@
 import colander
 
+
 class DataPoint(colander.MappingSchema):
     date = colander.SchemaNode(
         colander.DateTime(),
@@ -10,13 +11,33 @@ class DataPoint(colander.MappingSchema):
         name='value'
     )
 
+
 class DataPoints(colander.SequenceSchema):
     data_point = DataPoint()
+
 
 class PutDataPointsRequest(colander.MappingSchema):
     data_points = DataPoints(name='datapoints')
 
+
 class DataStream(colander.MappingSchema):
+
+    label = colander.SchemaNode(
+        colander.String(),
+        name='label'
+    )
+    data_points = DataPoints(name="datapoints")
+
+
+class DataStreams(colander.SequenceSchema):
+    data_stream = DataStream()
+
+
+class PutFeedRequest(colander.MappingSchema):
+    data_streams = DataStreams(name='datastreams')
+
+
+class DataStreamChangedData(colander.MappingSchema):
 
     id = colander.SchemaNode(
         colander.Integer()
@@ -34,11 +55,14 @@ class DataStream(colander.MappingSchema):
         name='requested_value'
     )
 
-class DataStreams(colander.SequenceSchema):
-    data_stream = DataStream()
+
+class DataStreamsChangedData(colander.SequenceSchema):
+    data_stream = DataStreamChangedData()
+
 
 class GetChangedDataStreamsResponse(colander.MappingSchema):
-    data_streams = DataStreams(name='datastreams')
+    data_streams = DataStreamsChangedData(name='datastreams')
+
 
 class PostEventRequest(colander.MappingSchema):
     id = colander.SchemaNode(
@@ -61,6 +85,7 @@ class PostEventRequest(colander.MappingSchema):
         colander.String()
     )
 
+
 class Command(colander.MappingSchema):
 
     command = colander.SchemaNode(
@@ -70,11 +95,14 @@ class Command(colander.MappingSchema):
         colander.Mapping(unknown='preserve')
     )
 
+
 class Commands(colander.SequenceSchema):
     command = Command()
 
+
 class GetCommandsResponse(colander.MappingSchema):
     commands = Commands()
+
 
 class FeedModbusConfiguration(colander.MappingSchema):
     bandwidth = colander.SchemaNode(
@@ -110,6 +138,7 @@ class FeedModbusConfiguration(colander.MappingSchema):
         colander.Integer()
     )
 
+
 class DataStreamModbusConfiguration(colander.MappingSchema):
     register_type = colander.SchemaNode(
         colander.String(),
@@ -128,14 +157,17 @@ class DataStreamModbusConfiguration(colander.MappingSchema):
         colander.Integer()
     )
 
+
 class DataStreamConfiguration(colander.MappingSchema):
     label = colander.SchemaNode(
         colander.String()
     )
     modbus = DataStreamModbusConfiguration()
 
+
 class DataStreamConfigurations(colander.SequenceSchema):
     data_stream = DataStreamConfiguration()
+
 
 class FeedConfiguration(colander.MappingSchema):
     id = colander.SchemaNode(
@@ -144,8 +176,10 @@ class FeedConfiguration(colander.MappingSchema):
     modbus = FeedModbusConfiguration()
     data_streams = DataStreamConfigurations()
 
+
 class FeedConfigurationResponse(colander.MappingSchema):
     feed = FeedConfiguration()
+
 
 class ActivateResponse(colander.MappingSchema):
     api_key = colander.SchemaNode(

@@ -146,6 +146,116 @@ def feed_data_stream(request):
     # end of FIXME
     return Response()
 
+
+@view_config(
+    route_name='sngconnect.api.feed',
+    request_method='PUT'
+)
+def feed_put(request):
+    """
+    Upload datapoints for multiple datastreams at once
+    Parameters:
+        feed_id
+    """
+    try:
+        feed_id = int(request.matchdict['feed_id'])
+    except (KeyError, ValueError):
+        raise httpexceptions.HTTPNotFound("Invalid request arguments.")
+    authorize_request(request, feed_id)
+    if request.content_type != 'application/json':
+        raise httpexceptions.HTTPBadRequest("Unsupported content type.")
+    try:
+        request_cstruct = request.json_body
+    except ValueError as error:
+        raise httpexceptions.HTTPBadRequest(
+            "Error while decoding the request: %s" % str(error)
+        )
+    schema = schemas.PutFeedRequest()
+    try:
+        request_appstruct = schema.deserialize(request_cstruct)
+    except colander.Invalid as error:
+        raise httpexceptions.HTTPBadRequest('\r\n'.join((
+            "Invalid data structure:",
+            '\r\n'.join((
+                '%s: %s' % (node_name, message)
+                for node_name, message in error.asdict().iteritems()
+            ))
+        )))
+    for data_stream_struct in request_appstruct['datastreams']:
+        try:
+            data_stream = DBSession.query(DataStream).join(
+                DataStreamTemplate
+            ).filter(
+                Feed.id == feed_id,
+                DataStreamTemplate.label == data_stream_struct['label']
+            ).one()
+        except database_exceptions.NoResultFound:
+            raise httpexceptions.HTTPNotFound("DataStream not found.")
+        data_points = [
+            (point['at'], point['value'])
+            for point in data_stream_struct['datapoints']
+        ]
+        Measurements().insert_data_points(data_stream.id, data_points)
+        # FIXME This may be not wise for production use due to race condition
+        # concerns.
+        dates = map(lambda x: x[0], data_points)
+        HourlyAggregates().recalculate_aggregates(data_stream.id, dates)
+        DailyAggregates().recalculate_aggregates(data_stream.id, dates)
+        MonthlyAggregates().recalculate_aggregates(data_stream.id, dates)
+        LastDataPoints().update(feed_id, data_stream.id)
+        last_date, last_value = LastDataPoints().get_last_data_stream_data_point(
+            feed_id,
+            data_stream.id
+        )
+        last_value = decimal.Decimal(last_value)
+        # Turn alarms associated with datastreams on/off
+        alarm_definitions = DBSession.query(AlarmDefinition).filter(
+            AlarmDefinition.data_stream_id == data_stream.id
+        )
+        alarm_messages = []
+        alarms_on = []
+        alarms_off = []
+        for alarm_definition in alarm_definitions:
+            message_content = alarm_definition.check_value(last_value)
+            if message_content is None:
+                alarms_off.append(alarm_definition.id)
+            else:
+                alarms_on.append(alarm_definition.id)
+                alarm_messages.append(
+                    Message(
+                        feed=alarm_definition.data_stream.feed,
+                        data_stream=alarm_definition.data_stream,
+                        message_type='ERROR',
+                        date=last_date,
+                        content=message_content
+                    )
+                )
+        Alarms().set_alarms_on(feed_id, data_stream.id, alarms_on, last_date)
+        Alarms().set_alarms_off(feed_id, data_stream.id, alarms_off)
+        message_service = MessageService(request.registry)
+        for message in alarm_messages:
+            message_service.create_message(message)
+        # Set requested value to None if applied.
+        if data_stream.writable and data_stream.requested_value is not None:
+            error = abs(data_stream.requested_value - last_value)
+            maximal_error = (
+                decimal.Decimal(str(sys.float_info.epsilon)) * max((
+                    2 ** -1022,
+                    abs(data_stream.requested_value),
+                    abs(last_value))
+                )
+            )
+            if error <= maximal_error:
+                DBSession.query(DataStream).filter(
+                    DataStream.id == data_stream.id
+                ).update({
+                    'requested_value': None,
+                    'value_requested_at': None,
+                })
+        # end of FIXME
+    return Response()
+
+
 @view_config(
     route_name='sngconnect.api.feed',
     request_method='GET'

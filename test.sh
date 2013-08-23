@@ -1,6 +1,7 @@
 #!/bin/bash
 #
-# Usage as for nosetests
+# Usage as for nosetests, e.g.:
+#    $ ./test.sh --tests sngconnect.tests
 # This script creates testing database and drops it after tests have
 # been executed.
 #
@@ -13,6 +14,7 @@ fi
 
 echo "Calling nosetests..."
 nosetests $@
+#python setup.py test
 
 echo "Dropping database..."
 sudo -u postgres dropdb -e sngconnect_testing

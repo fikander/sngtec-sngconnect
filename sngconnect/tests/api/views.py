@@ -118,7 +118,7 @@ class TestFeedDataStreamPut(ApiTestMixin, unittest.TestCase):
             alarm_definition_1,
             alarm_definition_2,
         ])
-        transaction.commit()
+        #transaction.commit()
 
     def get_request(self, feed_id, data_stream_label, json_body='',
             content_type='application/json'):
@@ -173,6 +173,56 @@ class TestFeedDataStreamPut(ApiTestMixin, unittest.TestCase):
                 (
                     _utc_datetime(2012, 9, 27, 1, 14, 35, 425000),
                     '-234234444.24525'
+                ),
+            )
+        )
+
+    def test_multiple_datastreams(self):
+        request = self.get_request(1, None, json_body={
+            'datastreams': [{
+                'label': 'data_stream',
+                'datapoints': [
+                    {
+                        'at': '2012-09-26T18:14:34.345123Z',
+                        'value': '234254234.2344',
+                    },
+                    {
+                        'at': '2012-09-26T18:14:35.425-07:00',
+                        'value': '-234234444.24525',
+                    },
+                ]
+            }, {
+                'label': 'data_stream_2',
+                'datapoints': [
+                    {
+                        'at': '2013-08-23T18:14:34.345123Z',
+                        'value': '90.0',
+                    },
+                ]
+            }
+            ]
+        })
+        response = views.feed_put(request)
+        self.assertEqual(response.status_code, 200)
+        self.assertSequenceEqual(
+            Measurements().get_data_points(1),
+            (
+                (
+                    _utc_datetime(2012, 9, 26, 18, 14, 34, 345123),
+                    '234254234.2344'
+                ),
+                (
+                    _utc_datetime(2012, 9, 27, 1, 14, 35, 425000),
+                    '-234234444.24525'
+                ),
+            )
+        )
+        self.assertSequenceEqual(
+            Measurements().get_data_points(2),
+            (
+                (
+                    _utc_datetime(2013, 8, 23, 18, 14, 34, 345123),
+                    '90.0'
                 ),
             )
         )
@@ -280,8 +330,8 @@ class TestFeedDataStreamPut(ApiTestMixin, unittest.TestCase):
                 },
             ]
         })
-        with transaction.manager:
-            response = views.feed_data_stream(request)
+        #with transaction.manager
+        response = views.feed_data_stream(request)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             DBSession.query(DataStream).filter(
@@ -299,6 +349,7 @@ class TestFeedDataStreamPut(ApiTestMixin, unittest.TestCase):
         })
         response = views.feed_data_stream(request)
         self.assertEqual(response.status_code, 200)
+
 
 class TestFeedGet(ApiTestMixin, unittest.TestCase):
 
@@ -371,7 +422,7 @@ class TestFeedGet(ApiTestMixin, unittest.TestCase):
             data_stream1,
             data_stream2,
         ])
-        transaction.commit()
+        #transaction.commit()
 
     def get_request(self, feed_id):
         request = testing.DummyRequest()
@@ -403,7 +454,7 @@ class TestFeedGet(ApiTestMixin, unittest.TestCase):
             'requested_value': decimal.Decimal('2345.5'),
             'value_requested_at': _utc_datetime(2012, 10, 9, 12, 34, 11),
         })
-        transaction.commit()
+        #transaction.commit()
         request = self.get_request(1)
         response = views.feed(request)
         self.assertEqual(response.status_code, 200)
@@ -414,7 +465,7 @@ class TestFeedGet(ApiTestMixin, unittest.TestCase):
                     {
                         u'id': u'2',
                         u'label': u'data_stream_2',
-                        u'requested_value': u'2345.5000000000',
+                        u'requested_value': u'2345.5000000000000000000000000',
                         u'value_requested_at': u'2012-10-09T12:34:11+00:00',
                     },
                 ],
@@ -425,7 +476,7 @@ class TestFeedGet(ApiTestMixin, unittest.TestCase):
             'requested_value': decimal.Decimal('-144.25'),
             'value_requested_at': _utc_datetime(2012, 10, 9, 12, 35, 11),
         })
-        transaction.commit()
+        #transaction.commit()
         request = self.get_request(1)
         response = views.feed(request)
         self.assertEqual(response.status_code, 200)
@@ -436,7 +487,7 @@ class TestFeedGet(ApiTestMixin, unittest.TestCase):
                     {
                         u'id': u'2',
                         u'label': u'data_stream_2',
-                        u'requested_value': u'-144.2500000000',
+                        u'requested_value': u'-144.2500000000000000000000000',
                         u'value_requested_at': u'2012-10-09T12:35:11+00:00',
                     },
                 ],
@@ -482,7 +533,7 @@ class TestUploadLog(ApiTestMixin, unittest.TestCase):
             feed,
             log_request,
         ])
-        transaction.commit()
+        #transaction.commit()
 
     def get_request(self, log_request_id, log_request_hash, body=''):
         request = testing.DummyRequest()
@@ -495,32 +546,32 @@ class TestUploadLog(ApiTestMixin, unittest.TestCase):
 
     def test_invalid_ids(self):
         request = self.get_request(234234, '234234')
-        with transaction.manager:
-            self.assertRaises(
-                httpexceptions.HTTPNotFound,
-                views.upload_log,
-                request
-            )
+        #with transaction.manager:
+        self.assertRaises(
+            httpexceptions.HTTPNotFound,
+            views.upload_log,
+            request
+        )
         request = self.get_request(1, self.hash + '34')
-        with transaction.manager:
-            self.assertRaises(
-                httpexceptions.HTTPNotFound,
-                views.upload_log,
-                request
-            )
+        #with transaction.manager:
+        self.assertRaises(
+            httpexceptions.HTTPNotFound,
+            views.upload_log,
+            request
+        )
 
     def test_empty_log(self):
         request = self.get_request(1, self.hash)
-        with transaction.manager:
-            response = views.upload_log(request)
+        #with transaction.manager:
+        response = views.upload_log(request)
         self.assertEqual(response.status_code, 200)
         request = self.get_request(1, self.hash)
-        with transaction.manager:
-            self.assertRaises(
-                httpexceptions.HTTPNotFound,
-                views.upload_log,
-                request
-            )
+        #with transaction.manager:
+        self.assertRaises(
+            httpexceptions.HTTPNotFound,
+            views.upload_log,
+            request
+        )
         log_request = (
             DBSession.query(LogRequest).filter(LogRequest.id == 1).one()
         )
@@ -528,13 +579,14 @@ class TestUploadLog(ApiTestMixin, unittest.TestCase):
 
     def test_normal_operation(self):
         request = self.get_request(1, self.hash, "SOME LOG")
-        with transaction.manager:
-            response = views.upload_log(request)
+        #with transaction.manager:
+        response = views.upload_log(request)
         self.assertEqual(response.status_code, 200)
         log_request = (
             DBSession.query(LogRequest).filter(LogRequest.id == 1).one()
         )
         self.assertEqual(log_request.log, "SOME LOG")
+
 
 class TestEvents(ApiTestMixin, unittest.TestCase):
 
@@ -567,7 +619,7 @@ class TestEvents(ApiTestMixin, unittest.TestCase):
             feed_template,
             feed,
         ])
-        transaction.commit()
+        #transaction.commit()
 
     def get_request(self, feed_id, json_body='',
             content_type='application/json'):
@@ -582,15 +634,15 @@ class TestEvents(ApiTestMixin, unittest.TestCase):
 
     def test_invalid_ids(self):
         request = self.get_request(234234)
-        with transaction.manager:
-            self.assertRaises(
-                httpexceptions.HTTPNotFound,
-                views.events,
-                request
-            )
+        #with transaction.manager:
+        self.assertRaises(
+            httpexceptions.HTTPNotFound,
+            views.events,
+            request
+        )
 
     def test_invalid_data_structure(self):
-        request = self.get_request(1, json_body={'foobar':[]})
+        request = self.get_request(1, json_body={'foobar': []})
         self.assertRaises(
             httpexceptions.HTTPBadRequest,
             views.events,
@@ -604,8 +656,8 @@ class TestEvents(ApiTestMixin, unittest.TestCase):
             'timestamp': '2012-05-26T12:23:23',
             'message': 'some message',
         })
-        with transaction.manager:
-            response = views.events(request)
+        #with transaction.manager:
+        response = views.events(request)
         self.assertEqual(response.status_code, 200)
         message = DBSession.query(Message).one()
         self.assertEqual(message.message_type, 'INFORMATION')
@@ -648,7 +700,7 @@ class TestCommands(ApiTestMixin, unittest.TestCase):
             feed_template,
             feed,
         ])
-        transaction.commit()
+        #transaction.commit()
 
     def get_request(self, feed_id):
         request = testing.DummyRequest()
@@ -660,12 +712,12 @@ class TestCommands(ApiTestMixin, unittest.TestCase):
 
     def test_invalid_ids(self):
         request = self.get_request(234234)
-        with transaction.manager:
-            self.assertRaises(
-                httpexceptions.HTTPNotFound,
-                views.commands,
-                request
-            )
+        #with transaction.manager:
+        self.assertRaises(
+            httpexceptions.HTTPNotFound,
+            views.commands,
+            request
+        )
 
     def test_normal_operation(self):
         request = self.get_request(1)
@@ -682,8 +734,8 @@ class TestCommands(ApiTestMixin, unittest.TestCase):
                 'url': 'http://example.org',
             }
         )
-        with transaction.manager:
-            DBSession.add(command)
+        #with transaction.manager:
+        DBSession.add(command)
         request = self.get_request(1)
         response = views.commands(request)
         self.assertEqual(response.status_code, 200)
@@ -757,7 +809,7 @@ class TestFeedConfiguration(ApiTestMixin, unittest.TestCase):
             data_stream_template_1,
             data_stream_template_2,
         ])
-        transaction.commit()
+        #transaction.commit()
 
     def get_request(self, feed_id):
         request = testing.DummyRequest()
@@ -769,17 +821,17 @@ class TestFeedConfiguration(ApiTestMixin, unittest.TestCase):
 
     def test_invalid_ids(self):
         request = self.get_request(234234)
-        with transaction.manager:
-            self.assertRaises(
-                httpexceptions.HTTPNotFound,
-                views.feed_configuration,
-                request
-            )
+        #with transaction.manager:
+        self.assertRaises(
+            httpexceptions.HTTPNotFound,
+            views.feed_configuration,
+            request
+        )
 
     def test_normal_operation(self):
         request = self.get_request(1)
-        with transaction.manager:
-            response = views.feed_configuration(request)
+        #with transaction.manager:
+        response = views.feed_configuration(request)
         self.assertEqual(response.status_code, 200)
         self.assertDictEqual(response.json_body, {
             'feed': {
@@ -817,6 +869,7 @@ class TestFeedConfiguration(ApiTestMixin, unittest.TestCase):
             }
         })
 
+
 class TestActivate(ApiTestMixin, unittest.TestCase):
 
     def setUp(self):
@@ -853,7 +906,7 @@ class TestActivate(ApiTestMixin, unittest.TestCase):
             feed_template,
             feed,
         ])
-        transaction.commit()
+        #transaction.commit()
 
     def get_request(self, feed_id, activation_code, device_uuid):
         request = testing.DummyRequest()
@@ -868,12 +921,12 @@ class TestActivate(ApiTestMixin, unittest.TestCase):
 
     def test_invalid_ids(self):
         request = self.get_request(234234, 'somecode', 'some-uuid')
-        with transaction.manager:
-            self.assertRaises(
-                httpexceptions.HTTPNotFound,
-                views.activate,
-                request
-            )
+        #with transaction.manager:
+        self.assertRaises(
+            httpexceptions.HTTPNotFound,
+            views.activate,
+            request
+        )
 
     def test_invalid_code(self):
         request = self.get_request(
@@ -881,33 +934,33 @@ class TestActivate(ApiTestMixin, unittest.TestCase):
             self.activation_code + 'foobar',
             '2feefa53-8dc9-441e-8c81-b8aa7fb919fd'
         )
-        with transaction.manager:
-            self.assertRaises(
-                httpexceptions.HTTPForbidden,
-                views.activate,
-                request
-            )
+        #with transaction.manager:
+        self.assertRaises(
+            httpexceptions.HTTPForbidden,
+            views.activate,
+            request
+        )
 
     def test_expired_code(self):
-        with transaction.manager:
-            DBSession.query(Feed).filter(
-                Feed.id == 1
-            ).update({
-                'activation_code_regenerated': (
-                    pytz.utc.localize(datetime.datetime.utcnow() - datetime.timedelta(days=300))
-                )
-            })
+        #with transaction.manager:
+        DBSession.query(Feed).filter(
+            Feed.id == 1
+        ).update({
+            'activation_code_regenerated': (
+                pytz.utc.localize(datetime.datetime.utcnow() - datetime.timedelta(days=300))
+            )
+        })
         request = self.get_request(
             1,
             self.activation_code,
             '2feefa53-8dc9-441e-8c81-b8aa7fb919fd'
         )
-        with transaction.manager:
-            self.assertRaises(
-                httpexceptions.HTTPForbidden,
-                views.activate,
-                request
-            )
+        #with transaction.manager:
+        self.assertRaises(
+            httpexceptions.HTTPForbidden,
+            views.activate,
+            request
+        )
 
     def test_normal_operation(self):
         request = self.get_request(
@@ -915,8 +968,8 @@ class TestActivate(ApiTestMixin, unittest.TestCase):
             self.activation_code,
             '2feefa53-8dc9-441e-8c81-b8aa7fb919fd'
         )
-        with transaction.manager:
-            response = views.activate(request)
+        #with transaction.manager:
+        response = views.activate(request)
         self.assertEqual(response.status_code, 200)
         self.assertSequenceEqual(response.json_body.keys(), ['api_key'])
         self.assertNotEqual(response.json_body['api_key'], 'some-api-key')
