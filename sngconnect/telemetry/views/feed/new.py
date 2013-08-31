@@ -9,8 +9,10 @@ from pyramid.i18n import get_locale_name
 from pyramid.security import authenticated_userid
 
 from sngconnect.translation import _
-from sngconnect.database import DBSession, Feed, FeedUser, User, FeedTemplate
+from sngconnect.database import (DBSession, Feed, FeedUser, User,
+    FeedTemplate, DataStreamTemplate, DataStream)
 from sngconnect.telemetry import forms
+
 
 @view_config(
     route_name='sngconnect.telemetry.feeds.new',
@@ -46,6 +48,20 @@ def feeds_new(request):
             feed.regenerate_api_key()
             feed.regenerate_activation_code()
             DBSession.add(feed)
+            # need to save Feed within transaction to get it's key id
+            DBSession.flush([feed])
+            # create actual Datastreams for this Feed
+            data_stream_templates = DBSession.query(DataStreamTemplate).filter(
+                DataStreamTemplate.feed_template_id == feed.template_id
+            )
+            for data_stream_template in data_stream_templates:
+                DBSession.add(
+                    DataStream(
+                        template=data_stream_template,
+                        feed=feed
+                    )
+                )
+            # set up user permissions
             feed_user = FeedUser(
                 feed=feed,
                 role='OWNER_BASIC'
