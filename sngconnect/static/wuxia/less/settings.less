@@ -53,7 +53,7 @@
 @loginBackgroundImg:                                 "../img/assets/bg_login.png";
 
 // General styles
-@templateLogo:                                       "../img/sngconnect_logo_with_text_white_160x45.png";
+@templateLogo:                                       "../img/logo_sngconnect_white_160x45.png";
 @baseBorderRadius:                                   5px;
 
 
@@ -73,6 +73,7 @@
 @dashboardBackground:                                #fcfcfc;
 @dashboardBorder:                                    #e0e0e0;
 
+
 // Typography
 @sansFontFamily:                                     "Helvetica Neue", Helvetica, Arial, sans-serif;
 @serifFontFamily:                                    Georgia, "Times New Roman", Times, serif;
@@ -86,6 +87,20 @@
 @headingsFontFamily:                                 inherit;
 @headingsFontWeight:                                 bold;
 @headingsColor:                                      #525252; 
+
+
+// Component sizing
+@fontSizeLarge:                                      @baseFontSize * 1.25; // ~18px
+@fontSizeSmall:                                      @baseFontSize * 0.85; // ~12px
+@fontSizeMini:                                       @baseFontSize * 0.75; // ~11px
+
+@paddingLarge:                                       11px 19px; // 44px
+@paddingSmall:                                       2px 10px;  // 26px
+@paddingMini:                                        0px 6px;   // 22px
+
+@baseBorderRadius:                                   4px;
+@borderRadiusLarge:                                  6px;
+@borderRadiusSmall:                                  3px;
 
 
 // Links
@@ -125,9 +140,10 @@
 
 
 // Forms
+@inputHeight:                                        @baseLineHeight + 10px; 
 @inputBackground:                                    @white;
 @inputBorder:                                        #ccc;
-@inputBorderRadius:                                  3px;
+@inputBorderRadius:                                  @borderRadiusSmall;
 @inputDisabledBackground:                            @grayLighter;
 @formActionsBackground:                              #f5f5f5;
 @placeholderText:                                    @grayLight;
@@ -159,20 +175,23 @@
 
 @dropdownLinkColor:                                  @grayDark;
 @dropdownLinkColorHover:                             @white;
-@dropdownLinkBackgroundHover:                        @dropdownLinkBackgroundActive;
 @dropdownLinkColorActive:                            @dropdownLinkColor;
+
 @dropdownLinkBackgroundActive:                       @linkColor;
+@dropdownLinkBackgroundHover:                        @dropdownLinkBackgroundActive;
 
 
 // Icons paths
 @iconSpritePath:                                     '../img/icons/glyphicons-halflings.png';
 @iconWhiteSpritePath:                                '../img/icons/glyphicons-halflings-white.png';
 @iconFamFamFamPath:                                  '../img/icons/famfamfam-icons.png';
-@iconEmoticonPath:                                   '../img/icons/emoticons-icons.png';
+@elusiveWebfontPath:                                 '../css/font/';
 @fontAwesomePath:                                    '../css/font';
+@iconEmoticonPath:                                   '../img/icons/emoticons-icons.png';
 
 // Breadcrumbs
 @breadcrumbDivider:                                   "../img/assets/breadcrumbs_divider.png";
+
 
 // Z-index master list
 @zindexDropdown:                                     1000;
@@ -196,14 +215,14 @@
 
 
 // Accent colors
-@blue:                                               @templateBlue;
+@blue:                                               #049cdb;
 @blueDark:                                           #0064cd;
-@green:                                              @templateGreen;
-@red:                                                @templateRed;
+@green:                                              #46a546;
+@red:                                                #9d261d;
 @yellow:                                             #ffc40d;
-@orange:                                             @templateOrange;
+@orange:                                             #f89406;
 @pink:                                               #c3325f;
-@purple:                                             @templatePurple;
+@purple:                                             #7a43b6;
 
 
 // Componenets
@@ -250,6 +269,7 @@
 
 // Navbar
 @navbarCollapseWidth:                                979px;
+@navbarCollapseDesktopWidth:                         @navbarCollapseWidth + 1;
 
 @navbarHeight:                                       45px;
 @navbarBackground:                                   @templateColor;

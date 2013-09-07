@@ -3,6 +3,21 @@
 // --------------------------------------------------
 
 
+// Complementary colors
+@base:                 @templateColor;
+@complement1:          spin(@base, 180);
+@complement2:          darken(spin(@base, 180), 5%);
+@lighten1:             lighten(@base, 15%);
+@lighten2:             lighten(@base, 30%);
+
+// Subtle colors
+@base:                 @templateColor;
+@lighter1:             lighten(spin(@base, 5), 10%);
+@lighter2:             lighten(spin(@base, 10), 20%);
+@darker1:              darken(spin(@base, -5), 10%);
+@darker2:              darken(spin(@base, -10), 20%);
+
+
 // Replace text with image
 .image-replacer(@path, @repeat, @height, @width) {
 	display: block;
@@ -27,6 +42,7 @@
 	}
 }
 
+
 // Flat buttons
 .flatButtonBackground(@startColor, @typeColor) {
 	.reset-filter();
@@ -46,23 +62,6 @@
 	}
 }
 
-
-// Walking Pixels : Mixins
-
-// Complementary colors
-@base:                 @templateColor;
-@complement1:          spin(@base, 180);
-@complement2:          darken(spin(@base, 180), 5%);
-@lighten1:             lighten(@base, 15%);
-@lighten2:             lighten(@base, 30%);
-
-// Subtle colors
-@base:                 @templateColor;
-@lighter1:             lighten(spin(@base, 5), 10%);
-@lighter2:             lighten(spin(@base, 10), 20%);
-@darker1:              darken(spin(@base, -5), 10%);
-@darker2:              darken(spin(@base, -10), 20%);
-
 // Wuxia button style mixin
 .wuxiaButtonBackground(@startColor, @borderColor, @typeColor) {
 	.reset-filter();
@@ -81,7 +80,7 @@
 	}
 }
 
-// Flat uxia button style mixin
+// Flat wuxia button style mixin
 .wuxiaFlatButtonBackground(@startColor, @typeColor) {
 	.reset-filter();
 	background-image: none;

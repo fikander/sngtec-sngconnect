@@ -1,21 +1,85 @@
-[class^="awe-"],
-[class*=" awe-"] {
-	font-family: FontAwesome;
-	font-style: normal;
-	font-weight: normal;
-}
+/*!
+ *  Font Awesome 3.0.2
+ *  the iconic font designed for use with Twitter Bootstrap
+ *  -------------------------------------------------------
+ *  The full suite of pictographic icons, examples, and documentation
+ *  can be found at: http://fortawesome.github.com/Font-Awesome/
+ *
+ *  License
+ *  -------------------------------------------------------
+ *  - The Font Awesome font is licensed under the SIL Open Font License - http://scripts.sil.org/OFL
+ *  - Font Awesome CSS, LESS, and SASS files are licensed under the MIT License -
+ *    http://opensource.org/licenses/mit-license.html
+ *  - The Font Awesome pictograms are licensed under the CC BY 3.0 License - http://creativecommons.org/licenses/by/3.0/
+ *  - Attribution is no longer required in Font Awesome 3.0, but much appreciated:
+ *    "Font Awesome by Dave Gandy - http://fortawesome.github.com/Font-Awesome"
 
-.btn.dropdown-toggle [class^="awe-"], .btn.dropdown-toggle [class*=" awe-"] {
-/* keeps button heights with and without icons the same */
-	line-height: 1.4em;
-}
+ *  Contact
+ *  -------------------------------------------------------
+ *  Email: dave@davegandy.com
+ *  Twitter: http://twitter.com/fortaweso_me
+ *  Work: Lead Product Designer @ http://kyruus.com
+ */
 
 .awe-large {
-	font-size: 1.3333em;
+  font-size: 4/3em;
+  margin-top: -4px;
+  padding-top: 3px;
+  margin-bottom: -4px;
+  padding-bottom: 3px;
+  vertical-align: middle;
 }
 
+.nav {
+  [class^="awe-"],
+  [class*=" awe-"] {
+    vertical-align: inherit;
+    margin-top: -4px;
+    padding-top: 3px;
+    margin-bottom: -4px;
+    padding-bottom: 3px;
+    &.awe-large {
+      vertical-align: -25%;
+    }
+  }
+}
+
+.nav-pills, .nav-tabs {
+  [class^="awe-"],
+  [class*=" awe-"] {
+    &.awe-large {
+      line-height: .75em;
+      margin-top: -7px;
+      padding-top: 5px;
+      margin-bottom: -5px;
+      padding-bottom: 4px;
+    }
+  }
+}
+
+.btn {
+  [class^="awe-"],
+  [class*=" awe-"] {
+    &.pull-left, &.pull-right { vertical-align: inherit; }
+    &.awe-large {
+      margin-top: -.5em;
+    }
+  }
+}
+
+a [class^="awe-"],
+a [class*=" awe-"] {
+  cursor: pointer;
+}
+
+ul.icons {
+  text-indent: -1.5em;
+  margin-left: 3em;
+}
+
+
 .ie7icon(@inner) {
-	*zoom: ~"expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '@{inner}&nbsp;')";
+  *zoom: ~"expression( this.runtimeStyle['zoom'] = '1', this.innerHTML = '@{inner}')";
 }
 
 .awe-glass                { .ie7icon('&#xf000;'); }
@@ -241,5 +305,46 @@
 .awe-sitemap              { .ie7icon('&#xf0e8;'); }
 .awe-umbrella             { .ie7icon('&#xf0e9;'); }
 .awe-paste                { .ie7icon('&#xf0ea;'); }
+.awe-lightbulb            { .ie7icon('&#xf0eb;'); }
+.awe-exchange             { .ie7icon('&#xf0ec;'); }
+.awe-cloud-download       { .ie7icon('&#xf0ed;'); }
+.awe-cloud-upload         { .ie7icon('&#xf0ee;'); }
 
-.awe-user-md              { .ie7icon('&#xf200;'); }
+.awe-user-md              { .ie7icon('&#xf0f0;'); }
+.awe-stethoscope          { .ie7icon('&#xf0f1;'); }
+.awe-suitcase             { .ie7icon('&#xf0f2;'); }
+.awe-bell-alt             { .ie7icon('&#xf0f3;'); }
+.awe-coffee               { .ie7icon('&#xf0f4;'); }
+.awe-food                 { .ie7icon('&#xf0f5;'); }
+.awe-file-alt             { .ie7icon('&#xf0f6;'); }
+.awe-building             { .ie7icon('&#xf0f7;'); }
+.awe-hospital             { .ie7icon('&#xf0f8;'); }
+.awe-ambulance            { .ie7icon('&#xf0f9;'); }
+.awe-medkit               { .ie7icon('&#xf0fa;'); }
+.awe-fighter-jet          { .ie7icon('&#xf0fb;'); }
+.awe-beer                 { .ie7icon('&#xf0fc;'); }
+.awe-h-sign               { .ie7icon('&#xf0fd;'); }
+.awe-plus-sign-alt        { .ie7icon('&#xf0fe;'); }
+
+.awe-double-angle-left    { .ie7icon('&#xf100;'); }
+.awe-double-angle-right   { .ie7icon('&#xf101;'); }
+.awe-double-angle-up      { .ie7icon('&#xf102;'); }
+.awe-double-angle-down    { .ie7icon('&#xf103;'); }
+.awe-angle-left           { .ie7icon('&#xf104;'); }
+.awe-angle-right          { .ie7icon('&#xf105;'); }
+.awe-angle-up             { .ie7icon('&#xf106;'); }
+.awe-angle-down           { .ie7icon('&#xf107;'); }
+.awe-desktop              { .ie7icon('&#xf108;'); }
+.awe-laptop               { .ie7icon('&#xf109;'); }
+.awe-tablet               { .ie7icon('&#xf10a;'); }
+.awe-mobile-phone         { .ie7icon('&#xf10b;'); }
+.awe-circle-blank         { .ie7icon('&#xf10c;'); }
+.awe-quote-left           { .ie7icon('&#xf10d;'); }
+.awe-quote-right          { .ie7icon('&#xf10e;'); }
+
+.awe-spinner              { .ie7icon('&#xf110;'); }
+.awe-circle               { .ie7icon('&#xf111;'); }
+.awe-reply                { .ie7icon('&#xf112;'); }
+.awe-github-alt           { .ie7icon('&#xf113;'); }
+.awe-folder-close-alt     { .ie7icon('&#xf114;'); }
+.awe-folder-open-alt      { .ie7icon('&#xf115;'); }

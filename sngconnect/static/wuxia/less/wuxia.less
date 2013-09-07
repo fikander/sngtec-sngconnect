@@ -13,6 +13,9 @@ p {
 a:hover {
 	.transition(all 0.3s ease);
 }
+.dropdown-menu a:hover {
+	.transition(none);
+}
 code {
 	border-style: dashed;
 	color: @templateRed;
@@ -42,29 +45,35 @@ abbr[title] {
 	}
 	.nav-collapse {
 		margin-left: 80px;
-		&.user {
+		.user {
 			float: right;
 			margin-left: 20px;
 		}
-		&.navigation {
+		.navigation {
 			float: left;
 			margin-left: 10px;
 			.caret {
 				float: right;
-				margin: 9px 4px 0 8px;
+				margin: 0;
+				position: relative;
+				top: -14px;
+				right: -17px;
 				border-width: 5px;
 				border-top-color: @navbarLinkColor;
 			}
 			.dropdown-menu {
 				left: auto;
-				right: -2px !important;
-				margin: -2px 0 0;
+				right: -6px !important;
+				margin: -3px 0 0;
 			}
 		}
-		&.in {
+		.in {
 			margin: 0;
 			float: none;
 		}
+	}
+	.nav > li.dropdown > a {
+		padding-right: 26px;
 	}
 	.nav > li > a {
 		@elementHeight: 21px;
@@ -83,11 +92,11 @@ abbr[title] {
 		li.active > a:after {
 			border-color: @bodyBackground transparent;
 			border-style: solid;
-			border-width: 0 7px 7px 7px;
+			border-width: 0 8px 8px 8px;
 			content: " ";
 			top: 40px;
 			left: 50%;
-			margin-left: -7px;
+			margin-left: -8px;
 			height: 0px;
 			width: 0px;
 			position: absolute;
@@ -104,7 +113,7 @@ abbr[title] {
 			background-color: darken(@navbarBackground, 8%);
 			border: none; border-right: 1px solid darken(@navbarBackground, 10%);
 		}
-	}
+	}		
 	&.navbar-hidden {
 		cursor: pointer;
 	}
@@ -220,27 +229,16 @@ abbr[title] {
 			border-width: 0 6px 8px;
 			border-bottom-color: @white;
 			top: -8px;
-			right: 17px;
+			right: 14px;
 		}
 	}
 }
-
 .nav-collapse.in {
-	.user-info .btn-group {
+	height: auto !important;
+	.navigation,
+	.user {
+		margin: 0;
 		float: none;
-	}
-	.user-info .dropdown-menu {
-		float: none;
-		clear: both;
-		li + li {
-			border-top: 1px solid @templateColor;
-		}
-		li:last-child a {
-			padding-bottom: 3px;
-		}
-		a {
-			padding: 13px 0;
-		}
 	}
 }
 .ie8 .navbar .user-info {
@@ -348,6 +346,7 @@ abbr[title] {
 }
 
 /* Main footer */
+footer.container-fluid,
 footer.container {
 	color: @grayLight;
 	margin: @baseMargin auto;
@@ -405,7 +404,7 @@ footer.container {
 		[class*="span"] {
 			margin-bottom: @baseMargin;
 		}
-		[class*="span"] *:last-child {
+		[class*="span"] [class*="span"] {
 			margin-bottom: 0;
 		}
 		.row,
@@ -510,6 +509,10 @@ footer.container {
 	.nav-secondary {
 		margin-top: 10px;
 	}
+}
+.no-boxshadow .hero-unit.blow{
+	background-color: @contentBackground;
+	border: 1px solid @contentBorder;
 }
 
 /* Tables */
@@ -647,7 +650,7 @@ footer.container {
 		.box-shadow(~"0 1px 0 rgba(255, 255, 255, 0.3) inset, 0 -3px 0 rgba(0, 0, 0, 0.2) inset, 0 0 10px rgba(255, 255, 255, 0.3) inset");
 		.opacity(65);
 	}
-	a {
+	li > a {
 		padding: 4px 14px 7px;
 		border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
 		font-weight: bold;
@@ -666,6 +669,15 @@ footer.container {
 			.box-shadow(~"0 1px 0 rgba(255, 255, 255, 0.3) inset, 0 -3px 0 rgba(0, 0, 0, 0.2) inset, 0 0 10px rgba(255, 255, 255, 0.3) inset");
 			.opacity(65);
 		}
+	}
+}
+
+/* Alerts */
+.alert {
+	h4 {
+		color: @warningText;
+		font-size: @baseFontSize;
+		margin: 0;
 	}
 }
 
@@ -851,11 +863,9 @@ label {
 		font-weight: normal;
 	}
 }
-/*
 .input-append input {
 	width: 165px;
 }
-*/
 
 /* Alerts in form */
 form .alert {
@@ -868,6 +878,85 @@ form .alert {
 		right: -5px;
 		top: -10px;
 	}
+}
+
+/* Bootstrap File & Image input */
+.btn-file {
+	position: relative;
+	overflow: hidden;
+	vertical-align: middle;
+	& > input {
+		position: absolute;
+		top: 0;
+		right: 0;
+		margin: 0;
+		cursor: pointer;
+		border: solid transparent;
+		border-width: 0 0 100px 200px;
+		.opacity(0);
+		direction: ltr;
+	}
+}
+.fileupload {
+	padding-left: 0;
+	margin-bottom: 9px;
+	h4 { 
+		margin: 0 0 @baseMargin / 2;
+	}
+	.thumbnail {
+		display: inline-block;
+		margin-bottom: 5px;
+		overflow: hidden;
+		text-align: center;
+		vertical-align: middle;
+		background-color: @white;
+		& > img {
+			display: block;
+			max-height: 100%;
+			vertical-align: middle;
+		}
+		&.fileupload-small {
+			.square(50px);
+			&.flexible {
+				.size(auto,auto);
+				max-width: 75px;
+				max-height: 75px;
+			}
+		}
+		&.fileupload-large {
+			.size(150px, 250px);
+			&.flexible {
+				.size(auto,auto);
+				max-width: 350px;
+				max-height: 250px;
+			}
+		}
+	}
+	.raw.thumbnail {
+		padding: 0;
+		border: none;
+		.border-radius(0);
+		.box-shadow(none);
+	}
+	.btn {
+		vertical-align: middle;
+	}
+	.uneditable-input {
+		display: inline-block;
+		margin-bottom: 0;
+		vertical-align: middle;
+		cursor: text;
+	}
+}
+.fileupload-exists .fileupload-new,
+.fileupload-new .fileupload-exists {
+	display: none;
+}
+.fileupload-new .input-append .btn-file {
+	.border-radius(0 @baseBorderRadius @baseBorderRadius 0);
+}
+.fileupload-exists .input-append .btn-file {
+	.border-radius(0);
 }
 
 /* Gallery */
@@ -1008,7 +1097,113 @@ form .alert {
 	&.purple {
 		background-image: url("@{templatePurpleLoading}");
 	}
+	
+}
 
+/* Wizard */
+.wizard {
+	overflow: visible;
+	.stepContainer {
+		display: block;
+		position: relative;
+		overflow: hidden;
+		height: 100%;
+		& > div.content {
+			margin: 0;
+			padding: @baseMargin;
+			display: block;
+			position: absolute;
+			text-align: left;
+			overflow: visible;
+			z-index: 88;
+		}
+		// Wizard content header
+		.StepTitle {
+			display: block;
+			z-index: 88;
+			.clearfix();
+		}
+	}
+	// Wizard navigation 
+	ul.anchor {
+		margin: 0 0 @baseMargin / 2;
+		text-align: center;
+		background-color: #f2f2f2;
+		border: 1px solid #d9d9d9;
+		.box-shadow(0 0 0 1px rgba(255, 255, 255, 0.1) inset);
+		.border-radius(@baseBorderRadius);
+		li {
+			margin-left: @baseMargin;
+			display: inline-block;
+			&:first-child {
+				margin: 0;
+			}
+			a {
+				display: block;
+				font-size: @baseFontSize + 2;
+				line-height: @baseLineHeight * 2;
+				text-decoration: none;
+				outline-style: none;
+				.clearfix();
+				z-index: 99;
+				&.selected {
+					color: @templateColor;
+					cursor: text;
+				}
+				&.done {
+					color: @templateColor;
+					text-decoration: line-through;
+					.stepDesc {
+						color: @templateColor;
+					}
+				}
+				&.disabled {
+					color: @textColor;
+					cursor: text;
+				}
+			}
+		}
+	}
+	// Pagination 
+	& > div.actionBar {
+		margin-top:@baseMargin / 3;
+		display: block;
+		text-align: left;
+		overflow: auto;
+		z-index: 88; 
+		.clearfix();
+	}
+	.buttonDisabled {
+		.btn.disabled;
+		cursor: text !important;
+	}
+	.buttonNext,
+	.buttonPrevious,
+	.buttonFinish {
+		display: block;
+		text-decoration: none;
+		.btn-wuxia;
+		.wuxiaButtonBackground(@btnPrimaryBackground, @btnPrimaryBackground, @white);
+		.border-radius(@baseBorderRadius);
+	}
+	.buttonNext {
+		float: right;
+		margin-right: 5px;
+	}
+	.buttonPrevious {
+		float: left;
+	}
+	.buttonFinish {
+		float: right;
+	}
+}
+.wizard .loader {
+	position: relative;
+	display: none;
+	float: left;
+	margin: 2px 0 0 2px;
+	padding: 8px 10px 8px 40px;
+	z-index: 998;
 }
 
 /* Plugins */
@@ -1235,6 +1430,9 @@ form .alert {
 }
 .content .page-container [class*="span"] .visualize {
 	margin: @baseMargin 0 @baseMargin auto;
+	&.visualize-pie {
+		margin-left: @baseMargin;
+	}
 }
 .ie8 .visualize-interaction-tracker {
 	margin-top:0 !important;
@@ -1629,6 +1827,7 @@ div.jGrowl div {
 		.border-radius(4px);
 	}
 	td {
+		color: darken(@grayLight, 30%);
 		&.day:hover {
 			background: @grayLighter;
 			cursor: pointer;
@@ -1740,7 +1939,8 @@ div.jGrowl div {
 			}
 		}
 		.pass-reset {
-			margin: -@baseMargin / 2 0 @baseMargin / 2 @baseMargin;
+			margin: -@baseMargin / 2 @baseMargin @baseMargin;
+			text-align: right;
 		}
 	}
 }
@@ -1820,7 +2020,7 @@ div.jGrowl div {
 /* Responsive styles */
 /* Up to landscape phone */
 @media (max-width: 480px) {
-
+	
 }
 
 /* Landscape phone to small desktop and portrait tablet */
@@ -1878,7 +2078,7 @@ div.jGrowl div {
 				margin: 0 !important;
 				&:after {
 					border: none;
-
+					
 				}
 				a:hover {
 					background: none;
@@ -1997,7 +2197,7 @@ div.jGrowl div {
 				margin: 0 !important;
 				&:after {
 					border: none;
-
+					
 				}
 				a:hover {
 					background: none;
